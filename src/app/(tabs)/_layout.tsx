@@ -3,6 +3,7 @@ import Loading from "@/components/loading/loading";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useUser } from "@/contexts/UserContext";
+import { Ionicons } from "@expo/vector-icons";
 import { Redirect, Tabs, usePathname } from "expo-router";
 import {
   Pressable,
@@ -17,26 +18,31 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import {
-  Bag2,
-  Box2,
-  Receipt2,
-  Settings2,
-  Widget6,
-} from "reicon-react-native";
+import { Home, Settings2 } from "reicon-react-native";
 
 // ─── Tab definitions (single source of truth) ────────────────────────────────
 const TABS = [
   {
     name: "index",
-    label: "DashBoard",
+    label: "Home",
     icon: (color: string, size: number) => (
-      <Widget6 size={size} weight="Filled" color={color} />
+      <Home size={size} weight="Filled" color={color} />
     ),
     iconOutline: (color: string, size: number) => (
-      <Widget6 size={size} color={color} />
+      <Home size={size} color={color} />
     ),
     href: "/(tabs)/",
+  },
+  {
+    name: "attendance",
+    label: "Attendance",
+    icon: (color: string, size: number) => (
+      <Ionicons name="calendar" size={size} color={color} />
+    ),
+    iconOutline: (color: string, size: number) => (
+      <Ionicons name="calendar-outline" size={size} color={color} />
+    ),
+    href: "/(tabs)/attendance",
   },
   {
     name: "setting",

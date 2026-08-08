@@ -62,7 +62,7 @@ export default function About() {
             <View style={styles.conLogo}>
               <Image source={AppImages.logoSSH} style={styles.logo} />
               <Text style={{ color: AppColors.secondary }}>|</Text>
-              <Image source={AppImages.logoPOS} style={styles.logoTxt} />
+              <Image source={AppImages.logoStaffW} style={styles.logo} />
             </View>
 
             {/* Description Card */}
@@ -217,15 +217,7 @@ const styles = StyleSheet.create({
     // padding: 10,
     // backgroundColor: AppColors.background2,
     borderRadius: 10,
-    borderColor: `${AppColors.primary}`,
-    borderWidth: 1.5,
-  },
-  logoTxt: {
-    width: 70,
-    height: 70,
-    resizeMode: "contain",
-    borderRadius: 10,
-    borderColor: `${AppColors.textPrimary}15`,
+    borderColor: AppColors.secondary,
     borderWidth: 1.5,
   },
   card: {

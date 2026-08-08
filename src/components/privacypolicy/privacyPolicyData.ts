@@ -9,27 +9,27 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
   en: [
     {
       title: "1. Developer & Introduction",
-      body: "The SSH Group POS Super App (package: com.sshgroups.pos.mobileapp) is developed by BROSSPICH and operated by SSH Group Co., Ltd. This Privacy Policy explains how we collect, store, process, and safeguard the information you provide when using our Point of Sale (POS) mobile application.",
+      body: "The SSH Group Staff App (package: com.sshgroups.staffapp) is developed by BROSSPICH and operated by SSH Group Co., Ltd. This Privacy Policy explains how we collect, store, process, and safeguard the information you provide when using our Staff management mobile application.",
     },
     {
       title: "2. Information We Collect",
-      body: "To provide a fully functional POS experience, we collect:\n• Account Information: Merchant credentials, shop names, branch details, email addresses, and phone numbers.\n• Transaction & Sales Data: Recorded sales, product details, stock inventory levels, pricing, currency exchange preferences, transaction amounts, timestamps, and receipt records.\n• Device & Hardware Data: Device identifiers, operating system version, and Bluetooth/Network printer pairing records.\n• Location Information: Scanning for nearby Bluetooth receipt printers requires location permissions (coarse/fine location). We only use this permission to discover and connect to local printers and do not track your geographic location.\n• Media & Storage: Access to local storage is required to save generated receipts, print templates, and export weekly/monthly/annual sales reports in PDF or image formats.\n• Audio Data: Microphone access (if enabled) is used exclusively for speech-to-text searching or voice memos related to inventory/notes, and no audio is recorded or uploaded without user interaction.",
+      body: "To provide a fully functional Staff management experience, we collect:\n• Account Information: User credentials, full name, username, position, role, email address, and phone number.\n• Device & Session Data: Device identifiers, operating system version, active device session logs, and authentication tokens.\n• Location Information: scanning nearby devices or local services requires coarse/fine location permissions where applicable. We only use this permission to discover and connect to local services and do not track your geographic location.\n• Media & Storage: Access to local storage is required to save local app data, exports, and document downloads.\n• Audio Data: Microphone access (if enabled) is used exclusively for speech-to-text searching or voice notes, and no audio is recorded or uploaded without user interaction.",
     },
     {
       title: "3. How We Use Your Information",
-      body: "We process your information solely to:\n• Authenticate user logins and verify software activation/subscriptions.\n• Manage catalog categories, update inventory levels, and process checkout calculations.\n• Connect to and communicate with thermal receipt printers (Bluetooth, USB, and Network).\n• Generate, display, and export sales performance reports.\n• Synchronize data securely with our cloud database.\n• Maintain application stability, monitor performance, and enhance security.\n\nWe do not sell, rent, or share your transaction or business data with third-party marketers.",
+      body: "We process your information solely to:\n• Authenticate user logins, manage staff roles, and verify account active status.\n• Display staff account information, position details, and user permissions.\n• Synchronize account data securely with our cloud database.\n• Maintain application stability, monitor performance, and enhance security.\n\nWe do not sell, rent, or share your personal or account data with third-party marketers.",
     },
     {
       title: "4. Data Storage, Security & Cloud Provider",
-      body: "• Cloud Hosting: The app uses Supabase (a secure cloud backend provider) to sync and back up merchant database tables.\n• Row-Level Security (RLS): We enforce strict Row-Level Security policies on Supabase. This ensures that only authorized administrators and staff from your specific shop system ID can access your sales, stock, and business data.\n• Encryption: Data transmitted between the app and Supabase is encrypted using secure HTTPS/SSL layers. Data is also secured through encryption at rest on cloud servers.\n• Device Security: Access credentials and secure keys are kept locally on your mobile device utilizing Expo SecureStore.",
+      body: "• Cloud Hosting: The app uses Supabase (a secure cloud backend provider) to sync and back up staff database tables.\n• Row-Level Security (RLS): We enforce strict Row-Level Security policies on Supabase. This ensures that only authorized users and staff from your organization can access internal system data.\n• Encryption: Data transmitted between the app and Supabase is encrypted using secure HTTPS/SSL layers. Data is also secured through encryption at rest on cloud servers.\n• Device Security: Access credentials and secure keys are kept locally on your mobile device utilizing Expo SecureStore.",
     },
     {
       title: "5. Your Rights & Account Deletion",
-      body: "You maintain full control over your business data:\n• Access & Rectification: You can review and update account profiles, inventory lists, and catalog details in the app.\n• Data Export: You can generate and download sales reports at any time.\n• Account Deletion: You have the right to request deletion of your account and associated merchant data. To request account deletion, please email support@sshgroups.com. Upon verification, your administrative user record and dependent store tables will be permanently deleted from the database.",
+      body: "You maintain control over your account data:\n• Access & Rectification: You can review and update account profile details in the app.\n• Account Deletion: You have the right to request deletion of your account and associated staff data. To request account deletion, please email support@sshgroups.com. Upon verification, your user record will be permanently deleted from the database.",
     },
     {
       title: "6. Third-Party Integrations",
-      body: "The app integrates with Supabase for cloud backend storage. Local physical printers (such as Bluetooth BLE thermal printers, network printers, or USB host controllers) process print requests locally inside your premises. We do not share data with third-party advertising networks.",
+      body: "The app integrates with Supabase for cloud backend storage. We do not share data with third-party advertising networks.",
     },
     {
       title: "7. Policy Updates",
@@ -43,27 +43,27 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
   zh: [
     {
       title: "1. 开发者与引言",
-      body: "SSH Group POS 超级应用程序（包名：com.sshgroups.pos.mobileapp）由 BROSSPICH 开发，并由 SSH Group Co., Ltd. 本隐私政策解释了您在使用我们的销售终端（POS）移动应用程序时，我们如何收集、存储、处理和保护您提供的信息。",
+      body: "SSH Group Staff 应用程序（包名：com.sshgroups.staffapp）由 BROSSPICH 开发，并由 SSH Group Co., Ltd. 运营。本隐私政策解释了您在使用我们的员工管理移动应用程序时，我们如何收集、存储、处理和保护您提供的信息。",
     },
     {
       title: "2. 我们收集的信息",
-      body: "为了提供功能齐全的 POS 体验，我们收集：\n• 账户信息：商户凭据、店铺名称、分店详情、电子邮件地址和电话号码。\n• 交易与销售数据：记录的销售、产品详情、库存水平、定价、货币兑换偏好、交易金额、时间戳和收据记录。\n• 设备与硬件数据：设备标识符、设备操作系统版本以及蓝牙/网络打印机配对记录。\n• 位置信息：扫描附近的蓝牙收据打印机需要位置权限（粗略/精确位置）。我们仅使用此权限建立与本地打印机的连接，不会跟踪或存储您的地理位置。\n• 媒体与存储：保存生成的收据、打印模板以及以 PDF 或图像格式导出每周/每月/每年的销售报告需要访问本地存储。\n• 音频数据：麦克风访问（如果启用）仅用于语音转文本搜索或与库存/备注相关的语音备忘录等功能，未经用户交互不会录制或上传任何音频。",
+      body: "为了提供功能齐全的员工管理体验，我们收集：\n• 账户信息：用户凭据、姓名、用户名、职位、角色、电子邮件地址和电话号码。\n• 设备与会话数据：设备标识符、操作系统版本、活动设备会话日志和身份验证令牌。\n• 位置信息：扫描附近的设备或本地服务需要位置权限（粗略/精确位置）。我们仅使用此权限建立本地连接，不会跟踪或存储您的地理位置。\n• 媒体与存储：保存本地应用数据、导出和文档下载需要访问本地存储。\n• 音频数据：麦克风访问（如果启用）仅用于语音转文本搜索或语音备忘录等功能，未经用户交互不会录制或上传任何音频。",
     },
     {
       title: "3. 信息使用方式",
-      body: "我们处理您的信息仅用于：\n• 验证用户登录并确认软件激活/订阅状态。\n• 管理类别目录、更新库存水平并处理结账计算。\n• 连接热敏收据打印机（蓝牙、USB 和网络）并与之通信。\n• 生成、显示和导出销售业绩报告。\n• 与我们的云数据库安全同步数据。\n• 维护应用程序稳定性、监控性能并增强安全性。\n\n我们不会向第三方营销人员出售、出租或共享您的交易或业务数据。",
+      body: "我们处理您的信息仅用于：\n• 验证用户登录、管理员工角色并确认账户激活状态。\n• 显示员工账户信息、职位详情和用户权限。\n• 与我们的云数据库安全同步数据。\n• 维护应用程序稳定性、监控性能并增强安全性。\n\n我们不会向第三方营销人员出售、出租或共享您的个人或账户数据。",
     },
     {
       title: "4. 数据存储、安全与云服务商",
-      body: "• 云托管：应用程序使用 Supabase（一个安全的云后端提供商）来同步和备份商户数据库表。\n• 行级安全（RLS）：我们在 Supabase 上实施严格的行级安全策略。这确保了只有来自您特定店铺系统 ID 的授权管理员和员工才能访问您的销售、库存和业务数据。\n• 加密：应用程序与 Supabase 之间传输的数据使用安全的 HTTPS/SSL 层进行加密。云服务器上的静态数据也通过加密进行保护。\n• 设备安全：访问凭据和安全密钥保存在您本地的移动设备中（利用 Expo SecureStore）。",
+      body: "• 云托管：应用程序使用 Supabase（一个安全的云后端提供商）来同步和备份员工数据库表。\n• 行级安全（RLS）：我们在 Supabase 上实施严格的行级安全策略。这确保了只有来自您组织的授权用户和员工才能访问内部系统数据。\n• 加密：应用程序与 Supabase 之间传输的数据使用安全的 HTTPS/SSL 层进行加密。云服务器上的静态数据也通过加密进行保护。\n• 设备安全：访问凭据和安全密钥保存在您本地的移动设备中（利用 Expo SecureStore）。",
     },
     {
       title: "5. 您的权利与账户删除",
-      body: "您保留对业务数据的完全控制权：\n• 访问与更正：您可以在应用中查看并更新账户信息、库存列表和目录详情。\n• 数据导出：您可以随时生成并下载销售报告。\n• 账户删除：您有权申请删除您的账户及相关商户数据。如需申请删除账户，请发送电子邮件至 support@sshgroups.com。经验证后，您的管理用户记录和相关店铺数据表将从数据库中永久删除。",
+      body: "您保留对账户数据的控制权：\n• 访问与更正：您可以在应用中查看并更新账户资料详情。\n• 账户删除：您有权申请删除您的账户及相关员工数据。如需申请删除账户，请发送电子邮件至 support@sshgroups.com。经验证后，您的用户记录将从数据库中永久删除。",
     },
     {
       title: "6. 第三方集成",
-      body: "应用程序集成了 Supabase 用于云后端存储。本地物理打印机（如蓝牙 BLE 热敏打印机、网络打印机或 USB 主机控制器）在您的场所内本地处理打印请求。我们不会与第三方广告网络共享数据。",
+      body: "应用程序集成了 Supabase 用于云后端存储。我们不会与第三方广告网络共享数据。",
     },
     {
       title: "7. 政策更新",
@@ -77,31 +77,31 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
   km: [
     {
       title: "1. អ្នកអភិវឌ្ឍន៍ និងការណែនាំ",
-      body: "កម្មវិធី SSH Group POS Super App (កញ្ចប់កម្មវិធី៖ com.sshgroups.pos.mobileapp) ត្រូវបានអភិវឌ្ឍដោយ BROSSPICH និងដំណើរការដោយក្រុមហ៊ុន SSH Group Co., Ltd ។ គោលការណ៍ឯកជនភាពនេះ ពន្យល់ពីរបៀបដែលយើងប្រមូល រក្សាទុក ដំណើរការ និងការពារព័ត៌មានដែលអ្នកផ្តល់ឱ្យនៅពេលប្រើប្រាស់កម្មវិធីទូរស័ព្ទលក់ទំនិញ (POS) របស់យើង។",
+      body: "កម្មវិធី SSH Group Staff App (កញ្ចប់កម្មវិធី៖ com.sshgroups.staffapp) ត្រូវបានអភិវឌ្ឍដោយ BROSSPICH និងដំណើរការដោយក្រុមហ៊ុន SSH Group Co., Ltd ។ គោលការណ៍ឯកជនភាពនេះ ពន្យល់ពីរបៀបដែលយើងប្រមូល រក្សាទុក ដំណើរការ និងការពារព័ត៌មានដែលអ្នកផ្តល់ឱ្យនៅពេលប្រើប្រាស់កម្មវិធីទូរស័ព្ទគ្រប់គ្រងបុគ្គលិករបស់យើង។",
     },
     {
       title: "2. ព័ត៌មានដែលយើងប្រមូល",
-      body: "ដើម្បីផ្តល់នូវបទពិសោធន៍លក់ទំនិញ (POS) ដែលមានដំណើរការពេញលេញ យើងប្រមូល៖\n• ព័ត៌មានគណនី៖ ព័ត៌មានសម្ងាត់អាជីវករ ឈ្មោះហាង ព័ត៌មានលម្អិតអំពីសាខា អាសយដ្ឋានអ៊ីមែល និងលេខទូរស័ព្ទ។\n• ទិន្នន័យប្រតិបត្តិការ និងការលក់៖ ការលក់ដែលបានកត់ត្រា ព័ត៌មានលម្អិតអំពីផលិតផល កម្រិតសារពើភ័ណ្ឌស្តុក តម្លៃ ចំណូលចិត្តការប្តូរប្រាក់ ចំនួនទឹកប្រាក់ប្រតិបត្តិការ ត្រាកាលបរិច្ឆេទ និងកំណត់ត្រាវិក្កយបត្រ។\n• ទិន្នន័យឧបករណ៍ និងផ្នែករឹង៖ លេខសម្គាល់ឧបករណ៍ កំណែប្រព័ន្ធប្រតិបត្តិការ និងកំណត់ត្រាផ្គូផ្គងម៉ាស៊ីនបោះពុម្ពប៊្លូធូស/បណ្តាញ។\n• ព័ត៌មានទីតាំង៖ ការស្កែនរកម៉ាស៊ីនបោះពុម្ពវិក្កយបត្រប៊្លូធូសនៅក្បែរនោះ តម្រូវឱ្យមានការអនុញ្ញាតទីតាំង (ទីតាំងលម្អិត/ទូទៅ)។ យើងប្រើការអនុញ្ញាតនេះដើម្បីស្វែងរក និងភ្ជាប់ជាមួយម៉ាស៊ីនបោះពុម្ពក្នុងតំបន់តែប៉ុណ្ណោះ ហើយមិនតាមដានទីតាំងភូមិសាស្ត្ររបស់អ្នកឡើយ។\n• ប្រព័ន្ធផ្សព្វផ្សាយ និងការរក្សាទុក៖ ការចូលប្រើការរក្សាទុកក្នុងឧបករណ៍គឺតម្រូវឱ្យរក្សាទុកវិក្កយបត្រដែលបានបង្កើត គំរូនៃការបោះពុម្ព និងការនាំចេញរបាយការណ៍លក់ប្រចាំសប្តាហ៍/ប្រចាំខែ/ប្រចាំឆ្នាំជាទម្រង់ PDF ឬរូបភាព។\n• ទិន្នន័យសំឡេង៖ ការចូលប្រើមីក្រូហ្វូន (ប្រសិនបើបើក) ត្រូវបានប្រើប្រាស់ទាំងស្រុងសម្រាប់មុខងារស្វែងរកដោយសំឡេង ឬកំណត់ត្រាសំឡេងទាក់ទងនឹងសារពើភ័ណ្ឌ/កំណត់ចំណាំ ហើយគ្មានសំឡេងណាមួយត្រូវបានថត ឬបង្ហោះឡើងដោយគ្មានអន្តរកម្មរបស់អ្នកប្រើប្រាស់នោះទេ។",
+      body: "ដើម្បីផ្តល់នូវបទពិសោធន៍គ្រប់គ្រងបុគ្គលិកដែលមានដំណើរការពេញលេញ យើងប្រមូល៖\n• ព័ត៌មានគណនី៖ ព័ត៌មានសម្ងាត់អ្នកប្រើប្រាស់ ឈ្មោះពេញ ឈ្មោះអ្នកប្រើប្រាស់ តួនាទី អាសយដ្ឋានអ៊ីមែល និងលេខទូរស័ព្ទ។\n• ទិន្នន័យឧបករណ៍ និងសម័យប្រជុំ៖ លេខសម្គាល់ឧបករណ៍ កំណែប្រព័ន្ធប្រតិបត្តិការ និងកំណត់ត្រាឧបករណ៍។\n• ព័ត៌មានទីតាំង៖ ការស្កែនរកឧបករណ៍ ឬសេវាកម្មក្នុងតំបន់នៅក្បែរនោះ តម្រូវឱ្យមានការអនុញ្ញាតទីតាំង។ យើងប្រើការអនុញ្ញាតនេះដើម្បីស្វែងរក និងភ្ជាប់តែប៉ុណ្ណោះ ហើយមិនតាមដានទីតាំងភូមិសាស្ត្ររបស់អ្នកឡើយ។\n• ប្រព័ន្ធផ្សព្វផ្សាយ និងការរក្សាទុក៖ ការចូលប្រើការរក្សាទុកក្នុងឧបករណ៍គឺតម្រូវឱ្យរក្សាទុកទិន្នន័យ និងឯកសារ។\n• ទិន្នន័យសំឡេង៖ ការចូលប្រើមីក្រូហ្វូន (ប្រសិនបើបើក) ត្រូវបានប្រើប្រាស់ទាំងស្រុងសម្រាប់មុខងារស្វែងរកដោយសំឡេង ហើយគ្មានសំឡេងណាមួយត្រូវបានថត ឬបង្ហោះឡើងដោយគ្មានអន្តរកម្មរបស់អ្នកប្រើប្រាស់នោះទេ។",
     },
     {
       title: "3. របៀបដែលយើងប្រើប្រាស់ព័ត៌មានរបស់អ្នក",
-      body: "យើងដំណើរការព័ត៌មានរបស់អ្នកសម្រាប់តែ៖\n• ផ្ទៀងផ្ទាត់ការចូលរបស់អ្នកប្រើប្រាស់ និងផ្ទៀងផ្ទាត់ការសកម្ម/ការជាវកម្មវិធី។\n• គ្រប់គ្រងប្រភេទផលិតផល ធ្វើបច្ចុប្បន្នភាពកម្រិតសារពើភ័ណ្ឌ និងដំណើរការគណនាការទូទាត់ប្រាក់។\n• ភ្ជាប់ និងទំនាក់ទំនងជាមួយម៉ាស៊ីនបោះពុម្ពវិក្កយបត្រកម្តៅ (ប៊្លូធូស, USB និងបណ្តាញ)។\n• បង្កើត បង្ហាញ និងនាំចេញរបាយការណ៍លទ្ធផលលក់។\n• ធ្វើការសមកាលកម្មទិន្នន័យដោយសុវត្ថិភាពជាមួយមូលដ្ឋានទិន្នន័យពពករបស់យើង។\n• រក្សាស្ថិរភាពកម្មវិធី ត្រួតពិនិត្យដំណើរការ និងបង្កើនសុវត្ថិភាព។\n\nយើងមិនលក់ ជួល ឬចែករំលែកទិន្នន័យប្រតិបត្តិការ ឬអាជីវកម្មរបស់អ្នកជាមួយភាគីទីបីសម្រាប់គោលបំណងទីផ្សារឡើយ។",
+      body: "យើងដំណើរការព័ត៌មានរបស់អ្នកសម្រាប់តែ៖\n• ផ្ទៀងផ្ទាត់ការចូលរបស់អ្នកប្រើប្រាស់ គ្រប់គ្រងតួនាទីបុគ្គលិក និងស្ថានភាពគណនី។\n• បង្ហាញព័ត៌មានគណនីបុគ្គលិក និងសិទ្ធិប្រើប្រាស់។\n• ធ្វើការសមកាលកម្មទិន្នន័យដោយសុវត្ថិភាពជាមួយមូលដ្ឋានទិន្នន័យពពករបស់យើង។\n• រក្សាស្ថិរភាពកម្មវិធី ត្រួតពិនិត្យដំណើរការ និងបង្កើនសុវត្ថិភាព។\n\nយើងមិនលក់ ជួល ឬចែករំលែកទិន្នន័យរបស់អ្នកជាមួយភាគីទីបីឡើយ។",
     },
     {
       title: "4. ការរក្សាទុក សុវត្ថិភាពទិន្នន័យ និងអ្នកផ្តល់សេវាកម្មពពក",
-      body: "• ការរក្សាទុកនៅលើពពក៖ កម្មវិធីនេះប្រើប្រាស់ Supabase (អ្នកផ្តល់សេវាកម្ម backend cloud ដែលមានសុវត្ថិភាព) ដើម្បីសមកាលកម្ម និងចម្លងទុកទិន្នន័យតារាងមូលដ្ឋានទិន្នន័យអាជីវករ។\n• សុវត្ថិភាពកម្រិតជួរ (RLS)៖ យើងអនុវត្តគោលការណ៍សុវត្ថិភាពកម្រិតជួរយ៉ាងតឹងរ៉ឹងនៅលើ Supabase។ នេះធានាថា មានតែអ្នកគ្រប់គ្រង និងបុគ្គលិកដែលមានការអនុញ្ញាតពីប្រព័ន្ធសម្គាល់ហាងជាក់លាក់ (System ID) របស់អ្នកប៉ុណ្ណោះដែលអាចចូលប្រើទិន្នន័យលក់ ស្តុក និងអាជីវកម្មរបស់អ្នកបាន។\n• ការបំប្លែងកូដសម្ងាត់៖ ទិន្នន័យដែលបានបញ្ជូនរវាងកម្មវិធី និង Supabase ត្រូវបានបំប្លែងកូដសម្ងាត់ដោយប្រើស្រទាប់ HTTPS/SSL សុវត្ថិភាព។ ទិន្នន័យក៏ត្រូវបានការពារតាមរយៈការបំប្លែងកូដសម្ងាត់ពេលរក្សាទុកនៅលើម៉ាស៊ីនមេពពកផងដែរ។\n• សុវត្ថិភាពឧបករណ៍៖ ព័ត៌មានសម្ងាត់គណនី និងកូនសោសុវត្ថិភាព ត្រូវបានរក្សាទុកនៅលើឧបករណ៍ទូរស័ព្ទដៃរបស់អ្នកដោយផ្ទាល់ ដោយប្រើប្រាស់ Expo SecureStore។",
+      body: "• ការរក្សាទុកនៅលើពពក៖ កម្មវិធីនេះប្រើប្រាស់ Supabase សម្រាប់ការរក្សាទុកទិន្នន័យ។\n• សុវត្ថិភាពកម្រិតជួរ (RLS)៖ យើងអនុវត្តគោលការណ៍សុវត្ថិភាពកម្រិតជួរយ៉ាងតឹងរ៉ឹងនៅលើ Supabase។\n• ការបំប្លែងកូដសម្ងាត់៖ ទិន្នន័យត្រូវបានបំប្លែងកូដសម្ងាត់ដោយប្រើស្រទាប់ HTTPS/SSL សុវត្ថិភាព។\n• សុវត្ថិភាពឧបករណ៍៖ ព័ត៌មានសម្ងាត់គណនី និងកូនសោសុវត្ថិភាព ត្រូវបានរក្សាទុកនៅលើឧបករណ៍ទូរស័ព្ទដៃរបស់អ្នកដោយផ្ទាល់ ដោយប្រើប្រាស់ Expo SecureStore។",
     },
     {
       title: "5. សិទ្ធិរបស់អ្នក និងការលុបគណនី",
-      body: "អ្នករក្សានូវការគ្រប់គ្រងពេញលេញលើទិន្នន័យអាជីវកម្មរបស់អ្នក៖\n• ការចូលប្រើ និងការកែតម្រូវ៖ អ្នកអាចពិនិត្យមើល និងធ្វើបច្ចុប្បន្នភាពព័ត៌មានគណនី បញ្ជីសារពើភ័ណ្ឌ និងព័ត៌មានលម្អិតអំពីកាតាឡុកនៅក្នុងកម្មវិធី។\n• ការនាំចេញទិន្នន័យ៖ អ្នកអាចបង្កើត និងទាញយករបាយការណ៍លក់បានគ្រប់ពេល។\n• ការលុបគណនី៖ អ្នកមានសិទ្ធិស្នើសុំលុបគណនីរបស់អ្នក និងទិន្នន័យអាជីវករដែលពាក់ព័ន្ធ។ ដើម្បីស្នើសុំលុបគណនី សូមផ្ញើអ៊ីមែលមកកាន់ support@sshgroups.com។ បន្ទាប់ពីការផ្ទៀងផ្ទាត់ គណនីអ្នកប្រើប្រាស់របស់អ្នក និងតារាងទិន្នន័យហាងពាក់ព័ន្ធ នឹងត្រូវលុបជាអចិន្ត្រៃយ៍ពីមូលដ្ឋានទិន្នន័យ។",
+      body: "អ្នករក្សានូវការគ្រប់គ្រងពេញលេញលើទិន្នន័យរបស់អ្នក៖\n• ការចូលប្រើ និងការកែតម្រូវ៖ អ្នកអាចពិនិត្យមើល និងធ្វើបច្ចុប្បន្នភាពព័ត៌មានគណនីនៅក្នុងកម្មវិធី។\n• ការលុបគណនី៖ អ្នកមានសិទ្ធិស្នើសុំលុបគណនីរបស់អ្នក។ ដើម្បីស្នើសុំលុបគណនី សូមផ្ញើអ៊ីមែលមកកាន់ support@sshgroups.com។",
     },
     {
       title: "6. ការរួមបញ្ចូលជាមួយតតិយភាគី",
-      body: "កម្មវិធីនេះរួមបញ្ចូលគ្នាជាមួយ Supabase សម្រាប់ការរក្សាទុកទិន្នន័យ cloud backend។ ម៉ាស៊ីនបោះពុម្ពរូបវន្តក្នុងតំបន់ (ដូចជាម៉ាស៊ីនបោះពុម្ពកម្តៅប៊្លូធូស BLE, ម៉ាស៊ីនបោះពុម្ពបណ្តាញ ឬ USB) ដំណើរការសំណើបោះពុម្ពនៅក្នុងទីតាំងរបស់អ្នកផ្ទាល់។ យើងមិនចែករំលែកទិន្នន័យជាមួយបណ្តាញផ្សាយពាណិជ្ជកម្មភាគីទីបីឡើយ។",
+      body: "កម្មវិធីនេះរួមបញ្ចូលគ្នាជាមួយ Supabase សម្រាប់ការរក្សាទុកទិន្នន័យ cloud backend។ យើងមិនចែករំលែកទិន្នន័យជាមួយបណ្តាញផ្សាយពាណិជ្ជកម្មភាគីទីបីឡើយ។",
     },
     {
       title: "7. បច្ចុប្បន្នភាពគោលការណ៍",
-      body: "យើងអាចធ្វើបច្ចុប្បន្នភាពគោលការណ៍ឯកជនភាពនេះពីមួយពេលទៅមួយពេល។ ការផ្លាស់ប្តូរណាមួយនឹងមានប្រសិទ្ធភាពភ្លាមៗបន្ទាប់ពីការបង្ហោះ ហើយការបន្តប្រើប្រាស់កម្មវិធីបង្ហាញពីការយល់ព្រមចំពោះលក្ខខណ្ឌដែលបានផ្លាស់ប្តូរ។",
+      body: "យើងអាចធ្វើបច្ចុប្បន្នភាពគោលការណ៍ឯកជនភាពនេះពីមួយពេលទៅមួយពេល។",
     },
     {
       title: "8. ទាក់ទងមកយើងខ្ញុំ",

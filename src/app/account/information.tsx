@@ -5,7 +5,7 @@ import { renderLogoutModal } from "@/components/logout/logoutModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
-import { PosAdminUser, userService } from "@/services/userService";
+import { StaffUser, userService } from "@/services/userService";
 import { supabase } from "@/utils/supabase";
 import { AntDesign, FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import { createElement, useCallback, useEffect, useState } from "react";
@@ -53,7 +53,7 @@ function InfoRow({ iconName, icon, label, value, edit }: any) {
 
 // ─── Field config ───────────────────────────────────────────────────────────
 
-type FieldKey = "name" | "username" | "email" | "phone";
+type FieldKey = "name" | "username" | "email" | "phone" | "position";
 
 const USERNAME_REGEX = /^[a-zA-Z0-9]{3,20}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -88,6 +88,12 @@ const FIELD_CONFIG: Record<
       }
       return null;
     },
+  },
+  position: {
+    title: "Edit Position",
+    placeholder: "Position",
+    autoCapitalize: "words",
+    validate: (v) => (!v.trim() ? "Position is required" : null),
   },
   email: {
     title: "Edit Email",
@@ -125,8 +131,8 @@ function EditFieldModal({
   visible: boolean;
   fieldKey: FieldKey | null;
   onClose: () => void;
-  user: PosAdminUser | null;
-  onSaved: (updated: PosAdminUser) => void;
+  user: StaffUser | null;
+  onSaved: (updated: StaffUser) => void;
 }) {
   const [value, setValue] = useState(() => {
     if (user && fieldKey) {
@@ -181,7 +187,7 @@ function EditFieldModal({
 
       if (updateError) throw updateError;
 
-      onSaved(updated as PosAdminUser);
+      onSaved(updated as StaffUser);
       onClose();
     } catch (err: any) {
       setError(err?.message ?? "Failed to update. Please try again.");
@@ -259,7 +265,7 @@ function EditFieldModal({
 // ─── Account Screen ───────────────────────────────────────────────────────────
 
 export default function Information() {
-  const [user, setUser] = useState<PosAdminUser | null>(null);
+  const [user, setUser] = useState<StaffUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [editingField, setEditingField] = useState<FieldKey | null>(null);
@@ -277,7 +283,7 @@ export default function Information() {
   useEffect(() => {
     if (!user?.id) return;
 
-    const channelName = `pos-admin-user-${user.id}`;
+    const channelName = `ssh-group-staff-user-${user.id}`;
 
     const existing = supabase
       .getChannels()
@@ -309,7 +315,7 @@ export default function Information() {
             .maybeSingle();
 
           if (!dbUser) return;
-          const updated = dbUser as PosAdminUser;
+          const updated = dbUser as StaffUser;
           await userService.save(updated);
           setUser(updated);
         },
@@ -338,8 +344,8 @@ export default function Information() {
         .single();
 
       if (!error && data) {
-        await userService.save(data as PosAdminUser);
-        setUser(data as PosAdminUser);
+        await userService.save(data as StaffUser);
+        setUser(data as StaffUser);
       }
     } finally {
       setRefreshing(false);
@@ -362,9 +368,10 @@ export default function Information() {
     );
   }
 
-  // Format created_at date nicely
-  const joinedDate = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString("en-GB", {
+  // Format joined or created_at date nicely
+  const rawJoinedDate = user?.joined || user?.created_at;
+  const joinedDate = rawJoinedDate
+    ? new Date(rawJoinedDate).toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "short",
         year: "numeric",
@@ -403,12 +410,6 @@ export default function Information() {
                 />
                 <InfoRow
                   icon={MaterialIcons}
-                  iconName="fingerprint"
-                  label="System ID"
-                  value={user?.system_id ?? "None"}
-                />
-                <InfoRow
-                  icon={MaterialIcons}
                   iconName="badge"
                   label="Full Name"
                   value={user?.name ?? "None"}
@@ -420,6 +421,13 @@ export default function Information() {
                   label="Username"
                   value={user?.username ?? "None"}
                   edit={() => setEditingField("username")}
+                />
+                <InfoRow
+                  icon={MaterialIcons}
+                  iconName="work"
+                  label="Position"
+                  value={user?.position ?? "None"}
+                  edit={() => setEditingField("position")}
                 />
                 <InfoRow
                   icon={MaterialIcons}

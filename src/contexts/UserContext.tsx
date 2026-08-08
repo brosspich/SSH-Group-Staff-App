@@ -1,4 +1,5 @@
-import { PosAdminUser, userService } from "@/services/userService";
+import { fetchOfficialAttendanceQRCodes } from "@/constants/attendanceConfig";
+import { StaffUser, userService } from "@/services/userService";
 import { syncDeviceSession } from "@/utils/deviceSession";
 import { supabase } from "@/utils/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -6,9 +7,9 @@ import { router } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface UserContextValue {
-  user: PosAdminUser | null;
+  user: StaffUser | null;
   loading: boolean;
-  setUser: (u: PosAdminUser | null) => void;
+  setUser: (u: StaffUser | null) => void;
   refresh: () => Promise<void>;
 }
 
@@ -20,11 +21,11 @@ const UserContext = createContext<UserContextValue>({
 });
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<PosAdminUser | null>(null);
+  const [user, setUser] = useState<StaffUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [ready, setReady] = useState(false);
 
-  const updateUser = (u: PosAdminUser | null) => {
+  const updateUser = (u: StaffUser | null) => {
     setUser(u);
     if (u) {
       userService.save(u);
@@ -38,6 +39,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const refresh = async () => {
     try {
+      // Fetch official attendance QR codes from Supabase FIRST on app open / session refresh
+      await fetchOfficialAttendanceQRCodes();
+
       const u = await userService.get();
       if (u?.id) {
         // Fetch the user row from Supabase to check if our local session was terminated
@@ -99,7 +103,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             console.warn("Background sync failed:", e),
           );
 
-          const updatedUser = dbUser as PosAdminUser;
+          const updatedUser = dbUser as StaffUser;
           await userService.save(updatedUser);
           setUser(updatedUser);
           setLoading(false);
@@ -205,7 +209,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             }
           }
 
-          const updatedUser = dbUser as PosAdminUser;
+          const updatedUser = dbUser as StaffUser;
           await userService.save(updatedUser);
           setUser(updatedUser);
         },

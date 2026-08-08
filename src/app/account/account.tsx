@@ -5,7 +5,7 @@ import { renderLogoutModal } from "@/components/logout/logoutModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
-import { PosAdminUser, userService } from "@/services/userService";
+import { StaffUser, userService } from "@/services/userService";
 import { supabase } from "@/utils/supabase";
 import { AntDesign, FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -43,8 +43,16 @@ function InfoRow({ iconName, icon, label, value }: any) {
 
 // ─── Account Screen ───────────────────────────────────────────────────────────
 
+const formatRole = (role: any) => {
+  if (!role) return "—";
+  if (Array.isArray(role))
+    return role.map((r) => String(r).toUpperCase()).join(", ");
+  if (typeof role === "string") return role.toUpperCase();
+  return String(role).toUpperCase();
+};
+
 export default function Account() {
-  const [user, setUser] = useState<PosAdminUser | null>(null);
+  const [user, setUser] = useState<StaffUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
@@ -61,7 +69,7 @@ export default function Account() {
   useEffect(() => {
     if (!user?.id) return;
 
-    const channelName = `pos-admin-user-${user.id}`;
+    const channelName = `ssh-group-staff-user-${user.id}`;
 
     const existing = supabase
       .getChannels()
@@ -93,7 +101,7 @@ export default function Account() {
             .maybeSingle();
 
           if (!dbUser) return;
-          const updated = dbUser as PosAdminUser;
+          const updated = dbUser as StaffUser;
           await userService.save(updated); // keep AsyncStorage in sync
           setUser(updated);
         },
@@ -122,8 +130,8 @@ export default function Account() {
         .single();
 
       if (!error && data) {
-        await userService.save(data as PosAdminUser);
-        setUser(data as PosAdminUser);
+        await userService.save(data as StaffUser);
+        setUser(data as StaffUser);
       }
     } finally {
       setRefreshing(false);
@@ -145,14 +153,6 @@ export default function Account() {
       </SafeAreaView>
     );
   }
-
-  const joinedDate = user?.created_at
-    ? new Date(user.created_at).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      })
-    : "—";
 
   const getTwoInitials = (name: any) => {
     if (!name) return "?";
@@ -207,21 +207,18 @@ export default function Account() {
                 </View>
               </View>
 
-              <View style={styles.roleBadge}>
-                <Text style={styles.roleText}>
-                  {user?.role?.toUpperCase() ?? "—"}
-                </Text>
+              {/* <View style={styles.roleBadge}>
+                <Text style={styles.roleText}>{formatRole(user?.role)}</Text>
                 <View
                   style={[
                     styles.activeDot,
                     {
-                      backgroundColor: user?.is_active
-                        ? "#22c55e"
-                        : AppColors.red,
+                      backgroundColor:
+                        user?.is_active !== false ? "#22c55e" : AppColors.red,
                     },
                   ]}
                 ></View>
-              </View>
+              </View> */}
             </View>
 
             {/* ── Account Info ── */}
@@ -231,26 +228,27 @@ export default function Account() {
                 <InfoRow
                   icon={FontAwesome6}
                   iconName="contact-card"
-                  label="User ID"
+                  label="Staff ID"
                   value={user?.id ?? "None"}
                 />
-                <InfoRow
-                  icon={MaterialIcons}
-                  iconName="fingerprint"
-                  label="System ID"
-                  value={user?.system_id ?? "None"}
-                />
-                <InfoRow
+
+                {/* <InfoRow
                   icon={MaterialIcons}
                   iconName="badge"
                   label="Full Name"
                   value={user?.name ?? "None"}
-                />
-                <InfoRow
+                /> */}
+                {/* <InfoRow
                   icon={MaterialIcons}
                   iconName="person"
                   label="Username"
                   value={user?.username ?? "None"}
+                /> */}
+                <InfoRow
+                  icon={MaterialIcons}
+                  iconName="work"
+                  label="Position"
+                  value={user?.position ?? "None"}
                 />
                 <InfoRow
                   icon={MaterialIcons}
@@ -268,7 +266,7 @@ export default function Account() {
                   icon={MaterialIcons}
                   iconName="event"
                   label="Joined"
-                  value={joinedDate}
+                  value={user?.joined ?? "None"}
                 />
               </View>
             </View>

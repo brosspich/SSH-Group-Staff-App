@@ -1,14 +1,14 @@
 import { AppImages } from "@/constants/appImages";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
-import { PosAdminUser, userService } from "@/services/userService";
+import { StaffUser, userService } from "@/services/userService";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function Appbar() {
-  const [user, setUser] = useState<PosAdminUser | null>(null);
+  const [user, setUser] = useState<StaffUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,35 +44,22 @@ export default function Appbar() {
               height: 42,
               padding: 10,
               borderRadius: 10,
-              backgroundColor: AppColors.background2,
-              borderColor: `${AppColors.primary}`,
-              borderWidth: 1,
+              backgroundColor: AppColors.secondary,
+              borderColor: AppColors.secondary,
+              borderWidth: 1.2,
             }}
           />
           <Text style={{ color: AppColors.secondary }}>|</Text>
           <Image
-            source={AppImages.logoPOS}
+            source={AppImages.logoStaffP}
             style={{
               width: 42,
               height: 42,
-              borderColor: `${AppColors.secondary}50`,
-              borderWidth: 1,
+              borderColor: AppColors.secondary,
+              borderWidth: 1.2,
               borderRadius: 10,
             }}
           />
-          {/* <Image
-            source={AppImages.logoPOSWeb}
-            style={{
-              width: 120,
-              height: 42,
-              // aspectRatio: 960 / 271,
-              resizeMode: "contain",
-            }}
-          /> */}
-          {/* <Image
-            source={AppImages.logoTxt}
-            style={{ width: 120, height: 40 }}
-          /> */}
         </View>
 
         <View style={styles.appBarIcons}>

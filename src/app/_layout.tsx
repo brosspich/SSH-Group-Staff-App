@@ -65,6 +65,8 @@ if (Platform.OS === "web") {
   };
 }
 
+import { fetchOfficialAttendanceQRCodes } from "@/constants/attendanceConfig";
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -74,6 +76,7 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
+    fetchOfficialAttendanceQRCodes();
     if (fontsLoaded || fontError) SplashScreen.hideAsync();
   }, [fontsLoaded, fontError]);
 

@@ -12,11 +12,11 @@ export interface StaffUser {
   position?: string;
   role?: any;
   is_active?: boolean;
+  joined?: string;
   created_at?: string;
   devices?: any;
+  attendance?: any;
 }
-
-export type PosAdminUser = StaffUser;
 
 export const userService = {
   async save(user: StaffUser): Promise<void> {

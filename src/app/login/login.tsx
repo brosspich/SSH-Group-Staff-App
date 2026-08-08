@@ -201,7 +201,7 @@ export default function LoginScreen() {
               style={[styles.conDesign, { width: isMobile ? "100%" : "40%" }]}
             >
               <View style={styles.conLogo}>
-                <Image source={AppImages.logoPOS} style={styles.imgLogo} />
+                <Image source={AppImages.logoStaffP} style={styles.imgLogo} />
               </View>
 
               <View style={styles.conTxt}>
@@ -318,9 +318,19 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: AppColors.background },
-  gradient: { flex: 1, alignItems: "center", justifyContent: "center" },
-  conWrapper: { flex: 1, width: "100%" },
+  container: {
+    flex: 1,
+    backgroundColor: AppColors.background,
+  },
+  gradient: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  conWrapper: {
+    flex: 1,
+    width: "100%",
+  },
   conWrapperContent: {
     flexGrow: 1,
     alignItems: "center",
@@ -343,9 +353,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 20,
+    // borderRadius: 11.7,
+    // borderColor: AppColors.secondary,
+    // borderWidth: 2,
   },
-  imgLogo: { width: "100%", height: "100%" },
-  conTxt: { marginVertical: 20 },
+  imgLogo: {
+    width: "100%",
+    height: "100%",
+  },
+  conTxt: {
+    marginVertical: 20,
+  },
   txtApp: {
     fontSize: 18,
     fontWeight: "bold",
@@ -361,7 +379,9 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
   },
-  conInput: { width: "100%" },
+  conInput: {
+    width: "100%",
+  },
   printInput: {
     height: 48,
     backgroundColor: AppColors.background2,
@@ -395,7 +415,10 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
   },
-  privacyLink: { marginTop: 14, paddingVertical: 6 },
+  privacyLink: {
+    marginTop: 14,
+    paddingVertical: 6,
+  },
   privacyLinkText: {
     color: AppColors.secondary,
     fontSize: 13,

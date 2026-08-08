@@ -4,12 +4,8 @@ import { renderLogoutModal } from "@/components/logout/logoutModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
-import { PosAdminUser, userService } from "@/services/userService";
-import {
-  AntDesign,
-  Ionicons,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import { StaffUser, userService } from "@/services/userService";
+import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { createElement, useEffect, useState } from "react";
@@ -24,8 +20,16 @@ import {
 
 // ─── Setting Screen ───────────────────────────────────────────────────────────
 
+const formatRole = (role: any) => {
+  if (!role) return "—";
+  if (Array.isArray(role))
+    return role.map((r) => String(r).toUpperCase()).join(", ");
+  if (typeof role === "string") return role.toUpperCase();
+  return String(role).toUpperCase();
+};
+
 export default function Setting() {
-  const [user, setUser] = useState<PosAdminUser | null>(null);
+  const [user, setUser] = useState<StaffUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const { isTablet, isMobile } = useResponsive();
@@ -133,19 +137,19 @@ export default function Setting() {
             </View>
           </View>
 
-          <View style={styles.roleBadge}>
+          {/* <View style={styles.roleBadge}>
             <Text style={styles.roleText}>
-              {user?.role?.toUpperCase() ?? "—"}
+              {formatRole(user?.role)}
             </Text>
             <View
               style={[
                 styles.activeDot,
                 {
-                  backgroundColor: user?.is_active ? "#22c55e" : AppColors.red,
+                  backgroundColor: user?.is_active !== false ? "#22c55e" : AppColors.red,
                 },
               ]}
             ></View>
-          </View>
+          </View> */}
         </View>
 
         {/* ── Account Info Section ── */}
