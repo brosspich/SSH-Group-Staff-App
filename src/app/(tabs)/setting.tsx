@@ -8,9 +8,7 @@ import { PosAdminUser, userService } from "@/services/userService";
 import {
   AntDesign,
   Ionicons,
-  MaterialCommunityIcons,
   MaterialIcons,
-  Octicons,
 } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -150,145 +148,10 @@ export default function Setting() {
           </View>
         </View>
 
-        {/* ── Menu Section ── */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Menu App</Text>
-          <View style={styles.card}>
-            <BtnItem
-              onPress={() => {
-                router.push("/create/create_categories");
-              }}
-              title="Create Categories"
-              iconName="format-list-bulleted-type"
-              icon={MaterialCommunityIcons}
-            />
-            <Border />
-            <BtnItem
-              onPress={() => {
-                router.push("/stock/stockcontroller" as any);
-              }}
-              title="Stock Control"
-              iconName="product"
-              icon={AntDesign}
-            />
-            <Border />
-            <BtnItem
-              onPress={() => {
-                router.push("/create/custom_receipt" as any);
-              }}
-              title="Custom Receipt Paper"
-              iconName="receipt-outline"
-              icon={Ionicons}
-            />
-            <Border />
-            <BtnItem
-              onPress={() => {
-                router.push("/create/custom_report_paper" as any);
-              }}
-              title="Custom Report Paper"
-              iconName="newspaper-outline"
-              icon={Ionicons}
-            />
-            <Border />
-            <BtnItem
-              onPress={() => {
-                router.push("/currency/currency-riel-usd" as any);
-              }}
-              title="Currency Exchange Rate"
-              iconName="currency-usd"
-              icon={MaterialCommunityIcons}
-            />
-
-            {/* <Border />
-            <BtnItem
-              onPress={() => {}}
-              title="Update"
-              iconName="update"
-              icon={MaterialIcons}
-            /> */}
-          </View>
-        </View>
-
-        {/* ── Printer Section ── */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Printer</Text>
-          <View style={styles.card}>
-            {Platform.OS !== "web" && (
-              <>
-                <BtnItem
-                  onPress={() => {
-                    router.push("/printer/scan_printer" as any);
-                  }}
-                  title="Scan Printer"
-                  iconName="print-outline"
-                  icon={Ionicons}
-                />
-                <Border />
-              </>
-            )}
-
-            <BtnItem
-              onPress={() => {
-                router.push("/printer/testprint" as any);
-              }}
-              title="Test Printer"
-              iconName="print-outline"
-              icon={Ionicons}
-            />
-
-            {Platform.OS !== "web" && (
-              <>
-                <Border />
-                <BtnItem
-                  onPress={() => {
-                    router.push("/printer/print_file" as any);
-                  }}
-                  title="File Printer"
-                  iconName="print-outline"
-                  icon={Ionicons}
-                />
-              </>
-            )}
-          </View>
-        </View>
-        {/* ── Theme Section ── */}
-        {/* <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Theme App</Text>
-          <View style={styles.card}> */}
-        {/* <BtnItem
-              onPress={() => {
-                router.push("/theme/themeapp");
-              }}
-              title="Theme"
-              iconName="color-fill-outline"
-              icon={Ionicons}
-            /> */}
-        {/*
-            <Border />
-            <BtnItem
-              onPress={() => {
-                router.push("/theme/languageapp");
-              }}
-              title="Language"
-              iconName="language"
-              icon={Ionicons}
-            /> */}
-        {/* </View>
-        </View> */}
-
         {/* ── Account Info Section ── */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account Info</Text>
           <View style={styles.card}>
-            <BtnItem
-              onPress={() => {
-                router.push("/activation/Activation" as any);
-              }}
-              title="Activation"
-              iconName="verified"
-              icon={Octicons}
-            />
-            <Border />
             <BtnItem
               onPress={() => {
                 router.push("/account/information" as any);
@@ -297,15 +160,6 @@ export default function Setting() {
               iconName="person-outline"
               icon={Ionicons}
             />
-            {/* <Border />
-            <BtnItem
-              onPress={() => {
-                router.push("/account/forgot-password" as any);
-              }}
-              title="Change Password"
-              iconName="lock-closed-outline"
-              icon={Ionicons}
-            /> */}
             <Border />
             <BtnItem
               onPress={() => {

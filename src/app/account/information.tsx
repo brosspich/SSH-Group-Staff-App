@@ -158,7 +158,7 @@ function EditFieldModal({
       // Uniqueness check only applies to username
       if (fieldKey === "username" && trimmed !== user.username) {
         const { data: existing, error: checkError } = await supabase
-          .from("pos_admin_user_2")
+          .from("ssh_group_staff_users")
           .select("id")
           .eq("username", trimmed)
           .neq("id", user.id)
@@ -173,7 +173,7 @@ function EditFieldModal({
       }
 
       const { data: updated, error: updateError } = await supabase
-        .from("pos_admin_user_2")
+        .from("ssh_group_staff_users")
         .update({ [fieldKey]: trimmed })
         .eq("id", user.id)
         .select()
@@ -273,7 +273,7 @@ export default function Information() {
     });
   }, []);
 
-  // 🔴 Real-time: keep this user row in sync with pos_admin_user_2
+  // 🔴 Real-time: keep this user row in sync with ssh_group_staff_users
   useEffect(() => {
     if (!user?.id) return;
 
@@ -293,7 +293,7 @@ export default function Information() {
         {
           event: "*",
           schema: "public",
-          table: "pos_admin_user_2",
+          table: "ssh_group_staff_users",
           filter: `id=eq.${user.id}`,
         },
         async (payload) => {
@@ -303,7 +303,7 @@ export default function Information() {
             return;
           }
           const { data: dbUser } = await supabase
-            .from("pos_admin_user_2")
+            .from("ssh_group_staff_users")
             .select("*")
             .eq("id", user.id)
             .maybeSingle();
@@ -332,7 +332,7 @@ export default function Information() {
     setRefreshing(true);
     try {
       const { data, error } = await supabase
-        .from("pos_admin_user_2")
+        .from("ssh_group_staff_users")
         .select("*")
         .eq("id", current.id)
         .single();

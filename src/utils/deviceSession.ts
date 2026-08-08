@@ -285,7 +285,7 @@ export async function syncDeviceSession(
 
     // Read-only lookup to preserve existing fields
     const { data: userRow, error: fetchErr } = await supabase
-      .from("pos_admin_user_2")
+      .from("ssh_group_staff_users")
       .select("devices")
       .eq("id", userId)
       .maybeSingle();
@@ -405,9 +405,9 @@ export async function syncDeviceSession(
       // Ignore RPC failure
     }
 
-    // Always save the clean deduplicated updatedList directly to pos_admin_user_2
+    // Always save the clean deduplicated updatedList directly to ssh_group_staff_users
     const { error: directErr } = await supabase
-      .from("pos_admin_user_2")
+      .from("ssh_group_staff_users")
       .update({ devices: updatedList })
       .eq("id", userId);
 
@@ -447,7 +447,7 @@ export async function terminateDeviceSession(
 ): Promise<boolean> {
   try {
     const { data: userRow } = await supabase
-      .from("pos_admin_user_2")
+      .from("ssh_group_staff_users")
       .select("devices")
       .eq("id", userId)
       .maybeSingle();
@@ -461,7 +461,7 @@ export async function terminateDeviceSession(
     });
 
     const { error } = await supabase
-      .from("pos_admin_user_2")
+      .from("ssh_group_staff_users")
       .update({ devices: updatedList })
       .eq("id", userId);
 
@@ -479,7 +479,7 @@ export async function terminateOtherDeviceSessions(
 ): Promise<boolean> {
   try {
     const { data: userRow } = await supabase
-      .from("pos_admin_user_2")
+      .from("ssh_group_staff_users")
       .select("devices")
       .eq("id", userId)
       .maybeSingle();
@@ -493,7 +493,7 @@ export async function terminateOtherDeviceSessions(
     });
 
     const { error } = await supabase
-      .from("pos_admin_user_2")
+      .from("ssh_group_staff_users")
       .update({ devices: updatedList })
       .eq("id", userId);
 
@@ -536,7 +536,7 @@ export async function autoTerminateInactiveSessions(
 ): Promise<boolean> {
   try {
     const { data: userRow } = await supabase
-      .from("pos_admin_user_2")
+      .from("ssh_group_staff_users")
       .select("devices")
       .eq("id", userId)
       .maybeSingle();
@@ -562,7 +562,7 @@ export async function autoTerminateInactiveSessions(
 
     if (hasChanges) {
       const { error } = await supabase
-        .from("pos_admin_user_2")
+        .from("ssh_group_staff_users")
         .update({ devices: updatedList })
         .eq("id", userId);
       return !error;

@@ -42,7 +42,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (u?.id) {
         // Fetch the user row from Supabase to check if our local session was terminated
         const { data: dbUser, error } = await supabase
-          .from("pos_admin_user_2")
+          .from("ssh_group_staff_users")
           .select("*")
           .eq("id", u.id)
           .maybeSingle();
@@ -126,7 +126,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!ready || !user?.id) return;
 
-    const channelName = `pos_admin_user_2:${user.id}`;
+    const channelName = `ssh_group_staff_users:${user.id}`;
 
     const existing = supabase
       .getChannels()
@@ -142,7 +142,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         {
           event: "*",
           schema: "public",
-          table: "pos_admin_user_2",
+          table: "ssh_group_staff_users",
           filter: `id=eq.${user.id}`,
         },
         async (payload: any) => {
@@ -156,7 +156,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           }
           // Re-fetch the complete user row from Supabase to prevent partial data corruption
           const { data: dbUser } = await supabase
-            .from("pos_admin_user_2")
+            .from("ssh_group_staff_users")
             .select("*")
             .eq("id", user.id)
             .maybeSingle();

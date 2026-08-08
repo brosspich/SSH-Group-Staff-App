@@ -1,3 +1,2 @@
-// Web/SSR
-const isServer = typeof window === "undefined";
-export const wsTransport = isServer ? require("ws") : undefined;
+// Web implementation of WebSocket transport for Supabase Realtime
+export const wsTransport = typeof window !== "undefined" ? window.WebSocket : undefined;

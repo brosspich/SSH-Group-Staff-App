@@ -25,13 +25,23 @@ if (isServer) {
 } else {
   const AsyncStorage =
     require("@react-native-async-storage/async-storage").default;
-  const SecureStore = require("expo-secure-store");
-  storage = {
-    getItem: (key: string) => SecureStore.getItemAsync(key),
-    setItem: (key: string, value: string) =>
-      SecureStore.setItemAsync(key, value),
-    removeItem: (key: string) => SecureStore.deleteItemAsync(key),
-  };
+  let SecureStore: any = null;
+  try {
+    SecureStore = require("expo-secure-store");
+  } catch (e) {
+    SecureStore = null;
+  }
+
+  if (SecureStore && typeof SecureStore.getItemAsync === "function") {
+    storage = {
+      getItem: (key: string) => SecureStore.getItemAsync(key),
+      setItem: (key: string, value: string) =>
+        SecureStore.setItemAsync(key, value),
+      removeItem: (key: string) => SecureStore.deleteItemAsync(key),
+    };
+  } else {
+    storage = AsyncStorage;
+  }
 }
 
 export const supabaseUrl =

@@ -39,39 +39,6 @@ const TABS = [
     href: "/(tabs)/",
   },
   {
-    name: "sale",
-    label: "Sale",
-    icon: (color: string, size: number) => (
-      <Bag2 size={size} weight="Filled" color={color} />
-    ),
-    iconOutline: (color: string, size: number) => (
-      <Bag2 size={size} color={color} />
-    ),
-    href: "/(tabs)/sale",
-  },
-  {
-    name: "product",
-    label: "Product",
-    icon: (color: string, size: number) => (
-      <Box2 size={size} weight="Filled" color={color} />
-    ),
-    iconOutline: (color: string, size: number) => (
-      <Box2 size={size} color={color} />
-    ),
-    href: "/(tabs)/product",
-  },
-  {
-    name: "report",
-    label: "Report",
-    icon: (color: string, size: number) => (
-      <Receipt2 size={size} weight="Filled" color={color} />
-    ),
-    iconOutline: (color: string, size: number) => (
-      <Receipt2 size={size} color={color} />
-    ),
-    href: "/(tabs)/report",
-  },
-  {
     name: "setting",
     label: "Setting",
     icon: (color: string, size: number) => (

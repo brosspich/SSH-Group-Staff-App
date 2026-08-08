@@ -2,27 +2,30 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const USER_KEY = "serviceuser";
 
-export interface PosAdminUser {
+export interface StaffUser {
   id: string;
-  system_id: string;
+  system_id?: string;
   name: string;
   username: string;
-  email: string;
-  phone: string;
-  role: string;
-  is_active: boolean;
-  created_at: string;
+  email?: string;
+  phone?: string;
+  position?: string;
+  role?: any;
+  is_active?: boolean;
+  created_at?: string;
   devices?: any;
 }
 
+export type PosAdminUser = StaffUser;
+
 export const userService = {
-  async save(user: PosAdminUser): Promise<void> {
+  async save(user: StaffUser): Promise<void> {
     await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
   },
 
-  async get(): Promise<PosAdminUser | null> {
+  async get(): Promise<StaffUser | null> {
     const raw = await AsyncStorage.getItem(USER_KEY);
-    return raw ? (JSON.parse(raw) as PosAdminUser) : null;
+    return raw ? (JSON.parse(raw) as StaffUser) : null;
   },
 
   async clear(): Promise<void> {

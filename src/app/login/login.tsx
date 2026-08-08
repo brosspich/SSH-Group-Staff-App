@@ -71,9 +71,9 @@ export default function LoginScreen() {
 
       // Search by username OR email using ilike (case-insensitive)
       const { data, error: dbError } = await supabase
-        .from("pos_admin_user_2")
+        .from("ssh_group_staff_users")
         .select(
-          "id, name, system_id, role, username, password, email, phone, is_active, created_at, devices",
+          "id, name, role, username, password, email, phone, position, devices",
         )
         .or(`username.ilike.${escapedInput},email.ilike.${escapedInput}`)
         .maybeSingle();
@@ -101,7 +101,7 @@ export default function LoginScreen() {
         return;
       }
 
-      if (!data.is_active) {
+      if ((data as any).is_active === false) {
         setError("Your account is inactive. Contact admin.");
         return;
       }

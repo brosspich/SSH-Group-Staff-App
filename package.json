@@ -21,18 +21,16 @@
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@supabase/supabase-js": "^2.107.0",
-    "@haroldtran/react-native-thermal-printer": "^1.2.0",
     "bcryptjs": "^3.0.3",
-    "expo-image-picker": "~57.0.6",
     "expo-linear-gradient": "~57.0.1",
-    "expo-print": "~57.0.1",
+    "expo-screen-orientation": "~57.0.1",
+    "expo-secure-store": "~57.0.1",
     "expo-sharing": "~57.0.7",
     "react-native-animated-spinkit": "^1.5.2",
-    "react-native-ble-plx": "^3.5.1",
-    "react-native-gifted-charts": "^1.4.77",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
+    "react-native-network-info": "^5.2.2",
+    "react-native-ping": "^1.2.8",
     "react-native-svg": "15.15.4",
-    "react-native-url-polyfill": "^3.0.0",
     "react-native-view-shot": "5.1.0",
     "reicon-react-native": "^1.0.0",
     "react": "19.2.3",
@@ -50,6 +48,11 @@
     "@types/node": "^22.0.0",
     "@types/react": "~19.2.2",
     "typescript": "~6.0.3"
+  },
+  "overrides": {
+    "react-native-ping": {
+      "react-native": "$react-native"
+    }
   },
   "scripts": {
     "start": "expo start",

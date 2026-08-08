@@ -57,7 +57,7 @@ export default function Account() {
     });
   }, []);
 
-  // 🔴 Real-time: keep this user row in sync with pos_admin_user_2
+  // 🔴 Real-time: keep this user row in sync with ssh_group_staff_users
   useEffect(() => {
     if (!user?.id) return;
 
@@ -77,7 +77,7 @@ export default function Account() {
         {
           event: "*",
           schema: "public",
-          table: "pos_admin_user_2",
+          table: "ssh_group_staff_users",
           filter: `id=eq.${user.id}`,
         },
         async (payload) => {
@@ -87,7 +87,7 @@ export default function Account() {
             return;
           }
           const { data: dbUser } = await supabase
-            .from("pos_admin_user_2")
+            .from("ssh_group_staff_users")
             .select("*")
             .eq("id", user.id)
             .maybeSingle();
@@ -116,7 +116,7 @@ export default function Account() {
     setRefreshing(true);
     try {
       const { data, error } = await supabase
-        .from("pos_admin_user_2")
+        .from("ssh_group_staff_users")
         .select("*")
         .eq("id", current.id)
         .single();
