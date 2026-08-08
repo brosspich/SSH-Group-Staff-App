@@ -46,7 +46,7 @@ export default function AttendanceLogsScreen() {
 
   // Filter & Search
   const [historyFilter, setHistoryFilter] = useState<"all" | "today" | "month">(
-    "all",
+    "today",
   );
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -223,23 +223,6 @@ export default function AttendanceLogsScreen() {
             <TouchableOpacity
               style={[
                 styles.filterChip,
-                historyFilter === "all" && styles.filterChipActive,
-              ]}
-              onPress={() => setHistoryFilter("all")}
-            >
-              <Text
-                style={[
-                  styles.filterChipText,
-                  historyFilter === "all" && styles.filterChipTextActive,
-                ]}
-              >
-                All ({attendanceList.length})
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.filterChip,
                 historyFilter === "today" && styles.filterChipActive,
               ]}
               onPress={() => setHistoryFilter("today")}
@@ -268,6 +251,22 @@ export default function AttendanceLogsScreen() {
                 ]}
               >
                 This Month
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.filterChip,
+                historyFilter === "all" && styles.filterChipActive,
+              ]}
+              onPress={() => setHistoryFilter("all")}
+            >
+              <Text
+                style={[
+                  styles.filterChipText,
+                  historyFilter === "all" && styles.filterChipTextActive,
+                ]}
+              >
+                All ({attendanceList.length})
               </Text>
             </TouchableOpacity>
           </View>
@@ -484,7 +483,7 @@ const styles = StyleSheet.create({
   filterChip: {
     paddingHorizontal: 14,
     paddingVertical: 7,
-    borderRadius: 12,
+    borderRadius: 10,
     backgroundColor: AppColors.background2,
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.06)",
