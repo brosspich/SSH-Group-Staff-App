@@ -1,0 +1,17 @@
+export const AppColors = {
+  primary: "#2e3191",
+  // secondary: "#4f5bdb",
+  secondary: "#0702d6",
+  secondary2: "#1c2250",
+  secondary3: "#141838",
+  secondary4: "#6B7280",
+  background: "#F3F4F6",
+  background2: "#ffffff",
+  textPrimary: "#000000",
+  textSecondary: "#6B7280",
+  grey: "#9CA3AF",
+  red: "#e53935",
+  // green: "#35e552",
+  green: "#4caf50",
+  transparent: "transparent",
+} as const;
