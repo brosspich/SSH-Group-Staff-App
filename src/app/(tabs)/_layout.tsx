@@ -18,7 +18,7 @@ import {
   SafeAreaView,
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
-import { Home, Settings2 } from "reicon-react-native";
+import { Home, Receipt2, Settings2 } from "reicon-react-native";
 
 // ─── Tab definitions (single source of truth) ────────────────────────────────
 const TABS = [
@@ -43,6 +43,17 @@ const TABS = [
       <Ionicons name="calendar-outline" size={size} color={color} />
     ),
     href: "/(tabs)/attendance",
+  },
+  {
+    name: "report",
+    label: "Report",
+    icon: (color: string, size: number) => (
+      <Receipt2 size={size} weight="Filled" color={color} />
+    ),
+    iconOutline: (color: string, size: number) => (
+      <Receipt2 size={size} color={color} />
+    ),
+    href: "/(tabs)/report",
   },
   {
     name: "setting",
@@ -78,14 +89,35 @@ function CustomTabBarButton({ children, onPress, accessibilityState }: any) {
   );
 }
 
+// ─── Admin Role Check Helper ──────────────────────────────────────────────────
+export function hasAdminRole(role: any): boolean {
+  if (!role) return false;
+  if (Array.isArray(role)) {
+    return role.some((r) => String(r).trim().toLowerCase() === "admin");
+  }
+  if (typeof role === "string") {
+    if (role.trim().toLowerCase() === "admin") return true;
+    try {
+      const parsed = JSON.parse(role);
+      if (Array.isArray(parsed)) {
+        return parsed.some((r) => String(r).trim().toLowerCase() === "admin");
+      }
+    } catch (e) {}
+  }
+  return false;
+}
+
 // ─── Tablet: left sidebar ─────────────────────────────────────────────────────
 function SideRail() {
   const pathname = usePathname();
+  const { user } = useUser();
+  const isAdmin = hasAdminRole(user?.role);
+  const visibleTabs = TABS.filter((tab) => tab.name !== "report" || isAdmin);
 
   return (
     <View style={[styles.sidebar, { paddingTop: 8 }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {TABS.map((tab) => {
+        {visibleTabs.map((tab) => {
           const active =
             tab.name === "index"
               ? pathname === "/" ||
@@ -138,6 +170,9 @@ export default function TabLayout() {
 
   if (!user) return <Redirect href="/login/login" />;
 
+  const isAdmin = hasAdminRole(user?.role);
+  const visibleTabs = TABS.filter((tab) => tab.name !== "report" || isAdmin);
+
   // ── Shared Tabs component ──
   const tabScreens = (
     <Tabs
@@ -162,23 +197,28 @@ export default function TabLayout() {
         tabBarButton: (props) => <CustomTabBarButton {...props} />,
       }}
     >
-      {TABS.map((tab) => (
-        <Tabs.Screen
-          key={tab.name}
-          name={tab.name}
-          options={{
-            title: tab.label,
-            tabBarIcon: ({ color, size, focused }) => {
-              const iconSize = tab.name === "index" ? size : size + 3;
-              // const iconSize = size;
-              const iconColor = color as string;
-              return focused
-                ? tab.icon(iconColor, iconSize)
-                : tab.iconOutline(iconColor, iconSize);
-            },
-          }}
-        />
-      ))}
+      {TABS.map((tab) => {
+        const isReportTab = tab.name === "report";
+        const shouldHideTab = isReportTab && !isAdmin;
+
+        return (
+          <Tabs.Screen
+            key={tab.name}
+            name={tab.name}
+            options={{
+              href: shouldHideTab ? null : undefined,
+              title: tab.label,
+              tabBarIcon: ({ color, size, focused }) => {
+                const iconSize = tab.name === "index" ? size : size + 3;
+                const iconColor = color as string;
+                return focused
+                  ? tab.icon(iconColor, iconSize)
+                  : tab.iconOutline(iconColor, iconSize);
+              },
+            }}
+          />
+        );
+      })}
     </Tabs>
   );
 
@@ -241,7 +281,7 @@ const styles = StyleSheet.create({
     // marginHorizontal: 5,
   },
   activeTab: {
-    // color: AppColors.secondary,
+    color: AppColors.secondary,
   },
 
   // Tablet sidebar

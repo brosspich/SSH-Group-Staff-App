@@ -176,9 +176,9 @@ export default function Setting() {
           </View>
         </View>
 
-        {/* Privacy & Secueity Section */}
+        {/* Privacy & Security Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Privacy & Secueity</Text>
+          <Text style={styles.sectionTitle}>Privacy & Security</Text>
           <View style={styles.card}>
             <BtnItem
               onPress={() => {

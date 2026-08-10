@@ -201,7 +201,7 @@ export default function LoginScreen() {
               style={[styles.conDesign, { width: isMobile ? "100%" : "40%" }]}
             >
               <View style={styles.conLogo}>
-                <Image source={AppImages.logoStaffP} style={styles.imgLogo} />
+                <Image source={AppImages.logoStaffY} style={styles.imgLogo} />
               </View>
 
               <View style={styles.conTxt}>

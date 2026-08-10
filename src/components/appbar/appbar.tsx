@@ -51,7 +51,7 @@ export default function Appbar() {
           />
           <Text style={{ color: AppColors.secondary }}>|</Text>
           <Image
-            source={AppImages.logoStaffP}
+            source={AppImages.logoStaffY}
             style={{
               width: 42,
               height: 42,

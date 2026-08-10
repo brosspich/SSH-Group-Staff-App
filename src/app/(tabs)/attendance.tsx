@@ -1,4 +1,3 @@
-import Copyright from "@/components/copyright/copyright";
 import Loading from "@/components/loading/loading";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
@@ -356,7 +355,7 @@ export default function AttendanceLogsScreen() {
           )}
 
           <View style={{ marginTop: 24 }} />
-          <Copyright />
+          {/* <Copyright /> */}
         </View>
       </ScrollView>
     </View>

@@ -597,9 +597,7 @@ export default function DashboardIndex() {
         transparent={true}
         onRequestClose={() => setScannerVisible(false)}
       >
-        <SafeAreaView
-          style={{ flex: 1, backgroundColor: AppColors.background }}
-        >
+        <SafeAreaView style={{ flex: 1, backgroundColor: AppColors.secondary }}>
           <View
             style={[
               styles.modalHeader,
@@ -687,7 +685,11 @@ export default function DashboardIndex() {
         <View style={styles.successOverlay}>
           <View style={styles.successCard}>
             <View style={styles.successIconCircle}>
-              <Ionicons name="checkmark-circle" size={64} color="#22c55e" />
+              <Ionicons
+                name="checkmark"
+                size={40}
+                color={AppColors.background2}
+              />
             </View>
 
             <Text style={styles.successTitle}>Attendance Recorded!</Text>
@@ -1216,7 +1218,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.6)",
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 10,
   },
 
   webFallbackContainer: {
@@ -1260,6 +1262,9 @@ const styles = StyleSheet.create({
   },
   successIconCircle: {
     marginBottom: 10,
+    padding: 10,
+    borderRadius: 14,
+    backgroundColor: AppColors.secondary,
   },
   successTitle: {
     fontSize: 20,
@@ -1271,7 +1276,7 @@ const styles = StyleSheet.create({
   successDetails: {
     width: "100%",
     backgroundColor: AppColors.background,
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 16,
     marginVertical: 16,
     gap: 10,
@@ -1295,8 +1300,8 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   successCloseBtn: {
-    backgroundColor: AppColors.primary,
-    borderRadius: 14,
+    backgroundColor: AppColors.secondary,
+    borderRadius: 12,
     paddingVertical: 12,
     width: "100%",
     alignItems: "center",
