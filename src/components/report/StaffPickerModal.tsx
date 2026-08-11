@@ -1,10 +1,13 @@
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
+import { useResponsive } from "@/hooks/useResponsive";
 import { StaffUser } from "@/services/userService";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   Modal,
+  Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -31,6 +34,7 @@ export function StaffPickerModal({
 }: StaffPickerModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const insets = useSafeAreaInsets();
+  const { isMobile } = useResponsive();
 
   const filteredStaff = staffList.filter((st) => {
     if (!searchQuery.trim()) return true;
@@ -47,17 +51,34 @@ export function StaffPickerModal({
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType={isMobile ? "slide" : "fade"}
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View style={s.backdrop}>
-        <TouchableOpacity
-          style={s.backdropDismiss}
-          onPress={onClose}
-          activeOpacity={1}
-        />
-        <View style={[s.sheet, { paddingBottom: insets.bottom + 16 }]}>
+      <View
+        style={[
+          s.backdrop,
+          {
+            justifyContent: !isMobile ? "center" : "flex-end",
+            alignItems: !isMobile ? "center" : "stretch",
+            padding: !isMobile ? 16 : 0,
+          },
+        ]}
+      >
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <View
+          style={[
+            s.sheet,
+            {
+              maxWidth: !isMobile ? 450 : "100%",
+              width: !isMobile ? 450 : "100%",
+              borderRadius: !isMobile ? 24 : undefined,
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              paddingBottom: insets.bottom + 16,
+            },
+          ]}
+        >
           {/* Header */}
           <View style={s.header}>
             <Text style={s.headerTitle}>Select Staff Member</Text>
@@ -219,6 +240,7 @@ const s = StyleSheet.create({
     color: AppColors.textPrimary,
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
+    ...(Platform.OS === "web" && ({ outlineStyle: "none", outlineWidth: 0 } as any)),
   },
 
   scrollList: {

@@ -6,13 +6,8 @@
     "noImplicitAny": false,
     "types": ["node"],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@/assets/*": [
-        "./src/assets/*",
-        "./assets/*"
-      ]
+      "@/*": ["./src/*"],
+      "@/assets/*": ["./src/assets/*", "./assets/*"]
     }
   },
   "include": [
@@ -21,9 +16,5 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "**/node_modules",
-    "example"
-  ]
+  "exclude": ["node_modules", "**/node_modules", "example"]
 }

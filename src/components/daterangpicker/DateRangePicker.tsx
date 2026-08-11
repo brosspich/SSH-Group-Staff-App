@@ -5,6 +5,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   Modal,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -370,7 +371,7 @@ export default function DateRangePicker({
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType={isMobile ? "slide" : "fade"}
       onRequestClose={onClose}
       statusBarTranslucent
     >
@@ -380,9 +381,11 @@ export default function DateRangePicker({
           {
             justifyContent: !isMobile ? "center" : "flex-end",
             alignItems: !isMobile ? "center" : "stretch",
+            padding: !isMobile ? 16 : 0,
           },
         ]}
       >
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View
           style={[
             s.sheet,

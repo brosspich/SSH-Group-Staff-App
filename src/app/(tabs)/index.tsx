@@ -7,8 +7,9 @@ import {
   isValidAttendanceQR,
 } from "@/constants/attendanceConfig";
 import { useResponsive } from "@/hooks/useResponsive";
-import { StaffUser, userService } from "@/services/userService";
 import { sendAttendanceToTelegram } from "@/services/telegramService";
+import { StaffUser, userService } from "@/services/userService";
+import { verifyAttendanceSecurity } from "@/utils/locationService";
 import { supabase } from "@/utils/supabase";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
@@ -16,6 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Modal,
   Platform,
@@ -130,6 +132,14 @@ export default function DashboardIndex() {
   const [torchOn, setTorchOn] = useState(false);
   const [scanned, setScanned] = useState(false);
 
+  // Security checking states
+  const [verifyingSecurity, setVerifyingSecurity] = useState(false);
+  const [securityModalVisible, setSecurityModalVisible] = useState(false);
+  const [securityErrorTitle, setSecurityErrorTitle] = useState(
+    "Security Check Failed",
+  );
+  const [securityErrorMessage, setSecurityErrorMessage] = useState("");
+
   // Invalid QR alert modal state
   const [invalidQrModalVisible, setInvalidQrModalVisible] = useState(false);
 
@@ -199,8 +209,9 @@ export default function DashboardIndex() {
     fetchUserAndAttendance();
   }, [fetchUserAndAttendance]);
 
-  // Open scanner modal
+  // Open scanner modal with Location & Security Checks
   const handleOpenScanner = async () => {
+    if (verifyingSecurity) return;
     setScanned(false);
     // Refresh official QR codes on open
     fetchOfficialAttendanceQRCodes().then(setOfficialQrList);
@@ -215,7 +226,36 @@ export default function DashboardIndex() {
         return;
       }
     }
-    setScannerVisible(true);
+
+    // Perform Location Geofence & Anti-Spoofing / Anti-VPN Security Check
+    setVerifyingSecurity(true);
+    try {
+      const secCheck = await verifyAttendanceSecurity();
+      if (!secCheck.allowed) {
+        let title = "Security Verification Failed";
+        if (secCheck.code === "OUT_OF_RANGE") {
+          title = "Outside Company Location";
+        } else if (secCheck.code === "MOCK_LOCATION") {
+          title = "Fake Location Detected";
+        } else if (secCheck.code === "VPN_DETECTED") {
+          title = "VPN Network Detected";
+        } else if (secCheck.code === "PERMISSION_DENIED") {
+          title = "Location Permission Required";
+        }
+
+        setSecurityErrorTitle(title);
+        setSecurityErrorMessage(
+          secCheck.reason ||
+            "Security verification failed. Attendance scan is not permitted.",
+        );
+        setSecurityModalVisible(true);
+        return;
+      }
+
+      setScannerVisible(true);
+    } finally {
+      setVerifyingSecurity(false);
+    }
   };
 
   // Process QR Data & Save Attendance
@@ -230,6 +270,19 @@ export default function DashboardIndex() {
     }
 
     setScanned(true);
+
+    // Re-verify security before final submission
+    const secCheck = await verifyAttendanceSecurity();
+    if (!secCheck.allowed) {
+      setScannerVisible(false);
+      setSecurityErrorTitle("Security Verification Failed");
+      setSecurityErrorMessage(
+        secCheck.reason ||
+          "Security check failed. Attendance record was cancelled.",
+      );
+      setSecurityModalVisible(true);
+      return;
+    }
 
     const now = new Date();
     const attType = calculateAttendanceType(now);
@@ -346,7 +399,7 @@ export default function DashboardIndex() {
         <View
           style={[
             styles.container,
-            !isMobile && { maxWidth: "70%", alignSelf: "center" },
+            // !isMobile && { maxWidth: 850, width: "100%", alignSelf: "center" },
           ]}
         >
           {/* ── Welcome Banner Card ── */}
@@ -472,6 +525,7 @@ export default function DashboardIndex() {
           <TouchableOpacity
             style={styles.scanBtnContainer}
             onPress={handleOpenScanner}
+            disabled={verifyingSecurity}
             activeOpacity={0.88}
           >
             <LinearGradient
@@ -481,16 +535,29 @@ export default function DashboardIndex() {
               style={styles.scanBtn}
             >
               <View style={styles.scanBtnIconCircle}>
-                <Ionicons
-                  name="qr-code-outline"
-                  size={28}
-                  color={AppColors.background2}
-                />
+                {verifyingSecurity ? (
+                  <ActivityIndicator
+                    size="small"
+                    color={AppColors.background2}
+                  />
+                ) : (
+                  <Ionicons
+                    name="qr-code-outline"
+                    size={28}
+                    color={AppColors.background2}
+                  />
+                )}
               </View>
               <View style={styles.scanBtnTextCol}>
-                <Text style={styles.scanBtnTitle}>Scan Attendance QR Code</Text>
+                <Text style={styles.scanBtnTitle}>
+                  {verifyingSecurity
+                    ? "Verifying Location & Security..."
+                    : "Scan Attendance QR Code"}
+                </Text>
                 <Text style={styles.scanBtnSub}>
-                  Tap to open camera scanner
+                  {verifyingSecurity
+                    ? "Checking GPS location & VPN status"
+                    : "Tap to open camera scanner"}
                 </Text>
               </View>
               <Ionicons
@@ -534,7 +601,7 @@ export default function DashboardIndex() {
             </View>
           ) : (
             <View style={styles.historyList}>
-              {attendanceList.slice(0, 2).map((item) => {
+              {attendanceList.slice(0, 4).map((item) => {
                 const isTimeIn = item.type === "time-in";
                 const isTimeOut = item.type === "time-out";
 
@@ -784,6 +851,19 @@ export default function DashboardIndex() {
         title: "Invalid Attendance QR Code",
         bodyTxt:
           "The scanned QR code does not match the official SSH Group Attendance QR Code. Attendance was not recorded.",
+        onPress: () => setScanned(false),
+        isMobile,
+      })}
+
+      {/* ── Security / Location Error Alert Modal ── */}
+      {renderAlertModal({
+        alertModalVisible: securityModalVisible,
+        setAlertModalVisible: (visible) => {
+          setSecurityModalVisible(visible);
+          if (!visible) setScanned(false);
+        },
+        title: securityErrorTitle,
+        bodyTxt: securityErrorMessage,
         onPress: () => setScanned(false),
         isMobile,
       })}

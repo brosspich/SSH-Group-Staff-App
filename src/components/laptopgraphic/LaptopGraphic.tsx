@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
+import { AppColors } from "@/constants/appcolors";
+import { StyleSheet, View } from "react-native";
 
 const LaptopGraphic = () => {
   return (
@@ -13,35 +14,35 @@ const LaptopGraphic = () => {
           <View style={graphicStyles.topBar}>
             <View style={graphicStyles.topBarLeft}>
               <View style={graphicStyles.appLogoSquare} />
-              <View style={graphicStyles.appLogoText} />
+              <View style={graphicStyles.appLogoDivider} />
+              <View style={graphicStyles.appLogoSquare} />
             </View>
-            <View style={graphicStyles.userAvatar}>
-              <Text style={graphicStyles.userAvatarText}>LP</Text>
-            </View>
+            <View style={graphicStyles.userAvatar} />
           </View>
 
-          {/* Main Dashboard Layout: Sidebar + Content */}
+          {/* Screen Body (Sidebar + Content) */}
           <View style={graphicStyles.screenBody}>
             {/* Sidebar */}
             <View style={graphicStyles.sidebar}>
-              {/* Active menu item: DashBoard */}
+              {/* Home (Active) */}
               <View style={graphicStyles.sidebarActiveItem}>
                 <View style={graphicStyles.activeIconDot} />
                 <View style={graphicStyles.activeItemText} />
               </View>
-              {/* Other menu items */}
+
+              {/* Attendance */}
               <View style={graphicStyles.sidebarItem}>
                 <View style={graphicStyles.itemIconDot} />
                 <View style={graphicStyles.itemText} />
               </View>
+
+              {/* Report */}
               <View style={graphicStyles.sidebarItem}>
                 <View style={graphicStyles.itemIconDot} />
                 <View style={graphicStyles.itemText} />
               </View>
-              <View style={graphicStyles.sidebarItem}>
-                <View style={graphicStyles.itemIconDot} />
-                <View style={graphicStyles.itemText} />
-              </View>
+
+              {/* Setting */}
               <View style={graphicStyles.sidebarItem}>
                 <View style={graphicStyles.itemIconDot} />
                 <View style={graphicStyles.itemText} />
@@ -50,88 +51,191 @@ const LaptopGraphic = () => {
 
             {/* Main Content Area */}
             <View style={graphicStyles.mainContent}>
-              {/* Header Title */}
-              <View style={graphicStyles.dashboardHeader}>
-                <View style={graphicStyles.headerTitleLine} />
-                <View style={graphicStyles.headerSubtitleLine} />
-              </View>
-
-              {/* Filter Pills */}
-              <View style={graphicStyles.filterPillsRow}>
-                <View style={graphicStyles.activePill} />
-                <View style={graphicStyles.inactivePill} />
-                <View style={graphicStyles.inactivePill} />
-                <View style={graphicStyles.inactivePill} />
-                <View style={graphicStyles.inactivePill} />
-              </View>
-
-              {/* Stat Cards Grid (4 mini cards matching screenshot: Revenue, Spend, Cash, KHQR) */}
-              <View style={graphicStyles.statCardsRow}>
-                <View
-                  style={[graphicStyles.statCard, { borderColor: "#dcfce7" }]}
-                >
-                  <View
-                    style={[
-                      graphicStyles.statDot,
-                      { backgroundColor: "#16a34a" },
-                    ]}
-                  />
-                  <View style={graphicStyles.statLine1} />
-                  <View style={graphicStyles.statLine2} />
-                </View>
-                <View
-                  style={[graphicStyles.statCard, { borderColor: "#ffedd5" }]}
-                >
-                  <View
-                    style={[
-                      graphicStyles.statDot,
-                      { backgroundColor: "#ea580c" },
-                    ]}
-                  />
-                  <View style={graphicStyles.statLine1} />
-                  <View style={graphicStyles.statLine2} />
-                </View>
-                <View
-                  style={[graphicStyles.statCard, { borderColor: "#f3e8ff" }]}
-                >
-                  <View
-                    style={[
-                      graphicStyles.statDot,
-                      { backgroundColor: "#9333ea" },
-                    ]}
-                  />
-                  <View style={graphicStyles.statLine1} />
-                  <View style={graphicStyles.statLine2} />
-                </View>
-                <View
-                  style={[graphicStyles.statCard, { borderColor: "#fce7f3" }]}
-                >
-                  <View
-                    style={[
-                      graphicStyles.statDot,
-                      { backgroundColor: "#db2777" },
-                    ]}
-                  />
-                  <View style={graphicStyles.statLine1} />
-                  <View style={graphicStyles.statLine2} />
-                </View>
-              </View>
-
-              {/* Revenue & Orders Chart Area */}
-              <View style={graphicStyles.chartCard}>
-                <View style={graphicStyles.chartHeaderRow}>
-                  <View style={graphicStyles.chartTitleLine} />
-                  <View style={graphicStyles.currencyBadge} />
-                </View>
-                <View style={graphicStyles.chartBarsContainer}>
-                  <View style={graphicStyles.chartYAxis}>
-                    <View style={graphicStyles.yLine} />
-                    <View style={graphicStyles.yLine} />
-                    <View style={graphicStyles.yLine} />
+              {/* Welcome Banner Card */}
+              <View style={graphicStyles.bannerCard}>
+                <View style={graphicStyles.bannerLeft}>
+                  <View style={graphicStyles.greetingLine} />
+                  <View style={graphicStyles.userNameLine} />
+                  <View style={graphicStyles.badgeRow}>
+                    <View style={graphicStyles.miniBadge} />
+                    <View style={graphicStyles.miniBadge} />
                   </View>
-                  <View style={graphicStyles.barsRow}>
-                    <View style={[graphicStyles.bar, { height: 14 }]} />
-                    <View style={[graphicStyles.bar, { height: 25 }]} />
+                </View>
+                <View style={graphicStyles.bannerRight}>
+                  <View style={graphicStyles.clockTimeLine} />
+                  <View style={graphicStyles.clockDateLine} />
+                  <View style={graphicStyles.shiftBadge}>
+                    <View style={graphicStyles.shiftDot} />
+                    <View style={graphicStyles.shiftLine} />
+                  </View>
+                </View>
+              </View>
+
+              {/* 3 Summary Cards */}
+              <View style={graphicStyles.summaryRow}>
+                {/* Time-In */}
+                <View style={graphicStyles.summaryCard}>
+                  <View
+                    style={[
+                      graphicStyles.summaryIconBox,
+                      { backgroundColor: "#dcfce7" },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        graphicStyles.summaryIconDot,
+                        { backgroundColor: "#15803d" },
+                      ]}
+                    />
+                  </View>
+                  <View style={graphicStyles.summaryTextCol}>
+                    <View
+                      style={[
+                        graphicStyles.summaryLabelLine,
+                        { backgroundColor: "#15803d" },
+                      ]}
+                    />
+                    <View
+                      style={[
+                        graphicStyles.summaryValueLine,
+                        { backgroundColor: "#15803d" },
+                      ]}
+                    />
+                  </View>
+                </View>
+
+                {/* Time-Out */}
+                <View style={graphicStyles.summaryCard}>
+                  <View
+                    style={[
+                      graphicStyles.summaryIconBox,
+                      { backgroundColor: "#dbeafe" },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        graphicStyles.summaryIconDot,
+                        { backgroundColor: "#1d4ed8" },
+                      ]}
+                    />
+                  </View>
+                  <View style={graphicStyles.summaryTextCol}>
+                    <View
+                      style={[
+                        graphicStyles.summaryLabelLine,
+                        { backgroundColor: "#1d4ed8" },
+                      ]}
+                    />
+                    <View
+                      style={[
+                        graphicStyles.summaryValueLine,
+                        { backgroundColor: "#94a3b8" },
+                      ]}
+                    />
+                  </View>
+                </View>
+
+                {/* Time-Other */}
+                <View style={graphicStyles.summaryCard}>
+                  <View
+                    style={[
+                      graphicStyles.summaryIconBox,
+                      { backgroundColor: "#f3e8ff" },
+                    ]}
+                  >
+                    <View
+                      style={[
+                        graphicStyles.summaryIconDot,
+                        { backgroundColor: "#7e22ce" },
+                      ]}
+                    />
+                  </View>
+                  <View style={graphicStyles.summaryTextCol}>
+                    <View
+                      style={[
+                        graphicStyles.summaryLabelLine,
+                        { backgroundColor: "#7e22ce" },
+                      ]}
+                    />
+                    <View
+                      style={[
+                        graphicStyles.summaryValueLine,
+                        { backgroundColor: "#7e22ce" },
+                      ]}
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* Scan Attendance Button */}
+              <View style={graphicStyles.scanBtn}>
+                <View style={graphicStyles.scanIconCircle} />
+                <View style={graphicStyles.scanTextCol}>
+                  <View style={graphicStyles.scanTitleLine} />
+                  <View style={graphicStyles.scanSubLine} />
+                </View>
+                <View style={graphicStyles.scanChevron} />
+              </View>
+
+              {/* Recent Logs Section Header */}
+              <View style={graphicStyles.logsHeader}>
+                <View style={graphicStyles.logsTitleLine} />
+                <View style={graphicStyles.logsLinkLine} />
+              </View>
+
+              {/* Recent Log Rows */}
+              <View style={graphicStyles.logList}>
+                {/* Row 1 */}
+                <View style={graphicStyles.logRow}>
+                  <View
+                    style={[
+                      graphicStyles.logBadge,
+                      { backgroundColor: "#f3e8ff" },
+                    ]}
+                  />
+                  <View style={graphicStyles.logCenter}>
+                    <View style={graphicStyles.logTimeLine} />
+                    <View style={graphicStyles.logDateLine} />
+                  </View>
+                  <View style={graphicStyles.logRight}>
+                    <View style={graphicStyles.logNameLine} />
+                    <View style={graphicStyles.logIdLine} />
+                  </View>
+                </View>
+
+                {/* Row 2 */}
+                <View style={graphicStyles.logRow}>
+                  <View
+                    style={[
+                      graphicStyles.logBadge,
+                      { backgroundColor: "#f3e8ff" },
+                    ]}
+                  />
+                  <View style={graphicStyles.logCenter}>
+                    <View style={graphicStyles.logTimeLine} />
+                    <View style={graphicStyles.logDateLine} />
+                  </View>
+                  <View style={graphicStyles.logRight}>
+                    <View style={graphicStyles.logNameLine} />
+                    <View style={graphicStyles.logIdLine} />
+                  </View>
+                </View>
+
+                {/* Row 3 */}
+                <View style={graphicStyles.logRow}>
+                  <View
+                    style={[
+                      graphicStyles.logBadge,
+                      { backgroundColor: "#dcfce7" },
+                    ]}
+                  />
+                  <View style={graphicStyles.logCenter}>
+                    <View style={graphicStyles.logTimeLine} />
+                    <View style={graphicStyles.logDateLine} />
+                  </View>
+                  <View style={graphicStyles.logRight}>
+                    <View style={graphicStyles.logNameLine} />
+                    <View style={graphicStyles.logIdLine} />
                   </View>
                 </View>
               </View>
@@ -140,7 +244,7 @@ const LaptopGraphic = () => {
         </View>
       </View>
 
-      {/* Laptop Hinge / Notch & Base */}
+      {/* Laptop Hinge / Notch & Base (exact original size) */}
       <View style={graphicStyles.baseNotch} />
       <View style={graphicStyles.base} />
       <View style={graphicStyles.baseBottom} />
@@ -153,8 +257,9 @@ export default LaptopGraphic;
 const graphicStyles = StyleSheet.create({
   container: {
     alignItems: "center",
-    marginVertical: 16,
+    marginVertical: 12,
   },
+  // Exact original screen dimensions (width 200, height 125)
   screenBorder: {
     width: 200,
     height: 125,
@@ -181,67 +286,64 @@ const graphicStyles = StyleSheet.create({
     borderRadius: 4,
     overflow: "hidden",
   },
+
+  // Top Bar
   topBar: {
-    height: 15,
+    height: 13,
     backgroundColor: "#ffffff",
     borderBottomWidth: 0.5,
     borderBottomColor: "#e2e8f0",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 6,
+    paddingHorizontal: 5,
   },
   topBarLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 3,
+    gap: 2,
   },
   appLogoSquare: {
-    width: 7,
-    height: 7,
-    borderRadius: 2,
-    backgroundColor: "#1d4ed8",
+    width: 6,
+    height: 6,
+    borderRadius: 1.5,
+    backgroundColor: AppColors.secondary,
   },
-  appLogoText: {
-    width: 18,
-    height: 3,
-    borderRadius: 1,
-    backgroundColor: "#0f172a",
+  appLogoDivider: {
+    width: 1,
+    height: 6,
+    backgroundColor: AppColors.secondary,
   },
   userAvatar: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#1e3a8a",
-    alignItems: "center",
-    justifyContent: "center",
+    width: 8,
+    height: 8,
+    borderRadius: 2.5,
+    backgroundColor: AppColors.secondary,
   },
-  userAvatarText: {
-    fontSize: 5,
-    color: "#ffffff",
-    fontWeight: "700",
-    includeFontPadding: false,
-  },
+
+  // Screen Body
   screenBody: {
     flex: 1,
     flexDirection: "row",
   },
+
+  // Sidebar
   sidebar: {
-    width: 44,
+    width: 40,
     backgroundColor: "#ffffff",
     borderRightWidth: 0.5,
     borderRightColor: "#e2e8f0",
     padding: 3,
-    gap: 3,
+    gap: 2,
   },
   sidebarActiveItem: {
-    height: 11,
-    backgroundColor: "#1d4ed8",
-    borderRadius: 3,
+    height: 10,
+    backgroundColor: AppColors.secondary,
+    borderRadius: 2.5,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 3,
-    gap: 3,
+    gap: 2.5,
   },
   activeIconDot: {
     width: 3,
@@ -250,151 +352,266 @@ const graphicStyles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
   activeItemText: {
-    width: 22,
+    width: 18,
     height: 2.5,
     borderRadius: 1,
     backgroundColor: "#ffffff",
   },
   sidebarItem: {
-    height: 9,
+    height: 8,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 3,
-    gap: 3,
+    gap: 2.5,
   },
   itemIconDot: {
     width: 3,
     height: 3,
     borderRadius: 1,
-    backgroundColor: "#94a3b8",
+    backgroundColor: AppColors.secondary,
   },
   itemText: {
-    width: 20,
-    height: 2.5,
+    width: 18,
+    height: 2,
     borderRadius: 1,
-    backgroundColor: "#cbd5e1",
+    backgroundColor: `${AppColors.secondary}66`,
   },
+
+  // Main Content
   mainContent: {
     flex: 1,
     backgroundColor: "#f1f5f9",
-    padding: 4,
-    gap: 3,
+    padding: 3,
+    gap: 2.5,
   },
-  dashboardHeader: {
-    gap: 1.5,
-  },
-  headerTitleLine: {
-    width: 34,
-    height: 3.5,
-    borderRadius: 1,
-    backgroundColor: "#0f172a",
-  },
-  headerSubtitleLine: {
-    width: 52,
-    height: 2,
-    borderRadius: 1,
-    backgroundColor: "#94a3b8",
-  },
-  filterPillsRow: {
-    flexDirection: "row",
-    gap: 2,
-    alignItems: "center",
-  },
-  activePill: {
-    width: 12,
-    height: 5,
-    borderRadius: 2,
-    backgroundColor: "#1d4ed8",
-  },
-  inactivePill: {
-    width: 10,
-    height: 5,
-    borderRadius: 2,
-    borderWidth: 0.5,
-    borderColor: "#cbd5e1",
-    backgroundColor: "#ffffff",
-  },
-  statCardsRow: {
-    flexDirection: "row",
-    gap: 2,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: "#ffffff",
-    borderRadius: 3,
-    padding: 2,
-    borderWidth: 0.5,
-    gap: 1.5,
-  },
-  statDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-  },
-  statLine1: {
-    width: "75%",
-    height: 2,
-    borderRadius: 1,
-    backgroundColor: "#94a3b8",
-  },
-  statLine2: {
-    width: "100%",
-    height: 3,
-    borderRadius: 1,
-    backgroundColor: "#0f172a",
-  },
-  chartCard: {
-    flex: 1,
-    backgroundColor: "#ffffff",
+
+  // Welcome Banner Card
+  bannerCard: {
+    backgroundColor: AppColors.secondary,
     borderRadius: 3,
     padding: 3,
+    flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
   },
-  chartHeaderRow: {
+  bannerLeft: {
+    gap: 1.5,
+  },
+  greetingLine: {
+    width: 20,
+    height: 1.5,
+    borderRadius: 1,
+    backgroundColor: "rgba(255,255,255,0.7)",
+  },
+  userNameLine: {
+    width: 32,
+    height: 3,
+    borderRadius: 1,
+    backgroundColor: "#ffffff",
+  },
+  badgeRow: {
+    flexDirection: "row",
+    gap: 2,
+  },
+  miniBadge: {
+    width: 12,
+    height: 3,
+    borderRadius: 1,
+    backgroundColor: "rgba(255,255,255,0.3)",
+  },
+  bannerRight: {
+    alignItems: "flex-end",
+    gap: 1.5,
+  },
+  clockTimeLine: {
+    width: 26,
+    height: 3,
+    borderRadius: 1,
+    backgroundColor: "#ffffff",
+  },
+  clockDateLine: {
+    width: 22,
+    height: 1.5,
+    borderRadius: 1,
+    backgroundColor: "rgba(255,255,255,0.7)",
+  },
+  shiftBadge: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: 1.5,
+    backgroundColor: "rgba(0,0,0,0.2)",
+    paddingHorizontal: 2.5,
+    paddingVertical: 1,
+    borderRadius: 1.5,
   },
-  chartTitleLine: {
+  shiftDot: {
+    width: 2,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: "#22c55e",
+  },
+  shiftLine: {
+    width: 22,
+    height: 1.5,
+    borderRadius: 1,
+    backgroundColor: "#ffffff",
+  },
+
+  // 3 Summary Cards
+  summaryRow: {
+    flexDirection: "row",
+    gap: 2,
+  },
+  summaryCard: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+    borderRadius: 2.5,
+    padding: 2,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+    borderWidth: 0.5,
+    borderColor: "#e2e8f0",
+  },
+  summaryIconBox: {
+    width: 6,
+    height: 6,
+    borderRadius: 1.5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  summaryIconDot: {
+    width: 2.5,
+    height: 2.5,
+    borderRadius: 1,
+  },
+  summaryTextCol: {
+    flex: 1,
+    gap: 1,
+  },
+  summaryLabelLine: {
+    width: "70%",
+    height: 1.5,
+    borderRadius: 1,
+  },
+  summaryValueLine: {
+    width: "100%",
+    height: 2.5,
+    borderRadius: 1,
+  },
+
+  // Scan Button
+  scanBtn: {
+    backgroundColor: AppColors.secondary,
+    borderRadius: 2.5,
+    paddingHorizontal: 3,
+    paddingVertical: 2,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2.5,
+  },
+  scanIconCircle: {
+    width: 6,
+    height: 6,
+    borderRadius: 1.5,
+    backgroundColor: "rgba(255,255,255,0.25)",
+  },
+  scanTextCol: {
+    flex: 1,
+    gap: 1,
+  },
+  scanTitleLine: {
+    width: "65%",
+    height: 2.5,
+    borderRadius: 1,
+    backgroundColor: "#ffffff",
+  },
+  scanSubLine: {
+    width: "45%",
+    height: 1.5,
+    borderRadius: 1,
+    backgroundColor: "rgba(255,255,255,0.7)",
+  },
+  scanChevron: {
+    width: 2,
+    height: 3,
+    borderRadius: 0.5,
+    backgroundColor: "#ffffff",
+  },
+
+  // Logs Section Header
+  logsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  logsTitleLine: {
+    width: 36,
+    height: 2.5,
+    borderRadius: 1,
+    backgroundColor: "#0f172a",
+  },
+  logsLinkLine: {
+    width: 18,
+    height: 2,
+    borderRadius: 1,
+    backgroundColor: AppColors.secondary,
+  },
+
+  // Log List
+  logList: {
+    gap: 1.5,
+  },
+  logRow: {
+    backgroundColor: "#ffffff",
+    borderRadius: 2,
+    paddingHorizontal: 3,
+    paddingVertical: 2,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 0.5,
+    borderColor: "#e2e8f0",
+  },
+  logBadge: {
+    width: 16,
+    height: 4,
+    borderRadius: 1,
+  },
+  logCenter: {
+    flex: 1,
+    marginLeft: 3,
+    gap: 1,
+  },
+  logTimeLine: {
     width: 24,
     height: 2.5,
     borderRadius: 1,
     backgroundColor: "#0f172a",
   },
-  currencyBadge: {
-    width: 10,
-    height: 3,
+  logDateLine: {
+    width: 18,
+    height: 1.5,
     borderRadius: 1,
-    backgroundColor: "#1d4ed8",
+    backgroundColor: "#94a3b8",
   },
-  chartBarsContainer: {
-    flexDirection: "row",
+  logRight: {
     alignItems: "flex-end",
-    gap: 4,
-    height: 26,
+    gap: 1,
   },
-  chartYAxis: {
-    width: 12,
-    height: "100%",
-    justifyContent: "space-between",
+  logNameLine: {
+    width: 28,
+    height: 2.5,
+    borderRadius: 1,
+    backgroundColor: "#0f172a",
   },
-  yLine: {
-    width: 10,
-    height: 1,
-    backgroundColor: "#e2e8f0",
+  logIdLine: {
+    width: 14,
+    height: 1.5,
+    borderRadius: 1,
+    backgroundColor: "#94a3b8",
   },
-  barsRow: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    gap: 4,
-    marginLeft: 2,
-  },
-  bar: {
-    width: 7,
-    backgroundColor: "#1d4ed8",
-    borderTopLeftRadius: 1.5,
-    borderTopRightRadius: 1.5,
-  },
+
+  // Exact original laptop base dimensions
   baseNotch: {
     width: 24,
     height: 2,

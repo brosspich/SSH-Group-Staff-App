@@ -8,6 +8,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useState } from "react";
 import {
+  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -153,7 +154,7 @@ export default function AttendanceLogsScreen() {
         <View
           style={[
             styles.container,
-            !isMobile && { maxWidth: "70%", alignSelf: "center" },
+            // !isMobile && { maxWidth: 850, width: "100%", alignSelf: "center" },
           ]}
         >
           {/* ── Header Title Banner ── */}
@@ -471,6 +472,7 @@ const styles = StyleSheet.create({
     color: AppColors.textPrimary,
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
+    ...(Platform.OS === "web" && ({ outlineStyle: "none", outlineWidth: 0 } as any)),
   },
 
   // Filter Chips

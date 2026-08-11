@@ -1,6 +1,7 @@
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useUser } from "@/contexts/UserContext";
+import { useResponsive } from "@/hooks/useResponsive";
 import { hasAdminRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -12,6 +13,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 export default function Report() {
   const { user } = useUser();
   const isAdmin = hasAdminRole(user?.role);
+  const { isMobile } = useResponsive();
 
   function BtnItem({ iconName, title, onPress, icon }: any) {
     return (
@@ -63,136 +65,147 @@ export default function Report() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 90 }}
       >
-        {/* ── Report Current Staff (Visible to All Staff & Admins) ── */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Report Current Staff</Text>
-          <View style={styles.card}>
-            <BtnItem
-              onPress={() => {
-                router.push("/report-current-staff/daily-report");
-              }}
-              title="Daily Report"
-              iconName="newspaper-outline"
-              icon={Ionicons}
-            />
-            <Border />
-            <BtnItem
-              onPress={() => {
-                router.push("/report-current-staff/weekly-report");
-              }}
-              title="Weekly Report"
-              iconName="newspaper-outline"
-              icon={Ionicons}
-            />
-            <Border />
-            <BtnItem
-              onPress={() => {
-                router.push("/report-current-staff/monthly-report");
-              }}
-              title="Monthly Report"
-              iconName="newspaper-outline"
-              icon={Ionicons}
-            />
-            <Border />
-            <BtnItem
-              onPress={() => {
-                router.push("/report-current-staff/annual-report");
-              }}
-              title="Annual Report"
-              iconName="newspaper-outline"
-              icon={Ionicons}
-            />
+        <View
+        // style={[
+        //   !isMobile && {
+        //     maxWidth: 850,
+        //     width: "100%",
+        //     alignSelf: "center",
+        //     paddingVertical: 12,
+        //   },
+        // ]}
+        >
+          {/* ── Report Current Staff (Visible to All Staff & Admins) ── */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Report Current Staff</Text>
+            <View style={styles.card}>
+              <BtnItem
+                onPress={() => {
+                  router.push("/report-current-staff/daily-report");
+                }}
+                title="Daily Report"
+                iconName="newspaper-outline"
+                icon={Ionicons}
+              />
+              <Border />
+              <BtnItem
+                onPress={() => {
+                  router.push("/report-current-staff/weekly-report");
+                }}
+                title="Weekly Report"
+                iconName="newspaper-outline"
+                icon={Ionicons}
+              />
+              <Border />
+              <BtnItem
+                onPress={() => {
+                  router.push("/report-current-staff/monthly-report");
+                }}
+                title="Monthly Report"
+                iconName="newspaper-outline"
+                icon={Ionicons}
+              />
+              <Border />
+              <BtnItem
+                onPress={() => {
+                  router.push("/report-current-staff/annual-report");
+                }}
+                title="Annual Report"
+                iconName="newspaper-outline"
+                icon={Ionicons}
+              />
+            </View>
           </View>
+
+          {/* ── Admin Only: Report Individual Staff & Report All Staff ── */}
+          {isAdmin && (
+            <>
+              {/* ── Report Individual Staff ── */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Report Individual Staff</Text>
+                <View style={styles.card}>
+                  <BtnItem
+                    onPress={() => {
+                      router.push("/report-individual-staff/daily-report");
+                    }}
+                    title="Daily Report"
+                    iconName="newspaper-outline"
+                    icon={Ionicons}
+                  />
+                  <Border />
+                  <BtnItem
+                    onPress={() => {
+                      router.push("/report-individual-staff/weekly-report");
+                    }}
+                    title="Weekly Report"
+                    iconName="newspaper-outline"
+                    icon={Ionicons}
+                  />
+                  <Border />
+                  <BtnItem
+                    onPress={() => {
+                      router.push("/report-individual-staff/monthly-report");
+                    }}
+                    title="Monthly Report"
+                    iconName="newspaper-outline"
+                    icon={Ionicons}
+                  />
+                  <Border />
+                  <BtnItem
+                    onPress={() => {
+                      router.push("/report-individual-staff/annual-report");
+                    }}
+                    title="Annual Report"
+                    iconName="newspaper-outline"
+                    icon={Ionicons}
+                  />
+                </View>
+              </View>
+
+              {/* ── Report All Staff ── */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Report All Staff</Text>
+                <View style={styles.card}>
+                  <BtnItem
+                    onPress={() => {
+                      router.push("/report-all-staff/daily-report");
+                    }}
+                    title="Daily Report"
+                    iconName="newspaper-outline"
+                    icon={Ionicons}
+                  />
+                  <Border />
+                  <BtnItem
+                    onPress={() => {
+                      router.push("/report-all-staff/weekly-report");
+                    }}
+                    title="Weekly Report"
+                    iconName="newspaper-outline"
+                    icon={Ionicons}
+                  />
+                  <Border />
+                  <BtnItem
+                    onPress={() => {
+                      router.push("/report-all-staff/monthly-report");
+                    }}
+                    title="Monthly Report"
+                    iconName="newspaper-outline"
+                    icon={Ionicons}
+                  />
+                  <Border />
+                  <BtnItem
+                    onPress={() => {
+                      router.push("/report-all-staff/annual-report");
+                    }}
+                    title="Annual Report"
+                    iconName="newspaper-outline"
+                    icon={Ionicons}
+                  />
+                </View>
+              </View>
+            </>
+          )}
         </View>
-
-        {/* ── Admin Only: Report Individual Staff & Report All Staff ── */}
-        {isAdmin && (
-          <>
-            {/* ── Report Individual Staff ── */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Report Individual Staff</Text>
-              <View style={styles.card}>
-                <BtnItem
-                  onPress={() => {
-                    router.push("/report-individual-staff/daily-report");
-                  }}
-                  title="Daily Report"
-                  iconName="newspaper-outline"
-                  icon={Ionicons}
-                />
-                <Border />
-                <BtnItem
-                  onPress={() => {
-                    router.push("/report-individual-staff/weekly-report");
-                  }}
-                  title="Weekly Report"
-                  iconName="newspaper-outline"
-                  icon={Ionicons}
-                />
-                <Border />
-                <BtnItem
-                  onPress={() => {
-                    router.push("/report-individual-staff/monthly-report");
-                  }}
-                  title="Monthly Report"
-                  iconName="newspaper-outline"
-                  icon={Ionicons}
-                />
-                <Border />
-                <BtnItem
-                  onPress={() => {
-                    router.push("/report-individual-staff/annual-report");
-                  }}
-                  title="Annual Report"
-                  iconName="newspaper-outline"
-                  icon={Ionicons}
-                />
-              </View>
-            </View>
-
-            {/* ── Report All Staff ── */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Report All Staff</Text>
-              <View style={styles.card}>
-                <BtnItem
-                  onPress={() => {
-                    router.push("/report-all-staff/daily-report");
-                  }}
-                  title="Daily Report"
-                  iconName="newspaper-outline"
-                  icon={Ionicons}
-                />
-                <Border />
-                <BtnItem
-                  onPress={() => {
-                    router.push("/report-all-staff/weekly-report");
-                  }}
-                  title="Weekly Report"
-                  iconName="newspaper-outline"
-                  icon={Ionicons}
-                />
-                <Border />
-                <BtnItem
-                  onPress={() => {
-                    router.push("/report-all-staff/monthly-report");
-                  }}
-                  title="Monthly Report"
-                  iconName="newspaper-outline"
-                  icon={Ionicons}
-                />
-                <Border />
-                <BtnItem
-                  onPress={() => {
-                    router.push("/report-all-staff/annual-report");
-                  }}
-                  title="Annual Report"
-                  iconName="newspaper-outline"
-                  icon={Ionicons}
-                />
-              </View>
-            </View>
-          </>
-        )}
       </ScrollView>
     </View>
   );

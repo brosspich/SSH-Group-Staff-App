@@ -69,8 +69,12 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   //   transport: (isServer ? ws : WebSocket) as any,
   //   params: { eventsPerSecond: 10 },
   // },
-  realtime: {
-    ...(wsTransport && { transport: wsTransport as any }),
-    params: { eventsPerSecond: 10 },
-  },
+  ...(wsTransport
+    ? {
+        realtime: {
+          transport: wsTransport as any,
+          params: { eventsPerSecond: 10 },
+        },
+      }
+    : {}),
 });

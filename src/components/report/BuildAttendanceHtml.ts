@@ -1,5 +1,10 @@
 import { AttendanceRecord } from "@/app/(tabs)/attendance";
-import { AttendanceSummary, ReportMode, ReportType } from "@/hooks/useAttendanceReportData";
+import { COMPANY_NAME } from "@/constants/attendanceConfig";
+import {
+  AttendanceSummary,
+  ReportMode,
+  ReportType,
+} from "@/hooks/useAttendanceReportData";
 import { StaffUser } from "@/services/userService";
 
 function formatGeneratedAt(date: Date): string {
@@ -27,7 +32,7 @@ export function buildAttendanceHtml(
   reportMode: ReportMode,
   targetStaff?: StaffUser | null,
 ): string {
-  const companyName = "SSH Group";
+  const companyName = COMPANY_NAME || "SSH Group";
 
   const rows = records
     .map((r, index) => {
@@ -96,7 +101,12 @@ export function buildAttendanceHtml(
   <style>
     @page {
       size: A4 portrait;
-      margin: 12mm 10mm 12mm 10mm;
+      margin: 0;
+    }
+    @media print {
+      @page {
+        margin: 0;
+      }
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
@@ -105,7 +115,7 @@ export function buildAttendanceHtml(
       color: #1a1a1a; 
       background-color: #ffffff;
       margin: 0;
-      padding: 0;
+      padding: 12mm 10mm;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }

@@ -113,31 +113,40 @@ export default function Setting() {
   return (
     <View style={styles.safe}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* ── Avatar + Name ── */}
-        <View style={styles.avatarSection}>
-          <View style={styles.conAvatarTxt}>
-            <LinearGradient
-              colors={[AppColors.secondary, AppColors.primary]}
-              start={{ x: 1, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              locations={[0.3, 0.9]}
-              style={styles.avatarCircle}
-            >
-              <Text style={styles.avatarInitial}>
-                {/* {user?.name?.charAt(0)?.toUpperCase() ?? "?"} */}
-                {getTwoInitials(user?.name)}
-              </Text>
-            </LinearGradient>
+        <View
+        // style={[
+        //   !isMobile && {
+        //     maxWidth: 850,
+        //     width: "100%",
+        //     alignSelf: "center",
+        //     paddingVertical: 12,
+        //   },
+        // ]}
+        >
+          <View style={styles.avatarSection}>
+            <View style={styles.conAvatarTxt}>
+              <LinearGradient
+                colors={[AppColors.secondary, AppColors.primary]}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                locations={[0.3, 0.9]}
+                style={styles.avatarCircle}
+              >
+                <Text style={styles.avatarInitial}>
+                  {/* {user?.name?.charAt(0)?.toUpperCase() ?? "?"} */}
+                  {getTwoInitials(user?.name)}
+                </Text>
+              </LinearGradient>
 
-            <View style={styles.conName}>
-              <Text style={styles.userName}>{user?.name ?? "Name"}</Text>
-              <Text style={styles.txtUserName}>
-                @{user?.username ?? "username"}
-              </Text>
+              <View style={styles.conName}>
+                <Text style={styles.userName}>{user?.name ?? "Name"}</Text>
+                <Text style={styles.txtUserName}>
+                  @{user?.username ?? "username"}
+                </Text>
+              </View>
             </View>
-          </View>
 
-          {/* <View style={styles.roleBadge}>
+            {/* <View style={styles.roleBadge}>
             <Text style={styles.roleText}>
               {formatRole(user?.role)}
             </Text>
@@ -150,83 +159,84 @@ export default function Setting() {
               ]}
             ></View>
           </View> */}
-        </View>
-
-        {/* ── Account Info Section ── */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account Info</Text>
-          <View style={styles.card}>
-            <BtnItem
-              onPress={() => {
-                router.push("/account/information" as any);
-              }}
-              title="Information"
-              iconName="person-outline"
-              icon={Ionicons}
-            />
-            <Border />
-            <BtnItem
-              onPress={() => {
-                handleLogout();
-              }}
-              title="Logout"
-              iconName="logout"
-              icon={AntDesign}
-            />
           </View>
-        </View>
 
-        {/* Privacy & Security Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Privacy & Security</Text>
-          <View style={styles.card}>
-            <BtnItem
-              onPress={() => {
-                router.push("/privacy-policy-security/PrivacyPolicy" as any);
-              }}
-              title="Privacy & Policy"
-              iconName="privacy-tip"
-              icon={MaterialIcons}
-            />
-            <Border />
-            <BtnItem
-              onPress={() => {
-                router.push("/privacy-policy-security/devices" as any);
-              }}
-              title="Devices"
-              iconName="devices"
-              icon={MaterialIcons}
-            />
+          {/* ── Account Info Section ── */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Account Info</Text>
+            <View style={styles.card}>
+              <BtnItem
+                onPress={() => {
+                  router.push("/account/information" as any);
+                }}
+                title="Information"
+                iconName="person-outline"
+                icon={Ionicons}
+              />
+              <Border />
+              <BtnItem
+                onPress={() => {
+                  handleLogout();
+                }}
+                title="Logout"
+                iconName="logout"
+                icon={AntDesign}
+              />
+            </View>
           </View>
-        </View>
 
-        {/* About Us Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About Us</Text>
-          <View style={styles.card}>
-            <BtnItem
-              onPress={() => {
-                router.push("/about/about" as any);
-              }}
-              title="About"
-              iconName="information-circle-outline"
-              icon={Ionicons}
-            />
-            <Border />
-            <BtnItem
-              onPress={() => {
-                router.push("/about/contact" as any);
-              }}
-              title="Contact"
-              iconName="person-circle-outline"
-              icon={Ionicons}
-            />
+          {/* Privacy & Security Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Privacy & Security</Text>
+            <View style={styles.card}>
+              <BtnItem
+                onPress={() => {
+                  router.push("/privacy-policy-security/PrivacyPolicy" as any);
+                }}
+                title="Privacy & Policy"
+                iconName="privacy-tip"
+                icon={MaterialIcons}
+              />
+              <Border />
+              <BtnItem
+                onPress={() => {
+                  router.push("/privacy-policy-security/devices" as any);
+                }}
+                title="Devices"
+                iconName="devices"
+                icon={MaterialIcons}
+              />
+            </View>
           </View>
-        </View>
 
-        {/* ── Footer ── */}
-        <View style={{ marginTop: 10 }} />
-        <Copyright />
+          {/* About Us Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>About Us</Text>
+            <View style={styles.card}>
+              <BtnItem
+                onPress={() => {
+                  router.push("/about/about" as any);
+                }}
+                title="About"
+                iconName="information-circle-outline"
+                icon={Ionicons}
+              />
+              <Border />
+              <BtnItem
+                onPress={() => {
+                  router.push("/about/contact" as any);
+                }}
+                title="Contact"
+                iconName="person-circle-outline"
+                icon={Ionicons}
+              />
+            </View>
+          </View>
+
+          {/* ── Footer ── */}
+          <View style={{ marginTop: 10 }} />
+          <Copyright />
+        </View>
       </ScrollView>
 
       {renderLogoutModal({

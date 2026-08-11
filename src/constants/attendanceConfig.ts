@@ -15,10 +15,23 @@ export let OFFICIAL_ATTENDANCE_QR_CODES: string[] = [
   ...DEFAULT_OFFICIAL_ATTENDANCE_QR_CODES,
 ];
 
+export let COMPANY_NAME: string = "SSH Group";
+
+export let OFFICIAL_LOCATION_LINKS: string[] = [
+  "https://maps.app.goo.gl/MmFnRaN1ueSwSk48A",
+];
+
+export interface OfficialAttendanceConfig {
+  qrCodes: string[];
+  companyName: string;
+  locationLinks: string[];
+}
+
 /**
- * Fetches official attendance QR code list dynamically from Supabase table: ssh-group-staff-attendance-qr
+ * Fetches official attendance QR codes, company name, and location links
+ * dynamically from Supabase table: ssh-group-staff-attendance-qr
  */
-export async function fetchOfficialAttendanceQRCodes(): Promise<string[]> {
+export async function fetchOfficialAttendanceConfig(): Promise<OfficialAttendanceConfig> {
   try {
     const { data } = await supabase
       .from("ssh-group-staff-attendance-qr")
@@ -26,27 +39,72 @@ export async function fetchOfficialAttendanceQRCodes(): Promise<string[]> {
 
     if (data && Array.isArray(data) && data.length > 0) {
       const row = data[0];
+
+      // 1. Process QR codes
       const qrCol = row["qr-code"] ?? row["qr_code"] ?? row["qrCode"];
-      let fetchedList: string[] = [];
+      let fetchedQrList: string[] = [];
 
       if (Array.isArray(qrCol)) {
-        fetchedList = qrCol;
+        fetchedQrList = qrCol;
       } else if (typeof qrCol === "string") {
         try {
-          fetchedList = JSON.parse(qrCol);
+          fetchedQrList = JSON.parse(qrCol);
         } catch (e) {}
       }
 
-      if (Array.isArray(fetchedList) && fetchedList.length > 0) {
-        OFFICIAL_ATTENDANCE_QR_CODES = fetchedList;
-        return fetchedList;
+      if (Array.isArray(fetchedQrList) && fetchedQrList.length > 0) {
+        OFFICIAL_ATTENDANCE_QR_CODES = fetchedQrList;
+      }
+
+      // 2. Process Company Name
+      const compCol = row["company_name"] ?? row["companyName"];
+      if (compCol && typeof compCol === "string" && compCol.trim()) {
+        COMPANY_NAME = compCol.trim();
+      }
+
+      // 3. Process Location Links
+      const locCol =
+        row["location"] ?? row["location_links"] ?? row["locationLinks"];
+      let fetchedLocList: string[] = [];
+
+      if (Array.isArray(locCol)) {
+        fetchedLocList = locCol.map((l) => String(l).trim()).filter(Boolean);
+      } else if (typeof locCol === "string" && locCol.trim()) {
+        try {
+          const parsed = JSON.parse(locCol);
+          if (Array.isArray(parsed)) {
+            fetchedLocList = parsed
+              .map((l) => String(l).trim())
+              .filter(Boolean);
+          } else {
+            fetchedLocList = [locCol.trim()];
+          }
+        } catch (e) {
+          fetchedLocList = [locCol.trim()];
+        }
+      }
+
+      if (fetchedLocList.length > 0) {
+        OFFICIAL_LOCATION_LINKS = fetchedLocList;
       }
     }
   } catch (err) {
-    // Fallback to default in-memory list on network/fetch exception
+    // Fallback to default in-memory values on network/fetch exception
   }
 
-  return OFFICIAL_ATTENDANCE_QR_CODES;
+  return {
+    qrCodes: OFFICIAL_ATTENDANCE_QR_CODES,
+    companyName: COMPANY_NAME,
+    locationLinks: OFFICIAL_LOCATION_LINKS,
+  };
+}
+
+/**
+ * Backward-compatible helper to fetch official attendance QR codes list
+ */
+export async function fetchOfficialAttendanceQRCodes(): Promise<string[]> {
+  const config = await fetchOfficialAttendanceConfig();
+  return config.qrCodes;
 }
 
 /**

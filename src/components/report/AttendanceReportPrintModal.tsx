@@ -2,17 +2,26 @@ import { AttendanceRecord } from "@/app/(tabs)/attendance";
 import CustomAttendancePaper from "@/components/report/CustomAttendancePaper";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
-import { AttendanceSummary, ReportMode, ReportType } from "@/hooks/useAttendanceReportData";
+import {
+  AttendanceSummary,
+  ReportMode,
+  ReportType,
+} from "@/hooks/useAttendanceReportData";
 import { StaffUser } from "@/services/userService";
-import { isNativePrintBusy, safePrintAsync, safePrintToFileAsync } from "@/utils/printGuard";
+import {
+  isNativePrintBusy,
+  safePrintAsync,
+  safePrintToFileAsync,
+} from "@/utils/printGuard";
 import { printHtmlOnWeb } from "@/utils/webPrintHelper";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system/legacy";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -145,7 +154,8 @@ export function AttendanceReportPrintModal({
         .replace(/[/\\:*?"<>|]/g, "-");
       const timestamp = Date.now();
       const filename = `Attendance_Report_${reportMode}_${reportType}_${safePeriod}_${timestamp}.pdf`;
-      const cacheDir = FileSystem.cacheDirectory || FileSystem.documentDirectory || "";
+      const cacheDir =
+        FileSystem.cacheDirectory || FileSystem.documentDirectory || "";
       const dest = cacheDir + filename;
 
       let shareTarget = uri;
@@ -202,9 +212,11 @@ export function AttendanceReportPrintModal({
           {
             justifyContent: !isMobile ? "center" : "flex-end",
             alignItems: !isMobile ? "center" : "stretch",
+            padding: !isMobile ? 16 : 0,
           },
         ]}
       >
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View
           style={[
             s.container,
@@ -279,10 +291,7 @@ export function AttendanceReportPrintModal({
               disabled={isSavingPdf || isPrinting}
             >
               {isPrinting ? (
-                <ActivityIndicator
-                  color={AppColors.background2}
-                  size="small"
-                />
+                <ActivityIndicator color={AppColors.background2} size="small" />
               ) : (
                 <MaterialIcons
                   name="print"

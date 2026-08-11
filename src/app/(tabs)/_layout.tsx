@@ -254,9 +254,9 @@ const styles = StyleSheet.create({
     color: AppColors.secondary,
   },
 
-  // Tablet sidebar
+  // Tablet / Web sidebar
   sidebar: {
-    width: "12%",
+    width: 200,
     backgroundColor: AppColors.background2,
     borderRightWidth: 0.5,
     borderRightColor: "#e0e0e0",

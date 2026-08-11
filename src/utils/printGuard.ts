@@ -1,8 +1,14 @@
-import type { FilePrintOptions, FilePrintResult, PrintOptions } from "expo-print/build/Print.types";
+import type {
+  FilePrintOptions,
+  FilePrintResult,
+  PrintOptions,
+} from "expo-print/build/Print.types";
 
 let activePrintLock = false;
+let lockResetTimer: any = null;
 
-const PRINT_TIMEOUT_MS = 15000;
+const FILE_PRINT_TIMEOUT_MS = 60000; // 60s for PDF file rendering
+const SYSTEM_PRINT_TIMEOUT_MS = 180000; // 3 minutes for native print dialog interaction
 
 function getPrintModule(): any {
   try {
@@ -40,6 +46,14 @@ export function isNativePrintBusy(): boolean {
   return activePrintLock;
 }
 
+export function forceResetPrintLock(): void {
+  activePrintLock = false;
+  if (lockResetTimer) {
+    clearTimeout(lockResetTimer);
+    lockResetTimer = null;
+  }
+}
+
 export async function safePrintAsync(
   options: PrintOptions,
 ): Promise<boolean> {
@@ -52,30 +66,43 @@ export async function safePrintAsync(
 
   const printMod = getPrintModule();
   if (!printMod || typeof printMod.printAsync !== "function") {
-    console.warn("[printGuard] printAsync not supported in this build/environment");
+    console.warn(
+      "[printGuard] printAsync not supported in this build/environment",
+    );
     return false;
   }
 
   activePrintLock = true;
+
+  // Auto safety reset after timeout in case native print dialog hangs indefinitely
+  if (lockResetTimer) clearTimeout(lockResetTimer);
+  lockResetTimer = setTimeout(() => {
+    activePrintLock = false;
+  }, SYSTEM_PRINT_TIMEOUT_MS);
+
   try {
     await withTimeout(
       printMod.printAsync(options),
-      PRINT_TIMEOUT_MS,
+      SYSTEM_PRINT_TIMEOUT_MS,
       "System print",
     );
     return true;
   } catch (e: any) {
-    if (e?.message?.includes("already in progress")) {
-      console.warn(
-        "[printGuard] Print request skipped (already in progress):",
-        e?.message,
-      );
+    const msg = e?.message || String(e || "");
+    if (
+      msg.includes("already in progress") ||
+      msg.includes("canceled") ||
+      msg.includes("cancelled") ||
+      msg.includes("user canceled") ||
+      msg.includes("dismissed")
+    ) {
+      console.warn("[printGuard] Print request canceled or busy:", msg);
     } else {
-      console.error("[printGuard] Print error:", e?.message);
+      console.error("[printGuard] Print error:", msg);
     }
     return false;
   } finally {
-    activePrintLock = false;
+    forceResetPrintLock();
   }
 }
 
@@ -91,29 +118,38 @@ export async function safePrintToFileAsync(
 
   const printMod = getPrintModule();
   if (!printMod || typeof printMod.printToFileAsync !== "function") {
-    console.warn("[printGuard] printToFileAsync not supported in this build/environment");
+    console.warn(
+      "[printGuard] printToFileAsync not supported in this build/environment",
+    );
     return null;
   }
 
   activePrintLock = true;
+
+  if (lockResetTimer) clearTimeout(lockResetTimer);
+  lockResetTimer = setTimeout(() => {
+    activePrintLock = false;
+  }, FILE_PRINT_TIMEOUT_MS);
+
   try {
     const result = await withTimeout(
       printMod.printToFileAsync(options),
-      PRINT_TIMEOUT_MS,
+      FILE_PRINT_TIMEOUT_MS,
       "Render print file",
     );
     return result as FilePrintResult | null;
   } catch (e: any) {
-    if (e?.message?.includes("already in progress")) {
+    const msg = e?.message || String(e || "");
+    if (msg.includes("already in progress")) {
       console.warn(
         "[printGuard] PrintToFile request skipped (already in progress):",
-        e?.message,
+        msg,
       );
     } else {
-      console.error("[printGuard] Save PDF error:", e?.message);
+      console.error("[printGuard] Save PDF error:", msg);
     }
     return null;
   } finally {
-    activePrintLock = false;
+    forceResetPrintLock();
   }
 }

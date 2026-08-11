@@ -93,6 +93,18 @@ export default function RootLayout() {
       {Platform.OS === "web" && (
         <Head>
           <title>SSH Group Staff</title>
+          <style>{`
+            input:focus, textarea:focus, [role="textbox"]:focus, div:focus, select:focus {
+              outline: none !important;
+              box-shadow: none !important;
+            }
+            input, textarea, [role="textbox"] {
+              outline-style: none !important;
+            }
+            * {
+              -webkit-tap-highlight-color: transparent;
+            }
+          `}</style>
         </Head>
       )}
       <UserProvider>

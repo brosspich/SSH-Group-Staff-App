@@ -1,8 +1,16 @@
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
+import { useResponsive } from "@/hooks/useResponsive";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const PP_OFFSET_MS = 7 * 60 * 60 * 1000;
@@ -54,6 +62,7 @@ export default function DatePickerModal({
   const [viewMonth, setViewMonth] = useState(valuePP.getUTCMonth());
 
   const insets = useSafeAreaInsets();
+  const { isMobile } = useResponsive();
 
   // Reset calendar view to selected date whenever modal opens
   useEffect(() => {
@@ -110,17 +119,32 @@ export default function DatePickerModal({
     <Modal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType={isMobile ? "slide" : "fade"}
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View style={s.backdrop}>
-        <TouchableOpacity
-          style={s.backdropDismiss}
-          onPress={onClose}
-          activeOpacity={1}
-        />
-        <View style={[s.sheet, { paddingBottom: insets.bottom + 16 }]}>
+      <View
+        style={[
+          s.backdrop,
+          {
+            justifyContent: !isMobile ? "center" : "flex-end",
+            alignItems: !isMobile ? "center" : "stretch",
+            padding: !isMobile ? 16 : 0,
+          },
+        ]}
+      >
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <View
+          style={[
+            s.sheet,
+            {
+              maxWidth: !isMobile ? 420 : "100%",
+              width: !isMobile ? 420 : "100%",
+              borderRadius: 24,
+              paddingBottom: insets.bottom + 16,
+            },
+          ]}
+        >
           {/* Header */}
           <View style={s.header}>
             <Text style={s.headerTitle}>Select date</Text>
