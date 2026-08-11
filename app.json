@@ -2,23 +2,20 @@
   "expo": {
     "name": "SSH Group Staff",
     "slug": "ssh-group-staff-app",
-    "version": "1.0.3",
+    "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/imgs/staff_logo_app_v_001_yellow.png",
+    "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
     "scheme": "sshgroupstaffapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./src/assets/imgs/staff_logo_app_v_001_yellow.png",
+      "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
       "bundleIdentifier": "com.sshgroups.staffapp",
       "infoPlist": {
         "CFBundleDisplayName": "SSH Group Staff",
         "NSMicrophoneUsageDescription": "This app uses the microphone for audio input.",
         "NSDocumentsFolderUsageDescription": "This app needs access to your files for saving and sharing documents.",
         "NSDownloadsFolderUsageDescription": "This app needs access to your downloads folder.",
-        "UIDeviceFamily": [
-          1,
-          2
-        ],
+        "UIDeviceFamily": [1, 2],
         "UIRequiresFullScreen": true,
         "UISupportedInterfaceOrientations~ipad": [
           "UIInterfaceOrientationPortrait",
@@ -54,7 +51,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./src/assets/imgs/staff_logo_app_v_001_yellow.png"
+      "favicon": "./src/assets/imgs/staff_logo_new_01_FG.png"
     },
     "plugins": [
       "expo-router",
@@ -63,7 +60,7 @@
         {
           "backgroundColor": "#F3F4F6",
           "android": {
-            "image": "./src/assets/imgs/staff_logo_app_v_001_yellow.png",
+            "image": "./src/assets/imgs/staff_logo_new_01_FG.png",
             "imageWidth": 80
           }
         }

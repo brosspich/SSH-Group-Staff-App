@@ -64,10 +64,12 @@ export function buildAttendanceHtml(
   const reportTitle =
     reportMode === "individual"
       ? `Staff Attendance Report — ${targetStaff?.name || "Staff"}`
-      : `All Staff Attendance Report`;
+      : reportMode === "current"
+        ? `Current Staff Attendance Report — ${targetStaff?.name || "Current Staff"}`
+        : `All Staff Attendance Report`;
 
   const staffDetailInfo =
-    reportMode === "individual" && targetStaff
+    (reportMode === "individual" || reportMode === "current") && targetStaff
       ? `<div style="margin-bottom: 15px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 6px; font-size: 11px;">
           <strong>Staff Name:</strong> ${targetStaff.name || "-"} &nbsp;|&nbsp; 
           <strong>Staff ID:</strong> ${targetStaff.id || "-"} &nbsp;|&nbsp; 
@@ -76,11 +78,21 @@ export function buildAttendanceHtml(
         </div>`
       : "";
 
+  const modeLabel =
+    reportMode === "individual"
+      ? `Staff: ${targetStaff?.name || "Individual Staff"}`
+      : reportMode === "current"
+        ? `Staff: ${targetStaff?.name || "Current Staff"}`
+        : "All Staff";
+
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <title>${reportTitle}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     @page {
       size: A4 portrait;
@@ -88,7 +100,7 @@ export function buildAttendanceHtml(
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { 
-      font-family: Arial, Helvetica, sans-serif; 
+      font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, Arial, sans-serif; 
       font-size: 12px; 
       color: #1a1a1a; 
       background-color: #ffffff;
@@ -181,7 +193,7 @@ export function buildAttendanceHtml(
     <div class="header-left">
       <div class="header-titles">
         <h1>${companyName} — ${reportType} Attendance Report</h1>
-        <div class="subtitle">Period: ${periodLabel} (${reportMode === "individual" ? "Individual Staff" : "All Staff"})</div>
+        <div class="subtitle">Period: ${periodLabel} (${modeLabel})</div>
       </div>
     </div>
     <div class="header-right">

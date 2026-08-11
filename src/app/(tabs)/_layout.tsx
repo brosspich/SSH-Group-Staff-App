@@ -89,35 +89,14 @@ function CustomTabBarButton({ children, onPress, accessibilityState }: any) {
   );
 }
 
-// ─── Admin Role Check Helper ──────────────────────────────────────────────────
-export function hasAdminRole(role: any): boolean {
-  if (!role) return false;
-  if (Array.isArray(role)) {
-    return role.some((r) => String(r).trim().toLowerCase() === "admin");
-  }
-  if (typeof role === "string") {
-    if (role.trim().toLowerCase() === "admin") return true;
-    try {
-      const parsed = JSON.parse(role);
-      if (Array.isArray(parsed)) {
-        return parsed.some((r) => String(r).trim().toLowerCase() === "admin");
-      }
-    } catch (e) {}
-  }
-  return false;
-}
-
 // ─── Tablet: left sidebar ─────────────────────────────────────────────────────
 function SideRail() {
   const pathname = usePathname();
-  const { user } = useUser();
-  const isAdmin = hasAdminRole(user?.role);
-  const visibleTabs = TABS.filter((tab) => tab.name !== "report" || isAdmin);
 
   return (
     <View style={[styles.sidebar, { paddingTop: 8 }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {visibleTabs.map((tab) => {
+        {TABS.map((tab) => {
           const active =
             tab.name === "index"
               ? pathname === "/" ||
@@ -170,9 +149,6 @@ export default function TabLayout() {
 
   if (!user) return <Redirect href="/login/login" />;
 
-  const isAdmin = hasAdminRole(user?.role);
-  const visibleTabs = TABS.filter((tab) => tab.name !== "report" || isAdmin);
-
   // ── Shared Tabs component ──
   const tabScreens = (
     <Tabs
@@ -197,28 +173,22 @@ export default function TabLayout() {
         tabBarButton: (props) => <CustomTabBarButton {...props} />,
       }}
     >
-      {TABS.map((tab) => {
-        const isReportTab = tab.name === "report";
-        const shouldHideTab = isReportTab && !isAdmin;
-
-        return (
-          <Tabs.Screen
-            key={tab.name}
-            name={tab.name}
-            options={{
-              href: shouldHideTab ? null : undefined,
-              title: tab.label,
-              tabBarIcon: ({ color, size, focused }) => {
-                const iconSize = tab.name === "index" ? size : size + 3;
-                const iconColor = color as string;
-                return focused
-                  ? tab.icon(iconColor, iconSize)
-                  : tab.iconOutline(iconColor, iconSize);
-              },
-            }}
-          />
-        );
-      })}
+      {TABS.map((tab) => (
+        <Tabs.Screen
+          key={tab.name}
+          name={tab.name}
+          options={{
+            title: tab.label,
+            tabBarIcon: ({ color, size, focused }) => {
+              const iconSize = tab.name === "index" ? size : size + 3;
+              const iconColor = color as string;
+              return focused
+                ? tab.icon(iconColor, iconSize)
+                : tab.iconOutline(iconColor, iconSize);
+            },
+          }}
+        />
+      ))}
     </Tabs>
   );
 

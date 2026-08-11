@@ -4,7 +4,7 @@ import { supabase } from "@/utils/supabase";
 import { useCallback, useEffect, useState } from "react";
 
 export type ReportType = "Daily" | "Weekly" | "Monthly" | "Annual";
-export type ReportMode = "individual" | "all";
+export type ReportMode = "individual" | "all" | "current";
 
 export interface AttendanceSummary {
   totalLogs: number;
@@ -77,7 +77,7 @@ export function useAttendanceReportData(
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      // 1. Fetch current local user as default if activeStaffId is null
+      // 1. Fetch current local user as default
       const currentUser = await userService.get();
 
       // 2. Fetch all staff users from Supabase
@@ -91,8 +91,11 @@ export function useAttendanceReportData(
       }
       setStaffList(users);
 
-      // Determine target staff ID for individual mode
+      // Determine target staff ID for individual / current mode
       let targetId = activeStaffId || selectedStaffId;
+      if (reportMode === "current" && currentUser?.id) {
+        targetId = currentUser.id;
+      }
       if (!targetId && currentUser?.id) {
         targetId = currentUser.id;
       }
@@ -130,8 +133,8 @@ export function useAttendanceReportData(
         });
       });
 
-      // Filter by reportMode (Individual vs All)
-      if (reportMode === "individual" && targetId) {
+      // Filter by reportMode (Individual vs Current vs All)
+      if ((reportMode === "individual" || reportMode === "current") && targetId) {
         allLogs = allLogs.filter((r) => r.staff_id === targetId);
       }
 

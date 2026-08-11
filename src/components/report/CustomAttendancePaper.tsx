@@ -33,7 +33,12 @@ export default function CustomAttendancePaper({
           <Text style={styles.companyTitle}>SSH Group</Text>
           <Text style={styles.reportTitle}>
             {reportType} Attendance Report (
-            {reportMode === "individual" ? "Individual" : "All Staff"})
+            {reportMode === "individual"
+              ? targetStaff?.name || "Individual"
+              : reportMode === "current"
+                ? targetStaff?.name || "Current Staff"
+                : "All Staff"}
+            )
           </Text>
           <Text style={styles.periodText}>Period: {periodLabel}</Text>
         </View>
@@ -42,8 +47,8 @@ export default function CustomAttendancePaper({
 
       <View style={styles.divider} />
 
-      {/* Staff detail info for individual report */}
-      {reportMode === "individual" && targetStaff && (
+      {/* Staff detail info for individual & current staff report */}
+      {(reportMode === "individual" || reportMode === "current") && targetStaff && (
         <View style={styles.staffInfoCard}>
           <Text style={styles.staffInfoText}>
             <Text style={styles.staffInfoLabel}>Staff:</Text> {targetStaff.name}{" "}

@@ -8,11 +8,15 @@ import { useEffect } from "react";
 import { LogBox, Platform, StatusBar, Text, TextInput } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-// Disable default font padding on Android so custom fonts (like Google Sans) do not add extra vertical space
+// Set global default font family to Google Sans for all Text and TextInput components
+(Text as any).defaultProps = (Text as any).defaultProps || {};
+(Text as any).defaultProps.style = { fontFamily: AppFonts.regular };
+
+(TextInput as any).defaultProps = (TextInput as any).defaultProps || {};
+(TextInput as any).defaultProps.style = { fontFamily: AppFonts.regular };
+
 if (Platform.OS === "android") {
-  (Text as any).defaultProps = (Text as any).defaultProps || {};
   (Text as any).defaultProps.includeFontPadding = false;
-  (TextInput as any).defaultProps = (TextInput as any).defaultProps || {};
   (TextInput as any).defaultProps.includeFontPadding = false;
 }
 

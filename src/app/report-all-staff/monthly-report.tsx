@@ -3,6 +3,7 @@ import DatePickerModal from "@/components/daterangpicker/DatePickerModal";
 import { AttendanceReportBody } from "@/components/report/AttendanceReportBody";
 import { AttendanceReportPrintModal } from "@/components/report/AttendanceReportPrintModal";
 import { AppColors } from "@/constants/appcolors";
+import { AppFonts } from "@/constants/appfonts";
 import {
   formatDateLabel,
   getTodayPP,
@@ -123,7 +124,13 @@ const s = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "rgba(0,0,0,0.08)",
   },
-  sectionLabel: { fontSize: 11.5, color: AppColors.grey, marginBottom: 8 },
+  sectionLabel: {
+    fontSize: 11.5,
+    color: AppColors.grey,
+    marginBottom: 8,
+    fontFamily: AppFonts.regular,
+    includeFontPadding: false,
+  },
   dateField: {
     flexDirection: "row",
     alignItems: "center",
@@ -135,6 +142,8 @@ const s = StyleSheet.create({
     fontSize: 14,
     color: AppColors.textPrimary,
     fontWeight: "bold",
+    fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   printBtnCon: {
     backgroundColor: AppColors.background2,
@@ -153,5 +162,7 @@ const s = StyleSheet.create({
     fontSize: 14,
     fontWeight: "bold",
     color: AppColors.background2,
+    fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
 });

@@ -8,6 +8,7 @@ import {
 } from "@/constants/attendanceConfig";
 import { useResponsive } from "@/hooks/useResponsive";
 import { StaffUser, userService } from "@/services/userService";
+import { sendAttendanceToTelegram } from "@/services/telegramService";
 import { supabase } from "@/utils/supabase";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
@@ -267,6 +268,9 @@ export default function DashboardIndex() {
       setUser(updatedUser);
       setAttendanceList(updatedList);
       await userService.save(updatedUser);
+
+      // Send attendance details to Telegram (non-blocking)
+      sendAttendanceToTelegram(newRecord);
 
       setLastRecord(newRecord);
       setScannerVisible(false);

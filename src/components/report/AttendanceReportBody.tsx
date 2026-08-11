@@ -63,6 +63,29 @@ export function AttendanceReportBody({
 
   return (
     <View style={s.container}>
+      {/* Current Staff Info Card */}
+      {reportMode === "current" && (
+        <View style={s.card}>
+          <View style={s.staffSelectHeader}>
+            <Text style={s.sectionLabel}>Current Staff Member</Text>
+          </View>
+          <View style={s.selectedStaffBox}>
+            <View style={s.avatarBgIcon}>
+              <Ionicons name="person" size={20} color={AppColors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.selectedStaffName}>
+                {selectedStaff?.name || "Current Staff"}
+              </Text>
+              <Text style={s.selectedStaffSub}>
+                ID: {selectedStaff?.id || "-"} • Position:{" "}
+                {selectedStaff?.position || "Staff"}
+              </Text>
+            </View>
+          </View>
+        </View>
+      )}
+
       {/* Staff Selector for Individual Staff Report */}
       {reportMode === "individual" && staffList.length > 0 && (
         <View style={s.card}>

@@ -221,7 +221,13 @@ export function AttendanceReportPrintModal({
           {/* Header */}
           <View style={s.header}>
             <Text style={s.title}>
-              Print Report — {reportType} ({reportMode === "individual" ? "Individual" : "All Staff"})
+              Print Report — {reportType} (
+              {reportMode === "individual"
+                ? targetStaff?.name || "Individual"
+                : reportMode === "current"
+                  ? targetStaff?.name || "Current Staff"
+                  : "All Staff"}
+              )
             </Text>
             <TouchableOpacity onPress={onClose}>
               <Text style={s.close}>✕</Text>
