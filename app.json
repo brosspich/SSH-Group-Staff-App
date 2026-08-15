@@ -3,7 +3,7 @@
     "name": "SSH Group Staff",
     "slug": "ssh-group-staff-app",
     // 1.0.0 = app version, 00 = num of edited, 0000 = dd/mm
-    "version": "1.0.0.411508",
+    "version": "1.0.0.41508",
     "orientation": "portrait",
     "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
     "scheme": "sshgroupstaffapp",
