@@ -2,15 +2,8 @@ import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
-import {
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { useState } from "react";
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const PP_OFFSET_MS = 7 * 60 * 60 * 1000;
@@ -61,20 +54,25 @@ export default function DatePickerModal({
   const [viewYear, setViewYear] = useState(valuePP.getUTCFullYear());
   const [viewMonth, setViewMonth] = useState(valuePP.getUTCMonth());
 
+  const [prevVisible, setPrevVisible] = useState(visible);
+  const [prevValue, setPrevValue] = useState(value);
+
+  if (visible !== prevVisible || value !== prevValue) {
+    setPrevVisible(visible);
+    setPrevValue(value);
+    if (visible) {
+      setViewYear(valuePP.getUTCFullYear());
+      setViewMonth(valuePP.getUTCMonth());
+    }
+  }
+
   const insets = useSafeAreaInsets();
   const { isMobile } = useResponsive();
 
-  // Reset calendar view to selected date whenever modal opens
-  useEffect(() => {
-    if (visible) {
-      const pp = new Date(value.getTime() + PP_OFFSET_MS);
-      setViewYear(pp.getUTCFullYear());
-      setViewMonth(pp.getUTCMonth());
-    }
-  }, [visible]);
-
-  const firstDow = new Date(viewYear, viewMonth, 1).getDay();
-  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstDow = new Date(Date.UTC(viewYear, viewMonth, 1)).getUTCDay();
+  const daysInMonth = new Date(
+    Date.UTC(viewYear, viewMonth + 1, 0),
+  ).getUTCDate();
 
   const cells: (number | null)[] = [
     ...Array(firstDow).fill(null),
@@ -88,9 +86,11 @@ export default function DatePickerModal({
     } else setViewMonth((m) => m - 1);
   };
 
+  const isNextDisabled =
+    viewYear > todayY || (viewYear === todayY && viewMonth >= todayMo);
+
   const nextMonth = () => {
-    if (viewYear > todayY || (viewYear === todayY && viewMonth >= todayMo))
-      return;
+    if (isNextDisabled) return;
     if (viewMonth === 11) {
       setViewYear((y) => y + 1);
       setViewMonth(0);
@@ -133,47 +133,61 @@ export default function DatePickerModal({
           },
         ]}
       >
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <TouchableOpacity
+          style={s.backdropDismiss}
+          onPress={onClose}
+          activeOpacity={1}
+        />
         <View
           style={[
             s.sheet,
-            {
-              maxWidth: !isMobile ? 420 : "100%",
-              width: !isMobile ? 420 : "100%",
-              borderRadius: 24,
-              paddingBottom: insets.bottom + 16,
-            },
+            !isMobile ? s.sheetDesktop : { paddingBottom: insets.bottom + 16 },
           ]}
         >
-          {/* Header */}
-          <View style={s.header}>
-            <Text style={s.headerTitle}>Select date</Text>
-            <TouchableOpacity onPress={onClose} style={s.closeBtn}>
+          {/* Top Header */}
+          <View style={s.topHeader}>
+            <Text style={s.topHeaderTitle}>Select date</Text>
+            <TouchableOpacity
+              onPress={onClose}
+              style={s.closeBtn}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
               <MaterialIcons
                 name="close"
-                size={20}
+                size={22}
                 color={AppColors.textSecondary}
               />
             </TouchableOpacity>
           </View>
 
-          {/* Month nav */}
+          {/* Month Nav */}
           <View style={s.nav}>
-            <TouchableOpacity onPress={prevMonth} style={s.navBtn}>
+            <TouchableOpacity
+              onPress={prevMonth}
+              style={s.navBtn}
+              activeOpacity={0.7}
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            >
               <Ionicons
                 name="chevron-back"
-                size={16}
-                color={AppColors.textSecondary}
+                size={20}
+                color={AppColors.textPrimary}
               />
             </TouchableOpacity>
             <Text style={s.monthLabel}>
               {MONTHS[viewMonth]} {viewYear}
             </Text>
-            <TouchableOpacity onPress={nextMonth} style={s.navBtn}>
+            <TouchableOpacity
+              onPress={nextMonth}
+              style={[s.navBtn, isNextDisabled && s.navBtnDisabled]}
+              disabled={isNextDisabled}
+              activeOpacity={0.7}
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            >
               <Ionicons
                 name="chevron-forward"
-                size={16}
-                color={AppColors.textSecondary}
+                size={20}
+                color={isNextDisabled ? "#d1d5db" : AppColors.textPrimary}
               />
             </TouchableOpacity>
           </View>
@@ -218,7 +232,11 @@ export default function DatePickerModal({
           </View>
 
           {/* Confirm button */}
-          <TouchableOpacity style={s.confirmBtn} onPress={onClose}>
+          <TouchableOpacity
+            style={s.confirmBtn}
+            onPress={onClose}
+            activeOpacity={0.8}
+          >
             <Text style={s.confirmText}>Done</Text>
           </TouchableOpacity>
         </View>
@@ -230,34 +248,36 @@ export default function DatePickerModal({
 const s = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.3)",
+    backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "flex-end",
   },
   backdropDismiss: {
-    flex: 1,
+    ...StyleSheet.absoluteFill,
   },
   sheet: {
-    backgroundColor: AppColors.background,
+    backgroundColor: "#f8fafc",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    paddingHorizontal: 16,
-    paddingTop: 0,
+    paddingHorizontal: 20,
+    paddingTop: 16,
   },
-  header: {
+  sheetDesktop: {
+    borderRadius: 24,
+    width: 400,
+    maxWidth: "100%",
+    paddingBottom: 24,
+  },
+  topHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingTop: 20,
-    paddingBottom: 14,
-    paddingHorizontal: 4,
-    borderBottomWidth: 0.5,
-    borderBottomColor: `${AppColors.textSecondary}33`,
-    marginBottom: 12,
+    paddingBottom: 12,
+    marginBottom: 8,
   },
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: AppColors.textPrimary,
+  topHeaderTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: AppColors.textSecondary,
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
   },
@@ -266,46 +286,63 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginBottom: 20,
     paddingHorizontal: 4,
-    marginBottom: 10,
   },
   navBtn: {
-    padding: 6,
-    borderRadius: 8,
-    borderWidth: 0.5,
-    borderColor: `${AppColors.textSecondary}44`,
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  navBtnDisabled: {
+    backgroundColor: "#f9fafb",
+    borderColor: "#f3f4f6",
   },
   monthLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: AppColors.textPrimary,
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#111827",
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
   },
-  weekRow: { flexDirection: "row", marginBottom: 4 },
+  weekRow: {
+    flexDirection: "row",
+    marginBottom: 12,
+  },
   weekDay: {
     flex: 1,
     textAlign: "center",
-    fontSize: 11,
-    color: AppColors.textSecondary,
-    fontWeight: "600",
+    fontSize: 14,
+    color: "#6b7280",
+    fontWeight: "700",
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
   },
-  grid: { flexDirection: "row", flexWrap: "wrap", marginBottom: 8 },
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 16,
+  },
   cell: {
     width: "14.28%",
     aspectRatio: 1,
     alignItems: "center",
     justifyContent: "center",
+    padding: 2,
   },
   cellSelected: {
     backgroundColor: AppColors.secondary,
-    borderRadius: 99,
+    borderRadius: 16,
   },
   dayText: {
-    fontSize: 13,
-    color: AppColors.textPrimary,
+    fontSize: 16,
+    color: "#1f2937",
+    fontWeight: "500",
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
   },
@@ -315,19 +352,25 @@ const s = StyleSheet.create({
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
   },
-  selectedText: { color: "#fff", fontWeight: "600", fontFamily: AppFonts.bold },
-  disabledText: { color: `${AppColors.textSecondary}55` },
+  selectedText: {
+    color: "#ffffff",
+    fontWeight: "700",
+    fontFamily: AppFonts.bold,
+  },
+  disabledText: {
+    color: "#d1d5db",
+  },
   confirmBtn: {
     backgroundColor: AppColors.secondary,
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: "center",
-    marginTop: 8,
+    marginTop: 4,
   },
   confirmText: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: "#ffffff",
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
   },

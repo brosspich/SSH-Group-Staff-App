@@ -51,9 +51,94 @@ function InfoRow({ iconName, icon, label, value, edit }: any) {
   );
 }
 
+// ─── Safe Date Parsing Helpers ───────────────────────────────────────────────
+
+function parseDateString(dateStr?: string | null): Date | null {
+  if (!dateStr || !dateStr.trim()) return null;
+  const clean = dateStr.trim();
+
+  // Handle YYYY/MM/DD or YYYY-MM-DD
+  const ymdMatch = clean.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+  if (ymdMatch) {
+    const year = parseInt(ymdMatch[1], 10);
+    const month = parseInt(ymdMatch[2], 10) - 1;
+    const day = parseInt(ymdMatch[3], 10);
+    const d = new Date(year, month, day);
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  // Handle DD/MM/YYYY or DD-MM-YYYY
+  const dmyMatch = clean.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+  if (dmyMatch) {
+    const day = parseInt(dmyMatch[1], 10);
+    const month = parseInt(dmyMatch[2], 10) - 1;
+    const year = parseInt(dmyMatch[3], 10);
+    const d = new Date(year, month, day);
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  // General ISO or standard Date fallback
+  const d = new Date(clean);
+  if (!isNaN(d.getTime())) return d;
+
+  return null;
+}
+
+function formatJoinedDisplay(rawJoinedDate?: string | null): string {
+  if (!rawJoinedDate) return "—";
+  const parsed = parseDateString(rawJoinedDate);
+  if (parsed) {
+    return parsed.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  }
+  return rawJoinedDate;
+}
+
+function getInitialFieldValue(
+  user: StaffUser | null,
+  fieldKey: FieldKey | null,
+): string {
+  if (!user || !fieldKey) return "";
+  if (fieldKey === "joined") {
+    const raw = user.joined || user.created_at || "";
+    const parsed = parseDateString(raw);
+    if (parsed) {
+      const year = parsed.getFullYear();
+      const month = String(parsed.getMonth() + 1).padStart(2, "0");
+      const day = String(parsed.getDate()).padStart(2, "0");
+      return `${year}/${month}/${day}`;
+    }
+    return raw;
+  }
+  return (user as any)[fieldKey] ?? "";
+}
+
+function formatJoinedDateInput(input: string, prevInput: string): string {
+  const isDeleting = input.length < prevInput.length;
+  const digits = input.replace(/\D/g, "").slice(0, 8);
+
+  if (!digits) return "";
+
+  if (isDeleting) {
+    if (digits.length <= 4) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 4)}/${digits.slice(4)}`;
+    return `${digits.slice(0, 4)}/${digits.slice(4, 6)}/${digits.slice(6)}`;
+  }
+
+  if (digits.length < 4) return digits;
+  if (digits.length === 4) return `${digits}/`;
+  if (digits.length < 6) return `${digits.slice(0, 4)}/${digits.slice(4)}`;
+  if (digits.length === 6)
+    return `${digits.slice(0, 4)}/${digits.slice(4, 6)}/`;
+  return `${digits.slice(0, 4)}/${digits.slice(4, 6)}/${digits.slice(6)}`;
+}
+
 // ─── Field config ───────────────────────────────────────────────────────────
 
-type FieldKey = "name" | "username" | "email" | "phone" | "position";
+type FieldKey = "name" | "username" | "email" | "phone" | "position" | "joined";
 
 const USERNAME_REGEX = /^[a-zA-Z0-9]{3,20}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,6 +152,7 @@ const FIELD_CONFIG: Record<
     keyboardType?: KeyboardTypeOptions;
     autoCapitalize?: "none" | "sentences" | "words" | "characters";
     stripSpaces?: boolean;
+    formatInput?: (v: string, prev: string) => string;
     validate: (v: string) => string | null;
   }
 > = {
@@ -117,6 +203,18 @@ const FIELD_CONFIG: Record<
       return null;
     },
   },
+  joined: {
+    title: "Edit Joined Date",
+    placeholder: "yyyy/mm/dd",
+    keyboardType: "number-pad",
+    formatInput: (v, prev) => formatJoinedDateInput(v, prev),
+    validate: (v) => {
+      if (!v.trim()) return "Joined date is required";
+      const parsed = parseDateString(v);
+      if (!parsed) return "Enter a valid date (e.g. yyyy/mm/dd or yyyy-mm-dd)";
+      return null;
+    },
+  },
 };
 
 // ─── Single Field Edit Modal ────────────────────────────────────────────────
@@ -135,10 +233,7 @@ function EditFieldModal({
   onSaved: (updated: StaffUser) => void;
 }) {
   const [value, setValue] = useState(() => {
-    if (user && fieldKey) {
-      return (user as any)[fieldKey] ?? "";
-    }
-    return "";
+    return getInitialFieldValue(user, fieldKey);
   });
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -223,9 +318,15 @@ function EditFieldModal({
             <TextInput
               style={[modalStyles.input, error && modalStyles.inputError]}
               value={value}
-              onChangeText={(v) =>
-                setValue(config.stripSpaces ? v.replace(/\s/g, "") : v)
-              }
+              onChangeText={(v) => {
+                let nextVal = v;
+                if (config.formatInput) {
+                  nextVal = config.formatInput(v, value);
+                } else if (config.stripSpaces) {
+                  nextVal = v.replace(/\s/g, "");
+                }
+                setValue(nextVal);
+              }}
               placeholder={config.placeholder}
               placeholderTextColor={AppColors.grey}
               autoCapitalize={config.autoCapitalize ?? "sentences"}
@@ -370,13 +471,7 @@ export default function Information() {
 
   // Format joined or created_at date nicely
   const rawJoinedDate = user?.joined || user?.created_at;
-  const joinedDate = rawJoinedDate
-    ? new Date(rawJoinedDate).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      })
-    : "—";
+  const joinedDate = formatJoinedDisplay(rawJoinedDate);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: AppColors.background2 }}>
@@ -405,7 +500,7 @@ export default function Information() {
                 <InfoRow
                   icon={FontAwesome6}
                   iconName="contact-card"
-                  label="User ID"
+                  label="Staff ID"
                   value={user?.id ?? "None"}
                 />
                 <InfoRow
@@ -448,6 +543,7 @@ export default function Information() {
                   iconName="event"
                   label="Joined"
                   value={joinedDate}
+                  edit={() => setEditingField("joined")}
                 />
               </View>
             </View>

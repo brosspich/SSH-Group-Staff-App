@@ -164,6 +164,53 @@ export default function Account() {
     );
   };
 
+  function parseDateString(dateStr?: string | null): Date | null {
+    if (!dateStr || !dateStr.trim()) return null;
+    const clean = dateStr.trim();
+
+    // Handle YYYY/MM/DD or YYYY-MM-DD
+    const ymdMatch = clean.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+    if (ymdMatch) {
+      const year = parseInt(ymdMatch[1], 10);
+      const month = parseInt(ymdMatch[2], 10) - 1;
+      const day = parseInt(ymdMatch[3], 10);
+      const d = new Date(year, month, day);
+      if (!isNaN(d.getTime())) return d;
+    }
+
+    // Handle DD/MM/YYYY or DD-MM-YYYY
+    const dmyMatch = clean.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+    if (dmyMatch) {
+      const day = parseInt(dmyMatch[1], 10);
+      const month = parseInt(dmyMatch[2], 10) - 1;
+      const year = parseInt(dmyMatch[3], 10);
+      const d = new Date(year, month, day);
+      if (!isNaN(d.getTime())) return d;
+    }
+
+    // General ISO or standard Date fallback
+    const d = new Date(clean);
+    if (!isNaN(d.getTime())) return d;
+
+    return null;
+  }
+
+  function formatJoinedDisplay(rawJoinedDate?: string | null): string {
+    if (!rawJoinedDate) return "—";
+    const parsed = parseDateString(rawJoinedDate);
+    if (parsed) {
+      return parsed.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    }
+    return rawJoinedDate;
+  }
+
+  const rawJoinedDate = user?.joined || user?.created_at;
+  const joinedDate = formatJoinedDisplay(rawJoinedDate);
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: AppColors.background2 }}>
       <View style={styles.safe}>
@@ -266,7 +313,7 @@ export default function Account() {
                   icon={MaterialIcons}
                   iconName="event"
                   label="Joined"
-                  value={user?.joined ?? "None"}
+                  value={joinedDate}
                 />
               </View>
             </View>

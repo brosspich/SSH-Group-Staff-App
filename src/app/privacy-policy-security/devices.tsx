@@ -34,11 +34,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 export default function Devices() {
   const { user, refresh } = useUser();
   const { isMobile, pick } = useResponsive();
+  const insets = useSafeAreaInsets();
 
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [devices, setDevices] = useState<DeviceSession[]>([]);
@@ -349,6 +353,42 @@ export default function Devices() {
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
+  const formatAgo = (diffMs: number) => {
+    if (diffMs < 60 * 1000) return "just now";
+    const mins = Math.floor(diffMs / (60 * 1000));
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d ago`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months}mo ago`;
+    const years = Math.floor(days / 365);
+    return `${years}y ago`;
+  };
+
+  const formatDateTimeWithAgo = (isoString: string) => {
+    if (!isoString) return "—";
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return "—";
+
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+
+    const timeStr = d.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+
+    const diffMs = Math.max(0, Date.now() - d.getTime());
+    const agoText = formatAgo(diffMs);
+
+    return `${day}/${month}/${year} ${timeStr} • ${agoText}`;
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.safe}>
@@ -587,18 +627,13 @@ export default function Devices() {
             <View
               style={[
                 styles.modalSheet,
-                // !isMobile && {
-                //   maxWidth: 480,
-                //   alignSelf: "center",
-                //   borderRadius: 24,
-                //   marginBottom: 40,
-                // },
                 {
-                  height: "auto",
+                  maxHeight: "90%",
                   maxWidth: !isMobile ? 480 : "100%",
                   width: !isMobile ? 480 : "100%",
                   borderBottomLeftRadius: !isMobile ? 20 : 0,
                   borderBottomRightRadius: !isMobile ? 20 : 0,
+                  paddingBottom: Math.max(insets.bottom, 20),
                 },
               ]}
             >
@@ -612,146 +647,168 @@ export default function Devices() {
                   );
                   return (
                     <>
-                      {/* Centered Large Icon & Device Name */}
-                      <View style={styles.modalHeaderContainer}>
-                        {renderOSIcon(
-                          activeSelectedSession.os,
-                          true,
-                          activeSelectedSession.device_type,
-                        )}
-                        <Text style={styles.modalDeviceName}>
-                          {activeSelectedSession.device_name}
-                        </Text>
-                        <Text style={styles.modalStatusTime}>
-                          {statusText === "online" ? (
-                            <Text style={styles.onlineColor}>online</Text>
-                          ) : (
-                            statusText
+                      <ScrollView
+                        style={{ flexShrink: 1 }}
+                        showsVerticalScrollIndicator={false}
+                      >
+                        {/* Centered Large Icon & Device Name */}
+                        <View style={styles.modalHeaderContainer}>
+                          {renderOSIcon(
+                            activeSelectedSession.os,
+                            true,
+                            activeSelectedSession.device_type,
                           )}
-                        </Text>
-                      </View>
-
-                      {/* Modal details list */}
-                      <View style={styles.modalList}>
-                        {/* Row 1: Application / Model Name */}
-                        <View style={styles.modalRow}>
-                          <View style={styles.modalIconBox}>
-                            <MaterialCommunityIcons
-                              name="laptop"
-                              size={22}
-                              color={AppColors.textSecondary}
-                            />
-                          </View>
-                          <View style={styles.modalRowText}>
-                            <Text style={styles.modalRowTitle}>
-                              {activeSelectedSession.browser_name
-                                ? `${activeSelectedSession.browser_name} ${activeSelectedSession.browser_version || ""}`
-                                : activeSelectedSession.model_name ||
-                                  `SSH Group POS ${activeSelectedSession.os} ${activeSelectedSession.app_version}`}
-                            </Text>
-                            <Text style={styles.modalRowSub}>
-                              {activeSelectedSession.browser_name
-                                ? "Web Browser"
-                                : "Application / Model Name"}
-                            </Text>
-                          </View>
+                          <Text style={styles.modalDeviceName}>
+                            {activeSelectedSession.device_name}
+                          </Text>
+                          <Text style={styles.modalStatusTime}>
+                            {statusText === "online" ? (
+                              <Text style={styles.onlineColor}>online</Text>
+                            ) : (
+                              statusText
+                            )}
+                          </Text>
                         </View>
-                        <View style={styles.modalRowDivider} />
 
-                        {/* Row 2: OS & Model Number */}
-                        <View style={styles.modalRow}>
-                          <View style={styles.modalIconBox}>
-                            <Ionicons
-                              name="information-circle-outline"
-                              size={22}
-                              color={AppColors.textSecondary}
-                            />
-                          </View>
-                          <View style={styles.modalRowText}>
-                            <Text style={styles.modalRowTitle}>
-                              {`${activeSelectedSession.os} ${activeSelectedSession.os_version} ${activeSelectedSession.model_number ? "• " + activeSelectedSession.model_number : ""}`}
-                            </Text>
-                            <Text style={styles.modalRowSub}>
-                              System & Model Number
-                            </Text>
-                          </View>
-                        </View>
-                        <View style={styles.modalRowDivider} />
-
-                        {/* Row 3: Location */}
-                        <View style={styles.modalRow}>
-                          <View style={styles.modalIconBox}>
-                            <Ionicons
-                              name="location-outline"
-                              size={22}
-                              color={AppColors.textSecondary}
-                            />
-                          </View>
-                          <View style={styles.modalRowText}>
-                            <Text style={styles.modalRowTitle}>
-                              {activeSelectedSession.location}
-                            </Text>
-                            <Text style={styles.modalRowSub}>
-                              {`IP: ${activeSelectedSession.ip_address || "Unknown"}`}
-                            </Text>
-                          </View>
-                        </View>
-                        <View style={styles.modalRowDivider} />
-
-                        {/* Row 4: Last Login */}
-                        {activeSelectedSession.last_login && (
-                          <>
-                            <View style={styles.modalRow}>
-                              <View style={styles.modalIconBox}>
-                                <Ionicons
-                                  name="log-in-outline"
-                                  size={22}
-                                  color={AppColors.textSecondary}
-                                />
-                              </View>
-                              <View style={styles.modalRowText}>
-                                <Text style={styles.modalRowTitle}>
-                                  {formatLastActive(
-                                    activeSelectedSession.last_login,
-                                  )}
-                                </Text>
-                                <Text style={styles.modalRowSub}>
-                                  Last Login Time
-                                </Text>
-                              </View>
+                        {/* Modal details list */}
+                        <View style={styles.modalList}>
+                          {/* Row 1: Application / Model Name */}
+                          <View style={styles.modalRow}>
+                            <View style={styles.modalIconBox}>
+                              <MaterialCommunityIcons
+                                name="laptop"
+                                size={22}
+                                color={AppColors.textSecondary}
+                              />
                             </View>
-                            <View style={styles.modalRowDivider} />
-                          </>
-                        )}
-
-                        {/* Row 5: Last Use Time */}
-                        {(activeSelectedSession.last_use_time ||
-                          activeSelectedSession.last_active) && (
-                          <>
-                            <View style={styles.modalRow}>
-                              <View style={styles.modalIconBox}>
-                                <Ionicons
-                                  name="time-outline"
-                                  size={22}
-                                  color={AppColors.textSecondary}
-                                />
-                              </View>
-                              <View style={styles.modalRowText}>
-                                <Text style={styles.modalRowTitle}>
-                                  {formatLastActive(
-                                    activeSelectedSession.last_use_time ||
-                                      activeSelectedSession.last_active,
-                                  )}
-                                </Text>
-                                <Text style={styles.modalRowSub}>
-                                  Last Use Time
-                                </Text>
-                              </View>
+                            <View style={styles.modalRowText}>
+                              <Text style={styles.modalRowTitle}>
+                                {activeSelectedSession.browser_name
+                                  ? `${activeSelectedSession.browser_name} ${activeSelectedSession.browser_version || ""}`
+                                  : activeSelectedSession.model_name ||
+                                    `SSH Group POS ${activeSelectedSession.os} ${activeSelectedSession.app_version}`}
+                              </Text>
+                              <Text style={styles.modalRowSub}>
+                                {activeSelectedSession.browser_name
+                                  ? "Web Browser"
+                                  : "Application / Model Name"}
+                              </Text>
                             </View>
-                            <View style={styles.modalRowDivider} />
-                          </>
-                        )}
-                      </View>
+                          </View>
+                          <View style={styles.modalRowDivider} />
+
+                          {/* Row 2: OS & Model Number */}
+                          <View style={styles.modalRow}>
+                            <View style={styles.modalIconBox}>
+                              <Ionicons
+                                name="information-circle-outline"
+                                size={22}
+                                color={AppColors.textSecondary}
+                              />
+                            </View>
+                            <View style={styles.modalRowText}>
+                              <Text style={styles.modalRowTitle}>
+                                {`${activeSelectedSession.os} ${activeSelectedSession.os_version} ${activeSelectedSession.model_number ? "• " + activeSelectedSession.model_number : ""}`}
+                              </Text>
+                              <Text style={styles.modalRowSub}>
+                                System & Model Number
+                              </Text>
+                            </View>
+                          </View>
+                          <View style={styles.modalRowDivider} />
+
+                          {/* Row 3: Location */}
+                          <View style={styles.modalRow}>
+                            <View style={styles.modalIconBox}>
+                              <Ionicons
+                                name="location-outline"
+                                size={22}
+                                color={AppColors.textSecondary}
+                              />
+                            </View>
+                            <View style={styles.modalRowText}>
+                              <Text style={styles.modalRowTitle}>
+                                {activeSelectedSession.location}
+                              </Text>
+                              <Text style={styles.modalRowSub}>
+                                {`IP: ${activeSelectedSession.ip_address || "Unknown"}`}
+                              </Text>
+                            </View>
+                          </View>
+                          <View style={styles.modalRowDivider} />
+
+                          {/* Row 4: Last Login */}
+                          {activeSelectedSession.last_login && (
+                            <>
+                              <View style={styles.modalRow}>
+                                <View style={styles.modalIconBox}>
+                                  <Ionicons
+                                    name="log-in-outline"
+                                    size={22}
+                                    color={AppColors.textSecondary}
+                                  />
+                                </View>
+                                <View style={styles.modalRowText}>
+                                  <Text style={styles.modalRowTitle}>
+                                    {formatDateTimeWithAgo(
+                                      activeSelectedSession.last_login,
+                                    )}
+                                  </Text>
+                                  <Text style={styles.modalRowSub}>
+                                    Last Login Time
+                                  </Text>
+                                </View>
+                              </View>
+                              <View style={styles.modalRowDivider} />
+                            </>
+                          )}
+
+                          {/* Row 5: Last Use Time */}
+                          {(activeSelectedSession.last_use_time ||
+                            activeSelectedSession.last_active) && (
+                            <>
+                              <View style={styles.modalRow}>
+                                <View style={styles.modalIconBox}>
+                                  <Ionicons
+                                    name="time-outline"
+                                    size={22}
+                                    color={AppColors.textSecondary}
+                                  />
+                                </View>
+                                <View style={styles.modalRowText}>
+                                  <Text style={styles.modalRowTitle}>
+                                    {(() => {
+                                      const raw =
+                                        activeSelectedSession.last_use_time ||
+                                        activeSelectedSession.last_active;
+                                      const d = raw ? new Date(raw) : null;
+                                      const diffMs =
+                                        d && !isNaN(d.getTime())
+                                          ? Date.now() - d.getTime()
+                                          : Infinity;
+                                      const isOnline =
+                                        diffMs < 120 * 1000 &&
+                                        diffMs > -120 * 1000;
+                                      if (isOnline) {
+                                        return (
+                                          <Text style={styles.onlineColor}>
+                                            online
+                                          </Text>
+                                        );
+                                      }
+                                      return formatDateTimeWithAgo(raw);
+                                    })()}
+                                  </Text>
+                                  <Text style={styles.modalRowSub}>
+                                    Last Use Time
+                                  </Text>
+                                </View>
+                              </View>
+                              <View style={styles.modalRowDivider} />
+                            </>
+                          )}
+                        </View>
+                      </ScrollView>
 
                       <View style={styles.conBtn}>
                         {activeSelectedSession.id === currentSessionId ? (
@@ -759,7 +816,7 @@ export default function Devices() {
                             style={[
                               styles.terminateBtn,
                               {
-                                backgroundColor: AppColors.secondary,
+                                backgroundColor: AppColors.background2,
                                 borderColor: AppColors.secondary,
                               },
                             ]}
@@ -769,7 +826,14 @@ export default function Devices() {
                             }}
                             activeOpacity={0.8}
                           >
-                            <Text style={styles.terminateBtnText}>Close</Text>
+                            <Text
+                              style={[
+                                styles.terminateBtnText,
+                                { color: AppColors.secondary },
+                              ]}
+                            >
+                              Close
+                            </Text>
                           </TouchableOpacity>
                         ) : (
                           <>
@@ -1285,7 +1349,12 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     gap: 10,
-    marginBottom: 20,
+    // marginTop: 16,
+    marginBottom: 10,
+    // borderTopWidth: 1,
+    // borderColor: AppColors.grey + 33,
+    // paddingTop: 10,
+    // paddingHorizontal: 24,
   },
   terminateBtn: {
     flex: 1,

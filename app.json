@@ -2,12 +2,14 @@
   "expo": {
     "name": "SSH Group Staff",
     "slug": "ssh-group-staff-app",
-    "version": "1.0.0",
+    // 1.0.0 = app version, 00 = num of edited, 0000 = dd/mm
+    "version": "1.0.0.411508",
     "orientation": "portrait",
     "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
     "scheme": "sshgroupstaffapp",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "buildNumber": "1",
       "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
       "bundleIdentifier": "com.sshgroups.staffapp",
       "infoPlist": {
@@ -29,7 +31,7 @@
     },
     "android": {
       "targetSdkVersion": 36,
-      "versionCode": 3,
+      "versionCode": 1,
       "predictiveBackGestureEnabled": false,
       "package": "com.sshgroups.staffapp",
       "screenOrientation": "unspecified",
@@ -53,16 +55,24 @@
       "output": "static",
       "favicon": "./src/assets/imgs/staff_logo_new_01_FG.png"
     },
+    "splash": {
+      "image": "./src/assets/imgs/staff_logo_new_01_FG.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F3F4F6"
+    },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
           "backgroundColor": "#F3F4F6",
-          "android": {
-            "image": "./src/assets/imgs/staff_logo_new_01_FG.png",
-            "imageWidth": 80
-          }
+          "image": "./src/assets/imgs/staff_logo_new_01_FG.png",
+          "imageWidth": 120
+
+          // "android": {
+          //   "image": "./src/assets/imgs/staff_logo_new_01_FG.png",
+          //   "imageWidth": 80
+          // }
         }
       ],
       "expo-secure-store",
