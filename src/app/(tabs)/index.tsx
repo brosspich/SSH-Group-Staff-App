@@ -459,10 +459,8 @@ export default function DashboardIndex() {
               >
                 <Feather name="log-in" size={20} color="#15803d" />
               </View>
-              <View style={styles.summaryTextContainer}>
-                <Text style={styles.summaryLabel} numberOfLines={2}>
-                  TIME-IN (8:00 AM)
-                </Text>
+              <View>
+                <Text style={styles.summaryLabel}>TIME-IN (8:00 AM)</Text>
                 <Text
                   style={[
                     styles.summaryValue,
@@ -481,10 +479,8 @@ export default function DashboardIndex() {
               >
                 <Feather name="log-out" size={20} color="#1d4ed8" />
               </View>
-              <View style={styles.summaryTextContainer}>
-                <Text style={styles.summaryLabel} numberOfLines={2}>
-                  TIME-OUT (5:00 PM)
-                </Text>
+              <View>
+                <Text style={styles.summaryLabel}>TIME-OUT (5:00 PM)</Text>
                 <Text
                   style={[
                     styles.summaryValue,
@@ -507,10 +503,8 @@ export default function DashboardIndex() {
                   color="#7e22ce"
                 />
               </View>
-              <View style={styles.summaryTextContainer}>
-                <Text style={styles.summaryLabel} numberOfLines={2}>
-                  TIME-OTHER
-                </Text>
+              <View>
+                <Text style={styles.summaryLabel}>TIME-OTHER</Text>
                 <Text
                   style={[
                     styles.summaryValue,
