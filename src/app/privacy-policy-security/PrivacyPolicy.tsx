@@ -105,7 +105,7 @@ export default PrivacyPolicy;
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: AppColors.background2,
   },
   container: {
     flex: 1,
