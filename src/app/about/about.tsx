@@ -1,4 +1,5 @@
 import AppbarBack from "@/components/appbar/appbarback";
+import Copyright from "@/components/copyright/copyright";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { AppImages } from "@/constants/appImages";
@@ -194,6 +195,8 @@ export default function About() {
                 ))}
               </View>
             </View>
+
+            <Copyright />
 
             <View style={{ height: 20 }} />
           </ScrollView>
