@@ -7,6 +7,7 @@ import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useState } from "react";
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -25,7 +26,10 @@ const PrivacyPolicy = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView
+      edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
+      style={styles.safe}
+    >
       <View style={styles.container}>
         <AppbarBack Title={titleMap[lang]} />
 
@@ -105,7 +109,7 @@ export default PrivacyPolicy;
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: AppColors.background2,
   },
   container: {
     flex: 1,

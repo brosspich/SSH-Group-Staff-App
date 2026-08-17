@@ -12,12 +12,13 @@ import {
 import { useResponsive } from "@/hooks/useResponsive";
 import React, { useState } from "react";
 import {
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -40,7 +41,7 @@ export default function CurrentStaffMonthlyReportScreen() {
   const periodLabel = formatDateLabel(selectedDate, "Monthly");
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: AppColors.background2 }}>
+    <SafeAreaView edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined} style={{ flex: 1, backgroundColor: AppColors.background2 }}>
       <AppbarBack Title="Current Staff Monthly Report" />
       <ScrollView
         style={s.container}
@@ -113,6 +114,7 @@ export default function CurrentStaffMonthlyReportScreen() {
         onClose={() => setShowPrintModal(false)}
         isMobile={isMobile}
       />
+          <SafeAreaView edges={["bottom"]} style={{ backgroundColor: AppColors.background2 }} />
     </SafeAreaView>
   );
 }

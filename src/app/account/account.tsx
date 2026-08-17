@@ -144,7 +144,10 @@ export default function Account() {
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: AppColors.background2 }}>
+      <SafeAreaView
+        edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
+        style={{ flex: 1, backgroundColor: AppColors.background2 }}
+      >
         <View style={styles.safe}>
           <View style={styles.centered}>
             <Loading />
@@ -212,7 +215,10 @@ export default function Account() {
   const joinedDate = formatJoinedDisplay(rawJoinedDate);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: AppColors.background2 }}>
+    <SafeAreaView
+      edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
+      style={{ flex: 1, backgroundColor: AppColors.background2 }}
+    >
       <View style={styles.safe}>
         <AppbarBack Title={"Account"} />
         <ScrollView

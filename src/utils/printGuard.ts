@@ -54,9 +54,7 @@ export function forceResetPrintLock(): void {
   }
 }
 
-export async function safePrintAsync(
-  options: PrintOptions,
-): Promise<boolean> {
+export async function safePrintAsync(options: PrintOptions): Promise<boolean> {
   if (activePrintLock) {
     console.warn(
       "[printGuard] safePrintAsync skipped: another print request is already in progress",
@@ -89,14 +87,20 @@ export async function safePrintAsync(
     return true;
   } catch (e: any) {
     const msg = e?.message || String(e || "");
-    if (
-      msg.includes("already in progress") ||
+    if (msg.includes("already in progress")) {
+      console.warn(
+        "[printGuard] Print request skipped (already in progress):",
+        msg,
+      );
+    } else if (
       msg.includes("canceled") ||
       msg.includes("cancelled") ||
       msg.includes("user canceled") ||
-      msg.includes("dismissed")
+      msg.includes("dismissed") ||
+      msg.includes("Printing did not complete") ||
+      msg.includes("PrintIncompleteException")
     ) {
-      console.warn("[printGuard] Print request canceled or busy:", msg);
+      console.log("[printGuard] Print request canceled or dismissed:", msg);
     } else {
       console.error("[printGuard] Print error:", msg);
     }

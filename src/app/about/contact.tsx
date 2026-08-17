@@ -10,6 +10,7 @@ import {
 } from "@expo/vector-icons";
 import {
   Linking,
+  Platform,
   StyleSheet,
   Text,
   TouchableHighlight,
@@ -41,7 +42,10 @@ export default function Contact() {
 
   return (
     <>
-      <SafeAreaView style={{ flex: 1, backgroundColor: AppColors.background2 }}>
+      <SafeAreaView
+        edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
+        style={{ flex: 1, backgroundColor: AppColors.background2 }}
+      >
         <AppbarBack Title="Contact" />
         <View style={styles.containar}>
           <Text style={styles.txtHeader}>

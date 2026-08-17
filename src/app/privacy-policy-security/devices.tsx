@@ -391,7 +391,10 @@ export default function Devices() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safe}>
+      <SafeAreaView
+        edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
+        style={styles.safe}
+      >
         <AppbarBack Title="Devices" />
         {/* <View style={styles.loaderContainer}> */}
         {/* <ActivityIndicator size="large" color={AppColors.secondary} /> */}
@@ -406,7 +409,10 @@ export default function Devices() {
   const selfAlign = pick("stretch" as any, "center" as any, "center" as any);
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView
+      edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
+      style={styles.safe}
+    >
       <View style={styles.container}>
         <AppbarBack Title="Devices" />
         <ScrollView

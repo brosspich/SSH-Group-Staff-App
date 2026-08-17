@@ -459,8 +459,10 @@ export default function DashboardIndex() {
               >
                 <Feather name="log-in" size={20} color="#15803d" />
               </View>
-              <View>
-                <Text style={styles.summaryLabel}>TIME-IN (8:00 AM)</Text>
+              <View style={styles.summaryTextContainer}>
+                <Text style={styles.summaryLabel} numberOfLines={2}>
+                  TIME-IN (8:00 AM)
+                </Text>
                 <Text
                   style={[
                     styles.summaryValue,
@@ -479,8 +481,10 @@ export default function DashboardIndex() {
               >
                 <Feather name="log-out" size={20} color="#1d4ed8" />
               </View>
-              <View>
-                <Text style={styles.summaryLabel}>TIME-OUT (5:00 PM)</Text>
+              <View style={styles.summaryTextContainer}>
+                <Text style={styles.summaryLabel} numberOfLines={2}>
+                  TIME-OUT (5:00 PM)
+                </Text>
                 <Text
                   style={[
                     styles.summaryValue,
@@ -503,8 +507,10 @@ export default function DashboardIndex() {
                   color="#7e22ce"
                 />
               </View>
-              <View>
-                <Text style={styles.summaryLabel}>TIME-OTHER</Text>
+              <View style={styles.summaryTextContainer}>
+                <Text style={styles.summaryLabel} numberOfLines={2}>
+                  TIME-OTHER
+                </Text>
                 <Text
                   style={[
                     styles.summaryValue,
@@ -999,15 +1005,27 @@ const styles = StyleSheet.create({
   },
   summaryCard: {
     flex: 1,
-    minWidth: 105,
+    minWidth: 95,
     backgroundColor: AppColors.background2,
     borderRadius: 16,
     padding: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: 8,
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.04)",
+    ...Platform.select({
+      web: {
+        boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.04)",
+      },
+      default: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.04,
+        shadowRadius: 4,
+        elevation: 1,
+      },
+    }),
   },
   summaryIconBox: {
     width: 38,
@@ -1016,17 +1034,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  summaryTextContainer: {
+    alignSelf: "stretch",
+    marginTop: 4,
+  },
   summaryLabel: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: "bold",
     color: AppColors.grey,
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
+    lineHeight: 12,
   },
   summaryValue: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "bold",
-    marginTop: 2,
+    marginTop: 4,
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
   },

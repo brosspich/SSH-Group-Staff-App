@@ -12,6 +12,7 @@ import {
 import { useResponsive } from "@/hooks/useResponsive";
 import { useState } from "react";
 import {
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -40,7 +41,10 @@ export default function CurrentStaffDailyReportScreen() {
   const periodLabel = formatDateLabel(selectedDate, "Daily");
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: AppColors.background2 }}>
+    <SafeAreaView
+      edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
+      style={{ flex: 1, backgroundColor: AppColors.background2 }}
+    >
       <AppbarBack Title="Current Staff Daily Report" />
       <ScrollView
         style={s.container}
@@ -112,6 +116,10 @@ export default function CurrentStaffDailyReportScreen() {
         targetStaff={selectedStaff}
         onClose={() => setShowPrintModal(false)}
         isMobile={isMobile}
+      />
+      <SafeAreaView
+        edges={["bottom"]}
+        style={{ backgroundColor: AppColors.background2 }}
       />
     </SafeAreaView>
   );

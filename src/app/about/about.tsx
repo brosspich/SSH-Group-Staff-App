@@ -4,7 +4,14 @@ import { AppFonts } from "@/constants/appfonts";
 import { AppImages } from "@/constants/appImages";
 import { useResponsive } from "@/hooks/useResponsive";
 import { Ionicons } from "@expo/vector-icons";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function About() {
@@ -51,7 +58,10 @@ export default function About() {
 
   return (
     <>
-      <SafeAreaView style={{ flex: 1, backgroundColor: AppColors.background2 }}>
+      <SafeAreaView
+        edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
+        style={{ flex: 1, backgroundColor: AppColors.background2 }}
+      >
         <AppbarBack Title="About us" />
         <View style={styles.contanar}>
           <ScrollView

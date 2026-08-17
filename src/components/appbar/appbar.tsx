@@ -42,9 +42,9 @@ export default function Appbar() {
             style={{
               width: 42,
               height: 42,
-              padding: 10,
+              // padding: 10,
               borderRadius: 10,
-              backgroundColor: AppColors.secondary,
+              // backgroundColor: AppColors.background2,
               borderColor: AppColors.secondary,
               borderWidth: 1.2,
             }}

@@ -6,6 +6,7 @@ import { useUser } from "@/contexts/UserContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Redirect, Tabs, usePathname } from "expo-router";
 import {
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -76,7 +77,7 @@ function CustomTabBarButton({ children, onPress, accessibilityState }: any) {
       onPress={onPress}
       style={({ pressed }) => [
         styles.tabButton,
-        {
+        Platform.OS === "android" && {
           backgroundColor: pressed
             ? `${AppColors.grey}33`
             : AppColors.transparent,
@@ -159,8 +160,11 @@ export default function TabLayout() {
         tabBarStyle: isTablet
           ? { display: "none" }
           : {
-              height: 65 + insets.bottom,
-              paddingBottom: insets.bottom,
+              height: Platform.OS === "ios" ? 80 : 60 + insets.bottom,
+              paddingBottom: Platform.OS === "ios" ? 15 : insets.bottom,
+              backgroundColor: AppColors.background2,
+              borderTopWidth: 0.5,
+              borderTopColor: "rgba(0, 0, 0, 0.08)",
             },
         tabBarLabelStyle: {
           fontSize: 10,
