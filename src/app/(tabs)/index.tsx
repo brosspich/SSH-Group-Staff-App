@@ -23,15 +23,13 @@ import {
   Platform,
   RefreshControl,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // ─── Attendance Item Type Definition ──────────────────────────────────────────
 
@@ -146,6 +144,7 @@ export default function DashboardIndex() {
   // Success result modal
   const [lastRecord, setLastRecord] = useState<AttendanceRecord | null>(null);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
+  const [savingAttendance, setSavingAttendance] = useState(false);
 
   // Filter history: "all" | "today" | "month"
   const [historyFilter, setHistoryFilter] = useState<"today" | "month" | "all">(
@@ -271,16 +270,17 @@ export default function DashboardIndex() {
 
     setScanned(true);
 
-    // Re-verify security before final submission
+    // Re-verify security before displaying the confirmation modal
     const secCheck = await verifyAttendanceSecurity();
     if (!secCheck.allowed) {
       setScannerVisible(false);
       setSecurityErrorTitle("Security Verification Failed");
       setSecurityErrorMessage(
         secCheck.reason ||
-          "Security check failed. Attendance record was cancelled.",
+          "Security check failed. Attendance scan is not permitted.",
       );
       setSecurityModalVisible(true);
+      setScanned(false);
       return;
     }
 
@@ -302,8 +302,32 @@ export default function DashboardIndex() {
       qr_data: qrDataText,
     };
 
-    // Construct updated list (prepend new record)
-    const updatedList = [newRecord, ...attendanceList];
+    setLastRecord(newRecord);
+    setScannerVisible(false);
+    setSuccessModalVisible(true);
+  };
+
+  const handleConfirmAttendance = async () => {
+    if (!lastRecord || !user?.id || savingAttendance) return;
+
+    setSavingAttendance(true);
+
+    // Double check security right before saving
+    const secCheck = await verifyAttendanceSecurity();
+    if (!secCheck.allowed) {
+      setSuccessModalVisible(false);
+      setSecurityErrorTitle("Security Verification Failed");
+      setSecurityErrorMessage(
+        secCheck.reason ||
+          "Security check failed. Attendance record was cancelled.",
+      );
+      setSecurityModalVisible(true);
+      setSavingAttendance(false);
+      setScanned(false);
+      return;
+    }
+
+    const updatedList = [lastRecord, ...attendanceList];
 
     try {
       // Save directly to Supabase table ssh_group_staff_users attendance column
@@ -323,13 +347,14 @@ export default function DashboardIndex() {
       await userService.save(updatedUser);
 
       // Send attendance details to Telegram (non-blocking)
-      sendAttendanceToTelegram(newRecord);
+      sendAttendanceToTelegram(lastRecord);
 
-      setLastRecord(newRecord);
-      setScannerVisible(false);
-      setSuccessModalVisible(true);
+      setSuccessModalVisible(false);
     } catch (e) {
-      Alert.alert("Scan Error", "Failed to save attendance. Please try again.");
+      Alert.alert("Save Error", "Failed to save attendance. Please try again.");
+    } finally {
+      setSavingAttendance(false);
+      setScanned(false);
     }
   };
 
@@ -661,14 +686,20 @@ export default function DashboardIndex() {
         </View>
       </ScrollView>
 
-      {/* ── Scanner Modal (Camera Only) ── */}
+      {/* ── Scanner Modal ── */}
       <Modal
         visible={scannerVisible}
         animationType="slide"
         transparent={true}
         onRequestClose={() => setScannerVisible(false)}
+        statusBarTranslucent={true}
       >
-        <SafeAreaView style={{ flex: 1, backgroundColor: AppColors.secondary }}>
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor="transparent"
+          translucent={true}
+        />
+        <View style={{ flex: 1, backgroundColor: AppColors.secondary }}>
           <View
             style={[
               styles.modalHeader,
@@ -743,7 +774,7 @@ export default function DashboardIndex() {
               </>
             )}
           </View>
-        </SafeAreaView>
+        </View>
       </Modal>
 
       {/* ── Success Confirmation Modal ── */}
@@ -751,7 +782,12 @@ export default function DashboardIndex() {
         visible={successModalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setSuccessModalVisible(false)}
+        onRequestClose={() => {
+          if (!savingAttendance) {
+            setSuccessModalVisible(false);
+            setScanned(false);
+          }
+        }}
       >
         <View style={styles.successOverlay}>
           <View style={styles.successCard}>
@@ -763,7 +799,11 @@ export default function DashboardIndex() {
               />
             </View>
 
-            <Text style={styles.successTitle}>Attendance Recorded!</Text>
+            <Text style={styles.successTitle}>
+              {savingAttendance
+                ? "Recording Attendance..."
+                : "Confirm Attendance"}
+            </Text>
 
             {lastRecord && (
               <View style={styles.successDetails}>
@@ -830,13 +870,50 @@ export default function DashboardIndex() {
               </View>
             )}
 
-            <TouchableOpacity
-              style={styles.successCloseBtn}
-              onPress={() => setSuccessModalVisible(false)}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.successCloseText}>Done</Text>
-            </TouchableOpacity>
+            <View style={{ width: "100%", gap: 10 }}>
+              <TouchableOpacity
+                style={styles.successCloseBtn}
+                onPress={handleConfirmAttendance}
+                disabled={savingAttendance}
+                activeOpacity={0.85}
+              >
+                {savingAttendance ? (
+                  <ActivityIndicator
+                    size="small"
+                    color={AppColors.background2}
+                  />
+                ) : (
+                  <Text style={styles.successCloseText}>Done</Text>
+                )}
+              </TouchableOpacity>
+
+              {!savingAttendance && (
+                <TouchableOpacity
+                  style={[
+                    styles.successCloseBtn,
+                    {
+                      backgroundColor: "transparent",
+                      borderWidth: 1,
+                      borderColor: AppColors.secondary,
+                    },
+                  ]}
+                  onPress={() => {
+                    setSuccessModalVisible(false);
+                    setScanned(false);
+                  }}
+                  activeOpacity={0.85}
+                >
+                  <Text
+                    style={[
+                      styles.successCloseText,
+                      { color: AppColors.secondary },
+                    ]}
+                  >
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         </View>
       </Modal>

@@ -249,7 +249,15 @@ export default function Devices() {
     } else if (
       osLower.includes("android") ||
       osLower.includes("harmony") ||
-      osLower.includes("huawei")
+      osLower.includes("huawei") ||
+      osLower.includes("HarmonyOS") ||
+      osLower.includes("hios") ||
+      osLower.includes("HyperOS") ||
+      osLower.includes("One UI") ||
+      osLower.includes("ColorOS") ||
+      osLower.includes("OxygenOS") ||
+      osLower.includes("EMUI") ||
+      osLower.includes("MagicOS")
     ) {
       bg = "#5cbf47";
       iconName = "android";
@@ -257,7 +265,11 @@ export default function Devices() {
     } else if (
       osLower.includes("ios") ||
       osLower.includes("mac") ||
-      osLower.includes("apple")
+      osLower.includes("apple") ||
+      osLower.includes("iphone") ||
+      osLower.includes("ipad") ||
+      osLower.includes("ipod") ||
+      osLower.includes("macos")
     ) {
       bg = "#29b6f6";
       iconName = "apple";

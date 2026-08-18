@@ -82,6 +82,11 @@ function CustomTabBarButton({ children, onPress, accessibilityState }: any) {
             ? `${AppColors.grey}33`
             : AppColors.transparent,
         },
+        Platform.OS === "ios" && {
+          backgroundColor: pressed
+            ? `${AppColors.grey}33`
+            : AppColors.transparent,
+        },
         isFocused && styles.activeTab,
       ]}
     >
@@ -160,8 +165,8 @@ export default function TabLayout() {
         tabBarStyle: isTablet
           ? { display: "none" }
           : {
-              height: Platform.OS === "ios" ? 80 : 60 + insets.bottom,
-              paddingBottom: Platform.OS === "ios" ? 15 : insets.bottom,
+              height: Platform.OS === "ios" ? 80 : 65 + insets.bottom,
+              paddingBottom: Platform.OS === "ios" ? 13 : insets.bottom,
               backgroundColor: AppColors.background2,
               borderTopWidth: 0.5,
               borderTopColor: "rgba(0, 0, 0, 0.08)",
