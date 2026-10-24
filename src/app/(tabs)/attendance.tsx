@@ -293,37 +293,18 @@ export default function AttendanceLogsScreen() {
                 const isTimeOut = item.type === "time-out";
 
                 const badgeBg = isTimeIn
-                  ? "#dcfce7"
+                  ? "#dce0fc"
                   : isTimeOut
-                    ? "#dbeafe"
+                    ? "#fedbdb"
                     : "#f3e8ff";
                 const badgeColor = isTimeIn
-                  ? "#15803d"
+                  ? "#0022ff"
                   : isTimeOut
-                    ? "#1d4ed8"
+                    ? "#ff0000"
                     : "#7e22ce";
 
                 return (
                   <View key={item.id} style={styles.historyCard}>
-                    <View style={styles.historyCardHeader}>
-                      <View
-                        style={[
-                          styles.historyBadge,
-                          { backgroundColor: badgeBg },
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            styles.historyBadgeText,
-                            { color: badgeColor },
-                          ]}
-                        >
-                          {item.type.toUpperCase()}
-                        </Text>
-                      </View>
-                      <Text style={styles.historyIdText}>{item.id}</Text>
-                    </View>
-
                     <View style={styles.historyCardBody}>
                       <View style={styles.historyLeftCol}>
                         <Text style={styles.historyTimeText}>{item.time}</Text>
@@ -338,14 +319,26 @@ export default function AttendanceLogsScreen() {
                       </View>
                     </View>
 
-                    {item.qr_data && (
-                      <View style={styles.historyFooter}>
+                    {item.type && (
+                      <View
+                        style={[
+                          styles.historyFooter,
+                          { backgroundColor: badgeBg },
+                        ]}
+                      >
                         <Text
-                          style={styles.historyQrText}
+                          style={[styles.historyQrText, { color: badgeColor }]}
                           numberOfLines={1}
                           ellipsizeMode="middle"
                         >
-                          QR: {item.qr_data}
+                          Status : {item.type.toUpperCase()}
+                        </Text>
+                        <Text
+                          style={[styles.historyQrText, { color: badgeColor }]}
+                          numberOfLines={1}
+                          ellipsizeMode="middle"
+                        >
+                          {item.id ? item.id.toUpperCase() : ""}
                         </Text>
                       </View>
                     )}
@@ -472,7 +465,8 @@ const styles = StyleSheet.create({
     color: AppColors.textPrimary,
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
-    ...(Platform.OS === "web" && ({ outlineStyle: "none", outlineWidth: 0 } as any)),
+    ...(Platform.OS === "web" &&
+      ({ outlineStyle: "none", outlineWidth: 0 } as any)),
   },
 
   // Filter Chips
@@ -511,27 +505,11 @@ const styles = StyleSheet.create({
   },
   historyCard: {
     backgroundColor: AppColors.background2,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 10,
+    // padding: 16,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.04)",
-  },
-  historyCardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  historyBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  historyBadgeText: {
-    fontSize: 11,
-    fontWeight: "bold",
-    fontFamily: AppFonts.bold,
-    includeFontPadding: false,
+    borderColor: AppColors.grey + 40,
+    overflow: "hidden",
   },
   historyIdText: {
     fontSize: 11,
@@ -544,6 +522,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
   historyLeftCol: {},
   historyTimeText: {
@@ -579,10 +559,15 @@ const styles = StyleSheet.create({
   },
 
   historyFooter: {
-    marginTop: 10,
-    paddingTop: 8,
+    // marginTop: 10,
+    // paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: "rgba(0,0,0,0.04)",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
   historyQrText: {
     fontSize: 11,

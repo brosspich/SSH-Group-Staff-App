@@ -7,9 +7,9 @@ import {
   isValidAttendanceQR,
 } from "@/constants/attendanceConfig";
 import { useResponsive } from "@/hooks/useResponsive";
+import { verifyAttendanceSecurity } from "@/services/locationService";
 import { sendAttendanceToTelegram } from "@/services/telegramService";
 import { StaffUser, userService } from "@/services/userService";
-import { verifyAttendanceSecurity } from "@/utils/locationService";
 import { supabase } from "@/utils/supabase";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
@@ -114,7 +114,7 @@ export function generateNextAttendanceId(
   const block2 = seqStr.substring(4, 8);
   const block3 = seqStr.substring(8, 12);
 
-  return `att-${block1}-${block2}-${block3}`;
+  return `ATT-${block1}-${block2}-${block3}`;
 }
 
 export default function DashboardIndex() {
@@ -480,16 +480,16 @@ export default function DashboardIndex() {
             {/* Time-In */}
             <View style={styles.summaryCard}>
               <View
-                style={[styles.summaryIconBox, { backgroundColor: "#dcfce7" }]}
+                style={[styles.summaryIconBox, { backgroundColor: "#dce0fc" }]}
               >
-                <Feather name="log-in" size={20} color="#15803d" />
+                <Feather name="log-in" size={20} color="#0022ff" />
               </View>
               <View>
                 <Text style={styles.summaryLabel}>TIME-IN (8:00 AM)</Text>
                 <Text
                   style={[
                     styles.summaryValue,
-                    { color: todayTimeIn ? "#15803d" : AppColors.grey },
+                    { color: todayTimeIn ? "#0022ff" : AppColors.grey },
                   ]}
                 >
                   {todayTimeIn ? todayTimeIn.time : "Not Scanned"}
@@ -500,16 +500,16 @@ export default function DashboardIndex() {
             {/* Time-Out */}
             <View style={styles.summaryCard}>
               <View
-                style={[styles.summaryIconBox, { backgroundColor: "#dbeafe" }]}
+                style={[styles.summaryIconBox, { backgroundColor: "#fedbdb" }]}
               >
-                <Feather name="log-out" size={20} color="#1d4ed8" />
+                <Feather name="log-out" size={20} color="#ff0000" />
               </View>
               <View>
                 <Text style={styles.summaryLabel}>TIME-OUT (5:00 PM)</Text>
                 <Text
                   style={[
                     styles.summaryValue,
-                    { color: todayTimeOut ? "#1d4ed8" : AppColors.grey },
+                    { color: todayTimeOut ? "#ff0000" : AppColors.grey },
                   ]}
                 >
                   {todayTimeOut ? todayTimeOut.time : "Not Scanned"}
@@ -631,14 +631,14 @@ export default function DashboardIndex() {
                 const isTimeOut = item.type === "time-out";
 
                 const badgeBg = isTimeIn
-                  ? "#dcfce7"
+                  ? "#dce0fc"
                   : isTimeOut
-                    ? "#dbeafe"
+                    ? "#fedbdb"
                     : "#f3e8ff";
                 const badgeColor = isTimeIn
-                  ? "#15803d"
+                  ? "#0022ff"
                   : isTimeOut
-                    ? "#1d4ed8"
+                    ? "#ff0000"
                     : "#7e22ce";
 
                 return (
@@ -1232,7 +1232,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.04)",
+    borderColor: AppColors.grey + 40,
   },
   historyItemLeft: {
     flexDirection: "row",

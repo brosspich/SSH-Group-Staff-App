@@ -92,8 +92,8 @@ android {
         applicationId 'com.sshgroups.staffapp'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "1.0.0.51808"
+        versionCode 3
+        versionName "1.0.0.62410"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }

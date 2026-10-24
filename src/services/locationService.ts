@@ -14,12 +14,23 @@ export interface CompanyLocationConfig {
   name: string;
 }
 
+// export const DEFAULT_COMPANY_LOCATION: CompanyLocationConfig = {
+//   latitude: 11.502767,
+//   longitude: 104.851553,
+//   radiusMeters: 150, // 150 meters allowed radius
+//   name: "SSH Group HQ",
+// };
+
 export const DEFAULT_COMPANY_LOCATION: CompanyLocationConfig = {
-  latitude: 11.502767,
-  longitude: 104.851553,
-  radiusMeters: 150, // 150 meters allowed radius
-  name: "SSH Group HQ",
+  latitude: 0,
+  longitude: 0,
+  radiusMeters: 150,
+  name: "",
 };
+
+// export let COMPANY_LOCATION: CompanyLocationConfig = {
+//   ...DEFAULT_COMPANY_LOCATION,
+// };
 
 export let COMPANY_LOCATION: CompanyLocationConfig = {
   ...DEFAULT_COMPANY_LOCATION,
@@ -119,8 +130,9 @@ export async function fetchCompanyLocationConfig(): Promise<CompanyLocationConfi
 
     if (!error && data && Array.isArray(data) && data.length > 0) {
       const row = data[0];
-      const companyName =
-        row["company_name"] ?? row["companyName"] ?? "SSH Group HQ";
+      // const companyName =
+      //   row["company_name"] ?? row["companyName"] ?? "SSH Group HQ";
+      const companyName = row["company_name"] ?? row["companyName"] ?? "";
       const locCol =
         row["location"] ?? row["location_links"] ?? row["locationLinks"];
 

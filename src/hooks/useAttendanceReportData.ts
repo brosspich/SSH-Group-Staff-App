@@ -174,11 +174,16 @@ export function useAttendanceReportData(
         );
       }
 
-      // Sort newest first
+      // Sort follow by id ascending (att-0000-0000-0001 -> att-0000-0000-0062)
       filteredLogs.sort((a, b) => {
+        if (a.id && b.id) {
+          return a.id.localeCompare(b.id, undefined, { numeric: true });
+        }
+        if (a.id) return -1;
+        if (b.id) return 1;
         const timeA = a.timestamp || `${a.date} ${a.time}`;
         const timeB = b.timestamp || `${b.date} ${b.time}`;
-        return timeB.localeCompare(timeA);
+        return timeA.localeCompare(timeB);
       });
 
       setRecords(filteredLogs);

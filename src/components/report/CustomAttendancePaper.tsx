@@ -1,9 +1,12 @@
 import { AttendanceRecord } from "@/app/(tabs)/attendance";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
-import { AttendanceSummary, ReportMode, ReportType } from "@/hooks/useAttendanceReportData";
+import {
+  AttendanceSummary,
+  ReportMode,
+  ReportType,
+} from "@/hooks/useAttendanceReportData";
 import { StaffUser } from "@/services/userService";
-import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 interface CustomAttendancePaperProps {
@@ -24,6 +27,18 @@ export default function CustomAttendancePaper({
   targetStaff,
 }: CustomAttendancePaperProps) {
   const generatedTimeStr = new Date().toLocaleString();
+
+  // Sort records follow by id ascending (att-0000-0000-0001 -> att-0000-0000-0062)
+  const sortedRecords = [...records].sort((a, b) => {
+    if (a.id && b.id) {
+      return a.id.localeCompare(b.id, undefined, { numeric: true });
+    }
+    if (a.id) return -1;
+    if (b.id) return 1;
+    const timeA = a.timestamp || `${a.date} ${a.time}`;
+    const timeB = b.timestamp || `${b.date} ${b.time}`;
+    return timeA.localeCompare(timeB);
+  });
 
   return (
     <View style={styles.paperContainer}>
@@ -48,18 +63,19 @@ export default function CustomAttendancePaper({
       <View style={styles.divider} />
 
       {/* Staff detail info for individual & current staff report */}
-      {(reportMode === "individual" || reportMode === "current") && targetStaff && (
-        <View style={styles.staffInfoCard}>
-          <Text style={styles.staffInfoText}>
-            <Text style={styles.staffInfoLabel}>Staff:</Text> {targetStaff.name}{" "}
-            ({targetStaff.id})
-          </Text>
-          <Text style={styles.staffInfoText}>
-            <Text style={styles.staffInfoLabel}>Position:</Text>{" "}
-            {targetStaff.position || "N/A"}
-          </Text>
-        </View>
-      )}
+      {(reportMode === "individual" || reportMode === "current") &&
+        targetStaff && (
+          <View style={styles.staffInfoCard}>
+            <Text style={styles.staffInfoText}>
+              <Text style={styles.staffInfoLabel}>Staff:</Text>{" "}
+              {targetStaff.name} ({targetStaff.id})
+            </Text>
+            <Text style={styles.staffInfoText}>
+              <Text style={styles.staffInfoLabel}>Position:</Text>{" "}
+              {targetStaff.position || "N/A"}
+            </Text>
+          </View>
+        )}
 
       {/* ── Summary Stats Grid ── */}
       <View style={styles.summaryGrid}>
@@ -69,13 +85,13 @@ export default function CustomAttendancePaper({
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statBoxLabel}>Time-In</Text>
-          <Text style={[styles.statBoxValue, { color: "#15803d" }]}>
+          <Text style={[styles.statBoxValue, { color: "#0022ff" }]}>
             {summary.timeInCount}
           </Text>
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statBoxLabel}>Time-Out</Text>
-          <Text style={[styles.statBoxValue, { color: "#1d4ed8" }]}>
+          <Text style={[styles.statBoxValue, { color: "#ff0000" }]}>
             {summary.timeOutCount}
           </Text>
         </View>
@@ -91,30 +107,31 @@ export default function CustomAttendancePaper({
       <View style={styles.table}>
         {/* Table Header */}
         <View style={styles.tableHeader}>
-          <Text style={[styles.th, { width: "10%", textAlign: "center" }]}>
+          {/* <Text style={[styles.th, { width: "7%", textAlign: "center" }]}>
             #
-          </Text>
-          <Text style={[styles.th, { width: "18%" }]}>Staff ID</Text>
+          </Text> */}
+          {/* <Text style={[styles.th, { width: "23%" }]}>Record ID</Text> */}
+          <Text style={[styles.th, { width: "15%" }]}>Staff ID</Text>
           <Text style={[styles.th, { flex: 1 }]}>Name</Text>
-          <Text style={[styles.th, { width: "22%", textAlign: "center" }]}>
+          <Text style={[styles.th, { width: "20%", textAlign: "center" }]}>
             Date
           </Text>
           <Text style={[styles.th, { width: "20%", textAlign: "center" }]}>
             Time
           </Text>
 
-          <Text style={[styles.th, { width: "18%", textAlign: "center" }]}>
+          <Text style={[styles.th, { width: "20%", textAlign: "center" }]}>
             Type
           </Text>
         </View>
 
         {/* Table Rows */}
-        {records.length === 0 ? (
+        {sortedRecords.length === 0 ? (
           <View style={styles.emptyRow}>
             <Text style={styles.emptyText}>No logs found for this period.</Text>
           </View>
         ) : (
-          records.map((item, index) => {
+          sortedRecords.map((item, index) => {
             const isEven = index % 2 === 0;
             const badgeBg =
               item.type === "time-in"
@@ -129,27 +146,35 @@ export default function CustomAttendancePaper({
                   ? "#1d4ed8"
                   : "#7e22ce";
 
+            const typeText =
+              item.type === "time-in"
+                ? "In"
+                : item.type === "time-out"
+                  ? "Out"
+                  : "Other";
+
             return (
               <View
                 key={item.id || index}
                 style={[styles.tableRow, isEven && styles.tableRowEven]}
               >
-                <Text
-                  style={[styles.td, { width: "10%", textAlign: "center" }]}
-                >
+                {/* <Text style={[styles.td, { width: "7%", textAlign: "center" }]}>
                   {index + 1}
-                </Text>
-                <Text
-                  style={[styles.td, { width: "18%" }]}
+                </Text> */}
+                {/* <Text
+                  style={[styles.td, { width: "23%", fontSize: 9 }]}
                   numberOfLines={1}
                 >
+                  {item.id || "-"}
+                </Text> */}
+                <Text style={[styles.td, { width: "15%" }]} numberOfLines={1}>
                   {item.staff_id}
                 </Text>
                 <Text style={[styles.td, { flex: 1 }]} numberOfLines={1}>
                   {item.name}
                 </Text>
                 <Text
-                  style={[styles.td, { width: "22%", textAlign: "center" }]}
+                  style={[styles.td, { width: "20%", textAlign: "center" }]}
                 >
                   {item.date}
                 </Text>
@@ -161,18 +186,15 @@ export default function CustomAttendancePaper({
                 </Text>
                 <View
                   style={{
-                    width: "18%",
+                    width: "20%",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <View
-                    style={[styles.badge, { backgroundColor: badgeBg }]}
-                  >
-                    <Text
-                      style={[styles.badgeText, { color: badgeColor }]}
-                    >
-                      {item.type}
+                  <View style={[styles.badge, { backgroundColor: badgeBg }]}>
+                    <Text style={[styles.badgeText, { color: badgeColor }]}>
+                      {/* {item.type} */}
+                      {typeText}
                     </Text>
                   </View>
                 </View>

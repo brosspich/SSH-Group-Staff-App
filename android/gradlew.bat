@@ -31,6 +31,9 @@
 @rem Set local scope for the variables with windows NT shell
 if "%OS%"=="Windows_NT" setlocal
 
+@rem Limit initial heap allocation for child JVMs (such as prefab CLI)
+if not defined _JAVA_OPTIONS set _JAVA_OPTIONS=-Xms64m -Xmx1024m
+
 set DIRNAME=%~dp0
 if "%DIRNAME%"=="" set DIRNAME=.
 @rem This is normally unused

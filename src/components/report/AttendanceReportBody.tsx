@@ -52,12 +52,12 @@ export function AttendanceReportBody({
     if (!searchQuery.trim()) return true;
     const q = searchQuery.trim().toLowerCase();
     return (
+      (r.id && r.id.toLowerCase().includes(q)) ||
       (r.name && r.name.toLowerCase().includes(q)) ||
       (r.staff_id && r.staff_id.toLowerCase().includes(q)) ||
       (r.date && r.date.toLowerCase().includes(q)) ||
       (r.time && r.time.toLowerCase().includes(q)) ||
-      (r.type && r.type.toLowerCase().includes(q)) ||
-      (r.qr_data && r.qr_data.toLowerCase().includes(q))
+      (r.type && r.type.toLowerCase().includes(q))
     );
   });
 
@@ -141,23 +141,31 @@ export function AttendanceReportBody({
       {/* Summary Cards */}
       <View style={s.summaryGrid}>
         <View style={s.summaryCard}>
-          <Text style={s.summaryLabel}>Total Logs</Text>
-          <Text style={s.summaryValue}>{summary.totalLogs}</Text>
+          <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
+            Total Logs
+          </Text>
+          <Text style={s.summaryValue}>{summary.totalLogs} </Text>
         </View>
         <View style={s.summaryCard}>
-          <Text style={s.summaryLabel}>Time-In</Text>
-          <Text style={[s.summaryValue, { color: "#15803d" }]}>
+          <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
+            Time-In
+          </Text>
+          <Text style={[s.summaryValue, { color: "#0022ff" }]}>
             {summary.timeInCount}
           </Text>
         </View>
         <View style={s.summaryCard}>
-          <Text style={s.summaryLabel}>Time-Out</Text>
-          <Text style={[s.summaryValue, { color: "#1d4ed8" }]}>
+          <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
+            Time-Out
+          </Text>
+          <Text style={[s.summaryValue, { color: "#ff0000" }]}>
             {summary.timeOutCount}
           </Text>
         </View>
         <View style={s.summaryCard}>
-          <Text style={s.summaryLabel}>Other</Text>
+          <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
+            Other
+          </Text>
           <Text style={[s.summaryValue, { color: "#7e22ce" }]}>
             {summary.timeOtherCount}
           </Text>
@@ -207,39 +215,47 @@ export function AttendanceReportBody({
             const isTimeOut = item.type === "time-out";
 
             const badgeBg = isTimeIn
-              ? "#dcfce7"
+              ? "#dce0fc"
               : isTimeOut
-                ? "#dbeafe"
+                ? "#fedbdb"
                 : "#f3e8ff";
             const badgeColor = isTimeIn
-              ? "#15803d"
+              ? "#0022ff"
               : isTimeOut
-                ? "#1d4ed8"
+                ? "#ff0000"
                 : "#7e22ce";
 
             return (
               <View key={item.id || index} style={s.recordRow}>
-                <View style={s.recordHeader}>
-                  <View style={[s.badge, { backgroundColor: badgeBg }]}>
-                    <Text style={[s.badgeText, { color: badgeColor }]}>
-                      {item.type.toUpperCase()}
-                    </Text>
-                  </View>
-                  <Text style={s.recordTime}>{item.time}</Text>
-                </View>
-
                 <View style={s.recordBody}>
                   <View style={{ flex: 1 }}>
                     <Text style={s.staffName}>{item.name}</Text>
-                    <Text style={s.staffIdText}>Staff ID: {item.staff_id}</Text>
+                    <Text style={s.staffIdText}>
+                      Staff ID: {item.staff_id}
+                      {item.id ? ` • ${item.id.toUpperCase()}` : ""}
+                    </Text>
                   </View>
-                  <Text style={s.recordDate}>{item.date}</Text>
+                  <View style={{ alignItems: "flex-end" }}>
+                    <Text style={s.recordTime}>{item.time}</Text>
+                    <Text style={s.recordDate}>{item.date}</Text>
+                  </View>
                 </View>
 
-                {item.qr_data && (
-                  <Text style={s.qrText} numberOfLines={1}>
-                    QR: {item.qr_data}
-                  </Text>
+                {item.type && (
+                  <View style={[s.conStatus, { backgroundColor: badgeBg }]}>
+                    <Text
+                      style={[s.statusText, { color: badgeColor }]}
+                      numberOfLines={1}
+                    >
+                      Status :
+                    </Text>
+                    <Text
+                      style={[s.statusText, { color: badgeColor }]}
+                      numberOfLines={1}
+                    >
+                      {item.type.toUpperCase()}
+                    </Text>
+                  </View>
                 )}
               </View>
             );
@@ -405,24 +421,8 @@ const s = StyleSheet.create({
   recordRow: {
     backgroundColor: AppColors.background,
     borderRadius: 10,
-    padding: 12,
-    gap: 8,
-  },
-  recordHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  badgeText: {
-    fontSize: 10,
-    fontWeight: "bold",
-    fontFamily: AppFonts.bold,
-    includeFontPadding: false,
+    // gap: 8,
+    overflow: "hidden",
   },
   recordTime: {
     fontSize: 13,
@@ -435,6 +435,9 @@ const s = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    width: "100%",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   staffName: {
     fontSize: 13.5,
@@ -456,13 +459,19 @@ const s = StyleSheet.create({
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
   },
-  qrText: {
+  conStatus: {
+    borderTopWidth: 0.5,
+    borderTopColor: AppColors.grey + 30,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  statusText: {
     fontSize: 10.5,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
-    borderTopWidth: 0.5,
-    borderTopColor: "rgba(0,0,0,0.06)",
-    paddingTop: 6,
     includeFontPadding: false,
   },
 

@@ -1,5 +1,5 @@
 import { AttendanceRecord } from "@/app/(tabs)/attendance";
-import { COMPANY_NAME } from "@/constants/attendanceConfig";
+import { getCompanyName } from "@/constants/attendanceConfig";
 import {
   AttendanceSummary,
   ReportMode,
@@ -32,26 +32,40 @@ export function buildAttendanceHtml(
   reportMode: ReportMode,
   targetStaff?: StaffUser | null,
 ): string {
-  const companyName = COMPANY_NAME || "SSH Group";
+  // const companyName = COMPANY_NAME || "SSH Group";
+  const companyName = getCompanyName();
 
-  const rows = records
+  // Sort records follow by id ascending (att-0000-0000-0001 -> att-0000-0000-0062)
+  const sortedRecords = [...records].sort((a, b) => {
+    if (a.id && b.id) {
+      return a.id.localeCompare(b.id, undefined, { numeric: true });
+    }
+    if (a.id) return -1;
+    if (b.id) return 1;
+    const timeA = a.timestamp || `${a.date} ${a.time}`;
+    const timeB = b.timestamp || `${b.date} ${b.time}`;
+    return timeA.localeCompare(timeB);
+  });
+
+  const rows = sortedRecords
     .map((r, index) => {
       const typeBadgeBg =
         r.type === "time-in"
-          ? "#dcfce7"
+          ? "#dce0fc"
           : r.type === "time-out"
-            ? "#dbeafe"
+            ? "#fedbdb"
             : "#f3e8ff";
       const typeBadgeColor =
         r.type === "time-in"
-          ? "#15803d"
+          ? "#0022ff"
           : r.type === "time-out"
-            ? "#1d4ed8"
+            ? "#ff0000"
             : "#7e22ce";
 
       return `
     <tr>
       <td style="text-align: center; font-weight: 600;">${index + 1}</td>
+      <td style="white-space: nowrap; font-family: monospace; font-size: 11px; color: #334155; font-weight: 600;">${(r.id || "-").toUpperCase()}</td>
       <td style="white-space: nowrap; font-weight: 600;">${r.staff_id}</td>
       <td style="font-weight: bold;">${r.name || "-"}</td>
       <td style="text-align: center; white-space: nowrap;">${r.date}</td>
@@ -61,7 +75,6 @@ export function buildAttendanceHtml(
           ${r.type}
         </span>
       </td>
-      <td style="font-size: 10px; color: #555;">${r.qr_data || "-"}</td>
     </tr>`;
     })
     .join("");
@@ -222,11 +235,11 @@ export function buildAttendanceHtml(
     </div>
     <div class="summary-card">
       <div class="label">Time-In</div>
-      <div class="value" style="color: #15803d;">${summary.timeInCount}</div>
+      <div class="value" style="color: #0022ff;">${summary.timeInCount}</div>
     </div>
     <div class="summary-card">
       <div class="label">Time-Out</div>
-      <div class="value" style="color: #1d4ed8;">${summary.timeOutCount}</div>
+      <div class="value" style="color: #ff0000;">${summary.timeOutCount}</div>
     </div>
     <div class="summary-card">
       <div class="label">Other</div>
@@ -238,12 +251,12 @@ export function buildAttendanceHtml(
     <thead>
       <tr>
         <th style="width: 5%;">#</th>
-        <th style="width: 12%;">Staff ID</th>
+        <th style="width: 20%;">Record ID</th>
+        <th style="width: 10%;">Staff ID</th>
         <th>Staff Name</th>
-        <th style="width: 14%;">Date</th>
-        <th style="width: 14%;">Time</th>
-        <th style="width: 14%;">Type</th>
-        <th style="width: 25%;">QR Data / Location</th>
+        <th style="width: 13%;">Date</th>
+        <th style="width: 13%;">Time</th>
+        <th style="width: 15%;">Type</th>
       </tr>
     </thead>
     <tbody>
