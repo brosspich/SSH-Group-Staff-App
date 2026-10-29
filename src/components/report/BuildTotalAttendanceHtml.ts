@@ -102,7 +102,13 @@ export function buildTotalAttendanceHtml(
   reportMode: ReportMode,
   targetStaff?: StaffUser | null,
 ): string {
-  const companyName = getCompanyName();
+  const staffSystemId =
+    targetStaff?.system_id ||
+    targetStaff?.id ||
+    (records.length > 0
+      ? records[0].system_id || records[0].staff_id
+      : undefined);
+  const companyName = getCompanyName(staffSystemId);
 
   // Group records by staff_id and date
   const groups = new Map<string, AttendanceRecord[]>();

@@ -141,6 +141,9 @@ export async function fetchAvailableCompanySystems(): Promise<
 export async function resolveSystemKey(input?: string): Promise<string> {
   if (input && typeof input === "string") {
     const trimmed = input.trim();
+    if (trimmed.toLowerCase().startsWith("bpak")) {
+      return "system-0002";
+    }
     // If it's already a system id (e.g. "system-0002-0001" or "system-0002"), extract immediately
     if (/^system-\d+/i.test(trimmed)) {
       return extractSystemKey(trimmed);
@@ -152,6 +155,11 @@ export async function resolveSystemKey(input?: string): Promise<string> {
     const { userService } = require("@/services/userService");
     const localUser = await userService.get();
     if (localUser) {
+      const lowerUid = String(localUser.id || "").toLowerCase();
+      const lowerUsys = String(localUser.system_id || "").toLowerCase();
+      if (lowerUid.startsWith("bpak") || lowerUsys.startsWith("bpak")) {
+        return "system-0002";
+      }
       if (
         (!input || localUser.id === input || localUser.username === input) &&
         localUser.system_id &&
@@ -168,12 +176,19 @@ export async function resolveSystemKey(input?: string): Promise<string> {
     try {
       const { data: userRow } = await supabase
         .from("ssh_group_staff_users")
-        .select("system_id")
+        .select("system_id, id")
         .or(`id.eq.${trimmed},system_id.eq.${trimmed},username.eq.${trimmed}`)
         .maybeSingle();
 
-      if (userRow?.system_id && /^system-\d+/i.test(userRow.system_id)) {
-        return extractSystemKey(userRow.system_id);
+      if (userRow) {
+        const uId = String(userRow.id || "").toLowerCase();
+        const uSys = String(userRow.system_id || "").toLowerCase();
+        if (uId.startsWith("bpak") || uSys.startsWith("bpak")) {
+          return "system-0002";
+        }
+        if (uSys && /^system-\d+/i.test(uSys)) {
+          return extractSystemKey(uSys);
+        }
       }
     } catch (e) {
       console.warn("Error resolving system_id from DB for staff:", input, e);
@@ -195,8 +210,18 @@ export async function resolveSystemKey(input?: string): Promise<string> {
 /**
  * Helper to get currently loaded company name from database
  */
-export function getCompanyName(): string {
-  return fetchedCompanyName;
+export function getCompanyName(systemIdOrStaffId?: string): string {
+  if (systemIdOrStaffId) {
+    const raw = String(systemIdOrStaffId).trim().toLowerCase();
+    let key = extractSystemKey(raw).toLowerCase();
+    if (raw.startsWith("bpak")) {
+      key = "system-0002";
+    }
+    if (key && cachedConfigsBySystem[key]?.config?.companyName) {
+      return cachedConfigsBySystem[key].config.companyName;
+    }
+  }
+  return fetchedCompanyName || "SSH Group";
 }
 
 /**
@@ -274,10 +299,86 @@ export async function fetchOfficialAttendanceConfig(
       .select("*");
 
     if (data && Array.isArray(data) && data.length > 0) {
+      // Pre-cache every company system configuration row from DB
+      data.forEach((r: any) => {
+        const rowSys = extractSystemKey(String(r.id || "")).toLowerCase();
+        if (rowSys) {
+          const comp = r["company_name"] ?? r["companyName"];
+          const compName =
+            typeof comp === "string" && comp.trim() ? comp.trim() : "";
+          const qrC = r["qr-code"] ?? r["qr_code"] ?? r["qrCode"];
+          let qList: string[] = [];
+          if (Array.isArray(qrC)) {
+            qList = qrC;
+          } else if (typeof qrC === "string") {
+            try {
+              qList = JSON.parse(qrC);
+            } catch (e) {}
+          }
+          const locC =
+            r["location"] ?? r["location_links"] ?? r["locationLinks"];
+          let lList: string[] = [];
+          if (Array.isArray(locC)) {
+            lList = locC.map((l: any) => String(l).trim()).filter(Boolean);
+          } else if (typeof locC === "string" && locC.trim()) {
+            try {
+              const parsed = JSON.parse(locC);
+              if (Array.isArray(parsed)) {
+                lList = parsed
+                  .map((l: any) => String(l).trim())
+                  .filter(Boolean);
+              } else {
+                lList = [locC.trim()];
+              }
+            } catch (e) {
+              lList = [locC.trim()];
+            }
+          }
+          const rawBot =
+            r["telegram_bot_token"] ??
+            r["bot_token"] ??
+            r["botToken"] ??
+            r["telegramBotToken"];
+          const { primaryToken, allTokens } = parseBotTokens(rawBot);
+          const rawChat =
+            r["telegram_chat_id"] ??
+            r["chat_id"] ??
+            r["chatId"] ??
+            r["telegramChatId"];
+          const cIds = parseChatIds(rawChat);
+
+          const rTimeIn =
+            r["time-in"] ?? r["time_in"] ?? r["timeIn"] ?? "08:00:00";
+          const rTimeOut =
+            r["time-out"] ?? r["time_out"] ?? r["timeOut"] ?? "17:00:00";
+
+          cachedConfigsBySystem[rowSys] = {
+            config: {
+              qrCodes: qList,
+              companyName: compName,
+              locationLinks: lList,
+              telegramBotToken: primaryToken,
+              telegramChatIds: cIds,
+              timeIn:
+                typeof rTimeIn === "string" && rTimeIn.trim()
+                  ? rTimeIn.trim()
+                  : "08:00:00",
+              timeOut:
+                typeof rTimeOut === "string" && rTimeOut.trim()
+                  ? rTimeOut.trim()
+                  : "17:00:00",
+            },
+            timestamp: now,
+          };
+        }
+      });
+
       let row = data[0];
       if (targetKey) {
         const found = data.find(
-          (r) => extractSystemKey(String(r.id || "")) === targetKey,
+          (r) =>
+            extractSystemKey(String(r.id || "")).toLowerCase() ===
+            targetKey.toLowerCase(),
         );
         if (found) row = found;
       }

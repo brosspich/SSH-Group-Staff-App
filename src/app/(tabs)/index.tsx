@@ -107,6 +107,7 @@ export default function DashboardIndex() {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
   const [attendanceList, setAttendanceList] = useState<AttendanceRecord[]>([]);
   const [officialQrList, setOfficialQrList] = useState<string[]>([]);
+  const [companyName, setCompanyName] = useState<string>("SSH Group");
   const [timeInConfig, setTimeInConfig] = useState<string>("08:00:00");
   const [timeOutConfig, setTimeOutConfig] = useState<string>("17:00:00");
 
@@ -187,6 +188,7 @@ export default function DashboardIndex() {
         activeUser?.system_id || activeUser?.id,
       );
       setOfficialQrList(config.qrCodes);
+      if (config.companyName) setCompanyName(config.companyName);
       if (config.timeIn) setTimeInConfig(config.timeIn);
       if (config.timeOut) setTimeOutConfig(config.timeOut);
     } finally {
@@ -214,6 +216,7 @@ export default function DashboardIndex() {
     // Refresh official QR codes & shift time on open (cached)
     fetchOfficialAttendanceConfig(false, user?.system_id).then((cfg) => {
       setOfficialQrList(cfg.qrCodes);
+      if (cfg.companyName) setCompanyName(cfg.companyName);
       if (cfg.timeIn) setTimeInConfig(cfg.timeIn);
       if (cfg.timeOut) setTimeOutConfig(cfg.timeOut);
     });
@@ -408,8 +411,7 @@ export default function DashboardIndex() {
               if (!visible) setScanned(false);
             },
             title: "Invalid Attendance QR Code",
-            bodyTxt:
-              "The scanned QR code does not match the official SSH Group Attendance QR Code. Attendance was not recorded.",
+            bodyTxt: `The scanned QR code does not match the official ${companyName || "SSH Group"} Attendance QR Code. Attendance was not recorded.`,
             onPress: () => setScanned(false),
             isMobile,
           })}
@@ -834,8 +836,7 @@ export default function DashboardIndex() {
           }
         },
         title: "Invalid Attendance QR Code",
-        bodyTxt:
-          "The scanned QR code does not match the official SSH Group Attendance QR Code. Attendance was not recorded.",
+        bodyTxt: `The scanned QR code does not match the official ${companyName || "SSH Group"} Attendance QR Code. Attendance was not recorded.`,
         onPress: () => {
           isScanningRef.current = false;
           setScanned(false);

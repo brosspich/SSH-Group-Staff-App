@@ -32,7 +32,15 @@ export function buildTotalRequestHtml(
   reportMode: ReportMode,
   targetStaff?: StaffUser | null,
 ): string {
-  const companyName = getCompanyName();
+  const staffSystemId =
+    targetStaff?.system_id ||
+    targetStaff?.id ||
+    (records.length > 0
+      ? (records[0] as any).systemId ||
+        (records[0] as any).system_id ||
+        records[0].staff_id
+      : undefined);
+  const companyName = getCompanyName(staffSystemId);
 
   // Sort records by date/from_date ascending, then id
   const sortedRecords = [...records].sort((a, b) => {

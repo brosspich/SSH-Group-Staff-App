@@ -1,5 +1,6 @@
 import { AttendanceRecord } from "@/app/(tabs)/attendance";
 import { AppFonts } from "@/constants/appfonts";
+import { getCompanyName } from "@/constants/attendanceConfig";
 import {
   AttendanceSummary,
   ReportMode,
@@ -196,12 +197,20 @@ export default function CustomAttendancePaper({
   const position = targetStaff?.position || "Staff Member";
   const username = targetStaff?.username || "-";
 
+  const staffSystemId =
+    targetStaff?.system_id ||
+    targetStaff?.id ||
+    (records.length > 0
+      ? records[0].system_id || records[0].staff_id
+      : undefined);
+  const companyName = getCompanyName(staffSystemId);
+
   return (
     <View style={styles.paperContainer}>
       {/* ── Header ── */}
       <View style={styles.headerRow}>
         <View style={styles.titleCol}>
-          <Text style={styles.companyTitle}>SSH Group</Text>
+          <Text style={styles.companyTitle}>{companyName}</Text>
           <Text style={styles.reportTitle}>
             {reportType} Attendance Total Report
           </Text>

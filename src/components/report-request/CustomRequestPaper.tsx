@@ -1,4 +1,5 @@
 import { AppFonts } from "@/constants/appfonts";
+import { getCompanyName } from "@/constants/attendanceConfig";
 import {
   ReportMode,
   ReportType,
@@ -55,6 +56,16 @@ export default function CustomRequestPaper({
     "Staff Member";
   const username = targetStaff?.username || "-";
 
+  const staffSystemId =
+    targetStaff?.system_id ||
+    targetStaff?.id ||
+    (records.length > 0
+      ? (records[0] as any).systemId ||
+        (records[0] as any).system_id ||
+        records[0].staff_id
+      : undefined);
+  const companyName = getCompanyName(staffSystemId);
+
   const totalCount = summary?.totalRequests ?? records.length;
 
   return (
@@ -62,7 +73,7 @@ export default function CustomRequestPaper({
       {/* ── Header ── */}
       <View style={styles.headerRow}>
         <View style={styles.titleCol}>
-          <Text style={styles.companyTitle}>SSH Group</Text>
+          <Text style={styles.companyTitle}>{companyName}</Text>
           <Text style={styles.reportTitle}>
             {reportType} Request Total Report
           </Text>
