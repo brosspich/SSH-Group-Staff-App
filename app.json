@@ -8,6 +8,10 @@
     "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
     "scheme": "sshgroupstaffapp",
     "userInterfaceStyle": "automatic",
+    "androidNavigationBar": {
+      "backgroundColor": "#00000000",
+      "barStyle": "dark-content"
+    },
     "ios": {
       "buildNumber": "1",
       "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",

@@ -5,6 +5,7 @@ const USER_KEY = "serviceuser";
 export interface StaffUser {
   id: string;
   system_id?: string;
+  staff_id?: string;
   name: string;
   username: string;
   email?: string;
@@ -16,6 +17,7 @@ export interface StaffUser {
   created_at?: string;
   devices?: any;
   attendance?: any;
+  request_attendance_rules?: any;
 }
 
 export const userService = {

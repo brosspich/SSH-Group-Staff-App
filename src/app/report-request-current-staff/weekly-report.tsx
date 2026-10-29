@@ -1,19 +1,17 @@
 import AppbarBack from "@/components/appbar/appbarback";
-import DatePickerModal from "@/components/daterangpicker/DatePickerModal";
-import { AttendanceReportBody } from "@/components/report/AttendanceReportBody";
-import { AttendanceReportPrintModal } from "@/components/report/AttendanceReportPrintModal";
+import { RequestReportBody } from "@/components/report-request/RequestReportBody";
+import { RequestReportPrintModal } from "@/components/report-request/RequestReportPrintModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import {
-  formatDateLabel,
-  getTodayPP,
-  useAttendanceReportData,
-} from "@/hooks/useAttendanceReportData";
+  formatDate,
+  getWeekRange,
+  useAttendanceRequestReportData,
+} from "@/hooks/useAttendanceRequestReportData";
 import { useResponsive } from "@/hooks/useResponsive";
-import { useState } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useMemo, useState } from "react";
 import {
-  Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,10 +20,25 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function CurrentStaffAnnualReportScreen() {
-  const [selectedDate, setSelectedDate] = useState<Date>(getTodayPP());
-  const [showPicker, setShowPicker] = useState(false);
+export default function CurrentStaffRequestWeeklyReportScreen() {
+  const [weekOffset, setWeekOffset] = useState(0);
+  const { start, end } = useMemo(() => getWeekRange(weekOffset), [weekOffset]);
   const [showPrintModal, setShowPrintModal] = useState(false);
+
+  const prevWeek = () => {
+    setWeekOffset((prev) => prev - 1);
+  };
+
+  const nextWeek = () => {
+    if (weekOffset >= 0) return;
+    setWeekOffset((prev) => prev + 1);
+  };
+
+  const periodLabel = useMemo(
+    () =>
+      `${formatDate(start)} – ${formatDate(new Date(end.getTime() - 24 * 60 * 60 * 1000))}`,
+    [start, end],
+  );
 
   const {
     loading,
@@ -35,17 +48,13 @@ export default function CurrentStaffAnnualReportScreen() {
     selectedStaff,
     activeStaffId,
     setActiveStaffId,
-  } = useAttendanceReportData("current", "Annual", selectedDate);
+  } = useAttendanceRequestReportData("current", "Weekly", start);
 
   const { isMobile } = useResponsive();
-  const periodLabel = formatDateLabel(selectedDate, "Annual");
 
   return (
-    <SafeAreaView
-      edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
-      style={{ flex: 1, backgroundColor: AppColors.background2 }}
-    >
-      <AppbarBack Title="Current Staff Annual Report" />
+    <>
+      <AppbarBack Title="Current Staff Request Weekly Report" />
       <ScrollView
         style={s.container}
         contentContainerStyle={s.content}
@@ -57,25 +66,35 @@ export default function CurrentStaffAnnualReportScreen() {
             !isMobile && { maxWidth: "80%", alignSelf: "center" },
           ]}
         >
-          {/* Year Selector Card */}
+          {/* Week Selector Card */}
           <View style={s.card}>
-            <Text style={s.sectionLabel}>Select Year</Text>
-            <Pressable style={s.dateField} onPress={() => setShowPicker(true)}>
-              <Text style={s.dateFieldText}>{periodLabel}</Text>
-            </Pressable>
+            <Text style={s.sectionLabel}>This week</Text>
+            <View style={s.weekNav}>
+              <TouchableOpacity onPress={prevWeek} style={s.navBtn}>
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={18}
+                  color={AppColors.textPrimary}
+                />
+              </TouchableOpacity>
+              <Text style={s.weekRange}>{periodLabel}</Text>
+              <TouchableOpacity
+                onPress={nextWeek}
+                style={s.navBtn}
+                disabled={weekOffset >= 0}
+              >
+                <MaterialIcons
+                  name="arrow-forward-ios"
+                  size={18}
+                  color={
+                    weekOffset >= 0 ? AppColors.grey : AppColors.textPrimary
+                  }
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
-          <DatePickerModal
-            visible={showPicker}
-            value={selectedDate}
-            onClose={() => setShowPicker(false)}
-            onChange={(date) => {
-              setSelectedDate(date);
-              setShowPicker(false);
-            }}
-          />
-
-          <AttendanceReportBody
+          <RequestReportBody
             loading={loading}
             summary={summary}
             records={records}
@@ -106,10 +125,10 @@ export default function CurrentStaffAnnualReportScreen() {
         </View>
       </View>
 
-      <AttendanceReportPrintModal
+      <RequestReportPrintModal
         visible={showPrintModal}
         periodLabel={periodLabel}
-        reportType="Annual"
+        reportType="Weekly"
         reportMode="current"
         summary={summary}
         records={records}
@@ -121,7 +140,7 @@ export default function CurrentStaffAnnualReportScreen() {
         edges={["bottom"]}
         style={{ backgroundColor: AppColors.background2 }}
       />
-    </SafeAreaView>
+    </>
   );
 }
 
@@ -142,19 +161,26 @@ const s = StyleSheet.create({
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
   },
-  dateField: {
+  weekNav: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.background,
-    borderRadius: 8,
-    padding: 10,
+    justifyContent: "space-between",
   },
-  dateFieldText: {
-    fontSize: 14,
+  weekRange: {
+    fontSize: 15,
+    fontWeight: "500",
     color: AppColors.textPrimary,
-    fontWeight: "bold",
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
+  },
+  navBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    alignItems: "center",
+    justifyContent: "center",
   },
   printBtnCon: {
     backgroundColor: AppColors.background2,

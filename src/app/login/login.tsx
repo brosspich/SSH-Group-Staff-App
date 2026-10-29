@@ -6,6 +6,7 @@ import { useUser } from "@/contexts/UserContext";
 import { useResponsive } from "@/hooks/useResponsive";
 import { userService } from "@/services/userService";
 import { syncDeviceSession } from "@/utils/deviceSession";
+import { isLeaveRole } from "@/utils/roleUtils";
 import { supabase } from "@/utils/supabase";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -73,7 +74,7 @@ export default function LoginScreen() {
       const { data, error: dbError } = await supabase
         .from("ssh_group_staff_users")
         .select(
-          "id, name, role, username, password, email, phone, position, devices",
+          "id, system_id, name, role, username, password, email, phone, position, devices",
         )
         .or(`username.ilike.${escapedInput},email.ilike.${escapedInput}`)
         .maybeSingle();
@@ -98,6 +99,11 @@ export default function LoginScreen() {
       if (!data) {
         console.warn("Login: no user row found for input:", cleanInput);
         setError("Invalid username or password.");
+        return;
+      }
+
+      if (isLeaveRole(data.role)) {
+        setError("Your account is on leave. Contact admin.");
         return;
       }
 

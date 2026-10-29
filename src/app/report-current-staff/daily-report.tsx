@@ -1,7 +1,7 @@
 import AppbarBack from "@/components/appbar/appbarback";
 import DatePickerModal from "@/components/daterangpicker/DatePickerModal";
 import { AttendanceReportBody } from "@/components/report/AttendanceReportBody";
-import { AttendanceReportPrintModal } from "@/components/report/AttendanceReportPrintModal";
+import { TotalAttendanceReportPrintModal } from "@/components/report/TotalAttendanceReportPrintModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import {
@@ -12,7 +12,6 @@ import {
 import { useResponsive } from "@/hooks/useResponsive";
 import { useState } from "react";
 import {
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -25,7 +24,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function CurrentStaffDailyReportScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(getTodayPP());
   const [showPicker, setShowPicker] = useState(false);
-  const [showPrintModal, setShowPrintModal] = useState(false);
+  // const [showPrintModal, setShowPrintModal] = useState(false);
+  const [showPrintTotalModal, setShowPrintTotalModal] = useState(false);
 
   const {
     loading,
@@ -41,10 +41,11 @@ export default function CurrentStaffDailyReportScreen() {
   const periodLabel = formatDateLabel(selectedDate, "Daily");
 
   return (
-    <SafeAreaView
+    <>
+      {/* <SafeAreaView
       edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
       style={{ flex: 1, backgroundColor: AppColors.background2 }}
-    >
+    > */}
       <AppbarBack Title="Current Staff Daily Report" />
       <ScrollView
         style={s.container}
@@ -92,21 +93,31 @@ export default function CurrentStaffDailyReportScreen() {
       <View style={s.printBtnCon}>
         <View
           style={[
-            { width: "100%" },
+            { width: "100%", gap: 10 },
             !isMobile && { maxWidth: "80%", alignSelf: "center" },
           ]}
         >
-          <TouchableOpacity
-            style={s.printBtn}
+          {/* <TouchableOpacity
+            style={[s.printBtn, { backgroundColor: AppColors.transparent }]}
             onPress={() => setShowPrintModal(true)}
             disabled={loading}
           >
-            <Text style={s.printBtnText}>Print Report / Save PDF</Text>
+            <Text style={[s.printBtnText, { color: AppColors.secondary }]}>
+              Print Report / Save PDF
+            </Text>
+          </TouchableOpacity> */}
+
+          <TouchableOpacity
+            style={s.printBtn}
+            onPress={() => setShowPrintTotalModal(true)}
+            disabled={loading}
+          >
+            <Text style={s.printBtnText}>Print Total Report / Save PDF</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <AttendanceReportPrintModal
+      {/* <AttendanceReportPrintModal
         visible={showPrintModal}
         periodLabel={periodLabel}
         reportType="Daily"
@@ -116,12 +127,25 @@ export default function CurrentStaffDailyReportScreen() {
         targetStaff={selectedStaff}
         onClose={() => setShowPrintModal(false)}
         isMobile={isMobile}
+      /> */}
+
+      <TotalAttendanceReportPrintModal
+        visible={showPrintTotalModal}
+        periodLabel={periodLabel}
+        reportType="Monthly"
+        reportMode="current"
+        summary={summary}
+        records={records}
+        targetStaff={selectedStaff}
+        onClose={() => setShowPrintTotalModal(false)}
+        isMobile={isMobile}
       />
       <SafeAreaView
         edges={["bottom"]}
         style={{ backgroundColor: AppColors.background2 }}
       />
-    </SafeAreaView>
+      {/* </SafeAreaView> */}
+    </>
   );
 }
 
@@ -159,19 +183,21 @@ const s = StyleSheet.create({
   printBtnCon: {
     backgroundColor: AppColors.background2,
     paddingHorizontal: 15,
-    paddingVertical: 14,
+    paddingVertical: 10,
     borderColor: AppColors.grey,
     borderTopWidth: 0.5,
   },
   printBtn: {
     backgroundColor: AppColors.secondary,
     borderRadius: 10,
-    paddingVertical: 12,
+    paddingVertical: 10,
     alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: AppColors.secondary,
   },
   printBtnText: {
     fontSize: 14,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: AppColors.background2,
     fontFamily: AppFonts.bold,
     includeFontPadding: false,

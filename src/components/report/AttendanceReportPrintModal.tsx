@@ -23,13 +23,14 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { buildAttendanceHtml } from "./BuildAttendanceHtml";
+import { buildTotalAttendanceHtml } from "./BuildTotalAttendanceHtml";
 
 interface AttendanceReportPrintModalProps {
   visible: boolean;
@@ -68,7 +69,7 @@ export function AttendanceReportPrintModal({
   }, [visible]);
 
   const getHtml = (): string => {
-    return buildAttendanceHtml(
+    return buildTotalAttendanceHtml(
       periodLabel,
       summary,
       records,
@@ -206,6 +207,7 @@ export function AttendanceReportPrintModal({
       transparent
       onRequestClose={onClose}
     >
+      <StatusBar barStyle={"light-content"} />
       <View
         style={[
           s.overlay,
@@ -232,7 +234,7 @@ export function AttendanceReportPrintModal({
         >
           {/* Header */}
           <View style={s.header}>
-            <Text style={s.title}>
+            <Text style={s.title} numberOfLines={1} ellipsizeMode="tail">
               Print Report — {reportType} (
               {reportMode === "individual"
                 ? targetStaff?.name || "Individual"
@@ -325,9 +327,11 @@ const s = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     borderBottomWidth: 0.5,
-    borderBottomColor: "rgba(0,0,0,0.1)",
+    borderBottomColor: AppColors.grey + 70,
   },
   title: {
+    flex: 1,
+    marginRight: 10,
     fontSize: 16,
     fontWeight: "bold",
     color: AppColors.textPrimary,
@@ -365,7 +369,7 @@ const s = StyleSheet.create({
     gap: 6,
     borderRadius: 10,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderWidth: 1.5,
     borderColor: AppColors.secondary,
   },
@@ -382,9 +386,11 @@ const s = StyleSheet.create({
     gap: 6,
     backgroundColor: AppColors.secondary,
     borderRadius: 10,
-    paddingVertical: 12,
+    paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1.5,
+    borderColor: AppColors.secondary,
   },
   btnDisabled: {
     opacity: 0.6,

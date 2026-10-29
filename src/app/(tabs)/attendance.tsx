@@ -1,3 +1,4 @@
+import AppBarGlass from "@/components/appbar/AppBarGlass";
 import Loading from "@/components/loading/loading";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
@@ -11,18 +12,21 @@ import {
   Platform,
   RefreshControl,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export type AttendanceType = "time-in" | "time-out" | "time-other";
 
 export interface AttendanceRecord {
   id: string;
   staff_id: string;
+  system_id?: string;
   name: string;
   date: string; // YYYY-MM-DD
   time: string; // hh:mm:ss AM/PM
@@ -51,6 +55,7 @@ export default function AttendanceLogsScreen() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { isMobile } = useResponsive();
+  const insets = useSafeAreaInsets();
 
   const fetchAttendanceLogs = useCallback(async () => {
     try {
@@ -140,8 +145,12 @@ export default function AttendanceLogsScreen() {
 
   return (
     <View style={styles.safe}>
+      <StatusBar backgroundColor={AppColors.background} barStyle="default" />
+      <AppBarGlass />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -164,7 +173,7 @@ export default function AttendanceLogsScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.headerCard}
           >
-            <View style={styles.headerTop}>
+            <View style={[styles.headerTop, { paddingTop: 70 + insets.top }]}>
               <View>
                 <Text style={styles.headerSubTitle}>
                   Staff Attendance History
@@ -179,20 +188,23 @@ export default function AttendanceLogsScreen() {
             </View>
 
             {/* Quick Stat Bar */}
-            <View style={styles.statBar}>
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>{timeInCount}</Text>
-                <Text style={styles.statLabel}>Time-In</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>{timeOutCount}</Text>
-                <Text style={styles.statLabel}>Time-Out</Text>
-              </View>
-              <View style={styles.statDivider} />
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>{timeOtherCount}</Text>
-                <Text style={styles.statLabel}>Other</Text>
+            <View style={styles.conStatBar}>
+              <View style={styles.bgConStatBar}></View>
+              <View style={styles.statBar}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{timeInCount}</Text>
+                  <Text style={styles.statLabel}>Time-In</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{timeOutCount}</Text>
+                  <Text style={styles.statLabel}>Time-Out</Text>
+                </View>
+                <View style={styles.statDivider} />
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{timeOtherCount}</Text>
+                  <Text style={styles.statLabel}>Other</Text>
+                </View>
               </View>
             </View>
           </LinearGradient>
@@ -288,7 +300,7 @@ export default function AttendanceLogsScreen() {
             </View>
           ) : (
             <View style={styles.historyList}>
-              {filteredHistory.map((item) => {
+              {filteredHistory.map((item, index) => {
                 const isTimeIn = item.type === "time-in";
                 const isTimeOut = item.type === "time-out";
 
@@ -304,7 +316,10 @@ export default function AttendanceLogsScreen() {
                     : "#7e22ce";
 
                 return (
-                  <View key={item.id} style={styles.historyCard}>
+                  <View
+                    key={`${item.id ?? "rec"}-${index}`}
+                    style={styles.historyCard}
+                  >
                     <View style={styles.historyCardBody}>
                       <View style={styles.historyLeftCol}>
                         <Text style={styles.historyTimeText}>{item.time}</Text>
@@ -331,14 +346,17 @@ export default function AttendanceLogsScreen() {
                           numberOfLines={1}
                           ellipsizeMode="middle"
                         >
-                          Status : {item.type.toUpperCase()}
+                          Status :{" "}
+                          {item.type != null
+                            ? String(item.type).toUpperCase()
+                            : ""}
                         </Text>
                         <Text
                           style={[styles.historyQrText, { color: badgeColor }]}
                           numberOfLines={1}
                           ellipsizeMode="middle"
                         >
-                          {item.id ? item.id.toUpperCase() : ""}
+                          {item.id != null ? String(item.id).toUpperCase() : ""}
                         </Text>
                       </View>
                     )}
@@ -369,20 +387,21 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   container: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    // paddingHorizontal: 16,
+    // paddingVertical: 12,
   },
 
   // Header Banner
   headerCard: {
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
+    // borderRadius: 20,
+    // padding: 20,
+    // marginBottom: 16,
   },
   headerTop: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 20,
   },
   headerSubTitle: {
     fontSize: 12,
@@ -399,43 +418,61 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   headerCountBadge: {
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
   },
   headerCountText: {
     fontSize: 12,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: AppColors.background2,
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
   },
 
   // Stat bar
+  conStatBar: {
+    marginTop: 30,
+  },
+  bgConStatBar: {
+    backgroundColor: AppColors.background,
+    height: 30,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopRightRadius: 12,
+    borderTopLeftRadius: 12,
+  },
   statBar: {
     flexDirection: "row",
-    backgroundColor: "rgba(0,0,0,0.18)",
+    // backgroundColor: "rgba(0,0,0,0.18)",
+    backgroundColor: AppColors.background2,
     borderRadius: 14,
-    marginTop: 16,
+    // marginTop: 10,
     paddingVertical: 10,
     paddingHorizontal: 16,
     alignItems: "center",
     justifyContent: "space-around",
+    marginHorizontal: 20,
+    borderWidth: 1,
+    borderColor: AppColors.grey + 70,
   },
   statItem: {
     alignItems: "center",
   },
   statValue: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
-    color: AppColors.background2,
+    color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
   },
   statLabel: {
-    fontSize: 10,
-    color: "rgba(255,255,255,0.8)",
+    fontSize: 12,
+    // color: "rgba(255,255,255,0.8)",
+    color: AppColors.grey,
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
     marginTop: 2,
@@ -443,7 +480,8 @@ const styles = StyleSheet.create({
   statDivider: {
     width: 1,
     height: 24,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    // backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: AppColors.grey + 70,
   },
 
   // Search
@@ -457,7 +495,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     gap: 10,
     borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.05)",
+    // borderColor: "rgba(0,0,0,0.05)",
+    borderColor: AppColors.grey + 70,
+    marginTop: 15,
+    marginHorizontal: 15,
   },
   searchInput: {
     flex: 1,
@@ -474,6 +515,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     marginBottom: 16,
+    paddingHorizontal: 15,
   },
   filterChip: {
     paddingHorizontal: 14,
@@ -502,6 +544,7 @@ const styles = StyleSheet.create({
   // Logs List
   historyList: {
     gap: 12,
+    paddingHorizontal: 15,
   },
   historyCard: {
     backgroundColor: AppColors.background2,

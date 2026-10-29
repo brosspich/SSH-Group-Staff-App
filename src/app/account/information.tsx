@@ -1,13 +1,13 @@
 import AppbarBack from "@/components/appbar/appbarback";
-import Copyright from "@/components/copyright/copyright";
 import Loading from "@/components/loading/loading";
 import { renderLogoutModal } from "@/components/logout/logoutModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
 import { StaffUser, userService } from "@/services/userService";
+import { hashPassword } from "@/utils/passwordUtils";
 import { supabase } from "@/utils/supabase";
-import { AntDesign, FontAwesome6, MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import { createElement, useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -102,6 +102,7 @@ function getInitialFieldValue(
   fieldKey: FieldKey | null,
 ): string {
   if (!user || !fieldKey) return "";
+  if (fieldKey === "password") return "";
   if (fieldKey === "joined") {
     const raw = user.joined || user.created_at || "";
     const parsed = parseDateString(raw);
@@ -138,7 +139,14 @@ function formatJoinedDateInput(input: string, prevInput: string): string {
 
 // ─── Field config ───────────────────────────────────────────────────────────
 
-type FieldKey = "name" | "username" | "email" | "phone" | "position" | "joined";
+type FieldKey =
+  | "name"
+  | "username"
+  | "password"
+  | "email"
+  | "phone"
+  | "position"
+  | "joined";
 
 const USERNAME_REGEX = /^[a-zA-Z0-9]{3,20}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -172,6 +180,16 @@ const FIELD_CONFIG: Record<
       if (!USERNAME_REGEX.test(v)) {
         return "Only letters and numbers, 3–20 characters, no spaces or symbols";
       }
+      return null;
+    },
+  },
+  password: {
+    title: "Edit Password",
+    placeholder: "Enter new password",
+    autoCapitalize: "none",
+    validate: (v) => {
+      if (!v.trim()) return "Password is required";
+      if (v.trim().length < 6) return "Password must be at least 6 characters";
       return null;
     },
   },
@@ -235,10 +253,12 @@ function EditFieldModal({
   const [value, setValue] = useState(() => {
     return getInitialFieldValue(user, fieldKey);
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   const config = fieldKey ? FIELD_CONFIG[fieldKey] : null;
+  const isPassword = fieldKey === "password";
 
   const { isMobile } = useResponsive();
 
@@ -273,15 +293,19 @@ function EditFieldModal({
         }
       }
 
+      const valueToSave =
+        fieldKey === "password" ? hashPassword(trimmed) : trimmed;
+
       const { data: updated, error: updateError } = await supabase
         .from("ssh_group_staff_users")
-        .update({ [fieldKey]: trimmed })
+        .update({ [fieldKey]: valueToSave })
         .eq("id", user.id)
         .select()
         .single();
 
       if (updateError) throw updateError;
 
+      await userService.save(updated as StaffUser);
       onSaved(updated as StaffUser);
       onClose();
     } catch (err: any) {
@@ -315,25 +339,50 @@ function EditFieldModal({
           <Text style={modalStyles.title}>{config.title}</Text>
 
           <View style={modalStyles.field}>
-            <TextInput
-              style={[modalStyles.input, error && modalStyles.inputError]}
-              value={value}
-              onChangeText={(v) => {
-                let nextVal = v;
-                if (config.formatInput) {
-                  nextVal = config.formatInput(v, value);
-                } else if (config.stripSpaces) {
-                  nextVal = v.replace(/\s/g, "");
-                }
-                setValue(nextVal);
-              }}
-              placeholder={config.placeholder}
-              placeholderTextColor={AppColors.grey}
-              autoCapitalize={config.autoCapitalize ?? "sentences"}
-              autoCorrect={false}
-              keyboardType={config.keyboardType}
-              autoFocus
-            />
+            <View style={{ position: "relative", justifyContent: "center" }}>
+              <TextInput
+                style={[
+                  modalStyles.input,
+                  isPassword && { paddingRight: 42 },
+                  error && modalStyles.inputError,
+                ]}
+                value={value}
+                onChangeText={(v) => {
+                  let nextVal = v;
+                  if (config.formatInput) {
+                    nextVal = config.formatInput(v, value);
+                  } else if (config.stripSpaces) {
+                    nextVal = v.replace(/\s/g, "");
+                  }
+                  setValue(nextVal);
+                }}
+                placeholder={config.placeholder}
+                placeholderTextColor={AppColors.grey}
+                autoCapitalize={config.autoCapitalize ?? "sentences"}
+                autoCorrect={false}
+                keyboardType={config.keyboardType}
+                secureTextEntry={isPassword && !showPassword}
+                autoFocus
+              />
+              {isPassword && (
+                <TouchableOpacity
+                  style={{
+                    position: "absolute",
+                    right: 12,
+                    height: "100%",
+                    justifyContent: "center",
+                  }}
+                  onPress={() => setShowPassword((prev) => !prev)}
+                  hitSlop={8}
+                >
+                  <MaterialIcons
+                    name={showPassword ? "visibility-off" : "visibility"}
+                    size={20}
+                    color={AppColors.grey}
+                  />
+                </TouchableOpacity>
+              )}
+            </View>
             {error && <Text style={modalStyles.errorText}>{error}</Text>}
           </View>
 
@@ -477,10 +526,12 @@ export default function Information() {
   const joinedDate = formatJoinedDisplay(rawJoinedDate);
 
   return (
-    <SafeAreaView
-      edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
-      style={{ flex: 1, backgroundColor: AppColors.background2 }}
-    >
+    <>
+      {/* <SafeAreaView
+       edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
+       style={{ flex: 1, backgroundColor: AppColors.background2 }}
+     > */}
+
       <View style={styles.safe}>
         <AppbarBack Title={"Information"} />
         <ScrollView
@@ -503,6 +554,12 @@ export default function Information() {
             {/* ── Account Info ── */}
             <View style={styles.section}>
               <View style={styles.card}>
+                <InfoRow
+                  icon={FontAwesome6}
+                  iconName="contact-card"
+                  label="System ID"
+                  value={user?.system_id ?? "None"}
+                />
                 <InfoRow
                   icon={FontAwesome6}
                   iconName="contact-card"
@@ -546,6 +603,13 @@ export default function Information() {
                 />
                 <InfoRow
                   icon={MaterialIcons}
+                  iconName="lock"
+                  label="Password"
+                  value="........................"
+                  edit={() => setEditingField("password")}
+                />
+                <InfoRow
+                  icon={MaterialIcons}
                   iconName="event"
                   label="Joined"
                   value={joinedDate}
@@ -555,7 +619,7 @@ export default function Information() {
             </View>
 
             {/* ── Logout ── */}
-            <View style={styles.section}>
+            {/* <View style={styles.section}>
               <TouchableOpacity
                 style={styles.logoutBtn}
                 onPress={handleLogout}
@@ -564,10 +628,10 @@ export default function Information() {
                 <AntDesign name="logout" size={20} color={AppColors.red} />
                 <Text style={styles.logoutText}>Logout</Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
 
             {/* ── Footer ── */}
-            <Copyright />
+            {/* <Copyright /> */}
           </View>
         </ScrollView>
 
@@ -586,7 +650,9 @@ export default function Information() {
           onSaved={(updated) => setUser(updated)}
         />
       </View>
-    </SafeAreaView>
+
+      {/* </SafeAreaView> */}
+    </>
   );
 }
 

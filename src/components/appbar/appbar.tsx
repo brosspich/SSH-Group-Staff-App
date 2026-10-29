@@ -1,13 +1,17 @@
-import { AppImages } from "@/constants/appImages";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
+import { AppImages } from "@/constants/appImages";
 import { StaffUser, userService } from "@/services/userService";
+import { BlurView } from "@nguyenduy1412/react-native-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Appbar() {
+  const insets = useSafeAreaInsets();
+
   const [user, setUser] = useState<StaffUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -35,32 +39,47 @@ export default function Appbar() {
         barStyle="dark-content"
       /> */}
       {/* <SafeAreaView> */}
-      <View style={styles.appBar}>
-        <View style={styles.appBarLogo}>
+      <View style={[styles.appBar, { height: 70 + insets.top }]}>
+        {/* <View style={styles.appBarLogo}>
           <Image
             source={AppImages.logoSSH}
             style={{
-              width: 42,
-              height: 42,
-              // padding: 10,
-              borderRadius: 10,
-              // backgroundColor: AppColors.background2,
-              borderColor: AppColors.secondary,
-              borderWidth: 1.2,
+              width: 37,
+              height: 37,
             }}
           />
-          <Text style={{ color: AppColors.secondary }}>|</Text>
+          <Text style={{ color: AppColors.background2, fontSize: 20 }}>|</Text>
           <Image
             source={AppImages.logoStaffW}
             style={{
-              width: 42,
-              height: 42,
-              borderColor: AppColors.secondary,
-              borderWidth: 1.2,
-              borderRadius: 10,
+              width: 37,
+              height: 37,
             }}
           />
-        </View>
+        </View> */}
+
+        <BlurView
+          mode="backdrop"
+          intensity={25}
+          tint="light"
+          style={styles.appBarLogo}
+        >
+          <Image
+            source={AppImages.logoSSH}
+            style={{
+              width: 37,
+              height: 37,
+            }}
+          />
+          <Text style={{ color: AppColors.background2, fontSize: 20 }}>|</Text>
+          <Image
+            source={AppImages.logoStaffW}
+            style={{
+              width: 37,
+              height: 37,
+            }}
+          />
+        </BlurView>
 
         <View style={styles.appBarIcons}>
           {/* <Ionicons
@@ -81,6 +100,7 @@ export default function Appbar() {
             </LinearGradient>
           </TouchableOpacity>
         </View>
+        <View style={styles.bgAppBar}></View>
       </View>
       {/* </SafeAreaView> */}
     </>
@@ -91,15 +111,20 @@ const styles = StyleSheet.create({
   appBar: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-end",
     alignContent: "center",
-    paddingHorizontal: 16,
-    backgroundColor: AppColors.background2,
-    borderBottomWidth: 1,
-    borderBottomColor: `${AppColors.grey}33`,
-    height: 60,
+    paddingHorizontal: 15,
+    backgroundColor: AppColors.secondary,
+    // borderBottomWidth: 1,
+    // borderBottomColor: `${AppColors.grey}33`,
+    // height: 60,
     // height: 60 + (Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0),
     // paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    paddingBottom: 20,
+    // position: "absolute",
+    // left: 0,
+    // right: 0,
+    // zIndex: 10,
   },
   appBarTitle: {
     fontSize: 20,
@@ -109,15 +134,15 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   appBarIcons: {
-    flexDirection: "row",
-    gap: 20,
     alignItems: "center",
     justifyContent: "center",
-    // marginRight: 5,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.5)",
+    borderRadius: 10,
   },
   conTxtName: {
-    height: 40,
-    width: 40,
+    height: 42,
+    width: 42,
     backgroundColor: AppColors.secondary,
     borderRadius: 10,
     alignItems: "center",
@@ -132,8 +157,26 @@ const styles = StyleSheet.create({
   },
 
   appBarLogo: {
+    // borderColor: AppColors.background2,
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 3,
+    padding: 4,
+    borderWidth: 2,
+    // borderColor: "rgba(255, 255, 255, 0.45)",
+    borderColor: AppColors.grey + 70,
+    borderRadius: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    overflow: "hidden",
+  },
+  bgAppBar: {
+    backgroundColor: AppColors.background,
+    height: 10,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopRightRadius: 12,
+    borderTopLeftRadius: 12,
   },
 });

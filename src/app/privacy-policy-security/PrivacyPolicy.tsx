@@ -1,23 +1,26 @@
 import AppbarBack from "@/components/appbar/appbarback";
 import {
   PRIVACY_POLICY_DATA,
+  PRIVACY_POLICY_LAST_UPDATED,
   PolicyLang,
 } from "@/components/privacypolicy/privacyPolicyData";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
+import { useResponsive } from "@/hooks/useResponsive";
 import { useState } from "react";
 import {
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const PrivacyPolicy = () => {
   const [lang, setLang] = useState<PolicyLang>("en");
+  const { isMobile } = useResponsive();
+  const insets = useSafeAreaInsets();
 
   const titleMap = {
     en: "Privacy Policy",
@@ -26,67 +29,70 @@ const PrivacyPolicy = () => {
   };
 
   return (
-    <SafeAreaView
-      edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
-      style={styles.safe}
-    >
-      <View style={styles.container}>
-        <AppbarBack Title={titleMap[lang]} />
+    <View style={styles.container}>
+      <AppbarBack Title={titleMap[lang]} />
 
-        {/* Premium Language Selector Row */}
-        <View style={styles.langSelectorContainer}>
-          <View style={styles.langSegmentControl}>
-            <TouchableOpacity
-              onPress={() => setLang("en")}
-              style={[styles.langBtn, lang === "en" && styles.langBtnActive]}
-              activeOpacity={0.8}
+      {/* Language Selector Row */}
+      <View style={styles.langSelectorContainer}>
+        <View style={styles.langSegmentControl}>
+          <TouchableOpacity
+            onPress={() => setLang("en")}
+            style={[styles.langBtn, lang === "en" && styles.langBtnActive]}
+            activeOpacity={0.8}
+          >
+            <Text
+              style={[styles.langText, lang === "en" && styles.langTextActive]}
             >
-              <Text
-                style={[
-                  styles.langText,
-                  lang === "en" && styles.langTextActive,
-                ]}
-              >
-                English
-              </Text>
-            </TouchableOpacity>
+              English
+            </Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => setLang("zh")}
-              style={[styles.langBtn, lang === "zh" && styles.langBtnActive]}
-              activeOpacity={0.8}
+          <TouchableOpacity
+            onPress={() => setLang("zh")}
+            style={[styles.langBtn, lang === "zh" && styles.langBtnActive]}
+            activeOpacity={0.8}
+          >
+            <Text
+              style={[styles.langText, lang === "zh" && styles.langTextActive]}
             >
-              <Text
-                style={[
-                  styles.langText,
-                  lang === "zh" && styles.langTextActive,
-                ]}
-              >
-                中文
-              </Text>
-            </TouchableOpacity>
+              中文
+            </Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => setLang("km")}
-              style={[styles.langBtn, lang === "km" && styles.langBtnActive]}
-              activeOpacity={0.8}
+          <TouchableOpacity
+            onPress={() => setLang("km")}
+            style={[styles.langBtn, lang === "km" && styles.langBtnActive]}
+            activeOpacity={0.8}
+          >
+            <Text
+              style={[styles.langText, lang === "km" && styles.langTextActive]}
             >
-              <Text
-                style={[
-                  styles.langText,
-                  lang === "km" && styles.langTextActive,
-                ]}
-              >
-                ភាសាខ្មែរ
-              </Text>
-            </TouchableOpacity>
-          </View>
+              ភាសាខ្មែរ
+            </Text>
+          </TouchableOpacity>
         </View>
+      </View>
 
-        <ScrollView
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: insets.bottom + 40 },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        <View
+          style={[
+            styles.wrapper,
+            !isMobile && { maxWidth: 750, alignSelf: "center", width: "100%" },
+          ]}
         >
+          {/* Last Updated Badge */}
+          <View style={styles.updatedBadge}>
+            <Text style={styles.updatedBadgeText}>
+              {PRIVACY_POLICY_LAST_UPDATED[lang]}
+            </Text>
+          </View>
+
           <View style={styles.card}>
             {PRIVACY_POLICY_DATA[lang].map((section, idx) => (
               <View key={idx} style={styles.section}>
@@ -98,21 +104,18 @@ const PrivacyPolicy = () => {
               </View>
             ))}
           </View>
-        </ScrollView>
-      </View>
-    </SafeAreaView>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 export default PrivacyPolicy;
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: AppColors.background2,
-  },
   container: {
     flex: 1,
+    backgroundColor: AppColors.background,
   },
   langSelectorContainer: {
     paddingHorizontal: 16,
@@ -128,7 +131,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 4,
     width: "100%",
-    maxWidth: 400,
+    maxWidth: 420,
     justifyContent: "space-between",
   },
   langBtn: {
@@ -161,7 +164,23 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: 40,
+  },
+  wrapper: {
+    width: "100%",
+  },
+  updatedBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: `${AppColors.primary}12`,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  updatedBadgeText: {
+    fontSize: 12,
+    color: AppColors.primary,
+    fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   card: {
     backgroundColor: AppColors.background2,
@@ -202,7 +221,7 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
     color: AppColors.textSecondary ?? "#6B7280",
-    lineHeight: 20,
+    lineHeight: 22,
     paddingLeft: 12,
   },
 });

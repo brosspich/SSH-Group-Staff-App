@@ -37,6 +37,7 @@ interface Props {
   value: Date;
   onClose: () => void;
   onChange: (date: Date) => void;
+  allowFuture?: boolean;
 }
 
 export default function DatePickerModal({
@@ -44,6 +45,7 @@ export default function DatePickerModal({
   value,
   onClose,
   onChange,
+  allowFuture = false,
 }: Props) {
   const pp = getPPNow();
   const todayY = pp.getUTCFullYear();
@@ -87,7 +89,8 @@ export default function DatePickerModal({
   };
 
   const isNextDisabled =
-    viewYear > todayY || (viewYear === todayY && viewMonth >= todayMo);
+    !allowFuture &&
+    (viewYear > todayY || (viewYear === todayY && viewMonth >= todayMo));
 
   const nextMonth = () => {
     if (isNextDisabled) return;
@@ -98,9 +101,10 @@ export default function DatePickerModal({
   };
 
   const isFuture = (day: number) =>
-    viewYear > todayY ||
-    (viewYear === todayY && viewMonth > todayMo) ||
-    (viewYear === todayY && viewMonth === todayMo && day > todayD);
+    !allowFuture &&
+    (viewYear > todayY ||
+      (viewYear === todayY && viewMonth > todayMo) ||
+      (viewYear === todayY && viewMonth === todayMo && day > todayD));
 
   const isSelected = (day: number) => {
     const d = ppMidnightUTC(viewYear, viewMonth, day);

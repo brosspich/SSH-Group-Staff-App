@@ -1,3 +1,4 @@
+import Appbar from "@/components/appbar/appbar";
 import Copyright from "@/components/copyright/copyright";
 import Loading from "@/components/loading/loading";
 import { renderLogoutModal } from "@/components/logout/logoutModal";
@@ -5,6 +6,7 @@ import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
 import { StaffUser, userService } from "@/services/userService";
+import { hasAdminOrOwnerRole } from "@/utils/roleUtils";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -13,10 +15,12 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // ─── Setting Screen ───────────────────────────────────────────────────────────
 
@@ -33,6 +37,7 @@ export default function Setting() {
   const [loading, setLoading] = useState(true);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const { isTablet, isMobile } = useResponsive();
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     userService.get().then((u) => {
@@ -112,7 +117,18 @@ export default function Setting() {
 
   return (
     <View style={styles.safe}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <StatusBar
+        backgroundColor={AppColors.background}
+        barStyle="light-content"
+      />
+      <Appbar />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: 90,
+          // paddingTop: 60 + insets.top,
+        }}
+      >
         <View
         // style={[
         //   !isMobile && {
@@ -145,21 +161,33 @@ export default function Setting() {
                 </Text>
               </View>
             </View>
-
-            {/* <View style={styles.roleBadge}>
-            <Text style={styles.roleText}>
-              {formatRole(user?.role)}
-            </Text>
-            <View
-              style={[
-                styles.activeDot,
-                {
-                  backgroundColor: user?.is_active !== false ? "#22c55e" : AppColors.red,
-                },
-              ]}
-            ></View>
-          </View> */}
           </View>
+
+          {/* ── Admin/Owner : Account Staff Section ── */}
+          {hasAdminOrOwnerRole(user?.role) && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Account Staff</Text>
+              <View style={styles.card}>
+                <BtnItem
+                  onPress={() => {
+                    router.push("/account-staff/CreateAccountStaff");
+                  }}
+                  title="Create Account Staff"
+                  iconName="person-outline"
+                  icon={Ionicons}
+                />
+                <Border />
+                <BtnItem
+                  onPress={() => {
+                    router.push("/account-staff/ChangeInfoAccountStaff");
+                  }}
+                  title="Change Info Account Staff"
+                  iconName="create-outline"
+                  icon={Ionicons}
+                />
+              </View>
+            </View>
+          )}
 
           {/* ── Account Info Section ── */}
           <View style={styles.section}>
@@ -167,7 +195,7 @@ export default function Setting() {
             <View style={styles.card}>
               <BtnItem
                 onPress={() => {
-                  router.push("/account/information" as any);
+                  router.push("/account/information");
                 }}
                 title="Information"
                 iconName="person-outline"
@@ -191,7 +219,7 @@ export default function Setting() {
             <View style={styles.card}>
               <BtnItem
                 onPress={() => {
-                  router.push("/privacy-policy-security/PrivacyPolicy" as any);
+                  router.push("/privacy-policy-security/PrivacyPolicy");
                 }}
                 title="Privacy & Policy"
                 iconName="privacy-tip"
@@ -200,7 +228,7 @@ export default function Setting() {
               <Border />
               <BtnItem
                 onPress={() => {
-                  router.push("/privacy-policy-security/devices" as any);
+                  router.push("/privacy-policy-security/devices");
                 }}
                 title="Devices"
                 iconName="devices"
@@ -215,7 +243,7 @@ export default function Setting() {
             <View style={styles.card}>
               <BtnItem
                 onPress={() => {
-                  router.push("/about/about" as any);
+                  router.push("/about/about");
                 }}
                 title="About"
                 iconName="information-circle-outline"
@@ -224,7 +252,7 @@ export default function Setting() {
               <Border />
               <BtnItem
                 onPress={() => {
-                  router.push("/about/contact" as any);
+                  router.push("/about/contact");
                 }}
                 title="Contact"
                 iconName="person-circle-outline"
@@ -271,7 +299,7 @@ const styles = StyleSheet.create({
     backgroundColor: AppColors.background2,
     paddingHorizontal: 10,
     borderRadius: 10,
-    marginTop: 10,
+    marginTop: 5,
     justifyContent: "space-between",
   },
   conAvatarTxt: {

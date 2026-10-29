@@ -1,9 +1,15 @@
 import { renderAlertModal } from "@/components/alert/alert";
+import AppBarGlass from "@/components/appbar/AppBarGlass";
+import ScannerModal from "@/components/home/ScannerModal";
+import SuccessConfirmationModal from "@/components/home/SuccessConfirmationModal";
 import Loading from "@/components/loading/loading";
+import { RequestAttendanceModal } from "@/components/request_attendance/RequestAttendanceModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import {
-  fetchOfficialAttendanceQRCodes,
+  calculateAttendanceType,
+  fetchOfficialAttendanceConfig,
+  getTimeWindowDisplay,
   isValidAttendanceQR,
 } from "@/constants/attendanceConfig";
 import { useResponsive } from "@/hooks/useResponsive";
@@ -12,14 +18,14 @@ import { sendAttendanceToTelegram } from "@/services/telegramService";
 import { StaffUser, userService } from "@/services/userService";
 import { supabase } from "@/utils/supabase";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { CameraView, useCameraPermissions } from "expo-camera";
+import { useCameraPermissions } from "expo-camera";
+import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Modal,
   Platform,
   RefreshControl,
   ScrollView,
@@ -38,6 +44,7 @@ export type AttendanceType = "time-in" | "time-out" | "time-other";
 export interface AttendanceRecord {
   id: string;
   staff_id: string;
+  system_id?: string;
   name: string;
   date: string; // YYYY-MM-DD
   time: string; // hh:mm:ss AM/PM
@@ -47,30 +54,6 @@ export interface AttendanceRecord {
 }
 
 // ─── Helper Functions ─────────────────────────────────────────────────────────
-
-/**
- * Classifies current time into time-in, time-out, or time-other
- * time-in:  07:00 AM to 09:00 AM
- * time-out: 04:00 PM to 06:00 PM (16:00 to 18:00)
- * time-other: any other time
- */
-export function calculateAttendanceType(now = new Date()): AttendanceType {
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const totalMinutes = hours * 60 + minutes;
-
-  // 7:00 AM (420 mins) to 9:00 AM (540 mins)
-  if (totalMinutes >= 420 && totalMinutes <= 540) {
-    return "time-in";
-  }
-
-  // 4:00 PM (16:00 = 960 mins) to 6:00 PM (18:00 = 1080 mins)
-  if (totalMinutes >= 960 && totalMinutes <= 1080) {
-    return "time-out";
-  }
-
-  return "time-other";
-}
 
 export function formatTime12h(date = new Date()): string {
   return date.toLocaleTimeString("en-US", {
@@ -124,6 +107,8 @@ export default function DashboardIndex() {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
   const [attendanceList, setAttendanceList] = useState<AttendanceRecord[]>([]);
   const [officialQrList, setOfficialQrList] = useState<string[]>([]);
+  const [timeInConfig, setTimeInConfig] = useState<string>("08:00:00");
+  const [timeOutConfig, setTimeOutConfig] = useState<string>("17:00:00");
 
   // Scanner modal states
   const [scannerVisible, setScannerVisible] = useState(false);
@@ -140,6 +125,7 @@ export default function DashboardIndex() {
 
   // Invalid QR alert modal state
   const [invalidQrModalVisible, setInvalidQrModalVisible] = useState(false);
+  const [requestModalVisible, setRequestModalVisible] = useState(false);
 
   // Success result modal
   const [lastRecord, setLastRecord] = useState<AttendanceRecord | null>(null);
@@ -166,10 +152,9 @@ export default function DashboardIndex() {
   // Initial user fetch & official QR codes from Supabase
   const fetchUserAndAttendance = useCallback(async () => {
     try {
-      const qrs = await fetchOfficialAttendanceQRCodes();
-      setOfficialQrList(qrs);
-
       const u = await userService.get();
+      let activeUser = u;
+
       if (u?.id) {
         // Fetch fresh user row from Supabase
         const { data: dbUser } = await supabase
@@ -178,21 +163,32 @@ export default function DashboardIndex() {
           .eq("id", u.id)
           .maybeSingle();
 
-        const activeUser = dbUser || u;
+        if (dbUser) {
+          activeUser = dbUser;
+          await userService.save(dbUser);
+        }
         setUser(activeUser);
-        await userService.save(activeUser);
 
         // Parse attendance jsonb column
         let list: AttendanceRecord[] = [];
-        if (Array.isArray(activeUser.attendance)) {
+        if (Array.isArray(activeUser?.attendance)) {
           list = activeUser.attendance;
-        } else if (typeof activeUser.attendance === "string") {
+        } else if (typeof activeUser?.attendance === "string") {
           try {
             list = JSON.parse(activeUser.attendance);
           } catch (e) {}
         }
         setAttendanceList(list);
       }
+
+      // Fetch config matching active user's system_id
+      const config = await fetchOfficialAttendanceConfig(
+        false,
+        activeUser?.system_id || activeUser?.id,
+      );
+      setOfficialQrList(config.qrCodes);
+      if (config.timeIn) setTimeInConfig(config.timeIn);
+      if (config.timeOut) setTimeOutConfig(config.timeOut);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -208,12 +204,19 @@ export default function DashboardIndex() {
     fetchUserAndAttendance();
   }, [fetchUserAndAttendance]);
 
+  const isScanningRef = useRef(false);
+
   // Open scanner modal with Location & Security Checks
   const handleOpenScanner = async () => {
     if (verifyingSecurity) return;
+    isScanningRef.current = false;
     setScanned(false);
-    // Refresh official QR codes on open
-    fetchOfficialAttendanceQRCodes().then(setOfficialQrList);
+    // Refresh official QR codes & shift time on open (cached)
+    fetchOfficialAttendanceConfig(false, user?.system_id).then((cfg) => {
+      setOfficialQrList(cfg.qrCodes);
+      if (cfg.timeIn) setTimeInConfig(cfg.timeIn);
+      if (cfg.timeOut) setTimeOutConfig(cfg.timeOut);
+    });
 
     if (Platform.OS !== "web" && (!permission || !permission.granted)) {
       const res = await requestPermission();
@@ -229,7 +232,7 @@ export default function DashboardIndex() {
     // Perform Location Geofence & Anti-Spoofing / Anti-VPN Security Check
     setVerifyingSecurity(true);
     try {
-      const secCheck = await verifyAttendanceSecurity();
+      const secCheck = await verifyAttendanceSecurity(false, user?.system_id);
       if (!secCheck.allowed) {
         let title = "Security Verification Failed";
         if (secCheck.code === "OUT_OF_RANGE") {
@@ -257,63 +260,66 @@ export default function DashboardIndex() {
     }
   };
 
-  // Process QR Data & Save Attendance
-  const processAttendanceScan = async (qrDataText: string) => {
-    if (!user?.id || scanned) return;
-
-    // Check if scanned QR matches myQrCode configuration
-    if (!isValidAttendanceQR(qrDataText, officialQrList)) {
-      setScanned(true);
-      setInvalidQrModalVisible(true);
-      return;
-    }
-
-    setScanned(true);
-
-    // Re-verify security before displaying the confirmation modal
-    const secCheck = await verifyAttendanceSecurity();
-    if (!secCheck.allowed) {
-      setScannerVisible(false);
-      setSecurityErrorTitle("Security Verification Failed");
-      setSecurityErrorMessage(
-        secCheck.reason ||
-          "Security check failed. Attendance scan is not permitted.",
-      );
-      setSecurityModalVisible(true);
-      setScanned(false);
-      return;
-    }
-
-    const now = new Date();
-    const attType = calculateAttendanceType(now);
-    const dateStr = formatDateYMD(now);
-    const timeStr = formatTime12h(now);
-
-    const newRecordId = generateNextAttendanceId(attendanceList);
-
-    const newRecord: AttendanceRecord = {
-      id: newRecordId,
-      staff_id: user.id,
-      name: user.name,
-      date: dateStr,
-      time: timeStr,
-      type: attType,
-      timestamp: now.toISOString(),
-      qr_data: qrDataText,
-    };
-
-    setLastRecord(newRecord);
-    setScannerVisible(false);
-    setSuccessModalVisible(true);
+  const handleOpenRequestAttendance = () => {
+    setRequestModalVisible(true);
   };
+
+  // Instant Camera Barcode Scanned Handler
+  const handleBarCodeScanned = useCallback(
+    ({ data }: { data: string }) => {
+      if (isScanningRef.current) return;
+      if (!data) return;
+
+      isScanningRef.current = true;
+      setScanned(true);
+
+      // Instant QR code verification
+      if (!isValidAttendanceQR(data, officialQrList)) {
+        try {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+        } catch (e) {}
+        setInvalidQrModalVisible(true);
+        return;
+      }
+
+      // Valid QR code match - instant tactile haptic feedback
+      try {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      } catch (e) {}
+
+      // Immediately build record and display confirmation modal (0ms UI lag)
+      const now = new Date();
+      const attType = calculateAttendanceType(now, timeInConfig, timeOutConfig);
+      const dateStr = formatDateYMD(now);
+      const timeStr = formatTime12h(now);
+      const newRecordId = generateNextAttendanceId(attendanceList);
+
+      const newRecord: AttendanceRecord = {
+        id: newRecordId,
+        staff_id: user?.id || "",
+        system_id: user?.system_id || "",
+        name: user?.name || "",
+        date: dateStr,
+        time: timeStr,
+        type: attType,
+        timestamp: now.toISOString(),
+        qr_data: data,
+      };
+
+      setLastRecord(newRecord);
+      setScannerVisible(false);
+      setSuccessModalVisible(true);
+    },
+    [officialQrList, user, attendanceList, timeInConfig, timeOutConfig],
+  );
 
   const handleConfirmAttendance = async () => {
     if (!lastRecord || !user?.id || savingAttendance) return;
 
     setSavingAttendance(true);
 
-    // Double check security right before saving
-    const secCheck = await verifyAttendanceSecurity();
+    // Double check security right before saving (uses fast cached security state)
+    const secCheck = await verifyAttendanceSecurity(false, user?.system_id);
     if (!secCheck.allowed) {
       setSuccessModalVisible(false);
       setSecurityErrorTitle("Security Verification Failed");
@@ -323,6 +329,7 @@ export default function DashboardIndex() {
       );
       setSecurityModalVisible(true);
       setSavingAttendance(false);
+      isScanningRef.current = false;
       setScanned(false);
       return;
     }
@@ -346,22 +353,21 @@ export default function DashboardIndex() {
       setAttendanceList(updatedList);
       await userService.save(updatedUser);
 
-      // Send attendance details to Telegram (non-blocking)
-      sendAttendanceToTelegram(lastRecord);
+      // Send attendance details to Telegram for user's specific system (non-blocking)
+      sendAttendanceToTelegram(
+        { ...lastRecord, system_id: user.system_id || lastRecord.system_id },
+        undefined,
+        user.system_id,
+      );
 
       setSuccessModalVisible(false);
     } catch (e) {
       Alert.alert("Save Error", "Failed to save attendance. Please try again.");
     } finally {
       setSavingAttendance(false);
+      isScanningRef.current = false;
       setScanned(false);
     }
-  };
-
-  // Camera Barcode Scanned Handler
-  const handleBarCodeScanned = ({ data }: { data: string }) => {
-    if (scanned) return;
-    processAttendanceScan(data);
   };
 
   // Calculate today's status badges
@@ -385,31 +391,50 @@ export default function DashboardIndex() {
 
   if (loading) {
     return (
-      <View style={styles.safe}>
-        <View style={styles.centered}>
-          <Loading />
+      <>
+        <StatusBar
+          backgroundColor={AppColors.secondary}
+          barStyle="light-content"
+        />
+        <View style={styles.safe}>
+          <View style={styles.centered}>
+            <Loading />
+          </View>
+          {/* ── Invalid QR Alert Modal ── */}
+          {renderAlertModal({
+            alertModalVisible: invalidQrModalVisible,
+            setAlertModalVisible: (visible) => {
+              setInvalidQrModalVisible(visible);
+              if (!visible) setScanned(false);
+            },
+            title: "Invalid Attendance QR Code",
+            bodyTxt:
+              "The scanned QR code does not match the official SSH Group Attendance QR Code. Attendance was not recorded.",
+            onPress: () => setScanned(false),
+            isMobile,
+          })}
         </View>
-        {/* ── Invalid QR Alert Modal ── */}
-        {renderAlertModal({
-          alertModalVisible: invalidQrModalVisible,
-          setAlertModalVisible: (visible) => {
-            setInvalidQrModalVisible(visible);
-            if (!visible) setScanned(false);
-          },
-          title: "Invalid Attendance QR Code",
-          bodyTxt:
-            "The scanned QR code does not match the official SSH Group Attendance QR Code. Attendance was not recorded.",
-          onPress: () => setScanned(false),
-          isMobile,
-        })}
-      </View>
+      </>
     );
   }
 
-  const currentType = calculateAttendanceType(currentTime);
+  const currentType = calculateAttendanceType(
+    currentTime,
+    timeInConfig,
+    timeOutConfig,
+  );
+
+  const timeInWindow = getTimeWindowDisplay(timeInConfig, "08:00:00");
+  const timeOutWindow = getTimeWindowDisplay(timeOutConfig, "17:00:00");
 
   return (
     <View style={styles.safe}>
+      <StatusBar
+        backgroundColor={AppColors.secondary}
+        barStyle="light-content"
+      />
+      <AppBarGlass />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -432,119 +457,163 @@ export default function DashboardIndex() {
             colors={[AppColors.secondary, AppColors.primary]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.bannerCard}
+            style={[styles.bannerCard, { paddingTop: 65 + insets.top }]}
           >
             <View style={styles.bannerTop}>
               <View style={styles.bannerUserInfo}>
-                <Text style={styles.bannerGreeting}>Welcome back</Text>
-                <Text style={styles.bannerName}>
+                <Text style={styles.bannerGreeting}>Welcome back!</Text>
+                <Text
+                  style={styles.bannerName}
+                  numberOfLines={1}
+                  // adjustsFontSizeToFit={true}
+                  // minimumFontScale={0.8}
+                >
                   {user?.name ?? "Staff Member"}
                 </Text>
-                <View style={styles.bannerMetaRow}>
-                  <View style={styles.bannerBadge}>
-                    <Text style={styles.bannerBadgeText}>
-                      ID: {user?.id ?? "—"}
-                    </Text>
+                <View style={styles.bannerBotton}>
+                  <View style={styles.bannerMetaRow}>
+                    <View style={styles.bannerBadge}>
+                      <Text style={styles.bannerBadgeText}>
+                        ID : {user?.id ?? "—"}
+                      </Text>
+                    </View>
+                    <View style={styles.bannerBadge}>
+                      <Text
+                        style={styles.bannerBadgeText}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {user?.position ?? "-"}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.bannerBadge}>
-                    <Text style={styles.bannerBadgeText}>
-                      {user?.position ?? "Staff"}
+                  <View style={styles.clockBox}>
+                    <Text style={styles.clockTime}>
+                      {formatTime12h(currentTime)}
                     </Text>
+                    <Text style={styles.clockDate}>
+                      {currentTime.toLocaleDateString("en-GB", {
+                        weekday: "short",
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </Text>
+                    <View style={styles.shiftBadge}>
+                      <View
+                        style={[
+                          styles.shiftDot,
+                          currentType === "time-in"
+                            ? { backgroundColor: "#22c55e" }
+                            : currentType === "time-out"
+                              ? { backgroundColor: "#ef4444" }
+                              : { backgroundColor: "#a855f7" },
+                        ]}
+                      />
+                      <Text style={styles.shiftBadgeText}>
+                        Current: {currentType.toUpperCase()}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </View>
-              <View style={styles.clockBox}>
-                <Text style={styles.clockTime}>
-                  {formatTime12h(currentTime)}
-                </Text>
-                <Text style={styles.clockDate}>
-                  {currentTime.toLocaleDateString("en-GB", {
-                    weekday: "short",
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </Text>
-                <View style={styles.shiftBadge}>
-                  <View style={styles.shiftDot} />
-                  <Text style={styles.shiftBadgeText}>
-                    Current: {currentType.toUpperCase()}
-                  </Text>
+            </View>
+
+            {/* ── Today Attendance Summary Cards ── */}
+            <View style={styles.conSummary}>
+              <View style={styles.bgConSummary}></View>
+              <View style={styles.summaryRow}>
+                {/* Time-In */}
+                <View style={styles.summaryCard}>
+                  <View
+                    style={[
+                      styles.summaryIconBox,
+                      { backgroundColor: "#dce0fc" },
+                    ]}
+                  >
+                    <Feather name="log-in" size={20} color="#0022ff" />
+                  </View>
+                  <View>
+                    <Text style={styles.summaryLabel}>
+                      TIME-IN ({timeInWindow.target})
+                    </Text>
+                    {/* <Text style={styles.summaryWindowSub}>
+                      {timeInWindow.start} to {timeInWindow.end}
+                    </Text> */}
+                    <Text
+                      style={[
+                        styles.summaryValue,
+                        { color: todayTimeIn ? "#0022ff" : AppColors.grey },
+                      ]}
+                    >
+                      {todayTimeIn ? todayTimeIn.time : "Not Scanned"}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Time-Out */}
+                <View style={styles.summaryCard}>
+                  <View
+                    style={[
+                      styles.summaryIconBox,
+                      { backgroundColor: "#fedbdb" },
+                    ]}
+                  >
+                    <Feather name="log-out" size={20} color="#ff0000" />
+                  </View>
+                  <View>
+                    <Text style={styles.summaryLabel}>
+                      TIME-OUT ({timeOutWindow.target})
+                    </Text>
+                    {/* <Text style={styles.summaryWindowSub}>
+                      {timeOutWindow.start} to {timeOutWindow.end}
+                    </Text> */}
+                    <Text
+                      style={[
+                        styles.summaryValue,
+                        { color: todayTimeOut ? "#ff0000" : AppColors.grey },
+                      ]}
+                    >
+                      {todayTimeOut ? todayTimeOut.time : "Not Scanned"}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Time-Other */}
+                <View style={styles.summaryCard}>
+                  <View
+                    style={[
+                      styles.summaryIconBox,
+                      { backgroundColor: "#f3e8ff" },
+                    ]}
+                  >
+                    <MaterialCommunityIcons
+                      name="clock-time-four-outline"
+                      size={20}
+                      color="#7e22ce"
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.summaryLabel}>TIME-OTHER</Text>
+                    {/* <Text style={styles.summaryWindowSub}>Other time</Text> */}
+                    <Text
+                      style={[
+                        styles.summaryValue,
+                        {
+                          color:
+                            todayOtherCount > 0 ? "#7e22ce" : AppColors.grey,
+                        },
+                      ]}
+                    >
+                      {todayOtherCount > 0
+                        ? `${todayOtherCount} Record(s)`
+                        : "None"}
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>
           </LinearGradient>
-
-          {/* ── Today Attendance Summary Cards ── */}
-          <View style={styles.summaryRow}>
-            {/* Time-In */}
-            <View style={styles.summaryCard}>
-              <View
-                style={[styles.summaryIconBox, { backgroundColor: "#dce0fc" }]}
-              >
-                <Feather name="log-in" size={20} color="#0022ff" />
-              </View>
-              <View>
-                <Text style={styles.summaryLabel}>TIME-IN (8:00 AM)</Text>
-                <Text
-                  style={[
-                    styles.summaryValue,
-                    { color: todayTimeIn ? "#0022ff" : AppColors.grey },
-                  ]}
-                >
-                  {todayTimeIn ? todayTimeIn.time : "Not Scanned"}
-                </Text>
-              </View>
-            </View>
-
-            {/* Time-Out */}
-            <View style={styles.summaryCard}>
-              <View
-                style={[styles.summaryIconBox, { backgroundColor: "#fedbdb" }]}
-              >
-                <Feather name="log-out" size={20} color="#ff0000" />
-              </View>
-              <View>
-                <Text style={styles.summaryLabel}>TIME-OUT (5:00 PM)</Text>
-                <Text
-                  style={[
-                    styles.summaryValue,
-                    { color: todayTimeOut ? "#ff0000" : AppColors.grey },
-                  ]}
-                >
-                  {todayTimeOut ? todayTimeOut.time : "Not Scanned"}
-                </Text>
-              </View>
-            </View>
-
-            {/* Time-Other */}
-            <View style={styles.summaryCard}>
-              <View
-                style={[styles.summaryIconBox, { backgroundColor: "#f3e8ff" }]}
-              >
-                <MaterialCommunityIcons
-                  name="clock-time-four-outline"
-                  size={20}
-                  color="#7e22ce"
-                />
-              </View>
-              <View>
-                <Text style={styles.summaryLabel}>TIME-OTHER</Text>
-                <Text
-                  style={[
-                    styles.summaryValue,
-                    {
-                      color: todayOtherCount > 0 ? "#7e22ce" : AppColors.grey,
-                    },
-                  ]}
-                >
-                  {todayOtherCount > 0
-                    ? `${todayOtherCount} Record(s)`
-                    : "None"}
-                </Text>
-              </View>
-            </View>
-          </View>
 
           {/* ── Main Action: Scan Attendance Button ── */}
           <TouchableOpacity
@@ -592,6 +661,44 @@ export default function DashboardIndex() {
               />
             </LinearGradient>
           </TouchableOpacity>
+
+          {/* ── Core Action: Request Attendance Rule Button ── */}
+          <TouchableOpacity
+            style={styles.requestBtnContainer}
+            onPress={handleOpenRequestAttendance}
+            // disabled={verifyingSecurity}
+            activeOpacity={0.88}
+          >
+            <LinearGradient
+              colors={[AppColors.primary, AppColors.secondary]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.requestBtn}
+            >
+              <View style={styles.requestBtnIconCircle}>
+                <Ionicons
+                  name="calendar-outline"
+                  size={28}
+                  color={AppColors.background2}
+                />
+              </View>
+              <View style={styles.requestBtnTextCol}>
+                <Text style={styles.requestBtnTitle}>
+                  Request Attendance Rules
+                </Text>
+                <Text style={styles.requestBtnSub}>
+                  Tap to open for request rules
+                </Text>
+              </View>
+              <Ionicons
+                name="chevron-forward"
+                size={24}
+                color={AppColors.background2}
+              />
+            </LinearGradient>
+          </TouchableOpacity>
+
+          {/* <AppleButton title="Test" onPress={() => {}} variant={"filled"} /> */}
 
           {/* ── Recent History Section ── */}
           <View style={styles.historyHeaderRow}>
@@ -642,12 +749,14 @@ export default function DashboardIndex() {
                     : "#7e22ce";
 
                 return (
-                  <TouchableOpacity
+                  <View key={item.id} style={styles.historyItem}>
+                    {/* <TouchableOpacity
                     key={item.id}
                     style={styles.historyItem}
                     onPress={() => router.push("/(tabs)/attendance")}
                     activeOpacity={0.8}
-                  >
+                  > */}
+
                     <View style={styles.historyItemLeft}>
                       <View
                         style={[
@@ -676,259 +785,61 @@ export default function DashboardIndex() {
                         ID: {item.staff_id}
                       </Text>
                     </View>
-                  </TouchableOpacity>
+                    {/* </TouchableOpacity> */}
+                  </View>
                 );
               })}
             </View>
           )}
 
-          <View style={{ marginTop: 20 }} />
+          <View style={{ paddingBottom: 90 }} />
         </View>
       </ScrollView>
 
       {/* ── Scanner Modal ── */}
-      <Modal
+      <ScannerModal
         visible={scannerVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setScannerVisible(false)}
-        statusBarTranslucent={true}
-      >
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor="transparent"
-          translucent={true}
-        />
-        <View style={{ flex: 1, backgroundColor: AppColors.secondary }}>
-          <View
-            style={[
-              styles.modalHeader,
-              {
-                paddingTop:
-                  insets.top > 0
-                    ? insets.top + (Platform.OS === "android" ? 10 : 6)
-                    : Platform.OS === "android"
-                      ? 36
-                      : 16,
-              },
-            ]}
-          >
-            <TouchableOpacity
-              style={styles.modalCloseBtn}
-              onPress={() => setScannerVisible(false)}
-            >
-              <Ionicons name="close" size={24} color={AppColors.background2} />
-            </TouchableOpacity>
-
-            <Text style={styles.modalHeaderTitle}>Scan Attendance QR Code</Text>
-
-            <TouchableOpacity
-              style={styles.torchBtn}
-              onPress={() => setTorchOn((t) => !t)}
-            >
-              <Ionicons
-                name={torchOn ? "flash" : "flash-outline"}
-                size={24}
-                color={AppColors.background2}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.cameraContainer}>
-            {Platform.OS === "web" ? (
-              <View style={styles.webFallbackContainer}>
-                <Ionicons
-                  name="camera-outline"
-                  size={60}
-                  color={AppColors.grey}
-                />
-                <Text style={styles.webFallbackTitle}>Web Camera Preview</Text>
-                <Text style={styles.webFallbackSub}>
-                  Camera QR scanning requires an iOS or Android device.
-                </Text>
-              </View>
-            ) : (
-              <>
-                <CameraView
-                  style={StyleSheet.absoluteFill}
-                  enableTorch={torchOn}
-                  onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-                  barcodeScannerSettings={{
-                    barcodeTypes: ["qr"],
-                  }}
-                />
-                <View
-                  style={[styles.overlayCenter, StyleSheet.absoluteFill]}
-                  pointerEvents="box-none"
-                >
-                  <View style={styles.scanFrame}>
-                    <View style={[styles.corner, styles.cornerTL]} />
-                    <View style={[styles.corner, styles.cornerTR]} />
-                    <View style={[styles.corner, styles.cornerBL]} />
-                    <View style={[styles.corner, styles.cornerBR]} />
-                  </View>
-                  <Text style={styles.scanInstruction}>
-                    Align Attendance QR Code inside the frame
-                  </Text>
-                </View>
-              </>
-            )}
-          </View>
-        </View>
-      </Modal>
+        onClose={() => {
+          setScannerVisible(false);
+          isScanningRef.current = false;
+          setScanned(false);
+        }}
+        torchOn={torchOn}
+        setTorchOn={setTorchOn}
+        scanned={scanned}
+        onBarcodeScanned={handleBarCodeScanned}
+      />
 
       {/* ── Success Confirmation Modal ── */}
-      <Modal
+      <SuccessConfirmationModal
         visible={successModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => {
-          if (!savingAttendance) {
-            setSuccessModalVisible(false);
-            setScanned(false);
-          }
+        savingAttendance={savingAttendance}
+        lastRecord={lastRecord}
+        onConfirm={handleConfirmAttendance}
+        onClose={() => {
+          setSuccessModalVisible(false);
+          isScanningRef.current = false;
+          setScanned(false);
         }}
-      >
-        <View style={styles.successOverlay}>
-          <View style={styles.successCard}>
-            <View style={styles.successIconCircle}>
-              <Ionicons
-                name="checkmark"
-                size={40}
-                color={AppColors.background2}
-              />
-            </View>
-
-            <Text style={styles.successTitle}>
-              {savingAttendance
-                ? "Recording Attendance..."
-                : "Confirm Attendance"}
-            </Text>
-
-            {lastRecord && (
-              <View style={styles.successDetails}>
-                <View style={styles.successDetailRow}>
-                  <Text style={styles.successDetailLabel}>Staff Name:</Text>
-                  <Text style={styles.successDetailValue}>
-                    {lastRecord.name}
-                  </Text>
-                </View>
-
-                <View style={styles.successDetailRow}>
-                  <Text style={styles.successDetailLabel}>Staff ID:</Text>
-                  <Text style={styles.successDetailValue}>
-                    {lastRecord.staff_id}
-                  </Text>
-                </View>
-
-                <View style={styles.successDetailRow}>
-                  <Text style={styles.successDetailLabel}>Scan Type:</Text>
-                  <View
-                    style={[
-                      styles.historyBadge,
-                      {
-                        backgroundColor:
-                          lastRecord.type === "time-in"
-                            ? "#dcfce7"
-                            : lastRecord.type === "time-out"
-                              ? "#dbeafe"
-                              : "#f3e8ff",
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.historyBadgeText,
-                        {
-                          color:
-                            lastRecord.type === "time-in"
-                              ? "#15803d"
-                              : lastRecord.type === "time-out"
-                                ? "#1d4ed8"
-                                : "#7e22ce",
-                        },
-                      ]}
-                    >
-                      {lastRecord.type.toUpperCase()}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.successDetailRow}>
-                  <Text style={styles.successDetailLabel}>Time Logged:</Text>
-                  <Text style={styles.successDetailValue}>
-                    {lastRecord.time}
-                  </Text>
-                </View>
-
-                <View style={styles.successDetailRow}>
-                  <Text style={styles.successDetailLabel}>Date:</Text>
-                  <Text style={styles.successDetailValue}>
-                    {lastRecord.date}
-                  </Text>
-                </View>
-              </View>
-            )}
-
-            <View style={{ width: "100%", gap: 10 }}>
-              <TouchableOpacity
-                style={styles.successCloseBtn}
-                onPress={handleConfirmAttendance}
-                disabled={savingAttendance}
-                activeOpacity={0.85}
-              >
-                {savingAttendance ? (
-                  <ActivityIndicator
-                    size="small"
-                    color={AppColors.background2}
-                  />
-                ) : (
-                  <Text style={styles.successCloseText}>Done</Text>
-                )}
-              </TouchableOpacity>
-
-              {!savingAttendance && (
-                <TouchableOpacity
-                  style={[
-                    styles.successCloseBtn,
-                    {
-                      backgroundColor: "transparent",
-                      borderWidth: 1,
-                      borderColor: AppColors.secondary,
-                    },
-                  ]}
-                  onPress={() => {
-                    setSuccessModalVisible(false);
-                    setScanned(false);
-                  }}
-                  activeOpacity={0.85}
-                >
-                  <Text
-                    style={[
-                      styles.successCloseText,
-                      { color: AppColors.secondary },
-                    ]}
-                  >
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        </View>
-      </Modal>
+      />
 
       {/* ── Invalid QR Alert Modal ── */}
       {renderAlertModal({
         alertModalVisible: invalidQrModalVisible,
         setAlertModalVisible: (visible) => {
           setInvalidQrModalVisible(visible);
-          if (!visible) setScanned(false);
+          if (!visible) {
+            isScanningRef.current = false;
+            setScanned(false);
+          }
         },
         title: "Invalid Attendance QR Code",
         bodyTxt:
           "The scanned QR code does not match the official SSH Group Attendance QR Code. Attendance was not recorded.",
-        onPress: () => setScanned(false),
+        onPress: () => {
+          isScanningRef.current = false;
+          setScanned(false);
+        },
         isMobile,
       })}
 
@@ -937,13 +848,26 @@ export default function DashboardIndex() {
         alertModalVisible: securityModalVisible,
         setAlertModalVisible: (visible) => {
           setSecurityModalVisible(visible);
-          if (!visible) setScanned(false);
+          if (!visible) {
+            isScanningRef.current = false;
+            setScanned(false);
+          }
         },
         title: securityErrorTitle,
         bodyTxt: securityErrorMessage,
-        onPress: () => setScanned(false),
+        onPress: () => {
+          isScanningRef.current = false;
+          setScanned(false);
+        },
         isMobile,
       })}
+
+      {/* ── Request Attendance Modal ── */}
+      <RequestAttendanceModal
+        visible={requestModalVisible}
+        onClose={() => setRequestModalVisible(false)}
+        user={user}
+      />
     </View>
   );
 }
@@ -955,86 +879,94 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: AppColors.background,
   },
+
   centered: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
   container: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    // paddingHorizontal: 16,
+    // paddingVertical: 12,
   },
 
   // Banner
   bannerCard: {
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 16,
-    ...Platform.select({
-      web: {
-        boxShadow: "0px 4px 12px rgba(46, 49, 145, 0.25)",
-      },
-      default: {
-        shadowColor: AppColors.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-        elevation: 6,
-      },
-    }),
+    // borderRadius: 20,
+    // paddingHorizontal: 20,
+    // marginBottom: 16,
+    // ...Platform.select({
+    //   web: {
+    //     boxShadow: "0px 4px 12px rgba(46, 49, 145, 0.25)",
+    //   },
+    //   default: {
+    //     shadowColor: AppColors.primary,
+    //     shadowOffset: { width: 0, height: 4 },
+    //     shadowOpacity: 0.25,
+    //     shadowRadius: 10,
+    //     elevation: 6,
+    //   },
+    // }),
+    // height: "40%",
   },
   bannerTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    flexWrap: "wrap",
-    gap: 12,
+    paddingHorizontal: 20,
   },
   bannerUserInfo: {
-    flex: 1,
-    minWidth: 180,
+    width: "100%",
   },
   bannerGreeting: {
-    fontSize: 13,
-    color: "rgba(255,255,255,0.8)",
+    fontSize: 12.5,
+    color: "rgba(255,255,255,0.85)",
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
   },
   bannerName: {
-    fontSize: 22,
-    fontWeight: "bold",
+    fontSize: 18,
+    // fontWeight: "bold",
     color: AppColors.background2,
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
-    marginVertical: 4,
+    marginVertical: 3,
+  },
+  bannerBotton: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "100%",
+    marginTop: 6,
   },
   bannerMetaRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginTop: 4,
+    width: "50%",
+    gap: 7,
+    paddingRight: 4,
   },
   bannerBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.18)",
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 6,
+    alignSelf: "flex-start",
+    maxWidth: "100%",
   },
   bannerBadgeText: {
     fontSize: 11,
     color: AppColors.background2,
-    fontWeight: "600",
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
   },
   clockBox: {
-    alignItems: "flex-start",
+    width: "50%",
+    alignItems: "flex-end",
+    paddingLeft: 4,
   },
   clockTime: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     color: AppColors.background2,
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
+    textAlign: "right",
   },
   clockDate: {
     fontSize: 11,
@@ -1042,16 +974,18 @@ const styles = StyleSheet.create({
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
     marginTop: 2,
+    textAlign: "right",
   },
   shiftBadge: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.25)",
     paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 12,
+    paddingVertical: 4,
+    borderRadius: 5,
     marginTop: 6,
     gap: 5,
+    alignSelf: "flex-end",
   },
   shiftDot: {
     width: 6,
@@ -1068,40 +1002,42 @@ const styles = StyleSheet.create({
   },
 
   // Summary Cards
+  conSummary: {
+    marginTop: 30,
+  },
+  bgConSummary: {
+    backgroundColor: AppColors.background,
+    height: 55,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopRightRadius: 12,
+    borderTopLeftRadius: 12,
+  },
   summaryRow: {
     flexDirection: "row",
     gap: 10,
-    marginBottom: 16,
+    // marginBottom: 16,
     flexWrap: "wrap",
+    paddingHorizontal: 20,
   },
   summaryCard: {
     flex: 1,
     minWidth: 95,
     backgroundColor: AppColors.background2,
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 12,
     flexDirection: "column",
     alignItems: "flex-start",
     gap: 8,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.04)",
-    ...Platform.select({
-      web: {
-        boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.04)",
-      },
-      default: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.04,
-        shadowRadius: 4,
-        elevation: 1,
-      },
-    }),
+    borderWidth: 1.5,
+    borderColor: AppColors.grey + 70,
   },
   summaryIconBox: {
     width: 38,
     height: 38,
-    borderRadius: 12,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1117,6 +1053,13 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     lineHeight: 12,
   },
+  // summaryWindowSub: {
+  //   fontSize: 8.5,
+  //   color: "#6b7280",
+  //   fontFamily: AppFonts.regular,
+  //   marginTop: 1,
+  //   includeFontPadding: false,
+  // },
   summaryValue: {
     fontSize: 12,
     fontWeight: "bold",
@@ -1127,11 +1070,13 @@ const styles = StyleSheet.create({
 
   // Main Scan Button
   scanBtnContainer: {
-    marginBottom: 20,
+    marginBottom: 15,
+    marginTop: 20,
+    paddingHorizontal: 15,
   },
   scanBtn: {
-    borderRadius: 18,
-    padding: 16,
+    borderRadius: 12,
+    padding: 12,
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
@@ -1139,7 +1084,7 @@ const styles = StyleSheet.create({
   scanBtnIconCircle: {
     width: 50,
     height: 50,
-    borderRadius: 14,
+    borderRadius: 12,
     backgroundColor: "rgba(255,255,255,0.2)",
     alignItems: "center",
     justifyContent: "center",
@@ -1162,6 +1107,45 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
+  // Core Request Button
+  requestBtnContainer: {
+    marginBottom: 20,
+    // marginTop: 20,
+    paddingHorizontal: 15,
+  },
+  requestBtn: {
+    borderRadius: 12,
+    padding: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  requestBtnIconCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  requestBtnTextCol: {
+    flex: 1,
+  },
+  requestBtnTitle: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: AppColors.background2,
+    fontFamily: AppFonts.bold,
+    includeFontPadding: false,
+  },
+  requestBtnSub: {
+    fontSize: 11.5,
+    color: "rgba(255,255,255,0.85)",
+    fontFamily: AppFonts.regular,
+    includeFontPadding: false,
+    marginTop: 2,
+  },
+
   // History Header
   historyHeaderRow: {
     flexDirection: "row",
@@ -1170,6 +1154,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     flexWrap: "wrap",
     gap: 10,
+    paddingHorizontal: 15,
   },
   sectionTitle: {
     fontSize: 16,
@@ -1226,13 +1211,14 @@ const styles = StyleSheet.create({
   },
   historyItem: {
     backgroundColor: AppColors.background2,
-    borderRadius: 16,
+    borderRadius: 12,
     padding: 14,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
     borderColor: AppColors.grey + 40,
+    marginHorizontal: 15,
   },
   historyItemLeft: {
     flexDirection: "row",
@@ -1304,191 +1290,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 4,
     fontFamily: AppFonts.regular,
-    includeFontPadding: false,
-  },
-
-  // Scanner Modal
-  modalHeader: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 14,
-    backgroundColor: "rgba(0, 0, 0, 0.45)",
-  },
-  modalHeaderTitle: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "bold",
-    fontFamily: AppFonts.bold,
-    includeFontPadding: false,
-  },
-  modalCloseBtn: {
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderWidth: 1,
-    borderColor: AppColors.background2,
-  },
-  torchBtn: {
-    padding: 8,
-    borderRadius: 12,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    borderWidth: 1,
-    borderColor: AppColors.background2,
-  },
-
-  cameraContainer: {
-    flex: 1,
-    backgroundColor: "#000",
-  },
-  overlayCenter: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  scanFrame: {
-    width: 250,
-    height: 250,
-    position: "relative",
-  },
-  corner: {
-    width: 30,
-    height: 30,
-    borderColor: AppColors.background2,
-    position: "absolute",
-  },
-  cornerTL: {
-    top: 0,
-    left: 0,
-    borderTopWidth: 4,
-    borderLeftWidth: 4,
-  },
-  cornerTR: {
-    top: 0,
-    right: 0,
-    borderTopWidth: 4,
-    borderRightWidth: 4,
-  },
-  cornerBL: {
-    bottom: 0,
-    left: 0,
-    borderBottomWidth: 4,
-    borderLeftWidth: 4,
-  },
-  cornerBR: {
-    bottom: 0,
-    right: 0,
-    borderBottomWidth: 4,
-    borderRightWidth: 4,
-  },
-  scanInstruction: {
-    color: AppColors.background2,
-    fontSize: 13,
-    marginTop: 20,
-    fontFamily: AppFonts.regular,
-    includeFontPadding: false,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 10,
-  },
-
-  webFallbackContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 30,
-    backgroundColor: "#111827",
-  },
-  webFallbackTitle: {
-    color: AppColors.background2,
-    fontSize: 18,
-    fontWeight: "bold",
-    marginTop: 12,
-    fontFamily: AppFonts.bold,
-  },
-  webFallbackSub: {
-    color: AppColors.grey,
-    fontSize: 13,
-    textAlign: "center",
-    marginTop: 6,
-    lineHeight: 18,
-    fontFamily: AppFonts.regular,
-  },
-
-  // Success Modal
-  successOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.65)",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  successCard: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 24,
-    padding: 24,
-    width: "100%",
-    maxWidth: 380,
-    alignItems: "center",
-  },
-  successIconCircle: {
-    marginBottom: 10,
-    padding: 10,
-    borderRadius: 14,
-    backgroundColor: AppColors.secondary,
-  },
-  successTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
-    includeFontPadding: false,
-  },
-  successDetails: {
-    width: "100%",
-    backgroundColor: AppColors.background,
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 16,
-    gap: 10,
-  },
-  successDetailRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  successDetailLabel: {
-    fontSize: 12.5,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
-    includeFontPadding: false,
-  },
-  successDetailValue: {
-    fontSize: 13.5,
-    fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
-    includeFontPadding: false,
-  },
-  successCloseBtn: {
-    backgroundColor: AppColors.secondary,
-    borderRadius: 12,
-    paddingVertical: 12,
-    width: "100%",
-    alignItems: "center",
-  },
-  successCloseText: {
-    color: AppColors.background2,
-    fontWeight: "bold",
-    fontSize: 15,
-    fontFamily: AppFonts.bold,
     includeFontPadding: false,
   },
 });

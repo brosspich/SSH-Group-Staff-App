@@ -47,17 +47,24 @@ export function AttendanceReportBody({
     );
   }
 
-  // Filter records by search query
+  // Filter records by search query safely
   const filteredRecords = records.filter((r) => {
+    if (!r) return false;
     if (!searchQuery.trim()) return true;
     const q = searchQuery.trim().toLowerCase();
+    const rId = r.id != null ? String(r.id).toLowerCase() : "";
+    const rName = r.name != null ? String(r.name).toLowerCase() : "";
+    const rStaffId = r.staff_id != null ? String(r.staff_id).toLowerCase() : "";
+    const rDate = r.date != null ? String(r.date).toLowerCase() : "";
+    const rTime = r.time != null ? String(r.time).toLowerCase() : "";
+    const rType = r.type != null ? String(r.type).toLowerCase() : "";
     return (
-      (r.id && r.id.toLowerCase().includes(q)) ||
-      (r.name && r.name.toLowerCase().includes(q)) ||
-      (r.staff_id && r.staff_id.toLowerCase().includes(q)) ||
-      (r.date && r.date.toLowerCase().includes(q)) ||
-      (r.time && r.time.toLowerCase().includes(q)) ||
-      (r.type && r.type.toLowerCase().includes(q))
+      rId.includes(q) ||
+      rName.includes(q) ||
+      rStaffId.includes(q) ||
+      rDate.includes(q) ||
+      rTime.includes(q) ||
+      rType.includes(q)
     );
   });
 
@@ -132,6 +139,7 @@ export function AttendanceReportBody({
             visible={showStaffModal}
             staffList={staffList}
             selectedStaffId={activeStaffId}
+            systemId={selectedStaff?.system_id}
             onClose={() => setShowStaffModal(false)}
             onSelect={(id) => onSelectStaff(id)}
           />
@@ -211,8 +219,10 @@ export function AttendanceReportBody({
           </View>
         ) : (
           filteredRecords.map((item, index) => {
-            const isTimeIn = item.type === "time-in";
-            const isTimeOut = item.type === "time-out";
+            if (!item) return null;
+            const itemType = item.type != null ? String(item.type) : "";
+            const isTimeIn = itemType === "time-in";
+            const isTimeOut = itemType === "time-out";
 
             const badgeBg = isTimeIn
               ? "#dce0fc"
@@ -225,23 +235,32 @@ export function AttendanceReportBody({
                 ? "#ff0000"
                 : "#7e22ce";
 
+            const idStr = item.id != null ? String(item.id).toUpperCase() : "";
+
             return (
-              <View key={item.id || index} style={s.recordRow}>
+              <View key={`${item.id ?? "rec"}-${index}`} style={s.recordRow}>
                 <View style={s.recordBody}>
                   <View style={{ flex: 1 }}>
-                    <Text style={s.staffName}>{item.name}</Text>
+                    <Text style={s.staffName}>
+                      {item.name != null ? String(item.name) : "-"}
+                    </Text>
                     <Text style={s.staffIdText}>
-                      Staff ID: {item.staff_id}
-                      {item.id ? ` • ${item.id.toUpperCase()}` : ""}
+                      Staff ID:{" "}
+                      {item.staff_id != null ? String(item.staff_id) : "-"}
+                      {idStr ? ` • ${idStr}` : ""}
                     </Text>
                   </View>
                   <View style={{ alignItems: "flex-end" }}>
-                    <Text style={s.recordTime}>{item.time}</Text>
-                    <Text style={s.recordDate}>{item.date}</Text>
+                    <Text style={s.recordTime}>
+                      {item.time != null ? String(item.time) : ""}
+                    </Text>
+                    <Text style={s.recordDate}>
+                      {item.date != null ? String(item.date) : ""}
+                    </Text>
                   </View>
                 </View>
 
-                {item.type && (
+                {itemType ? (
                   <View style={[s.conStatus, { backgroundColor: badgeBg }]}>
                     <Text
                       style={[s.statusText, { color: badgeColor }]}
@@ -253,10 +272,10 @@ export function AttendanceReportBody({
                       style={[s.statusText, { color: badgeColor }]}
                       numberOfLines={1}
                     >
-                      {item.type.toUpperCase()}
+                      {itemType.toUpperCase()}
                     </Text>
                   </View>
-                )}
+                ) : null}
               </View>
             );
           })

@@ -2,6 +2,7 @@ import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { UserProvider } from "@/contexts/UserContext";
 import { useFonts } from "expo-font";
+import { NavigationBar } from "expo-navigation-bar";
 import { SplashScreen, Stack } from "expo-router";
 import Head from "expo-router/head";
 import { useEffect } from "react";
@@ -87,13 +88,23 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <SafeAreaProvider
-      style={{ flex: 1, backgroundColor: AppColors.background2 }}
-    >
-      {Platform.OS === "web" && (
-        <Head>
-          <title>SSH Group Staff</title>
-          <style>{`
+    <>
+      <StatusBar
+        backgroundColor="transparent"
+        barStyle="light-content"
+        translucent
+      />
+
+      {/* This is the new, error-free way to set the Android nav bar */}
+      {Platform.OS === "android" && <NavigationBar style="dark" />}
+
+      <SafeAreaProvider
+        style={{ flex: 1, backgroundColor: AppColors.background2 }}
+      >
+        {Platform.OS === "web" && (
+          <Head>
+            <title>SSH Group Staff</title>
+            <style>{`
             input:focus, textarea:focus, [role="textbox"]:focus, div:focus, select:focus {
               outline: none !important;
               box-shadow: none !important;
@@ -105,19 +116,54 @@ export default function RootLayout() {
               -webkit-tap-highlight-color: transparent;
             }
           `}</style>
-        </Head>
-      )}
-      <UserProvider>
-        <StatusBar
-          backgroundColor={AppColors.background2}
-          barStyle="dark-content"
-        />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="login/login" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-      </UserProvider>
-    </SafeAreaProvider>
+          </Head>
+        )}
+        <UserProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: "slide_from_right",
+              animationDuration: 300,
+            }}
+          >
+            <Stack.Screen name="index" />
+            <Stack.Screen name="login/login" />
+            <Stack.Screen name="(tabs)" />
+
+            <Stack.Screen name="about/about" />
+            <Stack.Screen name="about/contact" />
+
+            <Stack.Screen name="account/account" />
+            <Stack.Screen name="account/information" />
+
+            <Stack.Screen name="account-staff/CreateAccountStaff" />
+            <Stack.Screen name="account-staff/ChangeInfoAccountStaff" />
+
+            <Stack.Screen name="privacy-policy-security/devices" />
+            <Stack.Screen name="privacy-policy-security/PrivacyPolicy" />
+
+            <Stack.Screen name="report-current-staff/annual-report" />
+            <Stack.Screen name="report-current-staff/daily-report" />
+            <Stack.Screen name="report-current-staff/monthly-report" />
+            <Stack.Screen name="report-current-staff/weekly-report" />
+
+            <Stack.Screen name="report-individual-staff/annual-report" />
+            <Stack.Screen name="report-individual-staff/daily-report" />
+            <Stack.Screen name="report-individual-staff/monthly-report" />
+            <Stack.Screen name="report-individual-staff/weekly-report" />
+
+            <Stack.Screen name="report-request-current-staff/annual-report" />
+            <Stack.Screen name="report-request-current-staff/daily-report" />
+            <Stack.Screen name="report-request-current-staff/monthly-report" />
+            <Stack.Screen name="report-request-current-staff/weekly-report" />
+
+            <Stack.Screen name="report-request-individual-staff/annual-report" />
+            <Stack.Screen name="report-request-individual-staff/daily-report" />
+            <Stack.Screen name="report-request-individual-staff/monthly-report" />
+            <Stack.Screen name="report-request-individual-staff/weekly-report" />
+          </Stack>
+        </UserProvider>
+      </SafeAreaProvider>
+    </>
   );
 }

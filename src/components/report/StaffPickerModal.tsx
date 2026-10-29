@@ -1,7 +1,10 @@
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
+import { extractSystemKey } from "@/constants/attendanceConfig";
+import { useUser } from "@/contexts/UserContext";
 import { useResponsive } from "@/hooks/useResponsive";
 import { StaffUser } from "@/services/userService";
+import { isLeaveRole } from "@/utils/roleUtils";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
@@ -17,12 +20,62 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+export function getStaffSystemKey(st?: StaffUser | null): string {
+  if (!st) return "system-0001";
+
+  const lowerId = String(st.id || "")
+    .toLowerCase()
+    .trim();
+  const lowerStaffId = String(st.staff_id || "")
+    .toLowerCase()
+    .trim();
+  const lowerUsername = String(st.username || "")
+    .toLowerCase()
+    .trim();
+  const rawSys = String(st.system_id || "")
+    .toLowerCase()
+    .trim();
+
+  // 1. Explicit BPAK identifier anywhere in id, staff_id, username, or system_id is strictly system-0002
+  if (
+    lowerId.startsWith("bpak") ||
+    lowerStaffId.startsWith("bpak") ||
+    lowerUsername.startsWith("bpak") ||
+    rawSys.includes("bpak")
+  ) {
+    return "system-0002";
+  }
+
+  // 2. Check for any explicit dynamic system code in system_id (e.g. system-0001, system-0002, system-0003, ...)
+  const matchSys = rawSys.match(/^(system-\d+)/i);
+  if (matchSys) {
+    return matchSys[1].toLowerCase();
+  }
+
+  // 3. Check for dynamic system pattern in user ID (e.g. system-0001-xxxx, system-0002-xxxx, system-0003-xxxx)
+  const matchId = lowerId.match(/^(system-\d+)/i);
+  if (matchId) {
+    return matchId[1].toLowerCase();
+  }
+
+  // 4. Default company (SSH Group: 0001, 0021, 0022, 0024, 0025, etc.) is system-0001
+  return "system-0001";
+}
+
+function matchesSystem(st: StaffUser, targetSystemKey: string): boolean {
+  if (!targetSystemKey) return true;
+  const target = targetSystemKey.trim().toLowerCase();
+  const staffSystem = getStaffSystemKey(st);
+  return staffSystem === target;
+}
+
 interface StaffPickerModalProps {
   visible: boolean;
   staffList: StaffUser[];
   selectedStaffId: string | null;
   onClose: () => void;
   onSelect: (staffId: string) => void;
+  systemId?: string;
 }
 
 export function StaffPickerModal({
@@ -31,12 +84,44 @@ export function StaffPickerModal({
   selectedStaffId,
   onClose,
   onSelect,
+  systemId,
 }: StaffPickerModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const insets = useSafeAreaInsets();
   const { isMobile } = useResponsive();
+  const { user: loggedInUser } = useUser();
 
-  const filteredStaff = staffList.filter((st) => {
+  // Determine target system:
+  // 1. Explicit prop `systemId`
+  // 2. Selected staff member's system
+  // 3. Logged-in user's system
+  const selectedStaff = staffList.find((s) => s.id === selectedStaffId);
+  const selectedStaffSystem = selectedStaff
+    ? getStaffSystemKey(selectedStaff)
+    : "";
+
+  const loggedInUserSystem = loggedInUser
+    ? getStaffSystemKey(loggedInUser)
+    : "";
+
+  const effectiveSystemKey =
+    (systemId ? extractSystemKey(systemId) : "") ||
+    selectedStaffSystem ||
+    loggedInUserSystem ||
+    "system-0001";
+
+  // Filter staff strictly by current system (system-0001, system-0002, system-0003, etc.) and active status (not on leave)
+  const activeStaff = staffList.filter((st) => {
+    if (isLeaveRole(st.role)) return false;
+    return matchesSystem(st, effectiveSystemKey);
+  });
+
+  // Sort staff list by staff_id ascending (e.g. 0001, 0002, 0003...)
+  const sortedStaff = [...activeStaff].sort((a, b) =>
+    (a.id || "").localeCompare(b.id || "", undefined, { numeric: true }),
+  );
+
+  const filteredStaff = sortedStaff.filter((st) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.trim().toLowerCase();
     return (
@@ -73,9 +158,9 @@ export function StaffPickerModal({
               maxWidth: !isMobile ? 450 : "100%",
               width: !isMobile ? 450 : "100%",
               borderRadius: !isMobile ? 24 : undefined,
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-              paddingBottom: insets.bottom + 16,
+              borderTopLeftRadius: 15,
+              borderTopRightRadius: 15,
+              paddingBottom: insets.bottom,
             },
           ]}
         >
@@ -85,7 +170,7 @@ export function StaffPickerModal({
             <TouchableOpacity onPress={onClose} style={s.closeBtn}>
               <MaterialIcons
                 name="close"
-                size={22}
+                size={28}
                 color={AppColors.textSecondary}
               />
             </TouchableOpacity>
@@ -193,34 +278,27 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.4)",
     justifyContent: "flex-end",
   },
-  backdropDismiss: {
-    flex: 1,
-  },
   sheet: {
     backgroundColor: AppColors.background,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
     maxHeight: "80%",
-    paddingHorizontal: 16,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingTop: 18,
-    paddingBottom: 12,
+    paddingVertical: 15,
     borderBottomWidth: 0.5,
-    borderBottomColor: `${AppColors.grey}33`,
+    borderBottomColor: `${AppColors.grey}70`,
     marginBottom: 12,
+    paddingHorizontal: 15,
   },
   headerTitle: {
     fontSize: 17,
-    fontWeight: "bold",
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
   },
-  closeBtn: { padding: 4 },
+  closeBtn: { padding: 0 },
 
   searchBox: {
     flexDirection: "row",
@@ -233,6 +311,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.06)",
     marginBottom: 12,
+    marginHorizontal: 15,
   },
   searchInput: {
     flex: 1,
@@ -240,15 +319,17 @@ const s = StyleSheet.create({
     color: AppColors.textPrimary,
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
-    ...(Platform.OS === "web" && ({ outlineStyle: "none", outlineWidth: 0 } as any)),
+    ...(Platform.OS === "web" &&
+      ({ outlineStyle: "none", outlineWidth: 0 } as any)),
   },
 
   scrollList: {
-    maxHeight: 380,
+    maxHeight: 400,
+    paddingHorizontal: 15,
   },
   scrollContent: {
     gap: 8,
-    paddingBottom: 12,
+    paddingBottom: 20,
   },
 
   staffCard: {

@@ -4,8 +4,13 @@ import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useUser } from "@/contexts/UserContext";
 import { Ionicons } from "@expo/vector-icons";
-import { Redirect, Tabs, usePathname } from "expo-router";
+import BlurView from "@nguyenduy1412/react-native-blur";
+import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
+import { Redirect, router, Tabs, usePathname } from "expo-router";
+import { useEffect, useRef } from "react";
 import {
+  Animated,
   Platform,
   Pressable,
   ScrollView,
@@ -69,7 +74,7 @@ const TABS = [
   },
 ];
 
-// ─── Mobile: custom tab button ────────────────────────────────────────────────
+// ─── Mobile: custom tab button (kept for compatibility) ───────────────────────
 function CustomTabBarButton({ children, onPress, accessibilityState }: any) {
   const isFocused = accessibilityState?.selected;
   return (
@@ -95,6 +100,117 @@ function CustomTabBarButton({ children, onPress, accessibilityState }: any) {
   );
 }
 
+// ─── Mobile: Liquid Glass Tab Bar ────────────────────────────────────────────
+function GlassTabBar({ state, descriptors, navigation }: any) {
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+
+  // Bar sits inside horizontal padding of 16 each side
+  const barInnerWidth = width - 30;
+  const tabWidth = barInnerWidth / TABS.length;
+  const pillWidth = tabWidth - 10;
+
+  const translateX = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.spring(translateX, {
+      toValue: state.index * tabWidth,
+      useNativeDriver: true,
+      friction: 9,
+      tension: 80,
+    }).start();
+  }, [state.index, tabWidth]);
+
+  return (
+    <View
+      pointerEvents="box-none"
+      style={[styles.glassWrap, { paddingBottom: Math.max(insets.bottom, 14) }]}
+    >
+      <LinearGradient
+        colors={[
+          "transparent",
+          // "rgba(255, 255, 255, 0.95)",
+          "transparent",
+          "rgba(255, 255, 255, 0.95)",
+        ]}
+        locations={[0, 0.45, 1]}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
+      <BlurView
+        mode="backdrop"
+        intensity={25}
+        tint="light"
+        style={styles.glassBar}
+      >
+        {/* Inner highlight border (liquid sheen) */}
+        <View style={styles.glassInner} pointerEvents="none" />
+
+        {/* Sliding active pill */}
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.glassActive,
+            {
+              width: pillWidth,
+              transform: [{ translateX }],
+            },
+          ]}
+        />
+
+        {state.routes.map((route: any, index: number) => {
+          const tab = TABS.find((t) => t.name === route.name);
+          if (!tab) return null;
+
+          const isFocused = state.index === index;
+
+          const onPress = () => {
+            if (Platform.OS === "ios") {
+              Haptics.selectionAsync().catch(() => {});
+            }
+            const event = navigation.emit({
+              type: "tabPress",
+              target: route.key,
+              canPreventDefault: true,
+            });
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          const color = isFocused ? AppColors.secondary : "rgba(0,0,0,0.45)";
+
+          return (
+            <Pressable
+              key={route.key}
+              onPress={onPress}
+              style={({ pressed }) => [
+                styles.glassTab,
+                { width: tabWidth },
+                pressed && { opacity: 0.6 },
+              ]}
+            >
+              <View style={{ zIndex: 1 }}>
+                {isFocused ? tab.icon(color, 22) : tab.iconOutline(color, 22)}
+              </View>
+              <Text
+                style={[
+                  styles.glassLabel,
+                  { color },
+                  isFocused && styles.glassLabelActive,
+                ]}
+                numberOfLines={1}
+              >
+                {tab.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </BlurView>
+    </View>
+  );
+}
+
 // ─── Tablet: left sidebar ─────────────────────────────────────────────────────
 function SideRail() {
   const pathname = usePathname();
@@ -115,11 +231,7 @@ function SideRail() {
               key={tab.name}
               style={[styles.sideItem, active && styles.sideItemActive]}
               activeOpacity={0.7}
-              // expo-router Link doesn't work well here; use href navigation
-              onPress={() => {
-                const { router } = require("expo-router");
-                router.push(tab.href);
-              }}
+              onPress={() => router.push(tab.href as any)}
             >
               {active
                 ? tab.icon(AppColors.background2, 22)
@@ -160,42 +272,18 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        // On tablet we hide the bottom bar entirely
         tabBarActiveTintColor: AppColors.secondary,
-        tabBarStyle: isTablet
-          ? { display: "none" }
-          : {
-              height: Platform.OS === "ios" ? 80 : 65 + insets.bottom,
-              paddingBottom: Platform.OS === "ios" ? 13 : insets.bottom,
-              backgroundColor: AppColors.background2,
-              borderTopWidth: 0.5,
-              borderTopColor: "rgba(0, 0, 0, 0.08)",
-            },
-        tabBarLabelStyle: {
-          fontSize: 10,
-          marginBottom: 4,
-          fontWeight: "bold",
-          fontFamily: AppFonts.bold,
-          includeFontPadding: false,
-        },
-        tabBarIconStyle: { marginTop: 4, marginBottom: 2 },
+        // Hide default bar – we render our own on mobile, none on tablet
+        tabBarStyle: { display: "none" },
         tabBarButton: (props) => <CustomTabBarButton {...props} />,
       }}
+      tabBar={isTablet ? undefined : (props) => <GlassTabBar {...props} />}
     >
       {TABS.map((tab) => (
         <Tabs.Screen
           key={tab.name}
           name={tab.name}
-          options={{
-            title: tab.label,
-            tabBarIcon: ({ color, size, focused }) => {
-              const iconSize = tab.name === "index" ? size : size + 3;
-              const iconColor = color as string;
-              return focused
-                ? tab.icon(iconColor, iconSize)
-                : tab.iconOutline(iconColor, iconSize);
-            },
-          }}
+          options={{ title: tab.label }}
         />
       ))}
     </Tabs>
@@ -205,7 +293,6 @@ export default function TabLayout() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: AppColors.background2 }}>
         <View style={{ flex: 1, backgroundColor: AppColors.background }}>
-          {/* <StatusBar backgroundColor={AppColors.red} barStyle="dark-content" /> */}
           <Appbar />
           <View style={{ flex: 1, flexDirection: "row" }}>
             <SideRail />
@@ -218,27 +305,9 @@ export default function TabLayout() {
 
   // Mobile
   return (
-    <>
-      {/* <StatusBar barStyle="dark-content" /> */}
-      {/* <SafeAreaView
-        style={{ flex: 1, backgroundColor: AppColors.background2 }}
-        edges={
-          Platform.OS === "android"
-            ? ["top", "left", "right", "bottom"]
-            : ["top", "left", "right"]
-        }
-      > */}
-      <SafeAreaView
-        edges={["top", "left", "right"]}
-        style={{
-          flex: 1,
-          backgroundColor: AppColors.background2,
-        }}
-      >
-        <Appbar />
-        {tabScreens}
-      </SafeAreaView>
-    </>
+    <View style={{ flex: 1, backgroundColor: AppColors.background2 }}>
+      {tabScreens}
+    </View>
   );
 }
 
@@ -251,19 +320,80 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 
-  // Mobile tab button
+  // Mobile tab button (kept for compatibility)
   tabButton: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 10,
-    // marginHorizontal: 5,
   },
   activeTab: {
     color: AppColors.secondary,
   },
 
-  // Tablet / Web sidebar
+  // ── Liquid glass tab bar ──
+  glassWrap: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    paddingHorizontal: 15,
+    // paddingTop: 8,
+    backgroundColor: "transparent",
+    // backgroundColor: AppColors.red,
+  },
+  glassBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: 64,
+    borderRadius: 32,
+    overflow: "hidden",
+    borderWidth: StyleSheet.hairlineWidth,
+    // borderWidth: 1,
+    // borderColor: "rgba(255,255,255,0.55)",
+    borderColor: AppColors.grey + 70,
+    // iOS shadow / glow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 24,
+    // Android
+    elevation: 5,
+  },
+  glassInner: {
+    ...StyleSheet.absoluteFill,
+    borderRadius: 32,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.35)",
+  },
+  glassActive: {
+    position: "absolute",
+    top: 5,
+    left: 5,
+    bottom: 5,
+    // right: 5,
+    borderRadius: 26,
+    backgroundColor: "#02020214",
+    borderColor: AppColors.grey + 30,
+    borderWidth: 1.5,
+  },
+  glassTab: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 8,
+    gap: 2,
+  },
+  glassLabel: {
+    fontSize: 12,
+    fontFamily: AppFonts.regular,
+    includeFontPadding: false,
+  },
+  glassLabelActive: {
+    fontFamily: AppFonts.bold,
+    fontWeight: "bold",
+  },
+
+  // ── Tablet / Web sidebar ──
   sidebar: {
     width: 200,
     backgroundColor: AppColors.background2,

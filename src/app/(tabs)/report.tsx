@@ -1,3 +1,4 @@
+import Appbar from "@/components/appbar/appbar";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useUser } from "@/contexts/UserContext";
@@ -6,7 +7,15 @@ import { hasAdminRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { createElement } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // ─── Report Screen ───────────────────────────────────────────────────────────
 
@@ -14,6 +23,7 @@ export default function Report() {
   const { user } = useUser();
   const isAdmin = hasAdminRole(user?.role);
   const { isMobile } = useResponsive();
+  const insets = useSafeAreaInsets();
 
   function BtnItem({ iconName, title, onPress, icon }: any) {
     return (
@@ -61,9 +71,18 @@ export default function Report() {
 
   return (
     <View style={styles.safe}>
+      <StatusBar
+        backgroundColor={AppColors.background}
+        barStyle="dark-content"
+      />
+      <Appbar />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 90 }}
+        contentContainerStyle={{
+          paddingBottom: 90,
+          // paddingTop: 60 + insets.top,
+        }}
       >
         <View
         // style={[
@@ -77,7 +96,9 @@ export default function Report() {
         >
           {/* ── Report Current Staff (Visible to All Staff & Admins) ── */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Report Current Staff</Text>
+            <Text style={[styles.sectionTitle, { marginTop: 5 }]}>
+              Report Current Staff
+            </Text>
             <View style={styles.card}>
               <BtnItem
                 onPress={() => {
@@ -112,6 +133,50 @@ export default function Report() {
                 }}
                 title="Annual Report"
                 iconName="newspaper-outline"
+                icon={Ionicons}
+              />
+            </View>
+          </View>
+
+          {/* ── Report Request Current Staff (Visible to All Staff & Admins) ── */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              Report Request Current Staff
+            </Text>
+            <View style={styles.card}>
+              <BtnItem
+                onPress={() => {
+                  router.push("/report-request-current-staff/daily-report");
+                }}
+                title="Daily Report"
+                iconName="document-text-outline"
+                icon={Ionicons}
+              />
+              <Border />
+              <BtnItem
+                onPress={() => {
+                  router.push("/report-request-current-staff/weekly-report");
+                }}
+                title="Weekly Report"
+                iconName="document-text-outline"
+                icon={Ionicons}
+              />
+              <Border />
+              <BtnItem
+                onPress={() => {
+                  router.push("/report-request-current-staff/monthly-report");
+                }}
+                title="Monthly Report"
+                iconName="document-text-outline"
+                icon={Ionicons}
+              />
+              <Border />
+              <BtnItem
+                onPress={() => {
+                  router.push("/report-request-current-staff/annual-report");
+                }}
+                title="Annual Report"
+                iconName="document-text-outline"
                 icon={Ionicons}
               />
             </View>
@@ -162,8 +227,60 @@ export default function Report() {
                 </View>
               </View>
 
-              {/* ── Report All Staff ── */}
+              {/* ── Report Request Individual Staff ── */}
               <View style={styles.section}>
+                <Text style={styles.sectionTitle}>
+                  Report Request Individual Staff
+                </Text>
+                <View style={styles.card}>
+                  <BtnItem
+                    onPress={() => {
+                      router.push(
+                        "/report-request-individual-staff/daily-report",
+                      );
+                    }}
+                    title="Daily Report"
+                    iconName="document-text-outline"
+                    icon={Ionicons}
+                  />
+                  <Border />
+                  <BtnItem
+                    onPress={() => {
+                      router.push(
+                        "/report-request-individual-staff/weekly-report",
+                      );
+                    }}
+                    title="Weekly Report"
+                    iconName="document-text-outline"
+                    icon={Ionicons}
+                  />
+                  <Border />
+                  <BtnItem
+                    onPress={() => {
+                      router.push(
+                        "/report-request-individual-staff/monthly-report",
+                      );
+                    }}
+                    title="Monthly Report"
+                    iconName="document-text-outline"
+                    icon={Ionicons}
+                  />
+                  <Border />
+                  <BtnItem
+                    onPress={() => {
+                      router.push(
+                        "/report-request-individual-staff/annual-report",
+                      );
+                    }}
+                    title="Annual Report"
+                    iconName="document-text-outline"
+                    icon={Ionicons}
+                  />
+                </View>
+              </View>
+
+              {/* ── Report All Staff ── */}
+              {/* <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Report All Staff</Text>
                 <View style={styles.card}>
                   <BtnItem
@@ -202,7 +319,7 @@ export default function Report() {
                     icon={Ionicons}
                   />
                 </View>
-              </View>
+              </View> */}
             </>
           )}
         </View>

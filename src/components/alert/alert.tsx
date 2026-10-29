@@ -32,7 +32,7 @@ export const renderAlertModal = ({
           styles.conModal,
           {
             maxWidth: !isMobile ? 400 : "94%",
-            width: !isMobile ? 400 : "94%",
+            width: !isMobile ? 400 : "90%",
           },
         ]}
       >

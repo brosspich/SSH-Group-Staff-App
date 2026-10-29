@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 type Step = "email" | "otp" | "newPassword";
 
@@ -94,7 +93,8 @@ const ForgotPassword = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <>
+      {/* <SafeAreaView style={styles.container}> */}
       <AppbarBack Title="Forgot Password" />
 
       <View style={styles.content}>
@@ -190,7 +190,8 @@ const ForgotPassword = () => {
           </>
         )}
       </View>
-    </SafeAreaView>
+      {/* </SafeAreaView> */}
+    </>
   );
 };
 

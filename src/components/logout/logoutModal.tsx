@@ -23,10 +23,19 @@ export const renderLogoutModal = ({
           styles.conModal,
           {
             maxWidth: !isMobile ? 400 : "94%",
-            width: !isMobile ? 400 : "94%",
+            width: !isMobile ? 400 : "90%",
           },
         ]}
       >
+        <View
+          style={{
+            backgroundColor: AppColors.red,
+            padding: 10,
+            borderRadius: 10,
+          }}
+        >
+          <AntDesign name="logout" size={35} color={AppColors.background2} />
+        </View>
         <Text style={[styles.txt, { fontSize: 20 }]}>Logout</Text>
         <Text style={styles.txt}>Are you sure you want to logout?</Text>
         <View style={styles.conBtn}>
@@ -68,7 +77,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",
     alignItems: "center",
-    // paddingHorizontal: 20,
+    // paddingHorizontal: 10,
   },
   conModal: {
     backgroundColor: AppColors.background2,
@@ -77,11 +86,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 12,
     alignSelf: "center",
-    gap: 15,
+    gap: 12,
   },
   txt: {
     color: AppColors.textPrimary,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontSize: 16,
     textAlign: "center",
     fontFamily: AppFonts.bold,

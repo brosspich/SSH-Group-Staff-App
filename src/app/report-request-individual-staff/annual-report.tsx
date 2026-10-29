@@ -1,19 +1,13 @@
 import AppbarBack from "@/components/appbar/appbarback";
-import DatePickerModal from "@/components/daterangpicker/DatePickerModal";
-import { AttendanceReportBody } from "@/components/report/AttendanceReportBody";
-import { AttendanceReportPrintModal } from "@/components/report/AttendanceReportPrintModal";
+import { RequestReportBody } from "@/components/report-request/RequestReportBody";
+import { RequestReportPrintModal } from "@/components/report-request/RequestReportPrintModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
-import {
-  formatDateLabel,
-  getTodayPP,
-  useAttendanceReportData,
-} from "@/hooks/useAttendanceReportData";
+import { useAttendanceRequestReportData } from "@/hooks/useAttendanceRequestReportData";
 import { useResponsive } from "@/hooks/useResponsive";
-import { useState } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useMemo, useState } from "react";
 import {
-  Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,10 +16,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function CurrentStaffMonthlyReportScreen() {
-  const [selectedDate, setSelectedDate] = useState<Date>(getTodayPP());
-  const [showPicker, setShowPicker] = useState(false);
+export default function IndividualStaffRequestAnnualReportScreen() {
+  const [currentYear] = useState(() => {
+    const pp = new Date(Date.now() + 7 * 60 * 60 * 1000);
+    return pp.getUTCFullYear();
+  });
+  const [year, setYear] = useState(currentYear);
   const [showPrintModal, setShowPrintModal] = useState(false);
+
+  const selectedDate = useMemo(() => new Date(year, 0, 1), [year]);
 
   const {
     loading,
@@ -35,17 +34,14 @@ export default function CurrentStaffMonthlyReportScreen() {
     selectedStaff,
     activeStaffId,
     setActiveStaffId,
-  } = useAttendanceReportData("current", "Monthly", selectedDate);
+  } = useAttendanceRequestReportData("individual", "Annual", selectedDate);
 
   const { isMobile } = useResponsive();
-  const periodLabel = formatDateLabel(selectedDate, "Monthly");
+  const periodLabel = `${year}`;
 
   return (
-    <SafeAreaView
-      edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
-      style={{ flex: 1, backgroundColor: AppColors.background2 }}
-    >
-      <AppbarBack Title="Current Staff Monthly Report" />
+    <>
+      <AppbarBack Title="Individual Staff Request Annual Report" />
       <ScrollView
         style={s.container}
         contentContainerStyle={s.content}
@@ -57,29 +53,42 @@ export default function CurrentStaffMonthlyReportScreen() {
             !isMobile && { maxWidth: "80%", alignSelf: "center" },
           ]}
         >
-          {/* Month Selector Card */}
+          {/* Year Selector Card */}
           <View style={s.card}>
-            <Text style={s.sectionLabel}>Select Month</Text>
-            <Pressable style={s.dateField} onPress={() => setShowPicker(true)}>
-              <Text style={s.dateFieldText}>{periodLabel}</Text>
-            </Pressable>
+            <Text style={s.sectionLabel}>Select year</Text>
+            <View style={s.yearNav}>
+              <TouchableOpacity
+                onPress={() => setYear((y) => y - 1)}
+                style={s.navBtn}
+              >
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={18}
+                  color={AppColors.textPrimary}
+                />
+              </TouchableOpacity>
+              <Text style={s.yearLabel}>{year}</Text>
+              <TouchableOpacity
+                onPress={() => setYear((y) => y + 1)}
+                style={s.navBtn}
+                disabled={year >= currentYear}
+              >
+                <MaterialIcons
+                  name="arrow-forward-ios"
+                  size={18}
+                  color={
+                    year >= currentYear ? AppColors.grey : AppColors.textPrimary
+                  }
+                />
+              </TouchableOpacity>
+            </View>
           </View>
 
-          <DatePickerModal
-            visible={showPicker}
-            value={selectedDate}
-            onClose={() => setShowPicker(false)}
-            onChange={(date) => {
-              setSelectedDate(date);
-              setShowPicker(false);
-            }}
-          />
-
-          <AttendanceReportBody
+          <RequestReportBody
             loading={loading}
             summary={summary}
             records={records}
-            reportMode="current"
+            reportMode="individual"
             staffList={staffList}
             selectedStaff={selectedStaff}
             activeStaffId={activeStaffId}
@@ -106,11 +115,11 @@ export default function CurrentStaffMonthlyReportScreen() {
         </View>
       </View>
 
-      <AttendanceReportPrintModal
+      <RequestReportPrintModal
         visible={showPrintModal}
         periodLabel={periodLabel}
-        reportType="Monthly"
-        reportMode="current"
+        reportType="Annual"
+        reportMode="individual"
         summary={summary}
         records={records}
         targetStaff={selectedStaff}
@@ -121,7 +130,7 @@ export default function CurrentStaffMonthlyReportScreen() {
         edges={["bottom"]}
         style={{ backgroundColor: AppColors.background2 }}
       />
-    </SafeAreaView>
+    </>
   );
 }
 
@@ -142,19 +151,27 @@ const s = StyleSheet.create({
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
   },
-  dateField: {
+  yearNav: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: AppColors.background,
     borderRadius: 8,
-    padding: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderWidth: 0.5,
+    borderColor: "rgba(0,0,0,0.1)",
   },
-  dateFieldText: {
+  yearLabel: {
     fontSize: 14,
-    color: AppColors.textPrimary,
     fontWeight: "bold",
+    color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
-    includeFontPadding: false,
+  },
+  navBtn: {
+    padding: 6,
+    alignItems: "center",
+    justifyContent: "center",
   },
   printBtnCon: {
     backgroundColor: AppColors.background2,

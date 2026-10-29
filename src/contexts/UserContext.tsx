@@ -1,6 +1,7 @@
 import { fetchOfficialAttendanceQRCodes } from "@/constants/attendanceConfig";
 import { StaffUser, userService } from "@/services/userService";
 import { syncDeviceSession } from "@/utils/deviceSession";
+import { isLeaveRole } from "@/utils/roleUtils";
 import { supabase } from "@/utils/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
@@ -56,6 +57,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (!error && dbUser) {
+          if (isLeaveRole(dbUser.role)) {
+            // User account is on leave! Force logout.
+            await userService.clear();
+            setUser(null);
+            setLoading(false);
+            setReady(true);
+            try {
+              router.replace("/login/login");
+            } catch (e) {}
+            return;
+          }
           const sessionId = await AsyncStorage.getItem("pos_device_session_id");
 
           let devicesList: any[] = [];

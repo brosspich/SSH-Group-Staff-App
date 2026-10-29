@@ -1,5 +1,4 @@
 import AppbarBack from "@/components/appbar/appbarback";
-import Copyright from "@/components/copyright/copyright";
 import Loading from "@/components/loading/loading";
 import { renderLogoutModal } from "@/components/logout/logoutModal";
 import { AppColors } from "@/constants/appcolors";
@@ -7,7 +6,7 @@ import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
 import { StaffUser, userService } from "@/services/userService";
 import { supabase } from "@/utils/supabase";
-import { AntDesign, FontAwesome6, MaterialIcons } from "@expo/vector-icons";
+import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { createElement, useCallback, useEffect, useState } from "react";
 import {
@@ -16,7 +15,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -215,10 +213,11 @@ export default function Account() {
   const joinedDate = formatJoinedDisplay(rawJoinedDate);
 
   return (
-    <SafeAreaView
+    <>
+      {/* <SafeAreaView
       edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
       style={{ flex: 1, backgroundColor: AppColors.background2 }}
-    >
+    > */}
       <View style={styles.safe}>
         <AppbarBack Title={"Account"} />
         <ScrollView
@@ -325,7 +324,7 @@ export default function Account() {
             </View>
 
             {/* ── Logout ── */}
-            <View style={styles.section}>
+            {/* <View style={styles.section}>
               <TouchableOpacity
                 style={styles.logoutBtn}
                 onPress={handleLogout}
@@ -334,10 +333,10 @@ export default function Account() {
                 <AntDesign name="logout" size={20} color={AppColors.red} />
                 <Text style={styles.logoutText}>Logout</Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
 
             {/* ── Footer ── */}
-            <Copyright />
+            {/* <Copyright /> */}
           </View>
         </ScrollView>
 
@@ -347,7 +346,8 @@ export default function Account() {
           isMobile,
         })}
       </View>
-    </SafeAreaView>
+      {/* </SafeAreaView> */}
+    </>
   );
 }
 

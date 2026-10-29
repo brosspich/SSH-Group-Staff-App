@@ -5,15 +5,7 @@ import { AppFonts } from "@/constants/appfonts";
 import { AppImages } from "@/constants/appImages";
 import { useResponsive } from "@/hooks/useResponsive";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  Image,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function About() {
   const { isMobile } = useResponsive();
@@ -59,149 +51,148 @@ export default function About() {
 
   return (
     <>
-      <SafeAreaView
+      {/* <SafeAreaView
         edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
         style={{ flex: 1, backgroundColor: AppColors.background2 }}
-      >
-        <AppbarBack Title="About us" />
-        <View style={styles.contanar}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-          >
-            {/* Logo and Brand Section */}
-            <View style={styles.conLogo}>
-              <Image source={AppImages.logoSSH} style={styles.logo} />
-              <Text style={{ color: AppColors.secondary }}>|</Text>
-              <Image source={AppImages.logoStaffW} style={styles.logo} />
-            </View>
+      > */}
+      <AppbarBack Title="About us" />
+      <View style={styles.contanar}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Logo and Brand Section */}
+          <View style={styles.conLogo}>
+            <Image source={AppImages.logoSSH} style={styles.logo} />
+            <Text style={{ color: AppColors.secondary }}>|</Text>
+            <Image source={AppImages.logoStaffW} style={styles.logo} />
+          </View>
 
-            {/* Description Card */}
-            <View style={styles.card}>
-              <Text style={styles.txt}>
-                At SSH GROUP, we specialize in providing high-quality plastic
-                products and barcode solutions to help businesses streamline
-                their operations. With a diverse range of offerings, including
-                Plastic Pallets, Wood Pallets, Basket Pallets, various types of
-                shrink films (POF, PE, PVC), and top-of-the-line Barcode
-                Printers and Scanners, we’re committed to meeting the needs of
-                industries in Cambodia. Whether you're looking for durable
-                packaging solutions or advanced labeling technology, we are your
-                trusted partner in ensuring your products are delivered
-                efficiently and securely.
-              </Text>
-            </View>
+          {/* Description Card */}
+          <View style={styles.card}>
+            <Text style={styles.txt}>
+              At SSH GROUP, we specialize in providing high-quality plastic
+              products and barcode solutions to help businesses streamline their
+              operations. With a diverse range of offerings, including Plastic
+              Pallets, Wood Pallets, Basket Pallets, various types of shrink
+              films (POF, PE, PVC), and top-of-the-line Barcode Printers and
+              Scanners, we’re committed to meeting the needs of industries in
+              Cambodia. Whether you're looking for durable packaging solutions
+              or advanced labeling technology, we are your trusted partner in
+              ensuring your products are delivered efficiently and securely.
+            </Text>
+          </View>
 
-            {/* Mission & Vision Section */}
-            <View style={isMobile ? styles.rowMobile : styles.rowTablet}>
-              {/* Mission Card */}
-              <View style={[styles.card, !isMobile && styles.cardHalf]}>
-                <View style={styles.cardHeader}>
-                  <View
-                    style={[
-                      styles.iconContainer,
-                      { backgroundColor: `${AppColors.primary}15` },
-                    ]}
-                  >
-                    <Ionicons
-                      name="rocket-outline"
-                      size={24}
-                      color={AppColors.secondary}
-                    />
-                  </View>
-                  <Text style={styles.title}>Mission</Text>
-                </View>
-                <Text style={styles.cardTxt}>
-                  Our mission is to provide businesses with innovative,
-                  reliable, and cost-effective plastic products and barcode
-                  solutions that improve logistics, packaging, and inventory
-                  management. We aim to be a key enabler of efficiency and
-                  productivity for our clients by offering high-quality products
-                  and outstanding customer service, ensuring businesses can
-                  operate seamlessly and effectively.
-                </Text>
-              </View>
-
-              {/* Vision Card */}
-              <View style={[styles.card, !isMobile && styles.cardHalf]}>
-                <View style={styles.cardHeader}>
-                  <View
-                    style={[
-                      styles.iconContainer,
-                      { backgroundColor: `${AppColors.secondary}15` },
-                    ]}
-                  >
-                    <Ionicons
-                      name="eye-outline"
-                      size={24}
-                      color={AppColors.secondary}
-                    />
-                  </View>
-                  <Text style={styles.title}>Vision</Text>
-                </View>
-                <Text style={styles.cardTxt}>
-                  Our vision is to become a leading provider of high-quality
-                  plastic products and barcode solutions in the global market.
-                  We aim to continuously innovate and expand our product
-                  offerings, enabling our customers to maximize operational
-                  efficiency and stay ahead of industry trends. We strive to be
-                  recognized for our commitment to excellence, reliability, and
-                  sustainable business practices.
-                </Text>
-              </View>
-            </View>
-
-            {/* Core Values Card */}
-            <View style={styles.card}>
-              <View style={[styles.cardHeader, { marginBottom: 16 }]}>
+          {/* Mission & Vision Section */}
+          <View style={isMobile ? styles.rowMobile : styles.rowTablet}>
+            {/* Mission Card */}
+            <View style={[styles.card, !isMobile && styles.cardHalf]}>
+              <View style={styles.cardHeader}>
                 <View
                   style={[
                     styles.iconContainer,
-                    {
-                      backgroundColor: `${AppColors.secondary}15`,
-                      borderRadius: 12,
-                    },
+                    { backgroundColor: `${AppColors.primary}15` },
                   ]}
                 >
                   <Ionicons
-                    name="star-outline"
+                    name="rocket-outline"
                     size={24}
                     color={AppColors.secondary}
                   />
                 </View>
-                <Text style={styles.title}>Core Values</Text>
+                <Text style={styles.title}>Mission</Text>
               </View>
-
-              <View style={styles.valuesGrid}>
-                {coreValues.map((val, index) => (
-                  <View key={index} style={styles.valueRow}>
-                    <View
-                      style={[
-                        styles.valueIconContainer,
-                        { backgroundColor: `${val.color}15` },
-                      ]}
-                    >
-                      <Ionicons
-                        name={val.icon as any}
-                        size={20}
-                        color={val.color}
-                      />
-                    </View>
-                    <View style={styles.valueTextContainer}>
-                      <Text style={styles.valueTitle}>{val.title}</Text>
-                      <Text style={styles.valueDesc}>{val.desc}</Text>
-                    </View>
-                  </View>
-                ))}
-              </View>
+              <Text style={styles.cardTxt}>
+                Our mission is to provide businesses with innovative, reliable,
+                and cost-effective plastic products and barcode solutions that
+                improve logistics, packaging, and inventory management. We aim
+                to be a key enabler of efficiency and productivity for our
+                clients by offering high-quality products and outstanding
+                customer service, ensuring businesses can operate seamlessly and
+                effectively.
+              </Text>
             </View>
 
-            <Copyright />
+            {/* Vision Card */}
+            <View style={[styles.card, !isMobile && styles.cardHalf]}>
+              <View style={styles.cardHeader}>
+                <View
+                  style={[
+                    styles.iconContainer,
+                    { backgroundColor: `${AppColors.secondary}15` },
+                  ]}
+                >
+                  <Ionicons
+                    name="eye-outline"
+                    size={24}
+                    color={AppColors.secondary}
+                  />
+                </View>
+                <Text style={styles.title}>Vision</Text>
+              </View>
+              <Text style={styles.cardTxt}>
+                Our vision is to become a leading provider of high-quality
+                plastic products and barcode solutions in the global market. We
+                aim to continuously innovate and expand our product offerings,
+                enabling our customers to maximize operational efficiency and
+                stay ahead of industry trends. We strive to be recognized for
+                our commitment to excellence, reliability, and sustainable
+                business practices.
+              </Text>
+            </View>
+          </View>
 
-            <View style={{ height: 20 }} />
-          </ScrollView>
-        </View>
-      </SafeAreaView>
+          {/* Core Values Card */}
+          <View style={styles.card}>
+            <View style={[styles.cardHeader, { marginBottom: 16 }]}>
+              <View
+                style={[
+                  styles.iconContainer,
+                  {
+                    backgroundColor: `${AppColors.secondary}15`,
+                    borderRadius: 12,
+                  },
+                ]}
+              >
+                <Ionicons
+                  name="star-outline"
+                  size={24}
+                  color={AppColors.secondary}
+                />
+              </View>
+              <Text style={styles.title}>Core Values</Text>
+            </View>
+
+            <View style={styles.valuesGrid}>
+              {coreValues.map((val, index) => (
+                <View key={index} style={styles.valueRow}>
+                  <View
+                    style={[
+                      styles.valueIconContainer,
+                      { backgroundColor: `${val.color}15` },
+                    ]}
+                  >
+                    <Ionicons
+                      name={val.icon as any}
+                      size={20}
+                      color={val.color}
+                    />
+                  </View>
+                  <View style={styles.valueTextContainer}>
+                    <Text style={styles.valueTitle}>{val.title}</Text>
+                    <Text style={styles.valueDesc}>{val.desc}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <Copyright />
+
+          <View style={{ height: 20 }} />
+        </ScrollView>
+      </View>
+      {/* </SafeAreaView> */}
     </>
   );
 }

@@ -1,19 +1,13 @@
 import AppbarBack from "@/components/appbar/appbarback";
-import DatePickerModal from "@/components/daterangpicker/DatePickerModal";
 import { AttendanceReportBody } from "@/components/report/AttendanceReportBody";
 import { AttendanceReportPrintModal } from "@/components/report/AttendanceReportPrintModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
-import {
-  formatDateLabel,
-  getTodayPP,
-  useAttendanceReportData,
-} from "@/hooks/useAttendanceReportData";
+import { useAttendanceReportData } from "@/hooks/useAttendanceReportData";
 import { useResponsive } from "@/hooks/useResponsive";
-import { useState } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useMemo, useState } from "react";
 import {
-  Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,10 +16,57 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+const MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 export default function AllStaffMonthlyReportScreen() {
-  const [selectedDate, setSelectedDate] = useState<Date>(getTodayPP());
-  const [showPicker, setShowPicker] = useState(false);
+  const [currentYear] = useState(() => {
+    const pp = new Date(Date.now() + 7 * 60 * 60 * 1000);
+    return pp.getUTCFullYear();
+  });
+  const [currentMonth] = useState(() => {
+    const pp = new Date(Date.now() + 7 * 60 * 60 * 1000);
+    return pp.getUTCMonth();
+  });
+  const [viewYear, setViewYear] = useState(currentYear);
+  const [viewMonth, setViewMonth] = useState(currentMonth);
   const [showPrintModal, setShowPrintModal] = useState(false);
+
+  const prevMonth = () => {
+    if (viewMonth === 0) {
+      setViewYear((y) => y - 1);
+      setViewMonth(11);
+    } else setViewMonth((m) => m - 1);
+  };
+  const nextMonth = () => {
+    if (
+      viewYear > currentYear ||
+      (viewYear === currentYear && viewMonth >= currentMonth)
+    )
+      return;
+    if (viewMonth === 11) {
+      setViewYear((y) => y + 1);
+      setViewMonth(0);
+    } else setViewMonth((m) => m + 1);
+  };
+
+  const periodLabel = `${MONTHS[viewMonth]} ${viewYear}`;
+  const selectedDate = useMemo(
+    () => new Date(viewYear, viewMonth, 1),
+    [viewYear, viewMonth],
+  );
 
   const {
     loading,
@@ -37,13 +78,9 @@ export default function AllStaffMonthlyReportScreen() {
   } = useAttendanceReportData("all", "Monthly", selectedDate);
 
   const { isMobile } = useResponsive();
-  const periodLabel = formatDateLabel(selectedDate, "Monthly");
 
   return (
-    <SafeAreaView
-      edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
-      style={{ flex: 1, backgroundColor: AppColors.background2 }}
-    >
+    <>
       <AppbarBack Title="All Staff Monthly Report" />
       <ScrollView
         style={s.container}
@@ -58,21 +95,33 @@ export default function AllStaffMonthlyReportScreen() {
         >
           {/* Month Selector Card */}
           <View style={s.card}>
-            <Text style={s.sectionLabel}>Select Month</Text>
-            <Pressable style={s.dateField} onPress={() => setShowPicker(true)}>
-              <Text style={s.dateFieldText}>{periodLabel}</Text>
-            </Pressable>
+            <Text style={s.sectionLabel}>Select month</Text>
+            <View style={s.monthNav}>
+              <TouchableOpacity onPress={prevMonth} style={s.navBtn}>
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={18}
+                  color={AppColors.textPrimary}
+                />
+              </TouchableOpacity>
+              <Text style={s.monthLabel}>{periodLabel}</Text>
+              <TouchableOpacity
+                onPress={nextMonth}
+                style={s.navBtn}
+                disabled={viewYear === currentYear && viewMonth >= currentMonth}
+              >
+                <MaterialIcons
+                  name="arrow-forward-ios"
+                  size={18}
+                  color={
+                    viewYear === currentYear && viewMonth >= currentMonth
+                      ? AppColors.grey
+                      : AppColors.textPrimary
+                  }
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <DatePickerModal
-            visible={showPicker}
-            value={selectedDate}
-            onClose={() => setShowPicker(false)}
-            onChange={(date) => {
-              setSelectedDate(date);
-              setShowPicker(false);
-            }}
-          />
 
           <AttendanceReportBody
             loading={loading}
@@ -118,7 +167,7 @@ export default function AllStaffMonthlyReportScreen() {
         edges={["bottom"]}
         style={{ backgroundColor: AppColors.background2 }}
       />
-    </SafeAreaView>
+    </>
   );
 }
 
@@ -128,30 +177,37 @@ const s = StyleSheet.create({
   card: {
     backgroundColor: AppColors.background2,
     borderRadius: 12,
-    padding: 14,
+    padding: 16,
     borderWidth: 0.5,
-    borderColor: "rgba(0,0,0,0.08)",
+    borderColor: "rgba(0,0,0,0.1)",
   },
   sectionLabel: {
-    fontSize: 11.5,
+    fontSize: 12,
     color: AppColors.grey,
-    marginBottom: 8,
+    marginBottom: 6,
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
   },
-  dateField: {
+  monthNav: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.background,
-    borderRadius: 8,
-    padding: 10,
+    justifyContent: "space-between",
   },
-  dateFieldText: {
-    fontSize: 14,
+  monthLabel: {
+    fontSize: 18,
+    fontWeight: "600",
     color: AppColors.textPrimary,
-    fontWeight: "bold",
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
+  },
+  navBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    alignItems: "center",
+    justifyContent: "center",
   },
   printBtnCon: {
     backgroundColor: AppColors.background2,

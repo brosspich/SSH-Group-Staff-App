@@ -3,7 +3,7 @@ import { AppColors } from "@/constants/appcolors";
 import { userService } from "@/services/userService";
 import { router, useRootNavigationState } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { View } from "react-native";
+import { StatusBar, View } from "react-native";
 
 export default function Index() {
   const navState = useRootNavigationState();
@@ -48,15 +48,21 @@ export default function Index() {
   }, [checkingUser, loggedIn, navState?.key]);
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: AppColors.background,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Loading />
-    </View>
+    <>
+      <StatusBar
+        backgroundColor={AppColors.secondary}
+        barStyle="light-content"
+      />
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: AppColors.background,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Loading />
+      </View>
+    </>
   );
 }

@@ -1,19 +1,13 @@
 import AppbarBack from "@/components/appbar/appbarback";
-import DatePickerModal from "@/components/daterangpicker/DatePickerModal";
 import { AttendanceReportBody } from "@/components/report/AttendanceReportBody";
 import { AttendanceReportPrintModal } from "@/components/report/AttendanceReportPrintModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
-import {
-  formatDateLabel,
-  getTodayPP,
-  useAttendanceReportData,
-} from "@/hooks/useAttendanceReportData";
+import { useAttendanceReportData } from "@/hooks/useAttendanceReportData";
 import { useResponsive } from "@/hooks/useResponsive";
-import { useState } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useMemo, useState } from "react";
 import {
-  Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -23,9 +17,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AllStaffAnnualReportScreen() {
-  const [selectedDate, setSelectedDate] = useState<Date>(getTodayPP());
-  const [showPicker, setShowPicker] = useState(false);
+  const [currentYear] = useState(() => {
+    const pp = new Date(Date.now() + 7 * 60 * 60 * 1000);
+    return pp.getUTCFullYear();
+  });
+  const [year, setYear] = useState(currentYear);
   const [showPrintModal, setShowPrintModal] = useState(false);
+
+  const selectedDate = useMemo(() => new Date(year, 0, 1), [year]);
 
   const {
     loading,
@@ -37,13 +36,14 @@ export default function AllStaffAnnualReportScreen() {
   } = useAttendanceReportData("all", "Annual", selectedDate);
 
   const { isMobile } = useResponsive();
-  const periodLabel = formatDateLabel(selectedDate, "Annual");
+  const periodLabel = `${year}`;
 
   return (
-    <SafeAreaView
+    <>
+      {/* <SafeAreaView
       edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
       style={{ flex: 1, backgroundColor: AppColors.background2 }}
-    >
+    > */}
       <AppbarBack Title="All Staff Annual Report" />
       <ScrollView
         style={s.container}
@@ -58,21 +58,34 @@ export default function AllStaffAnnualReportScreen() {
         >
           {/* Year Selector Card */}
           <View style={s.card}>
-            <Text style={s.sectionLabel}>Select Year</Text>
-            <Pressable style={s.dateField} onPress={() => setShowPicker(true)}>
-              <Text style={s.dateFieldText}>{periodLabel}</Text>
-            </Pressable>
+            <Text style={s.sectionLabel}>Select year</Text>
+            <View style={s.yearNav}>
+              <TouchableOpacity
+                onPress={() => setYear((y) => y - 1)}
+                style={s.navBtn}
+              >
+                <MaterialIcons
+                  name="arrow-back-ios-new"
+                  size={18}
+                  color={AppColors.textPrimary}
+                />
+              </TouchableOpacity>
+              <Text style={s.yearLabel}>{year}</Text>
+              <TouchableOpacity
+                onPress={() => setYear((y) => y + 1)}
+                style={s.navBtn}
+                disabled={year >= currentYear}
+              >
+                <MaterialIcons
+                  name="arrow-forward-ios"
+                  size={18}
+                  color={
+                    year >= currentYear ? AppColors.grey : AppColors.textPrimary
+                  }
+                />
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <DatePickerModal
-            visible={showPicker}
-            value={selectedDate}
-            onClose={() => setShowPicker(false)}
-            onChange={(date) => {
-              setSelectedDate(date);
-              setShowPicker(false);
-            }}
-          />
 
           <AttendanceReportBody
             loading={loading}
@@ -118,7 +131,8 @@ export default function AllStaffAnnualReportScreen() {
         edges={["bottom"]}
         style={{ backgroundColor: AppColors.background2 }}
       />
-    </SafeAreaView>
+      {/* </SafeAreaView> */}
+    </>
   );
 }
 
@@ -128,30 +142,37 @@ const s = StyleSheet.create({
   card: {
     backgroundColor: AppColors.background2,
     borderRadius: 12,
-    padding: 14,
+    padding: 16,
     borderWidth: 0.5,
-    borderColor: "rgba(0,0,0,0.08)",
+    borderColor: "rgba(0,0,0,0.1)",
   },
   sectionLabel: {
-    fontSize: 11.5,
-    color: AppColors.grey,
-    marginBottom: 8,
+    fontSize: 12,
+    color: AppColors.textPrimary,
+    marginBottom: 6,
     fontFamily: AppFonts.regular,
     includeFontPadding: false,
   },
-  dateField: {
+  yearNav: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.background,
-    borderRadius: 8,
-    padding: 10,
+    justifyContent: "space-between",
   },
-  dateFieldText: {
-    fontSize: 14,
-    color: AppColors.textPrimary,
-    fontWeight: "bold",
+  yearLabel: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: AppColors.textSecondary,
     fontFamily: AppFonts.bold,
     includeFontPadding: false,
+  },
+  navBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: AppColors.grey,
+    alignItems: "center",
+    justifyContent: "center",
   },
   printBtnCon: {
     backgroundColor: AppColors.background2,

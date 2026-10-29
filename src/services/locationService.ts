@@ -116,10 +116,36 @@ export async function parseCoordinatesFromLocationString(
   return null;
 }
 
+const cachedLocationsBySystem: Record<
+  string,
+  { loc: CompanyLocationConfig; timestamp: number }
+> = {};
+const COMPANY_LOCATION_CACHE_MS = 5 * 60 * 1000; // 5 minutes cache
+
 /**
  * Fetches dynamic company location configuration directly from Supabase table `ssh-group-staff-attendance-qr`.
+ * Automatically matches the user's system_id (e.g. "system-0001", "system-0002", etc.)
  */
-export async function fetchCompanyLocationConfig(): Promise<CompanyLocationConfig> {
+export async function fetchCompanyLocationConfig(
+  forceRefresh = false,
+  systemId?: string,
+): Promise<CompanyLocationConfig> {
+  const {
+    resolveSystemKey,
+    extractSystemKey,
+  } = require("@/constants/attendanceConfig");
+  const targetKey = await resolveSystemKey(systemId);
+  const cacheKey = targetKey || "default";
+
+  if (
+    !forceRefresh &&
+    cachedLocationsBySystem[cacheKey] &&
+    Date.now() - cachedLocationsBySystem[cacheKey].timestamp <
+      COMPANY_LOCATION_CACHE_MS
+  ) {
+    return cachedLocationsBySystem[cacheKey].loc;
+  }
+
   try {
     const { supabase } = require("@/utils/supabase");
 
@@ -129,9 +155,14 @@ export async function fetchCompanyLocationConfig(): Promise<CompanyLocationConfi
       .select("*");
 
     if (!error && data && Array.isArray(data) && data.length > 0) {
-      const row = data[0];
-      // const companyName =
-      //   row["company_name"] ?? row["companyName"] ?? "SSH Group HQ";
+      let row = data[0];
+      if (targetKey) {
+        const found = data.find(
+          (r: any) => extractSystemKey(String(r.id || "")) === targetKey,
+        );
+        if (found) row = found;
+      }
+
       const companyName = row["company_name"] ?? row["companyName"] ?? "";
       const locCol =
         row["location"] ?? row["location_links"] ?? row["locationLinks"];
@@ -155,13 +186,17 @@ export async function fetchCompanyLocationConfig(): Promise<CompanyLocationConfi
       if (locStr) {
         const coords = await parseCoordinatesFromLocationString(locStr);
         if (coords) {
-          COMPANY_LOCATION = {
+          const locationConfig: CompanyLocationConfig = {
             latitude: coords.latitude,
             longitude: coords.longitude,
             radiusMeters: row["radius_meters"] || row["radiusMeters"] || 150,
             name: companyName,
           };
-          return COMPANY_LOCATION;
+          cachedLocationsBySystem[cacheKey] = {
+            loc: locationConfig,
+            timestamp: Date.now(),
+          };
+          return locationConfig;
         }
       }
     }
@@ -341,34 +376,58 @@ const VPN_KEYWORDS = [
   "adguard",
 ];
 
+let cachedVpnResult: {
+  isVpn: boolean;
+  ip?: string;
+  reason?: string;
+} | null = null;
+let lastVpnCheckTime = 0;
+const VPN_CACHE_MS = 60 * 1000; // 60s cache for non-VPN state
+
 /**
  * Executes parallel security checks across multiple IP & VPN databases.
  * Guarantees blocking of all VPN apps (Panda VPN, Nord, Express, etc.), even on KH nodes.
  */
-async function checkVpnOrProxy(): Promise<{
+async function checkVpnOrProxy(forceRefresh = false): Promise<{
   isVpn: boolean;
   ip?: string;
   reason?: string;
 }> {
-  // 1. Native device local IP & network state inspection
+  // Return cached result if recent and clean
+  if (
+    !forceRefresh &&
+    cachedVpnResult &&
+    !cachedVpnResult.isVpn &&
+    Date.now() - lastVpnCheckTime < VPN_CACHE_MS
+  ) {
+    return cachedVpnResult;
+  }
+
+  // 1. Native device local IP & network state inspection (fastest, ~5ms)
   try {
+    const netState = await Network.getNetworkStateAsync();
+    if (netState && (netState as any).type === "VPN") {
+      const res = { isVpn: true, reason: "Device VPN connection active." };
+      cachedVpnResult = res;
+      lastVpnCheckTime = Date.now();
+      return res;
+    }
+
     const localIp = await Network.getIpAddressAsync();
     if (localIp && isVpnLocalIp(localIp)) {
-      return {
+      const res = {
         isVpn: true,
         ip: localIp,
         reason: `VPN adapter local interface detected (${localIp}). Please turn off your VPN.`,
       };
-    }
-
-    const netState = await Network.getNetworkStateAsync();
-    if (netState && (netState as any).type === "VPN") {
-      return { isVpn: true, reason: "Device VPN connection active." };
+      cachedVpnResult = res;
+      lastVpnCheckTime = Date.now();
+      return res;
     }
   } catch (e) {}
 
-  // 2. Execute Parallel HTTPS Security Checks
-  const fetchWithTimeout = async (url: string, timeoutMs = 3500) => {
+  // 2. Execute Parallel HTTPS Security Checks with quick 2s timeout
+  const fetchWithTimeout = async (url: string, timeoutMs = 2000) => {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeoutMs);
     try {
@@ -400,28 +459,37 @@ async function checkVpnOrProxy(): Promise<{
       `${connection.isp || ""} ${connection.org || ""} ${connection.asn || ""}`.toLowerCase();
 
     if (sec.vpn || sec.proxy || sec.tor || sec.hosting) {
-      return {
+      const res = {
         isVpn: true,
         ip: queriedIp,
         reason:
           "VPN or Proxy connection detected. Please disable your VPN to scan.",
       };
+      cachedVpnResult = res;
+      lastVpnCheckTime = Date.now();
+      return res;
     }
 
     if (countryCode && countryCode !== "KH") {
-      return {
+      const res = {
         isVpn: true,
         ip: queriedIp,
         reason: `Traffic routed outside Cambodia (${data.country || countryCode}). Please turn off VPN.`,
       };
+      cachedVpnResult = res;
+      lastVpnCheckTime = Date.now();
+      return res;
     }
 
     if (VPN_KEYWORDS.some((kw) => combinedText.includes(kw))) {
-      return {
+      const res = {
         isVpn: true,
         ip: queriedIp,
         reason: `VPN or Datacenter provider detected (${connection.isp || connection.org}).`,
       };
+      cachedVpnResult = res;
+      lastVpnCheckTime = Date.now();
+      return res;
     }
   }
 
@@ -432,19 +500,25 @@ async function checkVpnOrProxy(): Promise<{
     const countryCode = (data.countryCode || "").toUpperCase();
 
     if (data.isProxy === true) {
-      return {
+      const res = {
         isVpn: true,
         ip: queriedIp,
         reason: "Proxy/VPN server connection detected.",
       };
+      cachedVpnResult = res;
+      lastVpnCheckTime = Date.now();
+      return res;
     }
 
     if (countryCode && countryCode !== "KH") {
-      return {
+      const res = {
         isVpn: true,
         ip: queriedIp,
         reason: `Traffic routed via foreign IP (${countryCode}). Disable VPN to scan.`,
       };
+      cachedVpnResult = res;
+      lastVpnCheckTime = Date.now();
+      return res;
     }
   }
 
@@ -456,38 +530,105 @@ async function checkVpnOrProxy(): Promise<{
     const org = (data.org || "").toLowerCase();
 
     if (countryCode && countryCode !== "KH") {
-      return {
+      const res = {
         isVpn: true,
         ip: queriedIp,
         reason: `Traffic routed via non-Cambodian IP (${countryCode}). Disable VPN.`,
       };
+      cachedVpnResult = res;
+      lastVpnCheckTime = Date.now();
+      return res;
     }
 
     if (VPN_KEYWORDS.some((kw) => org.includes(kw))) {
-      return {
+      const res = {
         isVpn: true,
         ip: queriedIp,
         reason: `VPN / Cloud ISP detected (${data.org}). Please turn off VPN.`,
       };
+      cachedVpnResult = res;
+      lastVpnCheckTime = Date.now();
+      return res;
     }
   }
 
   // All checks completed cleanly without detecting VPN
-  return { isVpn: false, ip: queriedIp };
+  const cleanResult = { isVpn: false, ip: queriedIp };
+  cachedVpnResult = cleanResult;
+  lastVpnCheckTime = Date.now();
+  return cleanResult;
 }
+
+/**
+ * High-speed location getter:
+ * 1. Tries last known position first (fastest, ~5-20ms)
+ * 2. If not available, uses Balanced accuracy (uses Google Play Fused Location Provider, 500-1500ms)
+ * 3. Never hangs or stalls on cold GPS satellite lock
+ */
+async function getFastLocation(): Promise<Location.LocationObject> {
+  // 1. Try to get last known position first (instant, ~5-20ms)
+  try {
+    const lastKnown = await Location.getLastKnownPositionAsync({
+      maxAge: 120000, // up to 2 min old
+    });
+    if (lastKnown && lastKnown.coords) {
+      return lastKnown;
+    }
+  } catch (e) {}
+
+  // 2. Fetch fresh position with Balanced accuracy (uses Fused Location Provider, 500-1500ms)
+  // Race with a 5s timeout so GPS hardware never hangs for 30-60s indoors
+  const positionPromise = Location.getCurrentPositionAsync({
+    accuracy: Location.Accuracy.Balanced,
+  });
+
+  const timeoutPromise = new Promise<Location.LocationObject>((_, reject) =>
+    setTimeout(
+      () =>
+        reject(
+          new Error(
+            "GPS location request timed out. Please ensure GPS/Location is enabled on your device.",
+          ),
+        ),
+      5000,
+    ),
+  );
+
+  return await Promise.race([positionPromise, timeoutPromise]);
+}
+
+let lastVerifiedSecurity: {
+  timestamp: number;
+  result: SecurityCheckResult;
+} | null = null;
+const SECURITY_CACHE_DURATION_MS = 60 * 1000; // 60 seconds cache
 
 /**
  * Executes full security verification for attendance scan:
  * 1. Checks location permissions
- * 2. Gets high-accuracy GPS position
+ * 2. Gets GPS position (fast fused location)
  * 3. Checks for mock location / location spoofing
  * 4. Checks distance to company coordinates
  * 5. Checks for VPN / Proxy usage
+ * Runs location, company config, and VPN checks IN PARALLEL for maximum speed!
  */
-export async function verifyAttendanceSecurity(): Promise<SecurityCheckResult> {
+export async function verifyAttendanceSecurity(
+  forceRefresh = false,
+  systemId?: string,
+): Promise<SecurityCheckResult> {
   // Web preview fallback (skip native GPS if running in web browser)
   if (Platform.OS === "web") {
     return { allowed: true };
+  }
+
+  // Fast path: if verified recently and allowed, return instantly (0ms)
+  if (
+    !forceRefresh &&
+    lastVerifiedSecurity &&
+    lastVerifiedSecurity.result.allowed &&
+    Date.now() - lastVerifiedSecurity.timestamp < SECURITY_CACHE_DURATION_MS
+  ) {
+    return lastVerifiedSecurity.result;
   }
 
   try {
@@ -502,18 +643,27 @@ export async function verifyAttendanceSecurity(): Promise<SecurityCheckResult> {
       };
     }
 
-    // 2. Fetch company location coordinates
-    const config = await fetchCompanyLocationConfig();
+    // 2. Run Location, Company Config, and VPN Check IN PARALLEL!
+    const [config, location, vpnResult] = await Promise.all([
+      fetchCompanyLocationConfig(forceRefresh, systemId),
+      getFastLocation(),
+      checkVpnOrProxy(forceRefresh),
+    ]);
 
-    // 3. Get device current position
-    const location = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.High,
-    });
+    // 3. Check VPN Result
+    if (vpnResult.isVpn) {
+      return {
+        allowed: false,
+        reason:
+          "You are using a VPN app. Please close the VPN app and try again to scan attendance.",
+        code: "VPN_DETECTED",
+        ipAddress: vpnResult.ip,
+      };
+    }
 
     const coords = location.coords;
 
     // 4. Mock location detection (Android & iOS)
-    // expo-location includes `isMocked` property on coords or location
     const isMocked = Boolean(
       (coords as any).isMocked || (location as any).mocked,
     );
@@ -529,44 +679,56 @@ export async function verifyAttendanceSecurity(): Promise<SecurityCheckResult> {
       };
     }
 
-    // 5. Geofence Distance Check
-    const distance = getDistanceFromLatLonInMeters(
-      coords.latitude,
-      coords.longitude,
-      config.latitude,
-      config.longitude,
-    );
+    // 5. Geofence Distance Check (only if configured)
+    if (config.latitude !== 0 && config.longitude !== 0) {
+      const distance = getDistanceFromLatLonInMeters(
+        coords.latitude,
+        coords.longitude,
+        config.latitude,
+        config.longitude,
+      );
 
-    if (distance > config.radiusMeters) {
-      return {
-        allowed: false,
-        reason: `You are outside the SSH Group company area (${Math.round(distance)}m away). Attendance scanning is only allowed within ${config.radiusMeters} meters of ${config.name}.`,
-        code: "OUT_OF_RANGE",
+      if (distance > config.radiusMeters) {
+        const areaName = config.name ? `${config.name} area` : "company area";
+        return {
+          allowed: false,
+          reason: `You are outside the ${areaName} (${Math.round(distance)}m away). Attendance scanning is only allowed within ${config.radiusMeters} meters of ${config.name || "the designated office"}.`,
+          code: "OUT_OF_RANGE",
+          distanceMeters: Math.round(distance),
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        };
+      }
+
+      const verifiedResult: SecurityCheckResult = {
+        allowed: true,
         distanceMeters: Math.round(distance),
         latitude: coords.latitude,
         longitude: coords.longitude,
-      };
-    }
-
-    // 6. VPN / Proxy Security Check
-    const vpnResult = await checkVpnOrProxy();
-    if (vpnResult.isVpn) {
-      return {
-        allowed: false,
-        reason:
-          "You are using a VPN app. Please close the VPN app and try again to scan attendance.",
-        code: "VPN_DETECTED",
         ipAddress: vpnResult.ip,
       };
+
+      lastVerifiedSecurity = {
+        timestamp: Date.now(),
+        result: verifiedResult,
+      };
+
+      return verifiedResult;
     }
 
-    return {
+    const verifiedResult: SecurityCheckResult = {
       allowed: true,
-      distanceMeters: Math.round(distance),
       latitude: coords.latitude,
       longitude: coords.longitude,
       ipAddress: vpnResult.ip,
     };
+
+    lastVerifiedSecurity = {
+      timestamp: Date.now(),
+      result: verifiedResult,
+    };
+
+    return verifiedResult;
   } catch (err: any) {
     console.warn("Security check exception:", err);
     return {

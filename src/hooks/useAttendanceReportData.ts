@@ -1,5 +1,6 @@
 import { AttendanceRecord, formatDateYMD } from "@/app/(tabs)/attendance";
 import { StaffUser, userService } from "@/services/userService";
+import { isLeaveRole } from "@/utils/roleUtils";
 import { supabase } from "@/utils/supabase";
 import { useCallback, useEffect, useState } from "react";
 
@@ -16,6 +17,42 @@ export interface AttendanceSummary {
 
 export function getTodayPP(): Date {
   return new Date();
+}
+
+const MONTHS_SHORT = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+export function formatDate(d: Date): string {
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = MONTHS_SHORT[d.getMonth()];
+  const year = d.getFullYear();
+  return `${day} ${month} ${year}`;
+}
+
+export function getWeekRange(offsetWeeks: number = 0): {
+  start: Date;
+  end: Date;
+} {
+  const now = new Date();
+  const y = now.getFullYear();
+  const mo = now.getMonth();
+  const d = now.getDate() + offsetWeeks * 7;
+  const dow = now.getDay();
+  const start = new Date(y, mo, d - dow, 0, 0, 0, 0);
+  const end = new Date(y, mo, d - dow + 7, 0, 0, 0, 0);
+  return { start, end };
 }
 
 export function formatDateLabel(date: Date, reportType: ReportType): string {
@@ -74,8 +111,11 @@ export function useAttendanceReportData(
     timeOtherCount: 0,
   });
 
+  const selectedDateMs = selectedDate ? selectedDate.getTime() : 0;
+
   const fetchData = useCallback(async () => {
     setLoading(true);
+    const curDate = new Date(selectedDateMs);
     try {
       // 1. Fetch current local user as default
       const currentUser = await userService.get();
@@ -89,18 +129,32 @@ export function useAttendanceReportData(
       if (users.length === 0 && currentUser) {
         users = [currentUser];
       }
-      setStaffList(users);
+      // Sort staff by id ascending (e.g. 0001, 0002, 0003...)
+      users.sort((a, b) =>
+        (a.id || "").localeCompare(b.id || "", undefined, { numeric: true }),
+      );
+      // Filter out staff on leave from selectable staff list
+      const activeStaffUsers = users.filter((u) => !isLeaveRole(u.role));
+      setStaffList(activeStaffUsers);
 
       // Determine target staff ID for individual / current mode
       let targetId = activeStaffId || selectedStaffId;
       if (reportMode === "current" && currentUser?.id) {
         targetId = currentUser.id;
       }
-      if (!targetId && currentUser?.id) {
+      if (!targetId && currentUser?.id && !isLeaveRole(currentUser.role)) {
         targetId = currentUser.id;
       }
-      if (!targetId && users.length > 0) {
-        targetId = users[0].id;
+      if (!targetId && activeStaffUsers.length > 0) {
+        targetId = activeStaffUsers[0].id;
+      }
+      if (
+        reportMode === "individual" &&
+        targetId &&
+        activeStaffUsers.length > 0 &&
+        !activeStaffUsers.some((u) => u.id === targetId)
+      ) {
+        targetId = activeStaffUsers[0].id;
       }
       if (targetId !== activeStaffId) {
         setActiveStaffId(targetId || null);
@@ -121,9 +175,12 @@ export function useAttendanceReportData(
         }
 
         userLogs.forEach((rec) => {
+          if (!rec || typeof rec !== "object") return;
           // Normalize record staff_id if missing
-          const recordStaffId = rec.staff_id || u.id;
-          const recordStaffName = rec.name || u.name || "Unknown";
+          const recordStaffId =
+            rec.staff_id != null ? String(rec.staff_id) : String(u.id || "");
+          const recordStaffName =
+            rec.name != null ? String(rec.name) : String(u.name || "Unknown");
           const fullRecord: AttendanceRecord = {
             ...rec,
             staff_id: recordStaffId,
@@ -134,24 +191,27 @@ export function useAttendanceReportData(
       });
 
       // Filter by reportMode (Individual vs Current vs All)
-      if ((reportMode === "individual" || reportMode === "current") && targetId) {
+      if (
+        (reportMode === "individual" || reportMode === "current") &&
+        targetId
+      ) {
         allLogs = allLogs.filter((r) => r.staff_id === targetId);
       }
 
       // 4. Date filtering based on reportType
       let filteredLogs: AttendanceRecord[] = [];
 
-      const startYMD = formatDateYMD(selectedDate);
-      const startYear = selectedDate.getFullYear();
-      const startMonthStr = `${startYear}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}`;
+      const startYMD = formatDateYMD(curDate);
+      const startYear = curDate.getFullYear();
+      const startMonthStr = `${startYear}-${String(curDate.getMonth() + 1).padStart(2, "0")}`;
 
       if (reportType === "Daily") {
         filteredLogs = allLogs.filter((r) => r.date === startYMD);
       } else if (reportType === "Weekly") {
         const startTime = new Date(
-          selectedDate.getFullYear(),
-          selectedDate.getMonth(),
-          selectedDate.getDate(),
+          curDate.getFullYear(),
+          curDate.getMonth(),
+          curDate.getDate(),
           0,
           0,
           0,
@@ -176,14 +236,16 @@ export function useAttendanceReportData(
 
       // Sort follow by id ascending (att-0000-0000-0001 -> att-0000-0000-0062)
       filteredLogs.sort((a, b) => {
-        if (a.id && b.id) {
-          return a.id.localeCompare(b.id, undefined, { numeric: true });
+        const idA = a.id != null ? String(a.id) : "";
+        const idB = b.id != null ? String(b.id) : "";
+        if (idA && idB) {
+          return idA.localeCompare(idB, undefined, { numeric: true });
         }
-        if (a.id) return -1;
-        if (b.id) return 1;
+        if (idA) return -1;
+        if (idB) return 1;
         const timeA = a.timestamp || `${a.date} ${a.time}`;
         const timeB = b.timestamp || `${b.date} ${b.time}`;
-        return timeA.localeCompare(timeB);
+        return String(timeA).localeCompare(String(timeB));
       });
 
       setRecords(filteredLogs);
@@ -213,7 +275,7 @@ export function useAttendanceReportData(
     } finally {
       setLoading(false);
     }
-  }, [reportMode, reportType, selectedDate, activeStaffId, selectedStaffId]);
+  }, [reportMode, reportType, selectedDateMs, activeStaffId, selectedStaffId]);
 
   useEffect(() => {
     fetchData();

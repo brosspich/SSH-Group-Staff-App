@@ -1,18 +1,17 @@
 import AppbarBack from "@/components/appbar/appbarback";
 import DatePickerModal from "@/components/daterangpicker/DatePickerModal";
-import { AttendanceReportBody } from "@/components/report/AttendanceReportBody";
-import { AttendanceReportPrintModal } from "@/components/report/AttendanceReportPrintModal";
+import { RequestReportBody } from "@/components/report-request/RequestReportBody";
+import { RequestReportPrintModal } from "@/components/report-request/RequestReportPrintModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import {
   formatDateLabel,
   getTodayPP,
-  useAttendanceReportData,
-} from "@/hooks/useAttendanceReportData";
+  useAttendanceRequestReportData,
+} from "@/hooks/useAttendanceRequestReportData";
 import { useResponsive } from "@/hooks/useResponsive";
 import { useState } from "react";
 import {
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -22,7 +21,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function CurrentStaffDailyReportScreen() {
+export default function IndividualStaffRequestDailyReportScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(getTodayPP());
   const [showPicker, setShowPicker] = useState(false);
   const [showPrintModal, setShowPrintModal] = useState(false);
@@ -35,17 +34,14 @@ export default function CurrentStaffDailyReportScreen() {
     selectedStaff,
     activeStaffId,
     setActiveStaffId,
-  } = useAttendanceReportData("current", "Daily", selectedDate);
+  } = useAttendanceRequestReportData("individual", "Daily", selectedDate);
 
   const { isMobile } = useResponsive();
   const periodLabel = formatDateLabel(selectedDate, "Daily");
 
   return (
-    <SafeAreaView
-      edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
-      style={{ flex: 1, backgroundColor: AppColors.background2 }}
-    >
-      <AppbarBack Title="Current Staff Daily Report" />
+    <>
+      <AppbarBack Title="Individual Staff Request Daily Report" />
       <ScrollView
         style={s.container}
         contentContainerStyle={s.content}
@@ -75,11 +71,11 @@ export default function CurrentStaffDailyReportScreen() {
             }}
           />
 
-          <AttendanceReportBody
+          <RequestReportBody
             loading={loading}
             summary={summary}
             records={records}
-            reportMode="current"
+            reportMode="individual"
             staffList={staffList}
             selectedStaff={selectedStaff}
             activeStaffId={activeStaffId}
@@ -106,11 +102,11 @@ export default function CurrentStaffDailyReportScreen() {
         </View>
       </View>
 
-      <AttendanceReportPrintModal
+      <RequestReportPrintModal
         visible={showPrintModal}
         periodLabel={periodLabel}
         reportType="Daily"
-        reportMode="current"
+        reportMode="individual"
         summary={summary}
         records={records}
         targetStaff={selectedStaff}
@@ -121,7 +117,7 @@ export default function CurrentStaffDailyReportScreen() {
         edges={["bottom"]}
         style={{ backgroundColor: AppColors.background2 }}
       />
-    </SafeAreaView>
+    </>
   );
 }
 
@@ -145,16 +141,19 @@ const s = StyleSheet.create({
   dateField: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: AppColors.background,
     borderRadius: 8,
-    padding: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderWidth: 0.5,
+    borderColor: "rgba(0,0,0,0.1)",
   },
   dateFieldText: {
     fontSize: 14,
-    color: AppColors.textPrimary,
     fontWeight: "bold",
+    color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
-    includeFontPadding: false,
   },
   printBtnCon: {
     backgroundColor: AppColors.background2,

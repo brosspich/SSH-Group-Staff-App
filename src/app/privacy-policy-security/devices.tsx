@@ -34,10 +34,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Devices() {
   const { user, refresh } = useUser();
@@ -403,16 +400,18 @@ export default function Devices() {
 
   if (loading) {
     return (
-      <SafeAreaView
+      <>
+        {/* <SafeAreaView
         edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
         style={styles.safe}
-      >
+      > */}
         <AppbarBack Title="Devices" />
         {/* <View style={styles.loaderContainer}> */}
         {/* <ActivityIndicator size="large" color={AppColors.secondary} /> */}
         <Loading />
         {/* </View> */}
-      </SafeAreaView>
+        {/* </SafeAreaView> */}
+      </>
     );
   }
 
@@ -421,10 +420,11 @@ export default function Devices() {
   const selfAlign = pick("stretch" as any, "center" as any, "center" as any);
 
   return (
-    <SafeAreaView
+    <>
+      {/* <SafeAreaView
       edges={Platform.OS === "ios" ? ["top", "left", "right"] : undefined}
       style={styles.safe}
-    >
+    > */}
       <View style={styles.container}>
         <AppbarBack Title="Devices" />
         <ScrollView
@@ -1140,7 +1140,8 @@ export default function Devices() {
           </View>
         </Modal>
       </View>
-    </SafeAreaView>
+      {/* </SafeAreaView> */}
+    </>
   );
 }
 
