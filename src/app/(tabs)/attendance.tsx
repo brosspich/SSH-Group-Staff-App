@@ -145,7 +145,10 @@ export default function AttendanceLogsScreen() {
 
   return (
     <View style={styles.safe}>
-      <StatusBar backgroundColor={AppColors.background} barStyle="default" />
+      <StatusBar
+        backgroundColor={AppColors.background}
+        barStyle="light-content"
+      />
       <AppBarGlass />
 
       <ScrollView

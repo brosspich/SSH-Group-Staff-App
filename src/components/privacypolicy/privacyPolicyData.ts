@@ -1,6 +1,19 @@
 import Constants from "expo-constants";
+import { Platform } from "react-native";
 
-const appVersion = Constants.expoConfig?.version || Constants.manifest?.version;
+const baseVersion =
+  Constants.expoConfig?.version || Constants.manifest?.version || "1.0.0";
+const appVersionCode =
+  (Platform.OS === "ios"
+    ? Constants.expoConfig?.ios?.buildNumber ||
+      Constants.manifest?.ios?.buildNumber
+    : Constants.expoConfig?.android?.versionCode ||
+      Constants.manifest?.android?.versionCode) ||
+  Constants.expoConfig?.ios?.buildNumber ||
+  Constants.expoConfig?.android?.versionCode;
+const appVersion = appVersionCode
+  ? `${baseVersion}.${appVersionCode}`
+  : baseVersion;
 export interface PolicySection {
   title: string;
   body: string;

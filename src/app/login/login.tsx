@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
+  Platform,
   StatusBar,
   StyleSheet,
   Text,
@@ -42,6 +43,14 @@ export default function LoginScreen() {
 
   const appVersion =
     Constants.expoConfig?.version || Constants.manifest?.version;
+  const appVersionCode =
+    (Platform.OS === "ios"
+      ? Constants.expoConfig?.ios?.buildNumber ||
+        Constants.manifest?.ios?.buildNumber
+      : Constants.expoConfig?.android?.versionCode ||
+        Constants.manifest?.android?.versionCode) ||
+    Constants.expoConfig?.ios?.buildNumber ||
+    Constants.expoConfig?.android?.versionCode;
 
   useEffect(() => {
     AsyncStorage.getItem(PRIVACY_ACCEPTED_KEY).then((val: string | null) => {
@@ -308,6 +317,7 @@ export default function LoginScreen() {
 
               <Text style={[styles.txtCopy, { marginBottom: 0 }]}>
                 Version : {appVersion}
+                {appVersionCode ? `.${appVersionCode}` : ""}
               </Text>
               <Text style={[styles.txtCopy, { marginTop: 2, marginBottom: 0 }]}>
                 WWW.SSHGROUPS.COM

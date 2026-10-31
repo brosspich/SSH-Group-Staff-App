@@ -73,7 +73,7 @@ export default function Report() {
     <View style={styles.safe}>
       <StatusBar
         backgroundColor={AppColors.background}
-        barStyle="dark-content"
+        barStyle="light-content"
       />
       <Appbar />
 

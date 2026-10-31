@@ -124,7 +124,15 @@ function GlassTabBar({ state, descriptors, navigation }: any) {
   return (
     <View
       pointerEvents="box-none"
-      style={[styles.glassWrap, { paddingBottom: Math.max(insets.bottom, 14) }]}
+      style={[
+        styles.glassWrap,
+        {
+          paddingBottom:
+            Platform.OS === "android"
+              ? Math.max(insets.bottom, 14)
+              : Math.max(insets.bottom - 12),
+        },
+      ]}
     >
       <LinearGradient
         colors={[

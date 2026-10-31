@@ -1,7 +1,7 @@
 {
   "name": "ssh-group-staff-app",
   "main": "expo-router/entry",
-  "version": "1.0.0.62410",
+  "version": "1.0.0",
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
     "@nguyenduy1412/react-native-blur": "^2.1.0",
@@ -62,6 +62,7 @@
     "android": "expo run:android",
     "android:release": "expo run:android --variant release",
     "ios": "expo run:ios",
+    "ios:release": "expo run:ios --configuration Release",
     "web": "expo start --web",
     "lint": "expo lint"
   },

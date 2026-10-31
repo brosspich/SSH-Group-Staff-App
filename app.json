@@ -2,8 +2,8 @@
   "expo": {
     "name": "SSH Group Staff",
     "slug": "ssh-group-staff-app",
-    // 1.0.0 = app version, 00 = num of edited, 0000 = dd/mm
-    "version": "1.0.0.62410",
+    // 1.0.0 = app version (Apple allows max 3 numbers: major.minor.patch)
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
     "scheme": "sshgroupstaffapp",
@@ -13,7 +13,7 @@
       "barStyle": "dark-content"
     },
     "ios": {
-      "buildNumber": "1",
+      "buildNumber": "62410",
       "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
       "bundleIdentifier": "com.sshgroups.staffapp",
       "infoPlist": {
@@ -23,6 +23,17 @@
         "NSDownloadsFolderUsageDescription": "This app needs access to your downloads folder.",
         "UIDeviceFamily": [1, 2],
         "UIRequiresFullScreen": true,
+        "UIApplicationSceneManifest": {
+          "UIApplicationSupportsMultipleScenes": false,
+          "UISceneConfigurations": {
+            "UIWindowSceneSessionRoleApplication": [
+              {
+                "UISceneConfigurationName": "Default Configuration",
+                "UISceneDelegateClassName": "EXExpoAppSceneDelegate"
+              }
+            ]
+          }
+        },
         "UISupportedInterfaceOrientations~ipad": [
           "UIInterfaceOrientationPortrait",
           "UIInterfaceOrientationPortraitUpsideDown",
@@ -35,7 +46,7 @@
     },
     "android": {
       "targetSdkVersion": 36,
-      "versionCode": 3,
+      "versionCode": 62410,
       "predictiveBackGestureEnabled": false,
       "package": "com.sshgroups.staffapp",
       "screenOrientation": "unspecified",
