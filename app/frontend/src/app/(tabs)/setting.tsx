@@ -1,4 +1,8 @@
 import Appbar from "@/components/appbar/appbar";
+import {
+  MenuButtonItem,
+  MenuDivider,
+} from "@/components/common/MenuButtonItem";
 import Copyright from "@/components/copyright/copyright";
 import Loading from "@/components/loading/loading";
 import { renderLogoutModal } from "@/components/logout/logoutModal";
@@ -6,31 +10,16 @@ import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
 import { StaffUser, userService } from "@/services/userService";
-import { hasAdminOrOwnerRole } from "@/utils/roleUtils";
+import { getTwoInitials } from "@/utils/formatters";
+import { formatRole, hasAdminOrOwnerRole } from "@/utils/roleUtils";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { createElement, useEffect, useState } from "react";
-import {
-  Platform,
-  Pressable,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { useEffect, useState } from "react";
+import { ScrollView, StatusBar, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // ─── Setting Screen ───────────────────────────────────────────────────────────
-
-const formatRole = (role: any) => {
-  if (!role) return "—";
-  if (Array.isArray(role))
-    return role.map((r) => String(r).toUpperCase()).join(", ");
-  if (typeof role === "string") return role.toUpperCase();
-  return String(role).toUpperCase();
-};
 
 export default function Setting() {
   const [user, setUser] = useState<StaffUser | null>(null);
@@ -54,64 +43,9 @@ export default function Setting() {
     return (
       <View style={styles.safe}>
         <View style={styles.centered}>
-          {/* <ActivityIndicator size="large" color={AppColors.secondary} /> */}
           <Loading />
         </View>
       </View>
-    );
-  }
-
-  const getTwoInitials = (name: any) => {
-    if (!name) return "?";
-    const parts = name.trim().split(" ");
-    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-    return (
-      parts[0].charAt(0).toUpperCase() +
-      parts[parts.length - 1].charAt(0).toUpperCase()
-    );
-  };
-
-  function BtnItem({ iconName, title, onPress, icon }: any) {
-    return (
-      <Pressable
-        onPress={onPress}
-        style={({ pressed }) => [
-          styles.conBtn,
-          {
-            backgroundColor: pressed
-              ? `${AppColors.grey}33`
-              : AppColors.transparent,
-          },
-        ]}
-      >
-        <View style={styles.iconTxt}>
-          <View style={styles.conIcon}>
-            {createElement(icon, {
-              name: iconName,
-              size: 20,
-              color: AppColors.textPrimary,
-            })}
-          </View>
-          <Text style={styles.txtTitle}>{title}</Text>
-        </View>
-        <Ionicons
-          name="chevron-forward-outline"
-          size={20}
-          color={AppColors.textPrimary}
-        />
-      </Pressable>
-    );
-  }
-
-  function Border() {
-    return (
-      <View
-        style={{
-          height: 0.3,
-          flex: 1,
-          backgroundColor: AppColors.grey,
-        }}
-      />
     );
   }
 
@@ -126,19 +60,9 @@ export default function Setting() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingBottom: 90,
-          // paddingTop: 60 + insets.top,
         }}
       >
-        <View
-        // style={[
-        //   !isMobile && {
-        //     maxWidth: 850,
-        //     width: "100%",
-        //     alignSelf: "center",
-        //     paddingVertical: 12,
-        //   },
-        // ]}
-        >
+        <View>
           <View style={styles.avatarSection}>
             <View style={styles.conAvatarTxt}>
               <LinearGradient
@@ -149,7 +73,6 @@ export default function Setting() {
                 style={styles.avatarCircle}
               >
                 <Text style={styles.avatarInitial}>
-                  {/* {user?.name?.charAt(0)?.toUpperCase() ?? "?"} */}
                   {getTwoInitials(user?.name)}
                 </Text>
               </LinearGradient>
@@ -161,6 +84,10 @@ export default function Setting() {
                 </Text>
               </View>
             </View>
+
+            <View style={styles.roleBadge}>
+              <Text style={styles.roleBadgeText}>{formatRole(user?.role)}</Text>
+            </View>
           </View>
 
           {/* ── Admin/Owner : Account Staff Section ── */}
@@ -168,7 +95,7 @@ export default function Setting() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Account Staff</Text>
               <View style={styles.card}>
-                <BtnItem
+                <MenuButtonItem
                   onPress={() => {
                     router.push("/account-staff/CreateAccountStaff");
                   }}
@@ -176,8 +103,8 @@ export default function Setting() {
                   iconName="person-outline"
                   icon={Ionicons}
                 />
-                <Border />
-                <BtnItem
+                <MenuDivider />
+                <MenuButtonItem
                   onPress={() => {
                     router.push("/account-staff/ChangeInfoAccountStaff");
                   }}
@@ -189,11 +116,41 @@ export default function Setting() {
             </View>
           )}
 
+          {/* ── SSH Infrastructure Section ── */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>SSH Infrastructure</Text>
+            <View style={styles.card}>
+              <MenuButtonItem
+                onPress={() => router.push("/ssh-groups" as any)}
+                title="Server Groups"
+                subtitle="Production, staging and cluster permissions"
+                iconName="server-outline"
+                icon={Ionicons}
+              />
+              <MenuDivider />
+              <MenuButtonItem
+                onPress={() => router.push("/keys" as any)}
+                title="SSH Keys"
+                subtitle="Manage public keys & server access"
+                iconName="key-outline"
+                icon={Ionicons}
+              />
+              <MenuDivider />
+              <MenuButtonItem
+                onPress={() => router.push("/audit-logs" as any)}
+                title="Security Audit Trail"
+                subtitle="View access history & security events"
+                iconName="shield-checkmark-outline"
+                icon={Ionicons}
+              />
+            </View>
+          </View>
+
           {/* ── Account Info Section ── */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Account Info</Text>
             <View style={styles.card}>
-              <BtnItem
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/account/information");
                 }}
@@ -201,8 +158,8 @@ export default function Setting() {
                 iconName="person-outline"
                 icon={Ionicons}
               />
-              <Border />
-              <BtnItem
+              <MenuDivider />
+              <MenuButtonItem
                 onPress={() => {
                   handleLogout();
                 }}
@@ -217,7 +174,7 @@ export default function Setting() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Privacy & Security</Text>
             <View style={styles.card}>
-              <BtnItem
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/privacy-policy-security/PrivacyPolicy");
                 }}
@@ -225,8 +182,8 @@ export default function Setting() {
                 iconName="privacy-tip"
                 icon={MaterialIcons}
               />
-              <Border />
-              <BtnItem
+              <MenuDivider />
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/privacy-policy-security/devices");
                 }}
@@ -241,7 +198,7 @@ export default function Setting() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>About Us</Text>
             <View style={styles.card}>
-              <BtnItem
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/about/about");
                 }}
@@ -249,8 +206,8 @@ export default function Setting() {
                 iconName="information-circle-outline"
                 icon={Ionicons}
               />
-              <Border />
-              <BtnItem
+              <MenuDivider />
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/about/contact");
                 }}
@@ -312,127 +269,54 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 10,
-    // backgroundColor: AppColors.secondary,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 4,
-    // elevation: 6,
-
-    ...Platform.select({
-      web: {
-        boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.12)",
-      },
-
-      default: {
-        shadowOffset: { width: 0, height: 4 },
-        shadowColor: AppColors.secondary,
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-      },
-    }),
   },
   avatarInitial: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
-    includeFontPadding: false,
+    fontSize: 16,
+    color: "#fff",
+    fontFamily: AppFonts.medium,
   },
-  conName: {},
+  conName: {
+    justifyContent: "center",
+  },
   userName: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 14,
     color: AppColors.textPrimary,
-    // letterSpacing: -0.3,
-    fontFamily: AppFonts.bold,
-    includeFontPadding: false,
+    fontFamily: AppFonts.medium,
   },
   txtUserName: {
-    fontSize: 10,
+    fontSize: 12,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
-    includeFontPadding: false,
   },
   roleBadge: {
-    backgroundColor: `${AppColors.secondary}22`,
-    // paddingHorizontal: 14,
-    paddingLeft: 14,
-    paddingRight: 9,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: `${AppColors.secondary}55`,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 5,
+    borderRadius: 6,
+    backgroundColor: `${AppColors.secondary}20`,
   },
-  roleText: {
-    fontSize: 12,
-    fontWeight: "700",
+  roleBadgeText: {
+    fontSize: 11,
     color: AppColors.secondary,
-    // letterSpacing: 1,
-    fontFamily: AppFonts.regular,
-    includeFontPadding: false,
-  },
-  activeDot: {
-    borderRadius: 20,
-    width: 10,
-    height: 10,
+    fontFamily: AppFonts.medium,
   },
 
   // Section
   section: {
-    paddingHorizontal: 16,
-    // marginBottom: 16,
+    marginTop: 15,
+    paddingHorizontal: 15,
   },
   sectionTitle: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: AppColors.textSecondary ?? AppColors.grey,
-    // letterSpacing: 0.8,
-    textTransform: "uppercase",
-    marginBottom: 10,
-    marginTop: 10,
-    fontFamily: AppFonts.bold,
-    includeFontPadding: false,
-    // textAlign: "center",
+    fontSize: 14,
+    color: AppColors.grey,
+    fontFamily: AppFonts.medium,
+    marginBottom: 8,
   },
-
-  // Info card
   card: {
     backgroundColor: AppColors.background2,
-    borderRadius: 16,
-    // paddingHorizontal: 10,
-    // paddingVertical: 4,
-    overflow: "hidden",
-  },
-  conBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    // backgroundColor: AppColors.red,
-  },
-  iconTxt: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  conIcon: {
-    // padding: 10,
-    width: 35,
-    height: 35,
-    backgroundColor: `${AppColors.grey}50`,
     borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  txtTitle: {
-    fontSize: 16,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.regular,
-    includeFontPadding: false,
+    overflow: "hidden",
   },
 });

@@ -10,7 +10,9 @@ import {
 } from "@/constants/attendanceConfig";
 import { useResponsive } from "@/hooks/useResponsive";
 import { StaffUser, userService } from "@/services/userService";
+import { getTwoInitials } from "@/utils/formatters";
 import {
+  formatRolesList,
   hasAdminOrOwnerRole,
   isLeaveRole,
   isOwnerRole,
@@ -31,28 +33,6 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-function getTwoInitials(name?: string): string {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
-function formatRolesList(role: any): string[] {
-  if (!role) return ["staff"];
-  if (Array.isArray(role))
-    return role.map((r) => String(r).toLowerCase().trim());
-  if (typeof role === "string") {
-    try {
-      const parsed = JSON.parse(role);
-      if (Array.isArray(parsed))
-        return parsed.map((r) => String(r).toLowerCase().trim());
-    } catch (e) {}
-    return [role.toLowerCase().trim()];
-  }
-  return ["staff"];
-}
 
 export default function ChangeInfoAccountStaff() {
   const insets = useSafeAreaInsets();

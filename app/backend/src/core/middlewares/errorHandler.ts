@@ -1,12 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
-import { AppError, ValidationError } from '../errors/AppError.js';
-import { Logger } from '../utils/logger.js';
+import { NextFunction, Request, Response } from "express";
+import { AppError, ValidationError } from "../errors/AppError.js";
+import { Logger } from "../utils/logger.js";
 
 export const errorHandler = (
   err: Error,
   _req: Request,
   res: Response,
-  _next: NextFunction
+  _next: NextFunction,
 ) => {
   if (err instanceof ValidationError) {
     return res.status(err.statusCode).json({
@@ -23,10 +23,10 @@ export const errorHandler = (
     });
   }
 
-  Logger.error('Unhandled Application Exception', err);
+  Logger.error("Unhandled Application Exception", err);
 
   return res.status(500).json({
     success: false,
-    message: 'Internal Server Error',
+    message: "Internal Server Error",
   });
 };

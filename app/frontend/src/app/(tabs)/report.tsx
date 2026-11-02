@@ -1,4 +1,8 @@
 import Appbar from "@/components/appbar/appbar";
+import {
+  MenuButtonItem,
+  MenuDivider,
+} from "@/components/common/MenuButtonItem";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useUser } from "@/contexts/UserContext";
@@ -6,15 +10,7 @@ import { useResponsive } from "@/hooks/useResponsive";
 import { hasAdminRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { createElement } from "react";
-import {
-  Pressable,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ScrollView, StatusBar, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // ─── Report Screen ───────────────────────────────────────────────────────────
@@ -24,50 +20,6 @@ export default function Report() {
   const isAdmin = hasAdminRole(user?.role);
   const { isMobile } = useResponsive();
   const insets = useSafeAreaInsets();
-
-  function BtnItem({ iconName, title, onPress, icon }: any) {
-    return (
-      <Pressable
-        onPress={onPress}
-        style={({ pressed }) => [
-          styles.conBtn,
-          {
-            backgroundColor: pressed
-              ? `${AppColors.grey}33`
-              : AppColors.transparent,
-          },
-        ]}
-      >
-        <View style={styles.iconTxt}>
-          <View style={styles.conIcon}>
-            {createElement(icon, {
-              name: iconName,
-              size: 20,
-              color: AppColors.textPrimary,
-            })}
-          </View>
-          <Text style={styles.txtTitle}>{title}</Text>
-        </View>
-        <Ionicons
-          name="chevron-forward-outline"
-          size={20}
-          color={AppColors.textPrimary}
-        />
-      </Pressable>
-    );
-  }
-
-  function Border() {
-    return (
-      <View
-        style={{
-          height: 0.3,
-          flex: 1,
-          backgroundColor: AppColors.grey,
-        }}
-      />
-    );
-  }
 
   return (
     <View style={styles.safe}>
@@ -81,26 +33,16 @@ export default function Report() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingBottom: 90,
-          // paddingTop: 60 + insets.top,
         }}
       >
-        <View
-        // style={[
-        //   !isMobile && {
-        //     maxWidth: 850,
-        //     width: "100%",
-        //     alignSelf: "center",
-        //     paddingVertical: 12,
-        //   },
-        // ]}
-        >
+        <View style={!isMobile ? styles.webContainer : undefined}>
           {/* ── Report Current Staff (Visible to All Staff & Admins) ── */}
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { marginTop: 5 }]}>
               Report Current Staff
             </Text>
             <View style={styles.card}>
-              <BtnItem
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/report-current-staff/daily-report");
                 }}
@@ -108,8 +50,8 @@ export default function Report() {
                 iconName="newspaper-outline"
                 icon={Ionicons}
               />
-              <Border />
-              <BtnItem
+              <MenuDivider />
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/report-current-staff/weekly-report");
                 }}
@@ -117,8 +59,8 @@ export default function Report() {
                 iconName="newspaper-outline"
                 icon={Ionicons}
               />
-              <Border />
-              <BtnItem
+              <MenuDivider />
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/report-current-staff/monthly-report");
                 }}
@@ -126,8 +68,8 @@ export default function Report() {
                 iconName="newspaper-outline"
                 icon={Ionicons}
               />
-              <Border />
-              <BtnItem
+              <MenuDivider />
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/report-current-staff/annual-report");
                 }}
@@ -144,7 +86,7 @@ export default function Report() {
               Report Request Current Staff
             </Text>
             <View style={styles.card}>
-              <BtnItem
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/report-request-current-staff/daily-report");
                 }}
@@ -152,8 +94,8 @@ export default function Report() {
                 iconName="document-text-outline"
                 icon={Ionicons}
               />
-              <Border />
-              <BtnItem
+              <MenuDivider />
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/report-request-current-staff/weekly-report");
                 }}
@@ -161,8 +103,8 @@ export default function Report() {
                 iconName="document-text-outline"
                 icon={Ionicons}
               />
-              <Border />
-              <BtnItem
+              <MenuDivider />
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/report-request-current-staff/monthly-report");
                 }}
@@ -170,8 +112,8 @@ export default function Report() {
                 iconName="document-text-outline"
                 icon={Ionicons}
               />
-              <Border />
-              <BtnItem
+              <MenuDivider />
+              <MenuButtonItem
                 onPress={() => {
                   router.push("/report-request-current-staff/annual-report");
                 }}
@@ -182,14 +124,13 @@ export default function Report() {
             </View>
           </View>
 
-          {/* ── Admin Only: Report Individual Staff & Report All Staff ── */}
+          {/* ── Admin Only: Report Individual Staff ── */}
           {isAdmin && (
             <>
-              {/* ── Report Individual Staff ── */}
               <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Report Individual Staff</Text>
                 <View style={styles.card}>
-                  <BtnItem
+                  <MenuButtonItem
                     onPress={() => {
                       router.push("/report-individual-staff/daily-report");
                     }}
@@ -197,8 +138,8 @@ export default function Report() {
                     iconName="newspaper-outline"
                     icon={Ionicons}
                   />
-                  <Border />
-                  <BtnItem
+                  <MenuDivider />
+                  <MenuButtonItem
                     onPress={() => {
                       router.push("/report-individual-staff/weekly-report");
                     }}
@@ -206,8 +147,8 @@ export default function Report() {
                     iconName="newspaper-outline"
                     icon={Ionicons}
                   />
-                  <Border />
-                  <BtnItem
+                  <MenuDivider />
+                  <MenuButtonItem
                     onPress={() => {
                       router.push("/report-individual-staff/monthly-report");
                     }}
@@ -215,8 +156,8 @@ export default function Report() {
                     iconName="newspaper-outline"
                     icon={Ionicons}
                   />
-                  <Border />
-                  <BtnItem
+                  <MenuDivider />
+                  <MenuButtonItem
                     onPress={() => {
                       router.push("/report-individual-staff/annual-report");
                     }}
@@ -233,7 +174,7 @@ export default function Report() {
                   Report Request Individual Staff
                 </Text>
                 <View style={styles.card}>
-                  <BtnItem
+                  <MenuButtonItem
                     onPress={() => {
                       router.push(
                         "/report-request-individual-staff/daily-report",
@@ -243,8 +184,8 @@ export default function Report() {
                     iconName="document-text-outline"
                     icon={Ionicons}
                   />
-                  <Border />
-                  <BtnItem
+                  <MenuDivider />
+                  <MenuButtonItem
                     onPress={() => {
                       router.push(
                         "/report-request-individual-staff/weekly-report",
@@ -254,8 +195,8 @@ export default function Report() {
                     iconName="document-text-outline"
                     icon={Ionicons}
                   />
-                  <Border />
-                  <BtnItem
+                  <MenuDivider />
+                  <MenuButtonItem
                     onPress={() => {
                       router.push(
                         "/report-request-individual-staff/monthly-report",
@@ -265,8 +206,8 @@ export default function Report() {
                     iconName="document-text-outline"
                     icon={Ionicons}
                   />
-                  <Border />
-                  <BtnItem
+                  <MenuDivider />
+                  <MenuButtonItem
                     onPress={() => {
                       router.push(
                         "/report-request-individual-staff/annual-report",
@@ -278,48 +219,6 @@ export default function Report() {
                   />
                 </View>
               </View>
-
-              {/* ── Report All Staff ── */}
-              {/* <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Report All Staff</Text>
-                <View style={styles.card}>
-                  <BtnItem
-                    onPress={() => {
-                      router.push("/report-all-staff/daily-report");
-                    }}
-                    title="Daily Report"
-                    iconName="newspaper-outline"
-                    icon={Ionicons}
-                  />
-                  <Border />
-                  <BtnItem
-                    onPress={() => {
-                      router.push("/report-all-staff/weekly-report");
-                    }}
-                    title="Weekly Report"
-                    iconName="newspaper-outline"
-                    icon={Ionicons}
-                  />
-                  <Border />
-                  <BtnItem
-                    onPress={() => {
-                      router.push("/report-all-staff/monthly-report");
-                    }}
-                    title="Monthly Report"
-                    iconName="newspaper-outline"
-                    icon={Ionicons}
-                  />
-                  <Border />
-                  <BtnItem
-                    onPress={() => {
-                      router.push("/report-all-staff/annual-report");
-                    }}
-                    title="Annual Report"
-                    iconName="newspaper-outline"
-                    icon={Ionicons}
-                  />
-                </View>
-              </View> */}
             </>
           )}
         </View>
@@ -335,57 +234,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: AppColors.background,
   },
-  centered: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+  webContainer: {
+    maxWidth: 850,
+    width: "100%",
+    alignSelf: "center",
   },
-
-  // Section
   section: {
     paddingHorizontal: 16,
+    marginTop: 10,
   },
   sectionTitle: {
     fontSize: 13,
     fontWeight: "700",
     color: AppColors.textSecondary ?? AppColors.grey,
     textTransform: "uppercase",
-    marginBottom: 10,
-    marginTop: 10,
+    marginBottom: 8,
+    marginTop: 6,
     fontFamily: AppFonts.bold,
-    includeFontPadding: false,
   },
-
-  // Info card
   card: {
     backgroundColor: AppColors.background2,
-    borderRadius: 16,
+    borderRadius: 12,
     overflow: "hidden",
-  },
-  conBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-  },
-  iconTxt: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  conIcon: {
-    width: 35,
-    height: 35,
-    backgroundColor: `${AppColors.grey}50`,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  txtTitle: {
-    fontSize: 16,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.regular,
-    includeFontPadding: false,
   },
 });

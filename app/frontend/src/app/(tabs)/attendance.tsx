@@ -35,12 +35,8 @@ export interface AttendanceRecord {
   qr_data?: string;
 }
 
-export function formatDateYMD(date = new Date()): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
+import { formatDateYMD } from "@/utils/formatters";
+export { formatDateYMD };
 
 export default function AttendanceLogsScreen() {
   const [user, setUser] = useState<StaffUser | null>(null);

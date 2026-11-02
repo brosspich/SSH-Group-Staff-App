@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { AuthService, authService } from './auth.service.js';
+import { NextFunction, Request, Response } from "express";
+import { AuthService, authService } from "./auth.service.js";
 
 export class AuthController {
   constructor(private readonly service: AuthService = authService) {}
@@ -31,7 +31,7 @@ export class AuthController {
   logout = async (_req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
-      message: 'Logged out successfully',
+      message: "Logged out successfully",
     });
   };
 }

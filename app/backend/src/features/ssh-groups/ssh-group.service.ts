@@ -1,14 +1,22 @@
-import { IRepository } from '../../core/interfaces/repository.interface.js';
-import { IAuditLogger } from '../../core/interfaces/audit.interface.js';
-import { NotFoundError } from '../../core/errors/AppError.js';
-import { auditLogger } from '../../infrastructure/events/eventEmitter.js';
-import { sshGroupRepository } from './ssh-group.repository.js';
-import { SshGroupModel, CreateSshGroupDTO, UpdateSshGroupDTO } from './ssh-group.types.js';
+import { NotFoundError } from "../../core/errors/AppError.js";
+import { IAuditLogger } from "../../core/interfaces/audit.interface.js";
+import { IRepository } from "../../core/interfaces/repository.interface.js";
+import { auditLogger } from "../../infrastructure/events/eventEmitter.js";
+import { sshGroupRepository } from "./ssh-group.repository.js";
+import {
+  CreateSshGroupDTO,
+  SshGroupModel,
+  UpdateSshGroupDTO,
+} from "./ssh-group.types.js";
 
 export class SshGroupService {
   constructor(
-    private readonly repo: IRepository<SshGroupModel, CreateSshGroupDTO, UpdateSshGroupDTO> = sshGroupRepository,
-    private readonly audit: IAuditLogger = auditLogger
+    private readonly repo: IRepository<
+      SshGroupModel,
+      CreateSshGroupDTO,
+      UpdateSshGroupDTO
+    > = sshGroupRepository,
+    private readonly audit: IAuditLogger = auditLogger,
   ) {}
 
   async getAll(): Promise<SshGroupModel[]> {
@@ -23,10 +31,14 @@ export class SshGroupService {
     return group;
   }
 
-  async create(data: CreateSshGroupDTO, actorId: string, actorName: string): Promise<SshGroupModel> {
+  async create(
+    data: CreateSshGroupDTO,
+    actorId: string,
+    actorName: string,
+  ): Promise<SshGroupModel> {
     const group = await this.repo.create(data);
     await this.audit.log({
-      action: 'SSH_GROUP_CREATED',
+      action: "SSH_GROUP_CREATED",
       actorId,
       actorName,
       targetId: group.id,
@@ -35,11 +47,16 @@ export class SshGroupService {
     return group;
   }
 
-  async update(id: string, data: UpdateSshGroupDTO, actorId: string, actorName: string): Promise<SshGroupModel> {
+  async update(
+    id: string,
+    data: UpdateSshGroupDTO,
+    actorId: string,
+    actorName: string,
+  ): Promise<SshGroupModel> {
     await this.getById(id);
     const updated = await this.repo.update(id, data);
     await this.audit.log({
-      action: 'SSH_GROUP_UPDATED',
+      action: "SSH_GROUP_UPDATED",
       actorId,
       actorName,
       targetId: id,
@@ -52,7 +69,7 @@ export class SshGroupService {
     await this.getById(id);
     await this.repo.delete(id);
     await this.audit.log({
-      action: 'SSH_GROUP_DELETED',
+      action: "SSH_GROUP_DELETED",
       actorId,
       actorName,
       targetId: id,

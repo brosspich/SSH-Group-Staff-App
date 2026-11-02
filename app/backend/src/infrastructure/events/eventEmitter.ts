@@ -1,7 +1,10 @@
-import { EventEmitter } from 'events';
-import { IAuditLogger, AuditEvent } from '../../core/interfaces/audit.interface.js';
-import { prisma } from '../database/prisma.js';
-import { Logger } from '../../core/utils/logger.js';
+import { EventEmitter } from "events";
+import {
+  AuditEvent,
+  IAuditLogger,
+} from "../../core/interfaces/audit.interface.js";
+import { Logger } from "../../core/utils/logger.js";
+import { prisma } from "../database/prisma.js";
 
 export const domainEvents = new EventEmitter();
 
@@ -20,7 +23,7 @@ export class DatabaseAuditLogger implements IAuditLogger {
       });
       Logger.info(`Audit logged: ${event.action} by ${event.actorName}`);
     } catch (err) {
-      Logger.error('Failed to persist audit log to database', err);
+      Logger.error("Failed to persist audit log to database", err);
     }
   }
 }

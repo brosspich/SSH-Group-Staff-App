@@ -5,17 +5,11 @@ import { AppFonts } from "@/constants/appfonts";
 import Constants from "expo-constants";
 
 export default function Copyright() {
-  //   const appVersion = DeviceInfo.getVersion();
-  const appVersion =
-    Constants.expoConfig?.version || Constants.manifest?.version;
+    const appVersion = Constants.expoConfig?.version || "1.0.0";
   const appVersionCode =
-    (Platform.OS === "ios"
-      ? Constants.expoConfig?.ios?.buildNumber ||
-        Constants.manifest?.ios?.buildNumber
-      : Constants.expoConfig?.android?.versionCode ||
-        Constants.manifest?.android?.versionCode) ||
-    Constants.expoConfig?.ios?.buildNumber ||
-    Constants.expoConfig?.android?.versionCode;
+    Platform.OS === "ios"
+      ? Constants.expoConfig?.ios?.buildNumber
+      : Constants.expoConfig?.android?.versionCode;
 
   return (
     <View>

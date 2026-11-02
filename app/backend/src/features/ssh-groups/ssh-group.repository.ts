@@ -1,10 +1,16 @@
-import { IRepository } from '../../core/interfaces/repository.interface.js';
-import { prisma } from '../../infrastructure/database/prisma.js';
-import { SshGroupModel, CreateSshGroupDTO, UpdateSshGroupDTO } from './ssh-group.types.js';
+import { IRepository } from "../../core/interfaces/repository.interface.js";
+import { prisma } from "../../infrastructure/database/prisma.js";
+import {
+  CreateSshGroupDTO,
+  SshGroupModel,
+  UpdateSshGroupDTO,
+} from "./ssh-group.types.js";
 
-export class SshGroupRepository
-  implements IRepository<SshGroupModel, CreateSshGroupDTO, UpdateSshGroupDTO>
-{
+export class SshGroupRepository implements IRepository<
+  SshGroupModel,
+  CreateSshGroupDTO,
+  UpdateSshGroupDTO
+> {
   constructor(private readonly db = prisma) {}
 
   async findById(id: string): Promise<SshGroupModel | null> {
@@ -16,7 +22,7 @@ export class SshGroupRepository
   async findAll(filter?: Record<string, unknown>): Promise<SshGroupModel[]> {
     return await this.db.sshGroup.findMany({
       where: filter as any,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 

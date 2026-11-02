@@ -36,4 +36,7 @@ rootProject.name = 'SSH Group Staff'
 expoAutolinking.useExpoVersionCatalog()
 
 include ':app'
+include ':react-native-worklets'
+project(':react-native-worklets').projectDir = new File(rootDir, '../node_modules/react-native-worklets/android')
+
 includeBuild(expoAutolinking.reactNativeGradlePlugin)

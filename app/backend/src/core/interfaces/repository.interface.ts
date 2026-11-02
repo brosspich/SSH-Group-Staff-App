@@ -1,4 +1,8 @@
-export interface IRepository<T, CreateDTO = Partial<T>, UpdateDTO = Partial<T>> {
+export interface IRepository<
+  T,
+  CreateDTO = Partial<T>,
+  UpdateDTO = Partial<T>,
+> {
   findById(id: string): Promise<T | null>;
   findAll(filter?: Record<string, unknown>): Promise<T[]>;
   create(data: CreateDTO): Promise<T>;

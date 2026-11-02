@@ -1,5 +1,5 @@
-import { prisma } from '../../infrastructure/database/prisma.js';
-import { AuditLog } from '@prisma/client';
+import { AuditLog } from "@prisma/client";
+import { prisma } from "../../infrastructure/database/prisma.js";
 
 export interface AuditLogFilter {
   action?: string;
@@ -18,7 +18,7 @@ export class AuditRepository {
         ...(action ? { action } : {}),
         ...(actorId ? { actorId } : {}),
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       take: limit,
       skip: offset,
     });

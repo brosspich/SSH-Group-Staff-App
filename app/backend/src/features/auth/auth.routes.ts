@@ -1,25 +1,25 @@
-import { Router } from 'express';
-import { authController } from './auth.controller.js';
-import { validateBody } from '../../core/middlewares/validateBody.js';
-import { authRateLimiter } from '../../core/middlewares/rateLimiter.js';
-import { loginSchema, registerSchema } from './auth.schema.js';
+import { Router } from "express";
+import { authRateLimiter } from "../../core/middlewares/rateLimiter.js";
+import { validateBody } from "../../core/middlewares/validateBody.js";
+import { authController } from "./auth.controller.js";
+import { loginSchema, registerSchema } from "./auth.schema.js";
 
 const router = Router();
 
 router.post(
-  '/register',
+  "/register",
   authRateLimiter,
   validateBody(registerSchema),
-  authController.register
+  authController.register,
 );
 
 router.post(
-  '/login',
+  "/login",
   authRateLimiter,
   validateBody(loginSchema),
-  authController.login
+  authController.login,
 );
 
-router.post('/logout', authController.logout);
+router.post("/logout", authController.logout);
 
 export const authRoutes = router;

@@ -8,5 +8,5 @@
   "java.compile.nullAnalysis.mode": "automatic",
   "gradle.nestedProjects": true,
   "java.import.gradle.wrapper.enabled": true,
-  "java.import.gradle.version": "9.3.1"
+  "java.import.gradle.version": "8.13"
 }

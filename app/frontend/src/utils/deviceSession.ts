@@ -279,16 +279,11 @@ export async function syncDeviceSession(
       }
     }
 
-    const baseAppVersion =
-      Constants.expoConfig?.version || Constants.manifest?.version || "1.0.0";
+    const baseAppVersion = Constants.expoConfig?.version || "1.0.0";
     const appVersionCode =
-      (Platform.OS === "ios"
-        ? Constants.expoConfig?.ios?.buildNumber ||
-          Constants.manifest?.ios?.buildNumber
-        : Constants.expoConfig?.android?.versionCode ||
-          Constants.manifest?.android?.versionCode) ||
-      Constants.expoConfig?.ios?.buildNumber ||
-      Constants.expoConfig?.android?.versionCode;
+      Platform.OS === "ios"
+        ? Constants.expoConfig?.ios?.buildNumber
+        : Constants.expoConfig?.android?.versionCode;
     const appVersion = appVersionCode
       ? `${baseAppVersion}.${appVersionCode}`
       : baseAppVersion;

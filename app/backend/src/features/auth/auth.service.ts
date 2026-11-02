@@ -1,26 +1,29 @@
-import { prisma } from '../../infrastructure/database/prisma.js';
-import { PasswordHasher } from '../../core/utils/password.js';
-import { JwtSigner } from '../../core/utils/jwt.js';
-import { UnauthorizedError, AppError } from '../../core/errors/AppError.js';
-import { IAuditLogger } from '../../core/interfaces/audit.interface.js';
-import { auditLogger } from '../../infrastructure/events/eventEmitter.js';
-import { LoginInput, RegisterInput } from './auth.schema.js';
+import { AppError, UnauthorizedError } from "../../core/errors/AppError.js";
+import { IAuditLogger } from "../../core/interfaces/audit.interface.js";
+import { JwtSigner } from "../../core/utils/jwt.js";
+import { PasswordHasher } from "../../core/utils/password.js";
+import { prisma } from "../../infrastructure/database/prisma.js";
+import { auditLogger } from "../../infrastructure/events/eventEmitter.js";
+import { LoginInput, RegisterInput } from "./auth.schema.js";
 
 export class AuthService {
   constructor(
     private readonly db = prisma,
-    private readonly audit: IAuditLogger = auditLogger
+    private readonly audit: IAuditLogger = auditLogger,
   ) {}
 
   async register(input: RegisterInput, ipAddress?: string) {
     const existing = await this.db.user.findFirst({
       where: {
-        OR: [{ username: input.username }, input.email ? { email: input.email } : {}],
+        OR: [
+          { username: input.username },
+          input.email ? { email: input.email } : {},
+        ],
       },
     });
 
     if (existing) {
-      throw new AppError('Username or email already in use', 409);
+      throw new AppError("Username or email already in use", 409);
     }
 
     const passwordHash = await PasswordHasher.hash(input.password);
@@ -35,7 +38,7 @@ export class AuthService {
     });
 
     await this.audit.log({
-      action: 'USER_REGISTERED',
+      action: "USER_REGISTERED",
       actorId: user.id,
       actorName: user.username,
       targetId: user.id,
@@ -66,12 +69,15 @@ export class AuthService {
     });
 
     if (!user || !user.isActive) {
-      throw new UnauthorizedError('Invalid credentials or account deactivated');
+      throw new UnauthorizedError("Invalid credentials or account deactivated");
     }
 
-    const isValid = await PasswordHasher.compare(input.password, user.passwordHash);
+    const isValid = await PasswordHasher.compare(
+      input.password,
+      user.passwordHash,
+    );
     if (!isValid) {
-      throw new UnauthorizedError('Invalid credentials');
+      throw new UnauthorizedError("Invalid credentials");
     }
 
     const token = JwtSigner.sign({
@@ -81,7 +87,7 @@ export class AuthService {
     });
 
     await this.audit.log({
-      action: 'USER_LOGIN',
+      action: "USER_LOGIN",
       actorId: user.id,
       actorName: user.username,
       targetId: user.id,

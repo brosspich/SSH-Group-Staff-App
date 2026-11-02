@@ -3,7 +3,7 @@ export interface AuditEvent {
   actorId: string;
   actorName: string;
   targetId?: string;
-  details?: Record<string, unknown>;
+  details?: Record<string, unknown> | object;
   ipAddress?: string;
   timestamp?: Date;
 }

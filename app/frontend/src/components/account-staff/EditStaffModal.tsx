@@ -3,7 +3,7 @@ import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
 import { StaffUser, userService } from "@/services/userService";
 import { hashPassword } from "@/utils/passwordUtils";
-import { isOwnerRole } from "@/utils/roleUtils";
+import { isOwnerRole, formatRolesList } from "@/utils/roleUtils";
 import { supabase } from "@/utils/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
@@ -43,20 +43,7 @@ const COMMON_POSITIONS = [
 
 const AVAILABLE_ROLES = ["staff", "admin", "leave"] as const;
 
-function formatRolesList(role: any): string[] {
-  if (!role) return ["staff"];
-  if (Array.isArray(role))
-    return role.map((r) => String(r).toLowerCase().trim());
-  if (typeof role === "string") {
-    try {
-      const parsed = JSON.parse(role);
-      if (Array.isArray(parsed))
-        return parsed.map((r) => String(r).toLowerCase().trim());
-    } catch (e) {}
-    return [role.toLowerCase().trim()];
-  }
-  return ["staff"];
-}
+
 
 interface EditStaffModalProps {
   visible: boolean;

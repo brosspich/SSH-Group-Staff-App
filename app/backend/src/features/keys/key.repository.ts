@@ -1,5 +1,5 @@
-import { prisma } from '../../infrastructure/database/prisma.js';
-import { SshKey } from '@prisma/client';
+import { SshKey } from "@prisma/client";
+import { prisma } from "../../infrastructure/database/prisma.js";
 
 export class KeyRepository {
   constructor(private readonly db = prisma) {}
@@ -7,7 +7,7 @@ export class KeyRepository {
   async findByUserId(userId: string): Promise<SshKey[]> {
     return await this.db.sshKey.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
   }
 

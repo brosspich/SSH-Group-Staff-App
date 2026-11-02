@@ -55,21 +55,8 @@ export interface AttendanceRecord {
 
 // ─── Helper Functions ─────────────────────────────────────────────────────────
 
-export function formatTime12h(date = new Date()): string {
-  return date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-}
-
-export function formatDateYMD(date = new Date()): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
+import { formatDateYMD, formatTime12h } from "@/utils/formatters";
+export { formatDateYMD, formatTime12h };
 
 /**
  * Generates formatted attendance ID: att-XXXX-YYYY-ZZZZ

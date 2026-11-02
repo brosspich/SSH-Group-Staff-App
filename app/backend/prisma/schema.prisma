@@ -10,7 +10,7 @@ generator client {
 model User {
   id           String         @id @default(uuid())
   username     String         @unique
-  email        String?        @unique
+  email        String?
   passwordHash String
   name         String?
   role         String         @default("member")
@@ -64,5 +64,37 @@ model AuditLog {
   targetId   String?
   details    String?  // JSON stringified details
   ipAddress  String?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime @default(now()) @map("timestamp")
+}
+
+model StaffUser {
+  id                      String   @id
+  name                    String?
+  username                String?  @unique
+  password                String?
+  email                   String?
+  phone                   String?
+  position                String?
+  role                    String?  // JSON array string e.g. ["staff", "admin"]
+  devices                 String?  // JSON array of device sessions
+  joined                  String?
+  attendance              String?  // JSON array of attendance records
+  requestAttendanceRules  String?  @map("request_attendance_rules")
+  systemId                String?  @map("system_id")
+  isActive                Boolean? @default(true) @map("is_active")
+
+  @@map("ssh_group_staff_users")
+}
+
+model AttendanceQr {
+  id               String  @id
+  qrCode           String? @map("qr-code")
+  companyName      String? @map("company_name")
+  location         String? // JSON array of google maps links
+  telegramBotToken String? @map("telegram_bot_token")
+  telegramChatId   String? @map("telegram_chat_id")
+  timeIn           String? @map("time-in")
+  timeOut          String? @map("time-out")
+
+  @@map("ssh-group-staff-attendance-qr")
 }

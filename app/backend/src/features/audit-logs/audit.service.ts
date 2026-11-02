@@ -1,5 +1,9 @@
-import { AuditRepository, auditRepository, AuditLogFilter } from './audit.repository.js';
-import { NotFoundError } from '../../core/errors/AppError.js';
+import { NotFoundError } from "../../core/errors/AppError.js";
+import {
+  AuditLogFilter,
+  AuditRepository,
+  auditRepository,
+} from "./audit.repository.js";
 
 export class AuditService {
   constructor(private readonly repo: AuditRepository = auditRepository) {}
@@ -11,7 +15,7 @@ export class AuditService {
   async getLogById(id: string) {
     const log = await this.repo.findById(id);
     if (!log) {
-      throw new NotFoundError('Audit log record not found');
+      throw new NotFoundError("Audit log record not found");
     }
     return log;
   }

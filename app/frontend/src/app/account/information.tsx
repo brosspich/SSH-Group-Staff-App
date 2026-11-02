@@ -1,3 +1,4 @@
+import { InfoRow } from "@/components/account/InfoRow";
 import AppbarBack from "@/components/appbar/appbarback";
 import Loading from "@/components/loading/loading";
 import { renderLogoutModal } from "@/components/logout/logoutModal";
@@ -5,10 +6,11 @@ import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
 import { StaffUser, userService } from "@/services/userService";
+import { formatJoinedDisplay, parseDateString } from "@/utils/formatters";
 import { hashPassword } from "@/utils/passwordUtils";
 import { supabase } from "@/utils/supabase";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
-import { createElement, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardTypeOptions,
@@ -24,78 +26,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// ─── Row item ─────────────────────────────────────────────────────────────────
-
-function InfoRow({ iconName, icon, label, value, edit }: any) {
-  return (
-    <View style={styles.infoRow}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-        <View style={styles.infoIconBox}>
-          {createElement(icon, {
-            name: iconName,
-            size: 18,
-            color: AppColors.secondary,
-          })}
-        </View>
-        <View style={styles.infoText}>
-          <Text style={styles.infoLabel}>{label}</Text>
-          <Text style={styles.infoValue}>{value}</Text>
-        </View>
-      </View>
-      {edit && (
-        <TouchableOpacity style={styles.edit} onPress={edit} hitSlop={8}>
-          <MaterialIcons name="edit" size={18} color={AppColors.secondary} />
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-}
-
 // ─── Safe Date Parsing Helpers ───────────────────────────────────────────────
-
-function parseDateString(dateStr?: string | null): Date | null {
-  if (!dateStr || !dateStr.trim()) return null;
-  const clean = dateStr.trim();
-
-  // Handle YYYY/MM/DD or YYYY-MM-DD
-  const ymdMatch = clean.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
-  if (ymdMatch) {
-    const year = parseInt(ymdMatch[1], 10);
-    const month = parseInt(ymdMatch[2], 10) - 1;
-    const day = parseInt(ymdMatch[3], 10);
-    const d = new Date(year, month, day);
-    if (!isNaN(d.getTime())) return d;
-  }
-
-  // Handle DD/MM/YYYY or DD-MM-YYYY
-  const dmyMatch = clean.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
-  if (dmyMatch) {
-    const day = parseInt(dmyMatch[1], 10);
-    const month = parseInt(dmyMatch[2], 10) - 1;
-    const year = parseInt(dmyMatch[3], 10);
-    const d = new Date(year, month, day);
-    if (!isNaN(d.getTime())) return d;
-  }
-
-  // General ISO or standard Date fallback
-  const d = new Date(clean);
-  if (!isNaN(d.getTime())) return d;
-
-  return null;
-}
-
-function formatJoinedDisplay(rawJoinedDate?: string | null): string {
-  if (!rawJoinedDate) return "—";
-  const parsed = parseDateString(rawJoinedDate);
-  if (parsed) {
-    return parsed.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
-  }
-  return rawJoinedDate;
-}
 
 function getInitialFieldValue(
   user: StaffUser | null,

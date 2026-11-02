@@ -2,6 +2,7 @@ import { AppImages } from "@/constants/appImages";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { StaffUser, userService } from "@/services/userService";
+import { getTwoInitials } from "@/utils/formatters";
 import BlurView from "@nguyenduy1412/react-native-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -22,15 +23,7 @@ export default function AppBarGlass() {
     });
   }, []);
 
-  const getTwoInitials = (name: any) => {
-    if (!name) return "?";
-    const parts = name.trim().split(" ");
-    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
-    return (
-      parts[0].charAt(0).toUpperCase() +
-      parts[parts.length - 1].charAt(0).toUpperCase()
-    );
-  };
+  
 
   return (
     <>

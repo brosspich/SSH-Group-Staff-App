@@ -90,3 +90,32 @@ export function isLeaveRole(role: any): boolean {
   }
   return false;
 }
+
+/**
+ * Formats a user role value into uppercase display text (e.g. "ADMIN, STAFF" or "—").
+ */
+export function formatRole(role: any): string {
+  if (!role) return "—";
+  if (Array.isArray(role))
+    return role.map((r) => String(r).toUpperCase()).join(", ");
+  if (typeof role === "string") return role.toUpperCase();
+  return String(role).toUpperCase();
+}
+
+/**
+ * Normalizes a role value into a clean lowercase string array (e.g. ["staff", "admin"]).
+ */
+export function formatRolesList(role: any): string[] {
+  if (!role) return ["staff"];
+  if (Array.isArray(role))
+    return role.map((r) => String(r).toLowerCase().trim());
+  if (typeof role === "string") {
+    try {
+      const parsed = JSON.parse(role);
+      if (Array.isArray(parsed))
+        return parsed.map((r) => String(r).toLowerCase().trim());
+    } catch (e) {}
+    return [role.toLowerCase().trim()];
+  }
+  return ["staff"];
+}
