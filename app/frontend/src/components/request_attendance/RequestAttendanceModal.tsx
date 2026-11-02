@@ -256,7 +256,7 @@ export function RequestAttendanceModal({
       const fromDateStr = formatDateYMD(fromDate);
       const toDateStr = formatDateYMD(toDate);
 
-      // Save directly to Supabase table ssh_group_staff_users (request_attendance_rules column)
+      // Save directly to Backend API table ssh_group_staff_users (request_attendance_rules column)
       // and send notification to Telegram
       await submitAttendanceRequest({
         user: targetUser,
@@ -950,6 +950,7 @@ const s = StyleSheet.create({
   staffMetaBold: {
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
     fontWeight: "600",
   },
   staffMetaDot: {
@@ -1036,6 +1037,7 @@ const s = StyleSheet.create({
   },
   quickSubjectTextActive: {
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
     color: AppColors.primary,
   },
   inputLabel: {
@@ -1234,5 +1236,6 @@ const s = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 15,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
 });

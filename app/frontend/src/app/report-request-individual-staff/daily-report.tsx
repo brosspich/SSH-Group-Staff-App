@@ -154,6 +154,7 @@ const s = StyleSheet.create({
     fontWeight: "bold",
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   printBtnCon: {
     backgroundColor: AppColors.background2,

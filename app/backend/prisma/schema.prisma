@@ -7,6 +7,20 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Company {
+  id               String      @id // system-0001, system-0002, system-0003
+  name             String
+  qrCodes          String?
+  location         String?     // JSON array of google maps links
+  telegramBotToken String?
+  telegramChatId   String?
+  timeIn           String?
+  timeOut          String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  users            User[]
+}
+
 model User {
   id           String         @id @default(uuid())
   username     String         @unique
@@ -15,8 +29,10 @@ model User {
   name         String?
   role         String         @default("member")
   isActive     Boolean        @default(true)
+  companyId    String?        @map("company_id")
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+  company      Company?       @relation(fields: [companyId], references: [id])
   memberships  GroupMember[]
   sshKeys      SshKey[]
 }

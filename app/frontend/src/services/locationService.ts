@@ -28,10 +28,6 @@ export const DEFAULT_COMPANY_LOCATION: CompanyLocationConfig = {
   name: "",
 };
 
-// export let COMPANY_LOCATION: CompanyLocationConfig = {
-//   ...DEFAULT_COMPANY_LOCATION,
-// };
-
 export let COMPANY_LOCATION: CompanyLocationConfig = {
   ...DEFAULT_COMPANY_LOCATION,
 };
@@ -123,7 +119,7 @@ const cachedLocationsBySystem: Record<
 const COMPANY_LOCATION_CACHE_MS = 5 * 60 * 1000; // 5 minutes cache
 
 /**
- * Fetches dynamic company location configuration directly from Supabase table `ssh-group-staff-attendance-qr`.
+ * Fetches dynamic company location configuration directly from Backend API table `ssh-group-staff-attendance-qr`.
  * Automatically matches the user's system_id (e.g. "system-0001", "system-0002", etc.)
  */
 export async function fetchCompanyLocationConfig(
@@ -147,23 +143,47 @@ export async function fetchCompanyLocationConfig(
   }
 
   try {
-    const { supabase } = require("@/utils/supabase");
+    const { apiClient } = require("@/services/api");
 
-    // Fetch directly from database table: ssh-group-staff-attendance-qr
-    const { data, error } = await supabase
-      .from("ssh-group-staff-attendance-qr")
-      .select("*");
+    // Fetch directly from backend: /company-query
+    const data = await apiClient.get("/company-query");
 
-    if (!error && data && Array.isArray(data) && data.length > 0) {
-      let row = data[0];
-      if (targetKey) {
-        const found = data.find(
-          (r: any) => extractSystemKey(String(r.id || "")) === targetKey,
-        );
-        if (found) row = found;
+    if (data && Array.isArray(data) && data.length > 0) {
+      let row = targetKey
+        ? data.find(
+            (r: any) =>
+              extractSystemKey(String(r.id || "")).toLowerCase() ===
+              targetKey.toLowerCase(),
+          )
+        : data[0];
+
+      if (!row) {
+        return DEFAULT_COMPANY_LOCATION;
       }
 
       const companyName = row["company_name"] ?? row["companyName"] ?? "";
+
+      // 1. If backend already parsed coordinates directly from database, use them!
+      if (
+        typeof row["latitude"] === "number" &&
+        typeof row["longitude"] === "number" &&
+        row["latitude"] !== 0 &&
+        row["longitude"] !== 0
+      ) {
+        const locationConfig: CompanyLocationConfig = {
+          latitude: row["latitude"],
+          longitude: row["longitude"],
+          radiusMeters: row["radius_meters"] || row["radiusMeters"] || 150,
+          name: companyName,
+        };
+        cachedLocationsBySystem[cacheKey] = {
+          loc: locationConfig,
+          timestamp: Date.now(),
+        };
+        return locationConfig;
+      }
+
+      // 2. Otherwise parse location string or links from database
       const locCol =
         row["location"] ?? row["location_links"] ?? row["locationLinks"];
 
@@ -199,12 +219,20 @@ export async function fetchCompanyLocationConfig(
           return locationConfig;
         }
       }
+
+      // If coordinates are not yet set in database, return with 0 lat/lon (no fake default)
+      return {
+        latitude: 0,
+        longitude: 0,
+        radiusMeters: 0,
+        name: companyName,
+      };
     }
   } catch (e) {
     // ignore exception
   }
 
-  return COMPANY_LOCATION;
+  return DEFAULT_COMPANY_LOCATION;
 }
 
 /**
@@ -679,8 +707,12 @@ export async function verifyAttendanceSecurity(
       };
     }
 
-    // 5. Geofence Distance Check (only if configured)
-    if (config.latitude !== 0 && config.longitude !== 0) {
+    // 5. Geofence Distance Check (strictly using database company coordinates)
+    if (
+      config.latitude !== 0 &&
+      config.longitude !== 0 &&
+      (config.radiusMeters || 0) > 0
+    ) {
       const distance = getDistanceFromLatLonInMeters(
         coords.latitude,
         coords.longitude,

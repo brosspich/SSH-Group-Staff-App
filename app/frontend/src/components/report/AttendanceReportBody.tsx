@@ -317,6 +317,7 @@ const s = StyleSheet.create({
     fontSize: 12,
     color: AppColors.secondary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   selectedStaffBox: {
     flexDirection: "row",
@@ -364,11 +365,13 @@ const s = StyleSheet.create({
     fontSize: 12,
     color: AppColors.textPrimary,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
   },
   staffChipTextActive: {
     color: AppColors.background2,
     fontWeight: "bold",
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
 
   // Summary Grid

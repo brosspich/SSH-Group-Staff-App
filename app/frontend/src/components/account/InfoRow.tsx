@@ -83,12 +83,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
     marginBottom: 2,
   },
   infoValue: {
     fontSize: 14,
     color: AppColors.textPrimary,
     fontFamily: AppFonts.medium,
+    includeFontPadding: false,
   },
   editBtn: {
     padding: 6,

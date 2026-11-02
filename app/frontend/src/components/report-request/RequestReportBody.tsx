@@ -325,6 +325,7 @@ export function RequestReportBody({
                       {
                         color: badgeColor,
                         fontFamily: AppFonts.bold,
+                        includeFontPadding: false,
                         fontWeight: "bold",
                       },
                     ]}
@@ -374,6 +375,7 @@ const s = StyleSheet.create({
     fontSize: 12,
     color: AppColors.secondary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   selectedStaffBox: {
     flexDirection: "row",
@@ -520,6 +522,7 @@ const s = StyleSheet.create({
   },
   extraLabel: {
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
     color: AppColors.textSecondary,
     fontSize: 12,
   },
@@ -527,11 +530,13 @@ const s = StyleSheet.create({
     fontSize: 12.5,
     color: AppColors.textPrimary,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
   },
   remarkText: {
     fontSize: 12,
     color: AppColors.textSecondary,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
   },
   dateRow: {
     flexDirection: "row",
@@ -543,6 +548,7 @@ const s = StyleSheet.create({
     fontSize: 11,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
   },
   conStatus: {
     borderTopWidth: 0.5,

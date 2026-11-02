@@ -5,7 +5,7 @@ import { auditController } from "./audit.controller.js";
 const router = Router();
 
 router.use(authGuard);
-router.use(requireRole(["admin", "manager"]));
+router.use(requireRole(["admin", "manager", "owner"]));
 
 router.get("/", auditController.getLogs);
 router.get("/:id", auditController.getById);

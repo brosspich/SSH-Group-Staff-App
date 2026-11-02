@@ -1,6 +1,6 @@
+import { apiClient } from "@/services/api";
 import { sendAttendanceRequestToTelegram } from "@/services/telegramService";
 import { StaffUser, userService } from "@/services/userService";
-import { supabase } from "@/utils/supabase";
 
 export interface AttendanceRequestRuleItem {
   id: string;
@@ -46,7 +46,7 @@ export function generateNextRequestId(existingRules: any[] = []): string {
 
 /**
  * Submits an attendance request:
- * 1. Saves directly into Supabase table `ssh_group_staff_users` in `request_attendance_rules` JSONB column.
+ * 1. Saves directly into Backend API table `ssh_group_staff_users` in `request_attendance_rules` JSONB column.
  * 2. Updates local user storage in AsyncStorage.
  * 3. Sends notification to all active Telegram groups.
  */
@@ -65,16 +65,14 @@ export async function submitAttendanceRequest(params: {
     throw new Error("User information is missing. Please log in again.");
   }
 
-  // 1. Fetch current request_attendance_rules from Supabase
+  // 1. Fetch current request_attendance_rules from Backend API
   let existingRules: any[] = [];
   try {
-    const { data: dbUser, error: fetchErr } = await supabase
-      .from("ssh_group_staff_users")
-      .select("request_attendance_rules")
-      .eq("id", user.id)
-      .maybeSingle();
+    const dbUser = await apiClient
+      .get<any>(`/users-query/${user.id}`)
+      .catch(() => null);
 
-    if (!fetchErr && dbUser) {
+    if (dbUser) {
       const raw = dbUser.request_attendance_rules;
       if (Array.isArray(raw)) {
         existingRules = raw;
@@ -113,19 +111,18 @@ export async function submitAttendanceRequest(params: {
 
   const updatedRules = [newRule, ...existingRules];
 
-  // 3. Save directly to Supabase table ssh_group_staff_users
-  const { error: updateError } = await supabase
-    .from("ssh_group_staff_users")
-    .update({ request_attendance_rules: updatedRules })
-    .eq("id", user.id);
-
-  if (updateError) {
+  // 3. Save directly to Backend API
+  try {
+    await apiClient.put(`/users-query/${user.id}`, {
+      request_attendance_rules: updatedRules,
+    });
+  } catch (updateError: any) {
     console.error(
-      "Failed to save request_attendance_rules to Supabase:",
+      "Failed to save request_attendance_rules to backend:",
       updateError,
     );
     throw new Error(
-      updateError.message || "Failed to save request to database.",
+      updateError?.message || "Failed to save request to database.",
     );
   }
 

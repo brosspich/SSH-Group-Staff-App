@@ -3,12 +3,16 @@ import { AuditFilterParams, AuditLog } from "../types/audit.types";
 
 export const auditApi = {
   async getAuditLogs(params?: AuditFilterParams): Promise<AuditLog[]> {
-    return await apiClient.get<AuditLog[]>("/audit-logs", {
+    const res = await apiClient.get<any>("/audit-logs", {
       params: params as Record<string, string | number | boolean | undefined>,
     });
+    if (Array.isArray(res)) return res;
+    if (res && Array.isArray(res.data)) return res.data;
+    return [];
   },
 
   async getAuditLogById(id: string): Promise<AuditLog> {
-    return await apiClient.get<AuditLog>(`/audit-logs/${id}`);
+    const res = await apiClient.get<any>(`/audit-logs/${id}`);
+    return res?.data ?? res;
   },
 };

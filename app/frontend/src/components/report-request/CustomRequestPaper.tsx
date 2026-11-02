@@ -356,6 +356,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "#94a3b8",
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
   },
   tableFooter: {
     flexDirection: "row",

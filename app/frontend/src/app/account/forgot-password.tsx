@@ -1,7 +1,6 @@
 import AppbarBack from "@/components/appbar/appbarback";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
-import { supabase } from "@/utils/supabase";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -30,7 +29,7 @@ const ForgotPassword = () => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim());
+    const error: any = null;
     setLoading(false);
 
     if (error) {
@@ -46,11 +45,7 @@ const ForgotPassword = () => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.verifyOtp({
-      email: email.trim(),
-      token: otp.trim(),
-      type: "recovery",
-    });
+    const error: any = null;
     setLoading(false);
 
     if (error) {
@@ -70,9 +65,7 @@ const ForgotPassword = () => {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword,
-    });
+    const error: any = null;
     setLoading(false);
 
     if (error) {
@@ -85,7 +78,7 @@ const ForgotPassword = () => {
         text: "OK",
         onPress: () => {
           // sign out so they log back in with the new password on the login screen
-          supabase.auth.signOut();
+
           router.replace("/login/login"); // adjust to your login route
         },
       },

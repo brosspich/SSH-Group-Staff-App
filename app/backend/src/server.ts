@@ -5,9 +5,9 @@ import { prisma } from "./infrastructure/database/prisma.js";
 
 const app = createApp();
 
-const server = app.listen(env.PORT, () => {
+const server = app.listen(env.PORT, "0.0.0.0", () => {
   Logger.info(
-    `🚀 SSH Group Backend API server is running on port ${env.PORT} in [${env.NODE_ENV}] mode.`,
+    `🚀 SSH Group Backend API server is running on http://0.0.0.0:${env.PORT} in [${env.NODE_ENV}] mode.`,
   );
 });
 

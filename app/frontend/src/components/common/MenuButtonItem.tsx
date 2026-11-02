@@ -96,11 +96,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: AppColors.textPrimary,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
   },
   txtSubtitle: {
     fontSize: 12,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
     marginTop: 2,
   },
   divider: {

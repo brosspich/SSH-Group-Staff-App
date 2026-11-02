@@ -10,23 +10,17 @@ import {
 } from "@/features/audit-logs";
 import { useResponsive } from "@/hooks/useResponsive";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
-import {
-  FlatList,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { useState } from "react";
+import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function AuditLogsScreen() {
   const insets = useSafeAreaInsets();
   const { isMobile } = useResponsive();
 
-  const [selectedAction, setSelectedAction] = useState<AuditActionType | undefined>(
-    undefined
-  );
+  const [selectedAction, setSelectedAction] = useState<
+    AuditActionType | undefined
+  >(undefined);
 
   const { logs, isLoading, refresh, setFilterParams } = useAuditLogs({
     limit: 50,
@@ -59,7 +53,8 @@ export default function AuditLogsScreen() {
           <View style={styles.header}>
             <Text style={styles.title}>System & Access Audit</Text>
             <Text style={styles.subtitle}>
-              Immutable log of check-ins, key updates, and server connections ({logs.length} events)
+              Immutable log of check-ins, key updates, and server connections (
+              {logs.length} events)
             </Text>
           </View>
 
@@ -124,11 +119,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   subtitle: {
     fontSize: 12,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
     marginTop: 2,
   },
   filterContainer: {
@@ -148,11 +145,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   emptySubtext: {
     fontSize: 13,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
     textAlign: "center",
   },
 });

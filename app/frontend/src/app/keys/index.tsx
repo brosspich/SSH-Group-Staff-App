@@ -12,7 +12,7 @@ import {
 } from "@/features/keys";
 import { useResponsive } from "@/hooks/useResponsive";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   FlatList,
@@ -67,7 +67,7 @@ export default function KeysScreen() {
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -107,18 +107,11 @@ export default function KeysScreen() {
               />
             }
             renderItem={({ item }) => (
-              <KeyItem
-                sshKey={item}
-                onDelete={handleRevokeKey}
-              />
+              <KeyItem sshKey={item} onDelete={handleRevokeKey} />
             )}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Ionicons
-                  name="key-outline"
-                  size={48}
-                  color={AppColors.grey}
-                />
+                <Ionicons name="key-outline" size={48} color={AppColors.grey} />
                 <Text style={styles.emptyText}>No SSH Keys Found</Text>
                 <Text style={styles.emptySubtext}>
                   Add an ed25519 or RSA public key to get started
@@ -164,11 +157,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   subtitle: {
     fontSize: 12,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
     marginTop: 2,
   },
   addBtn: {
@@ -184,6 +179,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#000",
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   listContent: {
     paddingBottom: 40,
@@ -199,11 +195,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   emptySubtext: {
     fontSize: 13,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
     textAlign: "center",
   },
 });

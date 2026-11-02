@@ -1,9 +1,9 @@
+import { apiClient } from "@/services/api";
 import {
   parseBotTokens,
   parseChatIds,
   setCachedTelegramConfig,
 } from "@/services/telegramService";
-import { supabase } from "@/utils/supabase";
 
 /**
  * Default fallback valid QR Code payloads for SSH Group Staff Attendance.
@@ -77,10 +77,8 @@ export async function fetchAvailableCompanySystems(): Promise<
   const systemMap = new Map<string, string | undefined>();
 
   try {
-    // 1. Fetch from ssh-group-staff-attendance-qr table
-    const { data: qrData } = await supabase
-      .from("ssh-group-staff-attendance-qr")
-      .select("id, company_name");
+    // 1. Fetch from backend /company-query
+    const qrData = await apiClient.get<any[]>("/company-query");
 
     if (qrData && Array.isArray(qrData)) {
       qrData.forEach((row: any) => {
@@ -99,10 +97,10 @@ export async function fetchAvailableCompanySystems(): Promise<
   }
 
   try {
-    // 2. Fetch distinct system_ids from ssh_group_staff_users table
-    const { data: usersData } = await supabase
-      .from("ssh_group_staff_users")
-      .select("system_id");
+    // 2. Fetch distinct system_ids from backend /users-query
+    const usersData = await apiClient
+      .get<any[]>("/users-query")
+      .catch(() => []);
 
     if (usersData && Array.isArray(usersData)) {
       usersData.forEach((row: any) => {
@@ -174,11 +172,9 @@ export async function resolveSystemKey(input?: string): Promise<string> {
   if (input && typeof input === "string") {
     const trimmed = input.trim();
     try {
-      const { data: userRow } = await supabase
-        .from("ssh_group_staff_users")
-        .select("system_id, id")
-        .or(`id.eq.${trimmed},system_id.eq.${trimmed},username.eq.${trimmed}`)
-        .maybeSingle();
+      const userRow = await apiClient
+        .get<any>(`/users-query/${trimmed}`)
+        .catch(() => null);
 
       if (userRow) {
         const uId = String(userRow.id || "").toLowerCase();
@@ -204,7 +200,7 @@ export async function resolveSystemKey(input?: string): Promise<string> {
     }
   } catch (e) {}
 
-  return "system-0001";
+  return "";
 }
 
 /**
@@ -221,7 +217,7 @@ export function getCompanyName(systemIdOrStaffId?: string): string {
       return cachedConfigsBySystem[key].config.companyName;
     }
   }
-  return fetchedCompanyName || "SSH Group";
+  return fetchedCompanyName || "";
 }
 
 /**
@@ -266,7 +262,7 @@ export function formatTimeDisplay(
 
 /**
  * Fetches official attendance QR codes, company name, location links,
- * and telegram configuration dynamically from Supabase table: ssh-group-staff-attendance-qr
+ * and telegram configuration dynamically from Backend API table: ssh-group-staff-attendance-qr
  */
 export async function fetchOfficialAttendanceConfig(
   forceRefresh: boolean = false,
@@ -294,9 +290,7 @@ export async function fetchOfficialAttendanceConfig(
   }
 
   try {
-    const { data } = await supabase
-      .from("ssh-group-staff-attendance-qr")
-      .select("*");
+    const data = await apiClient.get<any[]>("/company-query");
 
     if (data && Array.isArray(data) && data.length > 0) {
       // Pre-cache every company system configuration row from DB
@@ -373,14 +367,22 @@ export async function fetchOfficialAttendanceConfig(
         }
       });
 
-      let row = data[0];
-      if (targetKey) {
-        const found = data.find(
-          (r) =>
-            extractSystemKey(String(r.id || "")).toLowerCase() ===
-            targetKey.toLowerCase(),
-        );
-        if (found) row = found;
+      let row = targetKey
+        ? data.find(
+            (r) =>
+              extractSystemKey(String(r.id || "")).toLowerCase() ===
+              targetKey.toLowerCase(),
+          )
+        : data[0];
+
+      if (!row) {
+        return {
+          qrCodes: [],
+          companyName: "",
+          locationLinks: [],
+          timeIn: "08:00:00",
+          timeOut: "17:00:00",
+        };
       }
 
       // 1. Process QR codes
@@ -479,7 +481,7 @@ export async function fetchOfficialAttendanceConfig(
   } catch (err) {
     // Database only: errors logged without fallback
     console.warn(
-      "Exception while fetching attendance config from Supabase:",
+      "Exception while fetching attendance config from Backend API:",
       err,
     );
   }

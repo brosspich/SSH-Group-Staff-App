@@ -1,8 +1,8 @@
 import { formatDateYMD } from "@/app/(tabs)/attendance";
+import { apiClient } from "@/services/api";
 import { AttendanceRequestRuleItem } from "@/services/attendanceRequestService";
 import { StaffUser, userService } from "@/services/userService";
 import { isLeaveRole } from "@/utils/roleUtils";
-import { supabase } from "@/utils/supabase";
 import { useCallback, useEffect, useState } from "react";
 
 export type ReportType = "Daily" | "Weekly" | "Monthly" | "Annual";
@@ -119,10 +119,10 @@ export function useAttendanceRequestReportData(
       // 1. Fetch current local user
       const currentUser = await userService.get();
 
-      // 2. Fetch all staff users from Supabase table ssh_group_staff_users
-      const { data: dbUsers } = await supabase
-        .from("ssh_group_staff_users")
-        .select("*");
+      // 2. Fetch all staff users from Backend API
+      const dbUsers = await apiClient
+        .get<StaffUser[]>("/users-query")
+        .catch(() => []);
 
       let users: StaffUser[] = dbUsers || [];
       if (users.length === 0 && currentUser) {

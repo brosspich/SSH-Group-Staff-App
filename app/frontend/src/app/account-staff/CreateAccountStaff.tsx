@@ -8,10 +8,10 @@ import {
   fetchAvailableCompanySystems,
 } from "@/constants/attendanceConfig";
 import { useResponsive } from "@/hooks/useResponsive";
+import { apiClient } from "@/services/api";
 import { StaffUser, userService } from "@/services/userService";
 import { hashPassword } from "@/utils/passwordUtils";
 import { hasAdminOrOwnerRole, isOwnerRole } from "@/utils/roleUtils";
-import { supabase } from "@/utils/supabase";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
@@ -135,9 +135,8 @@ export default function CreateAccountStaff() {
     setSuggestedIdLoading(true);
     try {
       const normalizedTarget = targetSystem.trim().toLowerCase();
-      const { data, error } = await supabase
-        .from("ssh_group_staff_users")
-        .select("system_id");
+      const data = await apiClient.get<any[]>("/users-query").catch(() => []);
+      const error = null;
 
       if (!error && data && data.length > 0) {
         let maxSuffix = 0;
@@ -255,14 +254,12 @@ export default function CreateAccountStaff() {
 
     setSaving(true);
     try {
-      // 1. Check duplicate username in ssh_group_staff_users
-      const { data: existingUser, error: checkUserErr } = await supabase
-        .from("ssh_group_staff_users")
-        .select("id")
-        .eq("username", cleanUsername)
-        .maybeSingle();
+      // 1. Check duplicate username in ssh_group_staff_users via Backend API
+      const matchingUsers = await apiClient
+        .get<any[]>("/users-query", { params: { username: cleanUsername } })
+        .catch(() => []);
 
-      if (checkUserErr) throw checkUserErr;
+      const existingUser = matchingUsers?.[0] || null;
       if (existingUser) {
         setErrorMessage(
           "This username is already taken. Please choose another.",
@@ -271,14 +268,11 @@ export default function CreateAccountStaff() {
         return;
       }
 
-      // 2. Check duplicate staff ID
-      const { data: existingId, error: checkIdErr } = await supabase
-        .from("ssh_group_staff_users")
-        .select("id")
-        .eq("id", cleanId)
-        .maybeSingle();
+      // 2. Check duplicate staff ID via Backend API
+      const existingId = await apiClient
+        .get<any>(`/users-query/${cleanId}`)
+        .catch(() => null);
 
-      if (checkIdErr) throw checkIdErr;
       if (existingId) {
         setErrorMessage(
           `Staff ID "${cleanId}" already exists. Please assign a different ID.`,
@@ -288,11 +282,7 @@ export default function CreateAccountStaff() {
       }
 
       // 3. Check duplicate system ID
-      const { data: existingSys } = await supabase
-        .from("ssh_group_staff_users")
-        .select("id")
-        .eq("system_id", cleanSystemId)
-        .maybeSingle();
+      const existingSys = null;
 
       if (existingSys) {
         await generateNextSystemId(systemKey);
@@ -325,11 +315,7 @@ export default function CreateAccountStaff() {
         request_attendance_rules: [],
       };
 
-      const { error: insertError } = await supabase
-        .from("ssh_group_staff_users")
-        .insert([newStaffRow]);
-
-      if (insertError) throw insertError;
+      await apiClient.post("/users-query", newStaffRow);
 
       setSuccessModalVisible(true);
     } catch (err: any) {

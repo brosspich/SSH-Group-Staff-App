@@ -143,11 +143,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   subtitle: {
     fontSize: 12,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
     marginTop: 2,
   },
   listContent: {
@@ -164,11 +166,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   emptySubtext: {
     fontSize: 13,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
     textAlign: "center",
   },
   modalOverlay: {
@@ -203,11 +207,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   modalSubtitle: {
     fontSize: 12,
     color: AppColors.grey,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
     marginTop: 2,
   },
   closeBtn: {

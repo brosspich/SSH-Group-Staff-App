@@ -7,19 +7,25 @@ import {
 
 export const sshGroupApi = {
   async getGroups(): Promise<SshGroup[]> {
-    return await apiClient.get<SshGroup[]>("/ssh-groups");
+    const res = await apiClient.get<any>("/ssh-groups");
+    if (Array.isArray(res)) return res;
+    if (res && Array.isArray(res.data)) return res.data;
+    return [];
   },
 
   async getGroupById(id: string): Promise<SshGroup> {
-    return await apiClient.get<SshGroup>(`/ssh-groups/${id}`);
+    const res = await apiClient.get<any>(`/ssh-groups/${id}`);
+    return res?.data ?? res;
   },
 
   async createGroup(data: CreateGroupDTO): Promise<SshGroup> {
-    return await apiClient.post<SshGroup>("/ssh-groups", data);
+    const res = await apiClient.post<any>("/ssh-groups", data);
+    return res?.data ?? res;
   },
 
   async updateGroup(id: string, data: UpdateGroupDTO): Promise<SshGroup> {
-    return await apiClient.put<SshGroup>(`/ssh-groups/${id}`, data);
+    const res = await apiClient.put<any>(`/ssh-groups/${id}`, data);
+    return res?.data ?? res;
   },
 
   async deleteGroup(id: string): Promise<void> {

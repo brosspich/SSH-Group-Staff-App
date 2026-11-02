@@ -167,6 +167,7 @@ const s = StyleSheet.create({
     fontWeight: "bold",
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   navBtn: {
     padding: 6,

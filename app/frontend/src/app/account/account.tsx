@@ -5,9 +5,9 @@ import { renderLogoutModal } from "@/components/logout/logoutModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
+import { apiClient } from "@/services/api";
 import { StaffUser, userService } from "@/services/userService";
 import { formatJoinedDisplay, getTwoInitials } from "@/utils/formatters";
-import { supabase } from "@/utils/supabase";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useState } from "react";
@@ -35,55 +35,7 @@ export default function Account() {
     });
   }, []);
 
-  // 🔴 Real-time: keep this user row in sync with ssh_group_staff_users
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const channelName = `ssh-group-staff-user-${user.id}`;
-
-    const existing = supabase
-      .getChannels()
-      .find((ch) => ch.topic === `realtime:${channelName}`);
-    if (existing) {
-      supabase.removeChannel(existing);
-    }
-
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "ssh_group_staff_users",
-          filter: `id=eq.${user.id}`,
-        },
-        async (payload) => {
-          if (payload.eventType === "DELETE") {
-            await userService.clear();
-            setUser(null);
-            return;
-          }
-          const { data: dbUser } = await supabase
-            .from("ssh_group_staff_users")
-            .select("*")
-            .eq("id", user.id)
-            .maybeSingle();
-
-          if (!dbUser) return;
-          const updated = dbUser as StaffUser;
-          await userService.save(updated); // keep AsyncStorage in sync
-          setUser(updated);
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id]);
-
-  // 🔽 Pull-to-refresh: manually re-fetch the current user row from Supabase
+  // 🔽 Pull-to-refresh: manually re-fetch the current user row from api
   const onRefresh = useCallback(async () => {
     const current = await userService.get();
     if (!current?.id) {
@@ -93,13 +45,10 @@ export default function Account() {
 
     setRefreshing(true);
     try {
-      const { data, error } = await supabase
-        .from("ssh_group_staff_users")
-        .select("*")
-        .eq("id", current.id)
-        .single();
-
-      if (!error && data) {
+      const data = await apiClient
+        .get<StaffUser>(`/users-query/${current.id}`)
+        .catch(() => null);
+      if (data) {
         await userService.save(data as StaffUser);
         setUser(data as StaffUser);
       }

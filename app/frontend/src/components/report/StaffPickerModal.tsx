@@ -385,5 +385,6 @@ const s = StyleSheet.create({
     color: AppColors.grey,
     marginTop: 8,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
   },
 });

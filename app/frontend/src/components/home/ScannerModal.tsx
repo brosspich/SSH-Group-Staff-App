@@ -332,6 +332,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: 12,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   webFallbackSub: {
     color: AppColors.grey,
@@ -340,5 +341,6 @@ const styles = StyleSheet.create({
     marginTop: 6,
     lineHeight: 18,
     fontFamily: AppFonts.regular,
+    includeFontPadding: false,
   },
 });

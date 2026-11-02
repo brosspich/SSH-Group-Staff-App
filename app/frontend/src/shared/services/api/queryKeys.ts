@@ -27,4 +27,15 @@ export const queryKeys = {
     list: (params?: Record<string, unknown>) =>
       [...queryKeys.auditLogs.all, 'list', params] as const,
   },
+  company: {
+    all: ['company'] as const,
+    list: () => [...queryKeys.company.all, 'list'] as const,
+    config: (systemId?: string) =>
+      [...queryKeys.company.all, 'config', systemId || 'default'] as const,
+  },
+  staff: {
+    all: ['staff'] as const,
+    current: () => [...queryKeys.staff.all, 'current'] as const,
+    detail: (id: string) => [...queryKeys.staff.all, 'detail', id] as const,
+  },
 } as const;

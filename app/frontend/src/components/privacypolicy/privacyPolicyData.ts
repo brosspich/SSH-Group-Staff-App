@@ -38,7 +38,7 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
     },
     {
       title: "4. Data Storage, Security & Cloud Backend",
-      body: "• Cloud Infrastructure: All backend services and operational databases are hosted on Supabase (PostgreSQL enterprise cloud database).\n• Row-Level Security (RLS): Database tables are protected by granular Row-Level Security policies ensuring only authenticated staff and administrators with proper authorization can read or write relevant records.\n• Cryptographic Password Protection: Passwords are salted and securely hashed using bcrypt prior to database insertion; raw passwords are never stored or transmitted in plain text.\n• Encryption in Transit: All client-to-server communications are conducted over modern, TLS/HTTPS 1.3 encrypted network connections.\n• Secure On-Device Storage: Authentication session tokens and security credentials are stored in hardware-backed secure storage using Expo SecureStore.",
+      body: "• Cloud Infrastructure: All backend services and operational databases are hosted on Backend API (PostgreSQL enterprise cloud database).\n• Row-Level Security (RLS): Database tables are protected by granular Row-Level Security policies ensuring only authenticated staff and administrators with proper authorization can read or write relevant records.\n• Cryptographic Password Protection: Passwords are salted and securely hashed using bcrypt prior to database insertion; raw passwords are never stored or transmitted in plain text.\n• Encryption in Transit: All client-to-server communications are conducted over modern, TLS/HTTPS 1.3 encrypted network connections.\n• Secure On-Device Storage: Authentication session tokens and security credentials are stored in hardware-backed secure storage using Expo SecureStore.",
     },
     {
       title: "5. Multi-Branch & Multi-System Isolation",
@@ -46,7 +46,7 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
     },
     {
       title: "6. Third-Party Integrations & Services",
-      body: "The application relies on a minimal set of trusted enterprise services:\n\n• Supabase Inc.: Database hosting, user authentication, and real-time database update subscriptions.\n• Telegram API: Used strictly for outbound internal administrative notification dispatching regarding attendance events and requests.\n• Expo Framework: Native device integration libraries for camera, location, storage, and document sharing.\n\nNo advertising SDKs, tracking pixels, behavioral analytical trackers, or third-party marketing tools are present in this application.",
+      body: "The application relies on a minimal set of trusted enterprise services:\n\n• Backend API Inc.: Database hosting, user authentication, and real-time database update subscriptions.\n• Telegram API: Used strictly for outbound internal administrative notification dispatching regarding attendance events and requests.\n• Expo Framework: Native device integration libraries for camera, location, storage, and document sharing.\n\nNo advertising SDKs, tracking pixels, behavioral analytical trackers, or third-party marketing tools are present in this application.",
     },
     {
       title: "7. User Rights & Account Deletion",
@@ -80,7 +80,7 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
     },
     {
       title: "4. 数据存储、安全与云端架构",
-      body: "• 云端数据库托管：应用程序使用 Supabase（PostgreSQL 企业级云数据库平台）存储所有业务数据与考勤日志。\n• 行级安全策略（RLS）：数据库表受到严格的行级安全控制，确保只有获得合法授权的员工和管理员才能读取或修改所属数据。\n• 密码加盐哈希加密：用户密码在存入数据库前均使用行业标准 bcrypt 进行加盐哈希加密处理，服务器端绝不保存或显示明文密码。\n• 传输过程加密：应用与服务器之间的所有数据传输均采用现代 TLS/HTTPS 1.3 加密协议。\n• 本地硬件密钥保护：访问令牌及敏感凭证使用硬件级加密的 Expo SecureStore 安全保存在您的移动设备本地。",
+      body: "• 云端数据库托管：应用程序使用 Backend API（PostgreSQL 企业级云数据库平台）存储所有业务数据与考勤日志。\n• 行级安全策略（RLS）：数据库表受到严格的行级安全控制，确保只有获得合法授权的员工和管理员才能读取或修改所属数据。\n• 密码加盐哈希加密：用户密码在存入数据库前均使用行业标准 bcrypt 进行加盐哈希加密处理，服务器端绝不保存或显示明文密码。\n• 传输过程加密：应用与服务器之间的所有数据传输均采用现代 TLS/HTTPS 1.3 加密协议。\n• 本地硬件密钥保护：访问令牌及敏感凭证使用硬件级加密的 Expo SecureStore 安全保存在您的移动设备本地。",
     },
     {
       title: "5. 多分部与多系统数据隔离",
@@ -88,7 +88,7 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
     },
     {
       title: "6. 第三方服务集成",
-      body: "本应用仅集成必要的企业级基础设施服务：\n\n• Supabase Inc.：提供数据库存储、身份认证及实时变更流服务。\n• Telegram API：用于向内部管理频道发送有关打卡和申请的行政通知。\n• Expo 框架：提供摄像头、位置、硬件存储及文档分享等原生设备能力。\n\n应用内不包含任何第三方广告 SDK、用户行为分析追踪器或数据经纪人插件。",
+      body: "本应用仅集成必要的企业级基础设施服务：\n\n• Backend API Inc.：提供数据库存储、身份认证及实时变更流服务。\n• Telegram API：用于向内部管理频道发送有关打卡和申请的行政通知。\n• Expo 框架：提供摄像头、位置、硬件存储及文档分享等原生设备能力。\n\n应用内不包含任何第三方广告 SDK、用户行为分析追踪器或数据经纪人插件。",
     },
     {
       title: "7. 用户权利与账户注销",
@@ -122,7 +122,7 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
     },
     {
       title: "4. ការរក្សាទុក សុវត្ថិភាពទិន្នន័យ និងប្រព័ន្ធពពក",
-      body: "• ប្រព័ន្ធមូលដ្ឋានទិន្នន័យពពក៖ ទិន្នន័យទាំងអស់ត្រូវបានរក្សាទុកនៅលើ Supabase (PostgreSQL Cloud Database ប្រកបដោយសុវត្ថិភាពខ្ពស់)។\n• សុវត្ថិភាពកម្រិតជួរទិន្នន័យ (RLS)៖ តារាងទិន្នន័យត្រូវបានការពារដោយគោលការណ៍ Row-Level Security យ៉ាងតឹងរ៉ឹង ដែលធានាថាមានតែបុគ្គលិក និងអ្នកគ្រប់គ្រងដែលមានសិទ្ធិប៉ុណ្ណោះដែលអាចអាន ឬកែប្រែទិន្នន័យបាន។\n• ការការពារពាក្យសម្ងាត់៖ ពាក្យសម្ងាត់ទាំងអស់ត្រូវបានបំប្លែងកូដសម្ងាត់យ៉ាងរឹងមាំដោយប្រើប្រាស់ក្បួន bcrypt មុនពេលរក្សាទុកក្នុងមូលដ្ឋានទិន្នន័យ។\n• ការបំប្លែងកូដពេលបញ្ជូន៖ រាល់ការបញ្ជូនទិន្នន័យរវាងទូរស័ព្ទ និងម៉ាស៊ីនបម្រើ ត្រូវបានការពារដោយពិធីសារសុវត្ថិភាពទំនើប TLS/HTTPS 1.3។\n• សុវត្ថិភាពក្នុងឧបករណ៍៖ ថូខិនផ្ទៀងផ្ទាត់ត្រូវបានរក្សាទុកយ៉ាងមានសុវត្ថិភាពក្នុង hardware-backed keychain នៃទូរស័ព្ទតាមរយៈ Expo SecureStore។",
+      body: "• ប្រព័ន្ធមូលដ្ឋានទិន្នន័យពពក៖ ទិន្នន័យទាំងអស់ត្រូវបានរក្សាទុកនៅលើ Backend API (PostgreSQL Cloud Database ប្រកបដោយសុវត្ថិភាពខ្ពស់)។\n• សុវត្ថិភាពកម្រិតជួរទិន្នន័យ (RLS)៖ តារាងទិន្នន័យត្រូវបានការពារដោយគោលការណ៍ Row-Level Security យ៉ាងតឹងរ៉ឹង ដែលធានាថាមានតែបុគ្គលិក និងអ្នកគ្រប់គ្រងដែលមានសិទ្ធិប៉ុណ្ណោះដែលអាចអាន ឬកែប្រែទិន្នន័យបាន។\n• ការការពារពាក្យសម្ងាត់៖ ពាក្យសម្ងាត់ទាំងអស់ត្រូវបានបំប្លែងកូដសម្ងាត់យ៉ាងរឹងមាំដោយប្រើប្រាស់ក្បួន bcrypt មុនពេលរក្សាទុកក្នុងមូលដ្ឋានទិន្នន័យ។\n• ការបំប្លែងកូដពេលបញ្ជូន៖ រាល់ការបញ្ជូនទិន្នន័យរវាងទូរស័ព្ទ និងម៉ាស៊ីនបម្រើ ត្រូវបានការពារដោយពិធីសារសុវត្ថិភាពទំនើប TLS/HTTPS 1.3។\n• សុវត្ថិភាពក្នុងឧបករណ៍៖ ថូខិនផ្ទៀងផ្ទាត់ត្រូវបានរក្សាទុកយ៉ាងមានសុវត្ថិភាពក្នុង hardware-backed keychain នៃទូរស័ព្ទតាមរយៈ Expo SecureStore។",
     },
     {
       title: "5. ការបែងចែកទិន្នន័យតាមសាខា (Multi-System)",
@@ -130,7 +130,7 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
     },
     {
       title: "6. សេវាកម្មតតិយភាគី",
-      body: "កម្មវិធីនេះប្រើប្រាស់តែសេវាកម្មសហគ្រាសសំខាន់ៗដែលគួរឱ្យទុកចិត្តប៉ុណ្ណោះ៖\n\n• Supabase Inc.៖ សម្រាប់ការរក្សាទុកទិន្នន័យពពក ការផ្ទៀងផ្ទាត់គណនី និងការធ្វើសមកាលកម្មទិន្នន័យភ្លាមៗ។\n• Telegram API៖ សម្រាប់ផ្ញើសារជូនដំណឹងផ្ទៃក្នុងអំពីវត្តមាន និងសំណើច្បាប់ទៅកាន់ថ្នាក់ដឹកនាំក្រុមហ៊ុន។\n• ក្របខណ្ឌ Expo៖ សម្រាប់ការភ្ជាប់មុខងារប្រព័ន្ធទូរស័ព្ទ (កាមេរ៉ា, ទីតាំង, ការចែករំលែកឯកសារ)។\n\nកម្មវិធីនេះគ្មានការបង្កប់ផ្ទាំងពាណិជ្ជកម្ម (Ads) ឬឧបករណ៍តាមដានទិន្នន័យសម្រាប់ភាគីទីបីឡើយ។",
+      body: "កម្មវិធីនេះប្រើប្រាស់តែសេវាកម្មសហគ្រាសសំខាន់ៗដែលគួរឱ្យទុកចិត្តប៉ុណ្ណោះ៖\n\n• Backend API Inc.៖ សម្រាប់ការរក្សាទុកទិន្នន័យពពក ការផ្ទៀងផ្ទាត់គណនី និងការធ្វើសមកាលកម្មទិន្នន័យភ្លាមៗ។\n• Telegram API៖ សម្រាប់ផ្ញើសារជូនដំណឹងផ្ទៃក្នុងអំពីវត្តមាន និងសំណើច្បាប់ទៅកាន់ថ្នាក់ដឹកនាំក្រុមហ៊ុន។\n• ក្របខណ្ឌ Expo៖ សម្រាប់ការភ្ជាប់មុខងារប្រព័ន្ធទូរស័ព្ទ (កាមេរ៉ា, ទីតាំង, ការចែករំលែកឯកសារ)។\n\nកម្មវិធីនេះគ្មានការបង្កប់ផ្ទាំងពាណិជ្ជកម្ម (Ads) ឬឧបករណ៍តាមដានទិន្នន័យសម្រាប់ភាគីទីបីឡើយ។",
     },
     {
       title: "7. សិទ្ធិរបស់អ្នកប្រើប្រាស់ និងការលុបគណនី",

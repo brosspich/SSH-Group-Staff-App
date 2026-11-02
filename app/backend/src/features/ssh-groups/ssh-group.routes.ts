@@ -15,16 +15,20 @@ router.get("/", sshGroupController.getAll);
 router.get("/:id", sshGroupController.getById);
 router.post(
   "/",
-  requireRole(["admin", "manager"]),
+  requireRole(["admin", "manager", "owner"]),
   validateBody(createSshGroupSchema),
   sshGroupController.create,
 );
 router.put(
   "/:id",
-  requireRole(["admin", "manager"]),
+  requireRole(["admin", "manager", "owner"]),
   validateBody(updateSshGroupSchema),
   sshGroupController.update,
 );
-router.delete("/:id", requireRole(["admin"]), sshGroupController.delete);
+router.delete(
+  "/:id",
+  requireRole(["admin", "owner"]),
+  sshGroupController.delete,
+);
 
 export const sshGroupRoutes = router;

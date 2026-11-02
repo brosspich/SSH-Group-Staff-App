@@ -3,15 +3,20 @@ import { SshKey, UploadKeyDTO } from "../types/key.types";
 
 export const keyApi = {
   async getKeys(): Promise<SshKey[]> {
-    return await apiClient.get<SshKey[]>("/keys");
+    const res = await apiClient.get<any>("/keys");
+    if (Array.isArray(res)) return res;
+    if (res && Array.isArray(res.data)) return res.data;
+    return [];
   },
 
   async getKeyById(id: string): Promise<SshKey> {
-    return await apiClient.get<SshKey>(`/keys/${id}`);
+    const res = await apiClient.get<any>(`/keys/${id}`);
+    return res?.data ?? res;
   },
 
   async uploadKey(dto: UploadKeyDTO): Promise<SshKey> {
-    return await apiClient.post<SshKey>("/keys", dto);
+    const res = await apiClient.post<any>("/keys", dto);
+    return res?.data ?? res;
   },
 
   async deleteKey(id: string): Promise<void> {

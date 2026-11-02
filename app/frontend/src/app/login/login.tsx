@@ -4,10 +4,10 @@ import { AppFonts } from "@/constants/appfonts";
 import { AppImages } from "@/constants/appImages";
 import { useUser } from "@/contexts/UserContext";
 import { useResponsive } from "@/hooks/useResponsive";
+import { apiClient } from "@/services/api";
 import { userService } from "@/services/userService";
 import { syncDeviceSession } from "@/utils/deviceSession";
 import { isLeaveRole } from "@/utils/roleUtils";
-import { supabase } from "@/utils/supabase";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import bcrypt from "bcryptjs";
@@ -74,31 +74,27 @@ export default function LoginScreen() {
       // Escape SQL wildcards (% and _) for ilike pattern matching
       const escapedInput = cleanInput.replace(/[%_\\]/g, "\\$&");
 
-      // Search by username OR email using ilike (case-insensitive)
-      const { data, error: dbError } = await supabase
-        .from("ssh_group_staff_users")
-        .select(
-          "id, system_id, name, role, username, password, email, phone, position, devices",
-        )
-        .or(`username.ilike.${escapedInput},email.ilike.${escapedInput}`)
-        .maybeSingle();
+      // Search by username OR email via Backend API
+      const users = await apiClient
+        .get<any[]>("/users-query", {
+          params: { search: cleanInput },
+        })
+        .catch((err) => {
+          console.warn("Login API error:", err);
+          return null;
+        });
 
-      if (dbError) {
-        // This branch ONLY fires for real DB/RLS errors, not "no rows".
-        console.warn("Login DB error:", dbError.code, dbError.message);
-        if (
-          dbError.code === "42501" ||
-          dbError.message?.includes("permission")
-        ) {
-          setError("Server permission error. Contact admin.");
-        } else if (dbError.code === "PGRST116") {
-          // Multiple rows matched — duplicate usernames in the table
-          setError("Account conflict. Contact admin.");
-        } else {
-          setError("Unable to reach server. Try again.");
-        }
+      if (!users) {
+        setError("Unable to reach server. Try again.");
         return;
       }
+
+      const data = users.find(
+        (u) =>
+          u.username?.toLowerCase() === cleanInput.toLowerCase() ||
+          u.email?.toLowerCase() === cleanInput.toLowerCase() ||
+          u.id?.toLowerCase() === cleanInput.toLowerCase(),
+      );
 
       if (!data) {
         console.warn("Login: no user row found for input:", cleanInput);

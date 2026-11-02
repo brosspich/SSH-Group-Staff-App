@@ -246,7 +246,7 @@ const cal = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  dayText: { fontSize: 13, fontFamily: AppFonts.regular },
+  dayText: { fontSize: 13, fontFamily: AppFonts.regular, includeFontPadding: false },
   todayText: {
     fontWeight: "700",
     color: AppColors.secondary,

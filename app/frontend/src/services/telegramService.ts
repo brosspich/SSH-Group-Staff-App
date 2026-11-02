@@ -1,5 +1,5 @@
 import { AttendanceRecord } from "@/app/(tabs)/index";
-import { supabase } from "@/utils/supabase";
+import { apiClient } from "@/services/api";
 
 // Fallback configuration from environment variables
 // const DEFAULT_BOT_TOKEN =
@@ -130,7 +130,7 @@ export function setCachedTelegramConfig(
 }
 
 /**
- * Fetches Telegram Bot Token and Chat IDs dynamically from Supabase table: `ssh-group-staff-attendance-qr`.
+ * Fetches Telegram Bot Token and Chat IDs dynamically from Backend API table: `ssh-group-staff-attendance-qr`.
  * Uses cached values if fetched within CACHE_TTL_MS unless forceRefresh is true.
  */
 export async function fetchTelegramConfigFromDB(
@@ -154,16 +154,9 @@ export async function fetchTelegramConfigFromDB(
   }
 
   try {
-    const { data, error } = await supabase
-      .from("ssh-group-staff-attendance-qr")
-      .select("*");
+    const data = await apiClient.get<any[]>("/company-query");
 
-    if (error) {
-      console.warn(
-        "Failed to fetch Telegram config from Supabase:",
-        error.message,
-      );
-    } else if (data && Array.isArray(data) && data.length > 0) {
+    if (data && Array.isArray(data) && data.length > 0) {
       let row = data[0];
       if (targetKey) {
         const found = data.find(
@@ -207,7 +200,7 @@ export async function fetchTelegramConfigFromDB(
     }
   } catch (err) {
     console.warn(
-      "Exception while fetching Telegram config from Supabase:",
+      "Exception while fetching Telegram config from Backend API:",
       err,
     );
   }
@@ -339,7 +332,7 @@ async function sendTelegramSingleMessage(
 
 /**
  * Sends attendance log details to ALL active Telegram groups.
- * Dynamically retrieves Bot Token and Chat IDs from Supabase table `ssh-group-staff-attendance-qr`.
+ * Dynamically retrieves Bot Token and Chat IDs from Backend API table `ssh-group-staff-attendance-qr`.
  * Non-blocking operation: errors are logged silently to ensure scan flow is unaffected.
  */
 export async function sendAttendanceToTelegram(

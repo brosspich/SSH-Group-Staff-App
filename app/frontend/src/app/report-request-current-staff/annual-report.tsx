@@ -154,6 +154,7 @@ const s = StyleSheet.create({
     fontWeight: "bold",
     color: AppColors.textSecondary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
     marginBottom: 8,
   },
   yearNav: {
@@ -171,6 +172,7 @@ const s = StyleSheet.create({
     fontWeight: "bold",
     color: AppColors.textPrimary,
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   printBtnCon: {
     backgroundColor: AppColors.background2,

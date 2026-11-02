@@ -947,6 +947,7 @@ export default function Devices() {
                 <Text
                   style={{
                     fontFamily: AppFonts.regular,
+                    includeFontPadding: false,
                     color: AppColors.textPrimary,
                     fontSize: 14,
                     lineHeight: 20,

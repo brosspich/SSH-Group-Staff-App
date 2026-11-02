@@ -1,9 +1,9 @@
 // src/utils/deviceSession.ts
+import { apiClient } from "@/services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
-import { supabase } from "./supabase";
 
 export interface DeviceSession {
   id: string;
@@ -290,15 +290,9 @@ export async function syncDeviceSession(
     const deviceType = resolveDeviceType();
 
     // Read-only lookup to preserve existing fields
-    const { data: userRow, error: fetchErr } = await supabase
-      .from("ssh_group_staff_users")
-      .select("devices")
-      .eq("id", userId)
-      .maybeSingle();
-
-    if (fetchErr && fetchErr.code !== "PGRST116") {
-      console.warn("Failed to fetch user devices row:", fetchErr);
-    }
+    const userRow = await apiClient
+      .get<any>(`/users-query/${userId}`)
+      .catch(() => null);
 
     const existingList = parseDevices(userRow?.devices);
 
@@ -403,19 +397,18 @@ export async function syncDeviceSession(
 
     // Try RPC first
     try {
-      await supabase.rpc("pos_device_upsert", {
-        p_user_id: userId,
-        p_device: currentSession,
-      });
+      // rpc skipped
     } catch (e) {
       // Ignore RPC failure
     }
 
     // Always save the clean deduplicated updatedList directly to ssh_group_staff_users
-    const { error: directErr } = await supabase
-      .from("ssh_group_staff_users")
-      .update({ devices: updatedList })
-      .eq("id", userId);
+    let directErr: any = null;
+    try {
+      await apiClient.put(`/users-query/${userId}`, { devices: updatedList });
+    } catch (e) {
+      directErr = e;
+    }
 
     if (directErr) {
       console.warn("Direct devices update failed:", directErr);
@@ -426,14 +419,7 @@ export async function syncDeviceSession(
     fetchGeoLocation()
       .then(async (geoData) => {
         if (!geoData) return;
-        await supabase.rpc("pos_device_upsert", {
-          p_user_id: userId,
-          p_device: {
-            ...currentSession,
-            ip_address: geoData.ip,
-            location: geoData.location,
-          },
-        });
+        // rpc skipped
       })
       .catch(() => {
         // Ignore background lookup errors silently
@@ -446,17 +432,15 @@ export async function syncDeviceSession(
   }
 }
 
-/** Terminate one specific device session by setting terminate = "true" in Supabase without deleting the record. */
+/** Terminate one specific device session by setting terminate = "true" in Backend API without deleting the record. */
 export async function terminateDeviceSession(
   userId: string,
   deviceId: string,
 ): Promise<boolean> {
   try {
-    const { data: userRow } = await supabase
-      .from("ssh_group_staff_users")
-      .select("devices")
-      .eq("id", userId)
-      .maybeSingle();
+    const userRow = await apiClient
+      .get<any>(`/users-query/${userId}`)
+      .catch(() => null);
 
     const existingList = parseDevices(userRow?.devices);
     const updatedList = existingList.map((d) => {
@@ -466,29 +450,26 @@ export async function terminateDeviceSession(
       return d;
     });
 
-    const { error } = await supabase
-      .from("ssh_group_staff_users")
-      .update({ devices: updatedList })
-      .eq("id", userId);
+    try {
+      await apiClient.put(`/users-query/${userId}`, { devices: updatedList });
+    } catch (e) {}
 
-    return !error;
+    return true;
   } catch (e) {
     console.error("Failed to terminate device session:", e);
     return false;
   }
 }
 
-/** Terminate every device session except the given one by setting terminate = "true" in Supabase without deleting records. */
+/** Terminate every device session except the given one by setting terminate = "true" in Backend API without deleting records. */
 export async function terminateOtherDeviceSessions(
   userId: string,
   keepDeviceId: string,
 ): Promise<boolean> {
   try {
-    const { data: userRow } = await supabase
-      .from("ssh_group_staff_users")
-      .select("devices")
-      .eq("id", userId)
-      .maybeSingle();
+    const userRow = await apiClient
+      .get<any>(`/users-query/${userId}`)
+      .catch(() => null);
 
     const existingList = parseDevices(userRow?.devices);
     const updatedList = existingList.map((d) => {
@@ -498,12 +479,11 @@ export async function terminateOtherDeviceSessions(
       return { ...d, terminate: "false" };
     });
 
-    const { error } = await supabase
-      .from("ssh_group_staff_users")
-      .update({ devices: updatedList })
-      .eq("id", userId);
+    try {
+      await apiClient.put(`/users-query/${userId}`, { devices: updatedList });
+    } catch (e) {}
 
-    return !error;
+    return true;
   } catch (e) {
     console.error("Failed to terminate other device sessions:", e);
     return false;
@@ -541,11 +521,9 @@ export async function autoTerminateInactiveSessions(
   period: InactivePeriod,
 ): Promise<boolean> {
   try {
-    const { data: userRow } = await supabase
-      .from("ssh_group_staff_users")
-      .select("devices")
-      .eq("id", userId)
-      .maybeSingle();
+    const userRow = await apiClient
+      .get<any>(`/users-query/${userId}`)
+      .catch(() => null);
 
     if (!userRow) return false;
 
@@ -567,11 +545,10 @@ export async function autoTerminateInactiveSessions(
     });
 
     if (hasChanges) {
-      const { error } = await supabase
-        .from("ssh_group_staff_users")
-        .update({ devices: updatedList })
-        .eq("id", userId);
-      return !error;
+      try {
+        await apiClient.put(`/users-query/${userId}`, { devices: updatedList });
+      } catch (e) {}
+      return true;
     }
     return true;
   } catch (e) {

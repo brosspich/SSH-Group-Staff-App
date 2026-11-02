@@ -360,6 +360,7 @@ const s = StyleSheet.create({
     color: "#ffffff",
     fontWeight: "700",
     fontFamily: AppFonts.bold,
+    includeFontPadding: false,
   },
   disabledText: {
     color: "#d1d5db",

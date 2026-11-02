@@ -1,10 +1,10 @@
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
+import { apiClient } from "@/services/api";
 import { StaffUser, userService } from "@/services/userService";
 import { hashPassword } from "@/utils/passwordUtils";
-import { isOwnerRole, formatRolesList } from "@/utils/roleUtils";
-import { supabase } from "@/utils/supabase";
+import { formatRolesList, isOwnerRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
@@ -42,8 +42,6 @@ const COMMON_POSITIONS = [
 ];
 
 const AVAILABLE_ROLES = ["staff", "admin", "leave"] as const;
-
-
 
 interface EditStaffModalProps {
   visible: boolean;
@@ -190,16 +188,13 @@ export default function EditStaffModal({
 
     setSavingEdit(true);
     try {
-      // 1. Uniqueness check for username if changed
+      // 1. Uniqueness check for username if changed via Backend API
       if (cleanUsername !== (staff.username || "").toLowerCase().trim()) {
-        const { data: existingUser, error: checkError } = await supabase
-          .from("ssh_group_staff_users")
-          .select("id")
-          .eq("username", cleanUsername)
-          .neq("id", staff.id)
-          .maybeSingle();
+        const matches = await apiClient
+          .get<any[]>("/users-query", { params: { username: cleanUsername } })
+          .catch(() => []);
 
-        if (checkError) throw checkError;
+        const existingUser = matches.find((u: any) => u.id !== staff.id);
         if (existingUser) {
           setEditError("This username is already taken by another account.");
           setSavingEdit(false);
@@ -225,15 +220,11 @@ export default function EditStaffModal({
         updatePayload.password = hashPassword(newPassword.trim());
       }
 
-      // 4. Update in Supabase
-      const { data: updatedData, error: updateError } = await supabase
-        .from("ssh_group_staff_users")
-        .update(updatePayload)
-        .eq("id", staff.id)
-        .select()
-        .single();
-
-      if (updateError) throw updateError;
+      // 4. Update in Backend API
+      const updatedData = await apiClient.put<any>(
+        `/users-query/${staff.id}`,
+        updatePayload,
+      );
 
       // 5. If updating currently logged in user, refresh local user storage
       if (currentUser?.id === staff.id && updatedData) {

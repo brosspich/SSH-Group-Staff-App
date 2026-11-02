@@ -1,4 +1,5 @@
 import { secureStorage } from '../storage/secureStore.service';
+import { userService } from '@/services/userService';
 import { ApiError } from './apiError';
 
 export interface RequestOptions extends RequestInit {
@@ -8,8 +9,8 @@ export interface RequestOptions extends RequestInit {
 export class ApiClient {
   private baseUrl: string;
 
-  constructor(baseUrl: string = process.env.EXPO_PUBLIC_API_URL || 'https://api.yourdomain.com') {
-    this.baseUrl = baseUrl;
+  constructor(baseUrl: string = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.3:4000') {
+    this.baseUrl = baseUrl.replace(/\/+$/, '');
   }
 
   private async getAuthToken(): Promise<string | null> {
@@ -17,7 +18,15 @@ export class ApiClient {
   }
 
   private buildUrl(path: string, params?: Record<string, string | number | boolean | undefined>): string {
-    const url = new URL(path.startsWith('http') ? path : `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`);
+    const isAbsolute = path.startsWith('http://') || path.startsWith('https://');
+    let fullUrl = path;
+
+    if (!isAbsolute) {
+      const cleanPath = path.startsWith('/') ? path : `/${path}`;
+      fullUrl = `${this.baseUrl}${cleanPath}`;
+    }
+
+    const url = new URL(fullUrl);
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== undefined) {
@@ -33,10 +42,26 @@ export class ApiClient {
     const url = this.buildUrl(path, params);
 
     const token = await this.getAuthToken();
+    const user = await userService.get().catch(() => null);
+
+    let roleStr = "staff";
+    if (user?.role) {
+      if (Array.isArray(user.role)) {
+        roleStr = user.role.join(",");
+      } else {
+        roleStr = String(user.role);
+      }
+    }
+
     const finalHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(user ? {
+        'x-staff-id': user.id || user.staff_id || '',
+        'x-staff-username': user.username || '',
+        'x-staff-role': roleStr,
+      } : {}),
       ...(headers as Record<string, string>),
     };
 
@@ -54,6 +79,10 @@ export class ApiClient {
           response.status,
           data
         );
+      }
+
+      if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
+        return (data as any).data as T;
       }
 
       return data as T;

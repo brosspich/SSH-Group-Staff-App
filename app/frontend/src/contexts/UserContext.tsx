@@ -1,8 +1,11 @@
 import { fetchOfficialAttendanceQRCodes } from "@/constants/attendanceConfig";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import { apiClient } from "@/services/api";
 import { StaffUser, userService } from "@/services/userService";
+import { queryClient } from "@/shared/services/api/queryClient";
+import { queryKeys } from "@/shared/services/api/queryKeys";
 import { syncDeviceSession } from "@/utils/deviceSession";
 import { isLeaveRole } from "@/utils/roleUtils";
-import { supabase } from "@/utils/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -30,33 +33,39 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setUser(u);
     if (u) {
       userService.save(u);
+      useAuthStore.getState().setSession(u as any, "");
+      queryClient.setQueryData(queryKeys.staff.detail(u.id), u);
     } else {
       userService.clear();
-      try {
-        router.replace("/login/login");
-      } catch (e) {}
+      useAuthStore.getState().clearSession();
+      queryClient.removeQueries({ queryKey: ["staff"] });
     }
   };
 
   const refresh = async () => {
     try {
-      // Fetch official attendance QR codes from Supabase FIRST on app open / session refresh
-      await fetchOfficialAttendanceQRCodes();
-
+      // 1. Get user profile from local storage
       const u = await userService.get();
+      if (u) {
+        setUser(u);
+        useAuthStore.getState().setSession(u as any, "");
+        queryClient.setQueryData(queryKeys.staff.detail(u.id), u);
+      } else {
+        setUser(null);
+      }
+
+      // 2. Fetch official attendance QR codes in background via backend
+      fetchOfficialAttendanceQRCodes().catch((err) =>
+        console.warn("fetchOfficialAttendanceQRCodes warning:", err),
+      );
+
       if (u?.id) {
-        // Fetch the user row from Supabase to check if our local session was terminated
-        const { data: dbUser, error } = await supabase
-          .from("ssh_group_staff_users")
-          .select("*")
-          .eq("id", u.id)
-          .maybeSingle();
+        // Fetch the user row from Backend API to check if our local session was terminated
+        const dbUser = await apiClient
+          .get<StaffUser>(`/users-query/${u.id}`)
+          .catch(() => null);
 
-        if (error && error.code !== "PGRST116") {
-          console.warn("Failed to fetch user row in refresh:", error);
-        }
-
-        if (!error && dbUser) {
+        if (dbUser) {
           if (isLeaveRole(dbUser.role)) {
             // User account is on leave! Force logout.
             await userService.clear();
@@ -110,25 +119,18 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             }
           }
 
-          // Trigger background device session sync asynchronously with isAppOpen=true
-          syncDeviceSession(u.id, true).catch((e) =>
-            console.warn("Background sync failed:", e),
-          );
-
           const updatedUser = dbUser as StaffUser;
           await userService.save(updatedUser);
           setUser(updatedUser);
-          setLoading(false);
-          setReady(true);
-          return;
+          useAuthStore.getState().setSession(updatedUser as any, "");
+          queryClient.setQueryData(
+            queryKeys.staff.detail(updatedUser.id),
+            updatedUser,
+          );
         }
       }
-      setUser(u);
     } catch (e) {
-      console.error(
-        "Error refreshing user context with device session sync:",
-        e,
-      );
+      console.warn("Failed to refresh user:", e);
     } finally {
       setLoading(false);
       setReady(true);
@@ -138,100 +140,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     refresh();
   }, []);
-
-  useEffect(() => {
-    if (!ready || !user?.id) return;
-
-    const channelName = `ssh_group_staff_users:${user.id}`;
-
-    const existing = supabase
-      .getChannels()
-      .find((ch: any) => ch.topic === `realtime:${channelName}`);
-    if (existing) {
-      supabase.removeChannel(existing);
-    }
-
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "ssh_group_staff_users",
-          filter: `id=eq.${user.id}`,
-        },
-        async (payload: any) => {
-          if (payload.eventType === "DELETE") {
-            await userService.clear();
-            setUser(null);
-            try {
-              router.replace("/login/login");
-            } catch (e) {}
-            return;
-          }
-          // Re-fetch the complete user row from Supabase to prevent partial data corruption
-          const { data: dbUser } = await supabase
-            .from("ssh_group_staff_users")
-            .select("*")
-            .eq("id", user.id)
-            .maybeSingle();
-
-          if (!dbUser) return;
-
-          const sessionId = await AsyncStorage.getItem("pos_device_session_id");
-          let devicesList: any[] = [];
-          if (Array.isArray(dbUser.devices)) {
-            devicesList = dbUser.devices;
-          } else if (dbUser.devices && typeof dbUser.devices === "object") {
-            devicesList = [dbUser.devices];
-          } else if (typeof dbUser.devices === "string") {
-            try {
-              const parsed = JSON.parse(dbUser.devices);
-              if (Array.isArray(parsed)) {
-                devicesList = parsed;
-              } else if (parsed && typeof parsed === "object") {
-                devicesList = [parsed];
-              }
-            } catch (e) {
-              console.warn(
-                "Failed to parse devices list in realtime handler:",
-                e,
-              );
-            }
-          }
-
-          if (sessionId && devicesList.length > 0) {
-            const currentSessionObj = devicesList.find(
-              (d: any) => d.id === sessionId,
-            );
-            const isTerminated =
-              currentSessionObj &&
-              (currentSessionObj.terminate === true ||
-                currentSessionObj.terminate === "true");
-
-            if (isTerminated) {
-              // Forced logout because this session was terminated
-              await userService.clear();
-              setUser(null);
-              try {
-                router.replace("/login/login");
-              } catch (e) {}
-              return;
-            }
-          }
-
-          const updatedUser = dbUser as StaffUser;
-          await userService.save(updatedUser);
-          setUser(updatedUser);
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [ready, user?.id]);
 
   // Periodic heartbeat (every 10 seconds) to refresh user status, update last_active,
   // and immediately trigger auto-logout if session was terminated by another device

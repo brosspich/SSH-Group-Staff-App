@@ -1,45 +1,23 @@
-const { createClient } = require('@supabase/supabase-js');
-
-const supabaseUrl = 'https://pjtdmirsfreiyeshpaae.supabase.co';
-const supabaseKey = 'sb_publishable_OvHuYrctEQG4u9K5bNj_yw_kcK9T7AI';
-
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 async function run() {
-  console.log('Fetching current row from ssh-group-staff-attendance-qr...');
-  const { data, error } = await supabase.from('ssh-group-staff-attendance-qr').select('*');
-  
-  if (error) {
-    console.error('Error fetching table:', error);
-    return;
-  }
-
-  console.log('Current data:', data);
-
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://192.168.100.3:4000";
+  console.log("Updating location via Backend API:", apiUrl);
   const updatedLocation = [
-    'https://www.google.com/maps?q=11.502767,104.851553',
-    'https://maps.app.goo.gl/MmFnRaN1ueSwSk48A',
-    '11.502767, 104.851553'
+    "https://www.google.com/maps?q=11.502767,104.851553",
+    "https://maps.app.goo.gl/MmFnRaN1ueSwSk48A",
+    "11.502767, 104.851553",
   ];
-
-  if (data && data.length > 0) {
-    const targetId = data[0].id;
-    console.log(`Updating row ID: ${targetId}...`);
-    const { data: updateRes, error: updateErr } = await supabase
-      .from('ssh-group-staff-attendance-qr')
-      .update({
+  try {
+    const res = await fetch(`${apiUrl}/company-query/system-0001`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         location: updatedLocation,
-        company_name: 'SSH Group'
-      })
-      .eq('id', targetId)
-      .select();
-
-    if (updateErr) {
-      console.error('Error updating location:', updateErr);
-    } else {
-      console.log('SUCCESS! Database updated successfully:', JSON.stringify(updateRes, null, 2));
-    }
+        company_name: "SSH Group",
+      }),
+    });
+    console.log("Status:", res.status);
+  } catch (err) {
+    console.error("Error:", err);
   }
 }
-
 run();

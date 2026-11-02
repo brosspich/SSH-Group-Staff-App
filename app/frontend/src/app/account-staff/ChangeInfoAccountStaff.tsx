@@ -9,6 +9,7 @@ import {
   fetchAvailableCompanySystems,
 } from "@/constants/attendanceConfig";
 import { useResponsive } from "@/hooks/useResponsive";
+import { apiClient } from "@/services/api";
 import { StaffUser, userService } from "@/services/userService";
 import { getTwoInitials } from "@/utils/formatters";
 import {
@@ -17,7 +18,6 @@ import {
   isLeaveRole,
   isOwnerRole,
 } from "@/utils/roleUtils";
-import { supabase } from "@/utils/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -102,13 +102,11 @@ export default function ChangeInfoAccountStaff() {
   const fetchStaffList = async (_systemFilter?: string) => {
     setLoadingStaff(true);
     try {
-      const { data, error } = await supabase
-        .from("ssh_group_staff_users")
-        .select("*")
-        .order("id", { ascending: true });
+      const data = await apiClient
+        .get<StaffUser[]>("/users-query")
+        .catch(() => []);
 
-      if (error) throw error;
-      setStaffList((data as StaffUser[]) || []);
+      setStaffList(data || []);
     } catch (e) {
       console.warn("Error fetching staff list:", e);
     } finally {

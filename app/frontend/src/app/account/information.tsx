@@ -5,10 +5,10 @@ import { renderLogoutModal } from "@/components/logout/logoutModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useResponsive } from "@/hooks/useResponsive";
+import { apiClient } from "@/services/api";
 import { StaffUser, userService } from "@/services/userService";
 import { formatJoinedDisplay, parseDateString } from "@/utils/formatters";
 import { hashPassword } from "@/utils/passwordUtils";
-import { supabase } from "@/utils/supabase";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -209,14 +209,13 @@ function EditFieldModal({
     try {
       // Uniqueness check only applies to username
       if (fieldKey === "username" && trimmed !== user.username) {
-        const { data: existing, error: checkError } = await supabase
-          .from("ssh_group_staff_users")
-          .select("id")
-          .eq("username", trimmed)
-          .neq("id", user.id)
-          .maybeSingle();
+        const matches = await apiClient
+          .get<any[]>("/users-query", {
+            params: { username: trimmed },
+          })
+          .catch(() => []);
 
-        if (checkError) throw checkError;
+        const existing = matches.find((m: any) => m.id !== user.id);
         if (existing) {
           setError("This username is already taken");
           setSaving(false);
@@ -227,14 +226,10 @@ function EditFieldModal({
       const valueToSave =
         fieldKey === "password" ? hashPassword(trimmed) : trimmed;
 
-      const { data: updated, error: updateError } = await supabase
-        .from("ssh_group_staff_users")
-        .update({ [fieldKey]: valueToSave })
-        .eq("id", user.id)
-        .select()
-        .single();
-
-      if (updateError) throw updateError;
+      const updated = await apiClient.put<StaffUser>(
+        `/users-query/${user.id}`,
+        { [fieldKey]: valueToSave },
+      );
 
       await userService.save(updated as StaffUser);
       onSaved(updated as StaffUser);
@@ -360,55 +355,7 @@ export default function Information() {
     });
   }, []);
 
-  // 🔴 Real-time: keep this user row in sync with ssh_group_staff_users
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const channelName = `ssh-group-staff-user-${user.id}`;
-
-    const existing = supabase
-      .getChannels()
-      .find((ch) => ch.topic === `realtime:${channelName}`);
-    if (existing) {
-      supabase.removeChannel(existing);
-    }
-
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "ssh_group_staff_users",
-          filter: `id=eq.${user.id}`,
-        },
-        async (payload) => {
-          if (payload.eventType === "DELETE") {
-            await userService.clear();
-            setUser(null);
-            return;
-          }
-          const { data: dbUser } = await supabase
-            .from("ssh_group_staff_users")
-            .select("*")
-            .eq("id", user.id)
-            .maybeSingle();
-
-          if (!dbUser) return;
-          const updated = dbUser as StaffUser;
-          await userService.save(updated);
-          setUser(updated);
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id]);
-
-  // 🔽 Pull-to-refresh: manually re-fetch the current user row from Supabase
+  // 🔽 Pull-to-refresh: manually re-fetch the current user row from api
   const onRefresh = useCallback(async () => {
     const current = await userService.get();
     if (!current?.id) {
@@ -418,13 +365,10 @@ export default function Information() {
 
     setRefreshing(true);
     try {
-      const { data, error } = await supabase
-        .from("ssh_group_staff_users")
-        .select("*")
-        .eq("id", current.id)
-        .single();
-
-      if (!error && data) {
+      const data = await apiClient
+        .get<StaffUser>(`/users-query/${current.id}`)
+        .catch(() => null);
+      if (data) {
         await userService.save(data as StaffUser);
         setUser(data as StaffUser);
       }

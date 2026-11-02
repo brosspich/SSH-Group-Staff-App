@@ -13,10 +13,10 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Set global default font family to Google Sans for all Text and TextInput components
 (Text as any).defaultProps = (Text as any).defaultProps || {};
-(Text as any).defaultProps.style = { fontFamily: AppFonts.regular };
+(Text as any).defaultProps.style = { fontFamily: AppFonts.regular, includeFontPadding: false };
 
 (TextInput as any).defaultProps = (TextInput as any).defaultProps || {};
-(TextInput as any).defaultProps.style = { fontFamily: AppFonts.regular };
+(TextInput as any).defaultProps.style = { fontFamily: AppFonts.regular, includeFontPadding: false };
 
 if (Platform.OS === "android") {
   (Text as any).defaultProps.includeFontPadding = false;
