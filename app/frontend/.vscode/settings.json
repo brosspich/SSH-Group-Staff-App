@@ -1,0 +1,12 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit",
+    "source.sortMembers": "explicit"
+  },
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "java.compile.nullAnalysis.mode": "automatic",
+  "gradle.nestedProjects": true,
+  "java.import.gradle.wrapper.enabled": true,
+  "java.import.gradle.version": "9.3.1"
+}

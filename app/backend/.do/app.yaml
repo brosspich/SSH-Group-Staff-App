@@ -1,0 +1,42 @@
+name: ssh-group-backend
+region: sgp # Singapore (or choose nyc, sfo, fra, ams)
+services:
+  - name: api
+    source_dir: app/backend
+    github:
+      branch: main
+      deploy_on_push: true
+    build_command: npx prisma generate && npm run build
+    run_command: npm start
+    http_port: 4000
+    instance_count: 1
+    instance_size_slug: basic-xxs # $5/month entry tier
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 10
+      period_seconds: 15
+      timeout_seconds: 5
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: DATABASE_URL
+        scope: RUN_AND_BUILD_TIME
+        type: SECRET
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: R2_ACCOUNT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: R2_ACCESS_KEY_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: R2_SECRET_ACCESS_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: R2_BUCKET_NAME
+        value: ssh-group-assets

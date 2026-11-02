@@ -1,20 +1,30 @@
 {
-  "extends": "expo/tsconfig.base",
   "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
     "strict": true,
     "skipLibCheck": true,
     "noImplicitAny": false,
-    "types": ["node"],
     "paths": {
-      "@/*": ["./src/*"],
-      "@/assets/*": ["./src/assets/*", "./assets/*"]
+      "@/*": ["./app/frontend/src/*"],
+      "@/features/*": ["./app/frontend/src/features/*"],
+      "@/shared/*": ["./app/frontend/src/shared/*"],
+      "@/shared": ["./app/frontend/src/shared/index.ts"],
+      "@/assets/*": ["./app/frontend/src/assets/*", "./app/frontend/assets/*"]
     }
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "app/frontend/src/**/*.ts",
+    "app/frontend/src/**/*.tsx",
+    "app/frontend/expo-env.d.ts",
+    "app/frontend/.expo/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "**/node_modules", "example"]
+  "exclude": [
+    "**/node_modules",
+    "**/dist",
+    "**/android",
+    "**/ios"
+  ]
 }

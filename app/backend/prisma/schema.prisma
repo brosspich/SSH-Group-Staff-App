@@ -1,0 +1,68 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String         @id @default(uuid())
+  username     String         @unique
+  email        String?        @unique
+  passwordHash String
+  name         String?
+  role         String         @default("member")
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  memberships  GroupMember[]
+  sshKeys      SshKey[]
+}
+
+model SshGroup {
+  id          String        @id @default(uuid())
+  name        String        @unique
+  description String?
+  serverCount Int           @default(0)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  members     GroupMember[]
+}
+
+model GroupMember {
+  id         String    @id @default(uuid())
+  userId     String
+  groupId    String
+  permission String    @default("read") // admin, write, read
+  joinedAt   DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group      SshGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
+model SshKey {
+  id          String    @id @default(uuid())
+  userId      String
+  name        String
+  publicKey   String
+  fingerprint String
+  keyType     String    @default("ED25519")
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String
+  actorId    String
+  actorName  String
+  targetId   String?
+  details    String?  // JSON stringified details
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+}
