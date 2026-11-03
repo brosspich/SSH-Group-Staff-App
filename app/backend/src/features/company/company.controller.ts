@@ -121,7 +121,7 @@ async function resolveCoordinatesFromLocationArray(
     if (str.startsWith("http://") || str.startsWith("https://")) {
       try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 3500);
+        const timeout = setTimeout(() => controller.abort(), 1200);
         const res = await fetch(str, {
           redirect: "follow",
           signal: controller.signal,

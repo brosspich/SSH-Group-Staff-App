@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { prisma } from "../../infrastructure/database/prisma.js";
 import {
   buildQueryCacheKey,
   serverCacheStore,
 } from "../../infrastructure/cache/serverCacheStore.js";
+import { prisma } from "../../infrastructure/database/prisma.js";
 
 function getPrismaDelegate(table: string): any {
   switch (table) {
@@ -19,7 +19,20 @@ function getPrismaDelegate(table: string): any {
       return prisma.company;
     case "User":
     case "user":
+    case "users":
       return prisma.user;
+    case "AttendanceLog":
+    case "attendance_log":
+    case "attendance_logs":
+      return prisma.attendanceLog;
+    case "AttendanceRequest":
+    case "attendance_request":
+    case "attendance_requests":
+      return prisma.attendanceRequest;
+    case "DeviceSession":
+    case "device_session":
+    case "device_sessions":
+      return prisma.deviceSession;
     case "SshGroup":
     case "ssh_groups":
       return prisma.sshGroup;

@@ -1,0 +1,39 @@
+import AppbarBack from "@/components/appbar/appbarback";
+import Copyright from "@/components/copyright/copyright";
+import { AppColors } from "@/constants/appcolors";
+import { useResponsive } from "@/hooks/useResponsive";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { AboutBrandHeader } from "./_components/AboutBrandHeader";
+import { AboutCoreValues } from "./_components/AboutCoreValues";
+import { AboutMissionVision } from "./_components/AboutMissionVision";
+import { CORE_VALUES } from "./_utils/aboutConstants";
+
+export default function AboutScreen() {
+  const { isMobile } = useResponsive();
+
+  return (
+    <View style={styles.container}>
+      <AppbarBack Title="About us" />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <AboutBrandHeader />
+        <AboutMissionVision isMobile={isMobile} />
+        <AboutCoreValues coreValues={CORE_VALUES} />
+        <Copyright />
+        <View style={{ height: 20 }} />
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: AppColors.background,
+  },
+  scrollContent: {
+    padding: 16,
+  },
+});

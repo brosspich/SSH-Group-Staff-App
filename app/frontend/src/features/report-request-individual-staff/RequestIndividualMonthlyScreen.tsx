@@ -1,0 +1,125 @@
+import AppbarBack from "@/components/appbar/appbarback";
+import { RequestReportBody } from "@/components/report-request/RequestReportBody";
+import { RequestReportPrintModal } from "@/components/report-request/RequestReportPrintModal";
+import { AppColors } from "@/constants/appcolors";
+import {
+  MONTH_NAMES,
+  MonthlySelectorCard,
+  ReportPrintFooter,
+} from "@/features/report";
+import { useAttendanceRequestReportData } from "@/hooks/useAttendanceRequestReportData";
+import { useResponsive } from "@/hooks/useResponsive";
+import { useMemo, useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+
+export default function RequestIndividualMonthlyScreen() {
+  const [currentYear] = useState(() => {
+    const pp = new Date(Date.now() + 7 * 60 * 60 * 1000);
+    return pp.getUTCFullYear();
+  });
+  const [currentMonth] = useState(() => {
+    const pp = new Date(Date.now() + 7 * 60 * 60 * 1000);
+    return pp.getUTCMonth();
+  });
+  const [viewYear, setViewYear] = useState(currentYear);
+  const [viewMonth, setViewMonth] = useState(currentMonth);
+  const [showPrintModal, setShowPrintModal] = useState(false);
+
+  const prevMonth = () => {
+    if (viewMonth === 0) {
+      setViewYear((y) => y - 1);
+      setViewMonth(11);
+    } else setViewMonth((m) => m - 1);
+  };
+
+  const nextMonth = () => {
+    if (
+      viewYear > currentYear ||
+      (viewYear === currentYear && viewMonth >= currentMonth)
+    )
+      return;
+    if (viewMonth === 11) {
+      setViewYear((y) => y + 1);
+      setViewMonth(0);
+    } else setViewMonth((m) => m + 1);
+  };
+
+  const selectedDate = useMemo(
+    () => new Date(viewYear, viewMonth, 1),
+    [viewYear, viewMonth],
+  );
+
+  const {
+    loading,
+    summary,
+    records,
+    staffList,
+    selectedStaff,
+    activeStaffId,
+    setActiveStaffId,
+  } = useAttendanceRequestReportData("individual", "Monthly", selectedDate);
+
+  const { isMobile } = useResponsive();
+  const periodLabel = `${MONTH_NAMES[viewMonth]} ${viewYear}`;
+
+  return (
+    <>
+      <AppbarBack Title="Individual Staff Request Monthly Report" />
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <View
+          style={[
+            styles.wrapper,
+            !isMobile && { maxWidth: "80%", alignSelf: "center" },
+          ]}
+        >
+          <MonthlySelectorCard
+            viewYear={viewYear}
+            viewMonth={viewMonth}
+            currentYear={currentYear}
+            currentMonth={currentMonth}
+            onPrevMonth={prevMonth}
+            onNextMonth={nextMonth}
+          />
+
+          <RequestReportBody
+            loading={loading}
+            summary={summary}
+            records={records}
+            reportMode="individual"
+            staffList={staffList}
+            selectedStaff={selectedStaff}
+            activeStaffId={activeStaffId}
+            onSelectStaff={(id) => setActiveStaffId(id)}
+          />
+        </View>
+      </ScrollView>
+
+      <ReportPrintFooter
+        onPressPrint={() => setShowPrintModal(true)}
+        disabled={loading}
+      />
+
+      <RequestReportPrintModal
+        visible={showPrintModal}
+        periodLabel={periodLabel}
+        reportType="Monthly"
+        reportMode="individual"
+        summary={summary}
+        records={records}
+        targetStaff={selectedStaff}
+        onClose={() => setShowPrintModal(false)}
+        isMobile={isMobile}
+      />
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: AppColors.background },
+  content: { padding: 16, gap: 12, paddingBottom: 90 },
+  wrapper: { flex: 1, width: "100%", gap: 12 },
+});

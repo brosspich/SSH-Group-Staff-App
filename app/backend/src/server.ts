@@ -5,10 +5,17 @@ import { prisma } from "./infrastructure/database/prisma.js";
 
 const app = createApp();
 
-const server = app.listen(env.PORT, "0.0.0.0", () => {
+const server = app.listen(env.PORT, "0.0.0.0", async () => {
   Logger.info(
     `🚀 SSH Group Backend API server is running on http://0.0.0.0:${env.PORT} in [${env.NODE_ENV}] mode.`,
   );
+  try {
+    await prisma.$connect();
+    Logger.info("✅ Database connection established (dev.db / Cloudflare D1)");
+  } catch (err) {
+    Logger.error("❌ Database connection error:", err);
+  }
+  Logger.info(`📡 Ready for requests on http://192.168.1.134:${env.PORT} !`);
 });
 
 // Graceful process lifecycle management

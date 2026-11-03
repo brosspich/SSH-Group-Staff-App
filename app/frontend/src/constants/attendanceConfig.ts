@@ -290,7 +290,7 @@ export async function fetchOfficialAttendanceConfig(
   }
 
   try {
-    const data = await apiClient.get<any[]>("/company-query");
+    const data = await apiClient.get<any[]>("/company-query", { timeout: 10000 });
 
     if (data && Array.isArray(data) && data.length > 0) {
       // Pre-cache every company system configuration row from DB

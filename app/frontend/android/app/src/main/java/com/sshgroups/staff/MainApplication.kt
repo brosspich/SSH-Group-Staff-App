@@ -1,4 +1,4 @@
-package com.sshgroups.staffapp
+package com.sshgroups.staff
 
 import android.app.Application
 import android.content.res.Configuration

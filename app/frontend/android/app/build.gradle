@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.sshgroups.staffapp'
+    namespace 'com.sshgroups.staff'
     defaultConfig {
-        applicationId 'com.sshgroups.staffapp'
+        applicationId 'com.sshgroups.staff'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 62410

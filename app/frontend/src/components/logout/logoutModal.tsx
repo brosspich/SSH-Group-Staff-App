@@ -1,5 +1,7 @@
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
+import { useUserStore } from "@/contexts/UserContext";
+import { useAuthStore } from "@/features/auth";
 import { userService } from "@/services/userService";
 import { AntDesign } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -48,6 +50,9 @@ export const renderLogoutModal = ({
           <TouchableOpacity
             onPress={async () => {
               await userService.clear();
+              useUserStore.getState().clearStore();
+              useAuthStore.getState().clearSession();
+              setLogoutModalVisible(false);
               router.replace("/login/login");
             }}
             style={[
@@ -77,7 +82,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",
     alignItems: "center",
-    // paddingHorizontal: 10,
   },
   conModal: {
     backgroundColor: AppColors.background2,
@@ -90,7 +94,6 @@ const styles = StyleSheet.create({
   },
   txt: {
     color: AppColors.textPrimary,
-    // fontWeight: "bold",
     fontSize: 16,
     textAlign: "center",
     fontFamily: AppFonts.bold,
@@ -103,10 +106,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 10,
   },
-
   btn: {
     backgroundColor: AppColors.background2,
-    // width: "100%",
     flex: 1,
     paddingVertical: 10,
     alignItems: "center",

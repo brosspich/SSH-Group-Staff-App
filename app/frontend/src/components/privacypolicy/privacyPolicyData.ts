@@ -26,7 +26,7 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
   en: [
     {
       title: "1. Developer & Introduction",
-      body: "The SSH Group Staff App (package: com.sshgroups.staffapp) is developed and operated by SSH Group Co., Ltd. (Phnom Penh, Cambodia). This enterprise application is designed to facilitate employee management, QR code attendance tracking, shift logs, leave/attendance requests, and internal workforce reporting. This Privacy Policy details our commitment to protecting staff privacy, explaining how personal and operational data is collected, processed, stored, and safeguarded.",
+      body: "The SSH Group Staff App (package: com.sshgroups.staff) is developed and operated by SSH Group Co., Ltd. (Phnom Penh, Cambodia). This enterprise application is designed to facilitate employee management, QR code attendance tracking, shift logs, leave/attendance requests, and internal workforce reporting. This Privacy Policy details our commitment to protecting staff privacy, explaining how personal and operational data is collected, processed, stored, and safeguarded.",
     },
     {
       title: "2. Information We Collect",
@@ -68,7 +68,7 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
   zh: [
     {
       title: "1. 开发者与引言",
-      body: "SSH Group Staff 移动应用程序（包名：com.sshgroups.staffapp）由位于柬埔寨金边的 SSH Group Co., Ltd. 开发并运营。本企业级应用程序旨在为员工提供考勤管理、动态二维码打卡、工时记录、考勤与请假审批申请以及内部员工报表管理服务。本隐私政策详细说明我们如何收集、使用、存储和保护您的个人及工作信息。",
+      body: "SSH Group Staff 移动应用程序（包名：com.sshgroups.staff）由位于柬埔寨金边的 SSH Group Co., Ltd. 开发并运营。本企业级应用程序旨在为员工提供考勤管理、动态二维码打卡、工时记录、考勤与请假审批申请以及内部员工报表管理服务。本隐私政策详细说明我们如何收集、使用、存储和保护您的个人及工作信息。",
     },
     {
       title: "2. 我们收集的信息",
@@ -110,7 +110,7 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
   km: [
     {
       title: "1. អ្នកអភិវឌ្ឍន៍ និងការណែនាំ",
-      body: "កម្មវិធីទូរស័ព្ទ SSH Group Staff App (កញ្ចប់កម្មវិធី៖ com.sshgroups.staffapp) ត្រូវបានអភិវឌ្ឍ និងដំណើរការដោយក្រុមហ៊ុន SSH Group Co., Ltd. (រាជធានីភ្នំពេញ ប្រទេសកម្ពុជា)។ កម្មវិធីកម្រិតសហគ្រាសនេះ ត្រូវបានរចនាឡើងដើម្បីគ្រប់គ្រងបុគ្គលិក កត់ត្រាវត្តមានតាមរយៈការស្កែន QR Code ការពិនិត្យម៉ោងបំពេញការងារ ការស្នើសុំការអនុញ្ញាតច្បាប់ និងការទាញយករបាយការណ៍វត្តមាន។ គោលការណ៍ឯកជនភាពនេះ ពន្យល់យ៉ាងច្បាស់អំពីការប្តេជ្ញាចិត្តរបស់យើងក្នុងការការពារព័ត៌មានផ្ទាល់ខ្លួន និងរបៀបដែលទិន្នន័យត្រូវបានប្រមូល ប្រើប្រាស់ រក្សាទុក និងការពារ។",
+      body: "កម្មវិធីទូរស័ព្ទ SSH Group Staff App (កញ្ចប់កម្មវិធី៖ com.sshgroups.staff) ត្រូវបានអភិវឌ្ឍ និងដំណើរការដោយក្រុមហ៊ុន SSH Group Co., Ltd. (រាជធានីភ្នំពេញ ប្រទេសកម្ពុជា)។ កម្មវិធីកម្រិតសហគ្រាសនេះ ត្រូវបានរចនាឡើងដើម្បីគ្រប់គ្រងបុគ្គលិក កត់ត្រាវត្តមានតាមរយៈការស្កែន QR Code ការពិនិត្យម៉ោងបំពេញការងារ ការស្នើសុំការអនុញ្ញាតច្បាប់ និងការទាញយករបាយការណ៍វត្តមាន។ គោលការណ៍ឯកជនភាពនេះ ពន្យល់យ៉ាងច្បាស់អំពីការប្តេជ្ញាចិត្តរបស់យើងក្នុងការការពារព័ត៌មានផ្ទាល់ខ្លួន និងរបៀបដែលទិន្នន័យត្រូវបានប្រមូល ប្រើប្រាស់ រក្សាទុក និងការពារ។",
     },
     {
       title: "2. ព័ត៌មានដែលយើងប្រមូល",

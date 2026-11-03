@@ -11,7 +11,7 @@
     "ios": {
       "buildNumber": "62410",
       "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
-      "bundleIdentifier": "com.sshgroups.staffapp",
+      "bundleIdentifier": "com.sshgroups.staff",
       "infoPlist": {
         "CFBundleDisplayName": "SSH Group Staff",
         "NSMicrophoneUsageDescription": "This app uses the microphone for audio input.",
@@ -44,7 +44,7 @@
       // "targetSdkVersion": 36,
       "versionCode": 62410,
       "predictiveBackGestureEnabled": false,
-      "package": "com.sshgroups.staffapp",
+      "package": "com.sshgroups.staff",
       // "screenOrientation": "unspecified",
       "intentFilters": [],
       "config": {

@@ -28,7 +28,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>sshgroupstaffapp</string>
-				<string>com.sshgroups.staffapp</string>
+				<string>com.sshgroups.staff</string>
 			</array>
 		</dict>
 	</array>

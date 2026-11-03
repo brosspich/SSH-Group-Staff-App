@@ -1,8 +1,8 @@
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "@/shared/services/api/queryClient";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { UserProvider } from "@/contexts/UserContext";
+import { queryClient } from "@/shared/services/api/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { NavigationBar } from "expo-navigation-bar";
 import { SplashScreen, Stack } from "expo-router";
@@ -13,10 +13,16 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Set global default font family to Google Sans for all Text and TextInput components
 (Text as any).defaultProps = (Text as any).defaultProps || {};
-(Text as any).defaultProps.style = { fontFamily: AppFonts.regular, includeFontPadding: false };
+(Text as any).defaultProps.style = {
+  fontFamily: AppFonts.regular,
+  includeFontPadding: false,
+};
 
 (TextInput as any).defaultProps = (TextInput as any).defaultProps || {};
-(TextInput as any).defaultProps.style = { fontFamily: AppFonts.regular, includeFontPadding: false };
+(TextInput as any).defaultProps.style = {
+  fontFamily: AppFonts.regular,
+  includeFontPadding: false,
+};
 
 if (Platform.OS === "android") {
   (Text as any).defaultProps.includeFontPadding = false;

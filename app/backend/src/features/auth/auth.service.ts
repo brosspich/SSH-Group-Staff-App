@@ -4,6 +4,7 @@ import { JwtSigner } from "../../core/utils/jwt.js";
 import { PasswordHasher } from "../../core/utils/password.js";
 import { prisma } from "../../infrastructure/database/prisma.js";
 import { auditLogger } from "../../infrastructure/events/eventEmitter.js";
+import { formatUserForResponse } from "../users/users.controller.js";
 import { LoginInput, RegisterInput } from "./auth.schema.js";
 
 export class AuthService {
@@ -64,20 +65,54 @@ export class AuthService {
   }
 
   async login(input: LoginInput, ipAddress?: string) {
-    const user = await this.db.user.findUnique({
-      where: { username: input.username },
+    const cleanUsername = (input.username || "").trim();
+    const cleanLower = cleanUsername.toLowerCase();
+
+    // 1. Find user by username, email, or id
+    const user = await this.db.user.findFirst({
+      where: {
+        OR: [
+          { username: cleanUsername },
+          { email: cleanUsername },
+          { id: cleanUsername },
+          { username: cleanLower },
+          { email: cleanLower },
+        ],
+      },
+      include: {
+        company: true,
+        deviceSessions: true,
+        attendanceLogs: true,
+        attendanceRequests: true,
+      },
     });
 
-    if (!user || !user.isActive) {
-      throw new UnauthorizedError("Invalid credentials or account deactivated");
+    if (!user) {
+      throw new UnauthorizedError("Invalid username or password.");
     }
 
-    const isValid = await PasswordHasher.compare(
-      input.password,
-      user.passwordHash,
-    );
+    if (!user.isActive) {
+      throw new UnauthorizedError("Your account is inactive. Contact admin.");
+    }
+
+    // 2. Validate password
+    const rawStored = user.passwordHash || "";
+    const rawInput = (input.password || "").trim();
+    let isValid = false;
+
+    if (rawStored.trim() === rawInput) {
+      isValid = true;
+    } else if (rawStored.startsWith("$2")) {
+      const normalizedHash = rawStored.replace(/^\$2y\$/, "$2a$");
+      try {
+        isValid = await PasswordHasher.compare(rawInput, normalizedHash);
+      } catch {
+        isValid = false;
+      }
+    }
+
     if (!isValid) {
-      throw new UnauthorizedError("Invalid credentials");
+      throw new UnauthorizedError("Invalid username or password.");
     }
 
     const token = JwtSigner.sign({
@@ -86,22 +121,18 @@ export class AuthService {
       role: user.role,
     });
 
-    await this.audit.log({
-      action: "USER_LOGIN",
-      actorId: user.id,
-      actorName: user.username,
-      targetId: user.id,
-      ipAddress,
-    });
+    try {
+      await this.audit.log({
+        action: "USER_LOGIN",
+        actorId: user.id,
+        actorName: user.username,
+        targetId: user.id,
+        ipAddress,
+      });
+    } catch {}
 
     return {
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
+      user: formatUserForResponse(user),
       token,
     };
   }

@@ -5,6 +5,7 @@ import { env } from "./config/env.js";
 import { NotFoundError } from "./core/errors/AppError.js";
 import { errorHandler } from "./core/middlewares/errorHandler.js";
 import { apiRateLimiter } from "./core/middlewares/rateLimiter.js";
+import { Logger } from "./core/utils/logger.js";
 
 import { auditRoutes } from "./features/audit-logs/index.js";
 import { authRoutes } from "./features/auth/index.js";
@@ -27,6 +28,17 @@ export const createApp = (): Application => {
   );
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true }));
+
+  // Live HTTP request logger
+  app.use((req: Request, res: Response, next) => {
+    const start = Date.now();
+    res.on("finish", () => {
+      const duration = Date.now() - start;
+      Logger.info(`[${req.method}] ${req.originalUrl} -> ${res.statusCode} (${duration}ms)`);
+    });
+    next();
+  });
+
   app.use(apiRateLimiter);
 
   // Health check
