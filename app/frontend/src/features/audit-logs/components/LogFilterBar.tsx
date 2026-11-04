@@ -1,4 +1,4 @@
-import { Typography } from "@/components/ui/Typography";
+import { Typography } from "@/shared/components/ui/Typography";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { AuditActionType } from "../types/audit.types";

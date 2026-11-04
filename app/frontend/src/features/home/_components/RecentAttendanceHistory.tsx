@@ -56,6 +56,21 @@ export const RecentAttendanceHistory: React.FC<
                 ? "#ff0000"
                 : "#7e22ce";
 
+            const displayTime =
+              item.time ||
+              (item as any).scanTime ||
+              (item.timestamp ? item.timestamp.split("T")[1]?.slice(0, 8) : "");
+            const displayDate =
+              item.date ||
+              (item as any).scanDate ||
+              (item.timestamp ? item.timestamp.split("T")[0] : "");
+            const displayStaffId =
+              item.staff_id ||
+              (item as any).userId ||
+              (item as any).staffId ||
+              "";
+            const displayName = item.name || "";
+
             return (
               <View key={item.id} style={styles.historyItem}>
                 <View style={styles.historyItemLeft}>
@@ -65,18 +80,18 @@ export const RecentAttendanceHistory: React.FC<
                     <Text
                       style={[styles.historyBadgeText, { color: badgeColor }]}
                     >
-                      {item.type.toUpperCase()}
+                      {(item.type || "time-in").toUpperCase()}
                     </Text>
                   </View>
                   <View>
-                    <Text style={styles.historyItemTime}>{item.time}</Text>
-                    <Text style={styles.historyItemDate}>{item.date}</Text>
+                    <Text style={styles.historyItemTime}>{displayTime}</Text>
+                    <Text style={styles.historyItemDate}>{displayDate}</Text>
                   </View>
                 </View>
 
                 <View style={styles.historyItemRight}>
-                  <Text style={styles.historyStaffName}>{item.name}</Text>
-                  <Text style={styles.historyStaffId}>ID: {item.staff_id}</Text>
+                  <Text style={styles.historyStaffName}>{displayName}</Text>
+                  <Text style={styles.historyStaffId}>ID: {displayStaffId}</Text>
                 </View>
               </View>
             );

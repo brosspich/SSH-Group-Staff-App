@@ -1,4 +1,4 @@
-import { PrivacyPolicyModal } from "@/components/privacypolicy/PrivacyPolicyModal";
+import { PrivacyPolicyModal } from "@/features/login/_components/PrivacyPolicyModal";
 import { AppColors } from "@/constants/appcolors";
 import { useResponsive } from "@/hooks/useResponsive";
 import AsyncStorage from "@react-native-async-storage/async-storage";

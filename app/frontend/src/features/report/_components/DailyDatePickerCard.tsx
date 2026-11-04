@@ -1,4 +1,4 @@
-import DatePickerModal from "@/components/daterangpicker/DatePickerModal";
+import DatePickerModal from "@/shared/components/daterangpicker/DatePickerModal";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useState } from "react";

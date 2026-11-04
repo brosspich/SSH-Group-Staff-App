@@ -1,7 +1,20 @@
+import os from "os";
 import { createApp } from "./app.js";
 import { env } from "./config/env.js";
 import { Logger } from "./core/utils/logger.js";
 import { prisma } from "./infrastructure/database/prisma.js";
+
+function getLocalIp(): string {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name] || []) {
+      if (iface.family === "IPv4" && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return "localhost";
+}
 
 const app = createApp();
 
@@ -15,7 +28,8 @@ const server = app.listen(env.PORT, "0.0.0.0", async () => {
   } catch (err) {
     Logger.error("❌ Database connection error:", err);
   }
-  Logger.info(`📡 Ready for requests on http://192.168.1.134:${env.PORT} !`);
+  const localIp = getLocalIp();
+  Logger.info(`📡 Ready for requests on http://${localIp}:${env.PORT} !`);
 });
 
 // Graceful process lifecycle management

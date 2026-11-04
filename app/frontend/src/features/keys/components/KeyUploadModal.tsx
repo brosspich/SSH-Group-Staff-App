@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Modal } from "@/components/ui/Modal";
-import { Typography } from "@/components/ui/Typography";
+import { Button } from "@/shared/components/ui/Button";
+import { Input } from "@/shared/components/ui/Input";
+import { Modal } from "@/shared/components/ui/Modal";
+import { Typography } from "@/shared/components/ui/Typography";
 import { isValidSshPublicKey } from "@/utils/validators";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";

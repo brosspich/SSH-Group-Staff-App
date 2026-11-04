@@ -1,5 +1,5 @@
-import { Card } from "@/components/ui/Card";
-import { Typography } from "@/components/ui/Typography";
+import { Card } from "@/shared/components/ui/Card";
+import { Typography } from "@/shared/components/ui/Typography";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { SshGroup } from "../types/sshGroup.types";

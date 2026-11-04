@@ -1,4 +1,4 @@
-import { InfoRow } from "@/components/account/InfoRow";
+import { InfoRow } from "@/shared/components/account/InfoRow";
 import { AppColors } from "@/constants/appcolors";
 import type { StaffUser } from "@/services/userService";
 import { formatJoinedDisplay } from "@/utils/formatters";

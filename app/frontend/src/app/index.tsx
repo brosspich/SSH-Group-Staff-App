@@ -1,4 +1,4 @@
-import Loading from "@/components/loading/loading";
+import Loading from "@/shared/components/loading/loading";
 import { AppColors } from "@/constants/appcolors";
 import { useUser } from "@/contexts/UserContext";
 import { Redirect } from "expo-router";

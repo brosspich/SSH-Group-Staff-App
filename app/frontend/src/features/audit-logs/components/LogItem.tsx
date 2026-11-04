@@ -1,5 +1,5 @@
-import { Card } from "@/components/ui/Card";
-import { Typography } from "@/components/ui/Typography";
+import { Card } from "@/shared/components/ui/Card";
+import { Typography } from "@/shared/components/ui/Typography";
 import { formatDate, formatTime } from "@/utils/formatters";
 import React from "react";
 import { StyleSheet, View } from "react-native";

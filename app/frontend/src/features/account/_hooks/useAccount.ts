@@ -4,25 +4,26 @@ import { useCallback, useEffect, useState } from "react";
 import { fetchAccountProfileApi } from "../_api/accountApi";
 
 export function useAccount() {
-  const { setUser: setContextUser } = useUser();
-  const [user, setUser] = useState<StaffUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user: contextUser, setUser: setContextUser } = useUser();
+  const [user, setUser] = useState<StaffUser | null>(contextUser);
+  const [loading, setLoading] = useState(!contextUser);
   const [refreshing, setRefreshing] = useState(false);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
-  // Initialize from storage
+  // Sync state whenever active context user changes (e.g. account switch)
   useEffect(() => {
-    let mounted = true;
-    userService.get().then((u) => {
-      if (mounted) {
-        setUser(u);
-        setLoading(false);
-      }
-    });
-    return () => {
-      mounted = false;
-    };
-  }, []);
+    if (contextUser) {
+      setUser(contextUser);
+      setLoading(false);
+    } else {
+      userService.get().then((u) => {
+        if (u) {
+          setUser(u);
+          setLoading(false);
+        }
+      });
+    }
+  }, [contextUser]);
 
   // Pull-to-refresh: fetch latest profile from backend API
   const onRefresh = useCallback(async () => {

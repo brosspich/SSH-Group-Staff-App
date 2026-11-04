@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Typography } from "@/components/ui/Typography";
+import { Button } from "@/shared/components/ui/Button";
+import { Input } from "@/shared/components/ui/Input";
+import { Typography } from "@/shared/components/ui/Typography";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { LoginCredentials } from "../types/auth.types";

@@ -1,4 +1,4 @@
-import Appbar from "@/components/appbar/appbar";
+import Appbar from "@/shared/components/appbar/appbar";
 import { AppColors } from "@/constants/appcolors";
 import { useUser } from "@/contexts/UserContext";
 import { hasAdminRole } from "@/utils/roleUtils";

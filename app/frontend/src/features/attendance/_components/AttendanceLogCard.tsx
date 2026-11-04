@@ -17,18 +17,30 @@ export const AttendanceLogCard: React.FC<AttendanceLogCardProps> = ({
   const badgeBg = isTimeIn ? "#dce0fc" : isTimeOut ? "#fedbdb" : "#f3e8ff";
   const badgeColor = isTimeIn ? "#0022ff" : isTimeOut ? "#ff0000" : "#7e22ce";
 
+  const displayTime =
+    record.time ||
+    (record as any).scanTime ||
+    (record.timestamp ? record.timestamp.split("T")[1]?.slice(0, 8) : "");
+  const displayDate =
+    record.date ||
+    (record as any).scanDate ||
+    (record.timestamp ? record.timestamp.split("T")[0] : "");
+  const displayStaffId =
+    record.staff_id || (record as any).userId || (record as any).staffId || "";
+  const displayName = record.name || "";
+
   return (
     <View style={styles.historyCard}>
       {/* Top Details */}
       <View style={styles.historyCardBody}>
         <View style={styles.historyLeftCol}>
-          <Text style={styles.historyTimeText}>{record.time}</Text>
-          <Text style={styles.historyDateText}>{record.date}</Text>
+          <Text style={styles.historyTimeText}>{displayTime}</Text>
+          <Text style={styles.historyDateText}>{displayDate}</Text>
         </View>
 
         <View style={styles.historyRightCol}>
-          <Text style={styles.historyStaffName}>{record.name}</Text>
-          <Text style={styles.historyStaffId}>Staff ID: {record.staff_id}</Text>
+          <Text style={styles.historyStaffName}>{displayName}</Text>
+          <Text style={styles.historyStaffId}>Staff ID: {displayStaffId}</Text>
         </View>
       </View>
 
@@ -63,6 +75,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: AppColors.grey + 40,
     overflow: "hidden",
+    marginHorizontal: 15,
   },
   historyCardBody: {
     flexDirection: "row",

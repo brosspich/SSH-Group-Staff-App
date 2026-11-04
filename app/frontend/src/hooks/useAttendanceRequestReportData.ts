@@ -167,19 +167,37 @@ export function useAttendanceRequestReportData(
         userRules.forEach((rule) => {
           if (!rule || typeof rule !== "object") return;
           const ruleStaffId =
-            rule.staff_id != null ? String(rule.staff_id) : String(u.id || "");
+            rule.staff_id != null
+              ? String(rule.staff_id)
+              : String((rule as any).userId || u.id || "");
           const ruleStaffName =
             rule.name != null ? String(rule.name) : String(u.name || "Unknown");
           const rulePosition =
             rule.position != null
               ? String(rule.position)
               : String(u.position || "Staff");
+          const ruleFromDate =
+            rule.from_date ||
+            (rule as any).fromDate ||
+            rule.date ||
+            (rule.created_at ? rule.created_at.split("T")[0] : "");
+          const ruleFromTime =
+            rule.from_time || (rule as any).fromTime || rule.time || "";
+          const ruleToDate =
+            rule.to_date || (rule as any).toDate || ruleFromDate;
+          const ruleToTime = rule.to_time || (rule as any).toTime || "";
 
           allRequests.push({
             ...rule,
             staff_id: ruleStaffId,
             name: ruleStaffName,
             position: rulePosition,
+            from_date: ruleFromDate,
+            from_time: ruleFromTime,
+            to_date: ruleToDate,
+            to_time: ruleToTime,
+            date: rule.date || ruleFromDate,
+            time: rule.time || ruleFromTime,
             status: rule.status || "pending",
           });
         });

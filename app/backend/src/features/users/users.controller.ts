@@ -35,30 +35,60 @@ export function formatUserForResponse(user: any) {
       d.lastLogin instanceof Date ? d.lastLogin.toISOString() : d.lastLogin,
   }));
 
-  // Format attendance logs into attendance array
+  // Format attendance logs into attendance array with full backward-compatibility
   const attendance = (user.attendanceLogs || []).map((a: any) => ({
     id: a.id,
+    staff_id: user.id,
+    staffId: user.id,
+    userId: user.id,
+    name: user.name || "",
+    system_id: a.companyId || user.companyId || null,
+    systemId: a.companyId || user.companyId || null,
+    companyId: a.companyId || user.companyId || null,
+    date: a.scanDate,
     scanDate: a.scanDate,
+    time: a.scanTime,
     scanTime: a.scanTime,
     type: a.type,
+    qr_data: a.qrData,
     qrData: a.qrData,
-    companyId: a.companyId,
+    timestamp:
+      a.createdAt instanceof Date ? a.createdAt.toISOString() : a.createdAt,
     createdAt:
       a.createdAt instanceof Date ? a.createdAt.toISOString() : a.createdAt,
   }));
 
-  // Format attendance requests into requestAttendanceRules array
+  // Format attendance requests into requestAttendanceRules array with full backward-compatibility
   const requestAttendanceRules = (user.attendanceRequests || []).map(
     (r: any) => ({
       id: r.id,
+      staff_id: user.id,
+      staffId: user.id,
+      userId: user.id,
+      name: user.name || "",
+      position: user.position || "",
       subject: r.subject,
       remark: r.remark,
       status: r.status,
+      date:
+        r.fromDate ||
+        (r.createdAt instanceof Date
+          ? r.createdAt.toISOString().split("T")[0]
+          : r.createdAt
+            ? String(r.createdAt).split("T")[0]
+            : ""),
+      time: r.fromTime || "",
       fromDate: r.fromDate,
+      from_date: r.fromDate,
       fromTime: r.fromTime,
+      from_time: r.fromTime,
       toDate: r.toDate,
+      to_date: r.toDate,
       toTime: r.toTime,
+      to_time: r.toTime,
       createdAt:
+        r.createdAt instanceof Date ? r.createdAt.toISOString() : r.createdAt,
+      created_at:
         r.createdAt instanceof Date ? r.createdAt.toISOString() : r.createdAt,
     }),
   );

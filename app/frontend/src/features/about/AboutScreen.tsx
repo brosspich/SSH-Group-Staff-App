@@ -1,7 +1,7 @@
-import AppbarBack from "@/components/appbar/appbarback";
-import Copyright from "@/components/copyright/copyright";
+import AppbarBack from "@/shared/components/appbar/appbarback";
 import { AppColors } from "@/constants/appcolors";
 import { useResponsive } from "@/hooks/useResponsive";
+import Copyright from "@/shared/components/copyright/copyright";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { AboutBrandHeader } from "./_components/AboutBrandHeader";
 import { AboutCoreValues } from "./_components/AboutCoreValues";

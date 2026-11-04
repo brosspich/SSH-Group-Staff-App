@@ -1,11 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { queryKeys } from "@/shared/services/api/queryKeys";
 import {
   fetchAvailableCompanySystems,
   fetchOfficialAttendanceConfig,
-  OfficialAttendanceConfig,
 } from "@/constants/attendanceConfig";
+import { queryKeys } from "@/shared/services/api/queryKeys";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useCompanyStore } from "../store/useCompanyStore";
 
 /**

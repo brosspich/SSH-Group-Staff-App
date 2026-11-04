@@ -1,3 +1,5 @@
+import Constants from 'expo-constants';
+import { NativeModules, Platform } from 'react-native';
 import { secureStorage } from '../storage/secureStore.service';
 import { userService } from '../userService';
 import { ApiError } from './apiError';
@@ -7,18 +9,78 @@ export interface RequestOptions extends RequestInit {
   timeout?: number;
 }
 
-const CANDIDATE_BASE_URLS = [
-  process.env.EXPO_PUBLIC_API_URL,
-  'http://127.0.0.1:4000',
-  'http://localhost:4000',
-  'http://192.168.1.134:4000',
-].filter(Boolean) as string[];
+function getDevServerIp(): string | undefined {
+  // 1. React Native SourceCode.scriptURL (guaranteed in development mode)
+  try {
+    const scriptURL = (NativeModules as any)?.SourceCode?.scriptURL;
+    if (typeof scriptURL === 'string') {
+      const match = scriptURL.match(/https?:\/\/([^:/]+)/);
+      if (match && match[1] && match[1] !== 'localhost' && match[1] !== '127.0.0.1') {
+        return match[1];
+      }
+    }
+  } catch {}
+
+  // 2. Expo Constants hostUri (e.g. "192.168.1.182:8081")
+  try {
+    const hostUri =
+      Constants.expoConfig?.hostUri ||
+      (Constants as any)?.manifest?.debuggerHost ||
+      (Constants as any)?.manifest2?.extra?.expoGo?.debuggerHost;
+    if (typeof hostUri === 'string') {
+      const ip = hostUri.split(':')[0];
+      if (ip && ip !== 'localhost' && ip !== '127.0.0.1') {
+        return ip;
+      }
+    }
+  } catch {}
+
+  // 3. Expo linkingUri (e.g. "?url=http%3A%2F%2F192.168.1.182%3A8081")
+  try {
+    const linkingUri = Constants.linkingUri;
+    if (typeof linkingUri === 'string') {
+      const match =
+        linkingUri.match(/url=https?%3A%2F%2F([^%:]+)/i) ||
+        linkingUri.match(/https?:\/\/([^:/]+)/);
+      if (match && match[1] && match[1] !== 'localhost' && match[1] !== '127.0.0.1') {
+        return match[1];
+      }
+    }
+  } catch {}
+
+  return undefined;
+}
+
+function resolveCandidateBaseUrls(): string[] {
+  const dynamicHost = getDevServerIp();
+  const autoHostUrl = dynamicHost ? `http://${dynamicHost}:4000` : undefined;
+  const envUrl = process.env.EXPO_PUBLIC_API_URL;
+
+  if (Platform.OS !== 'web') {
+    return [
+      autoHostUrl,
+      envUrl && !envUrl.includes('127.0.0.1') && !envUrl.includes('localhost') ? envUrl : undefined,
+      'http://192.168.1.182:4000',
+      'http://192.168.1.134:4000',
+      'http://10.0.2.2:4000',
+    ].filter(Boolean) as string[];
+  }
+
+  return [
+    envUrl,
+    'http://127.0.0.1:4000',
+    'http://localhost:4000',
+    'http://192.168.1.182:4000',
+    'http://192.168.1.134:4000',
+  ].filter(Boolean) as string[];
+}
 
 export class ApiClient {
   private baseUrl: string;
 
   constructor(baseUrl?: string) {
-    this.baseUrl = (baseUrl || CANDIDATE_BASE_URLS[0] || 'http://127.0.0.1:4000').replace(/\/+$/, '');
+    const initialCandidates = resolveCandidateBaseUrls();
+    this.baseUrl = (baseUrl || initialCandidates[0] || 'http://192.168.1.182:4000').replace(/\/+$/, '');
   }
 
   private async getAuthToken(): Promise<string | null> {
@@ -72,9 +134,10 @@ export class ApiClient {
     };
 
     const isAbsolute = path.startsWith('http://') || path.startsWith('https://');
+    const dynamicCandidates = resolveCandidateBaseUrls();
     const targets = isAbsolute
       ? [this.baseUrl]
-      : Array.from(new Set([this.baseUrl, ...CANDIDATE_BASE_URLS]));
+      : Array.from(new Set([dynamicCandidates[0] || this.baseUrl, this.baseUrl, ...dynamicCandidates]));
 
     let lastError: any = null;
 

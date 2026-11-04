@@ -1,0 +1,8 @@
+name = "ssh-group-backend"
+main = "dist/server.js"
+compatibility_date = "2024-04-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ssh-database"
+database_id = "81928e3d-002e-4e4e-bc70-bd2a1e4120e7"

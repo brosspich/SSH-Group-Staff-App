@@ -1,4 +1,4 @@
-import AppbarBack from "@/components/appbar/appbarback";
+import AppbarBack from "@/shared/components/appbar/appbarback";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { Ionicons } from "@expo/vector-icons";

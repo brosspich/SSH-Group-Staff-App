@@ -1,4 +1,4 @@
-import LaptopGraphic from "@/components/laptopgraphic/LaptopGraphic";
+import LaptopGraphic from "@/features/devices/_components/LaptopGraphic";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { StyleSheet, Text, View } from "react-native";

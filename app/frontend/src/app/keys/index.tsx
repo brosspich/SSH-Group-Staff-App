@@ -1,5 +1,5 @@
-import AppbarBack from "@/components/appbar/appbarback";
-import Loading from "@/components/loading/loading";
+import AppbarBack from "@/shared/components/appbar/appbarback";
+import Loading from "@/shared/components/loading/loading";
 import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import {

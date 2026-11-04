@@ -1,9 +1,8 @@
-import { renderAlertModal } from "@/components/alert/alert";
-import AppBarGlass from "@/components/appbar/AppBarGlass";
-import ScannerModal from "@/components/home/ScannerModal";
-import SuccessConfirmationModal from "@/components/home/SuccessConfirmationModal";
-import Loading from "@/components/loading/loading";
-import { RequestAttendanceModal } from "@/components/request_attendance/RequestAttendanceModal";
+import AppBarGlass from "@/shared/components/appbar/AppBarGlass";
+import ScannerModal from "@/features/home/_components/ScannerModal";
+import SuccessConfirmationModal from "@/features/home/_components/SuccessConfirmationModal";
+import Loading from "@/shared/components/loading/loading";
+import { RequestAttendanceModal } from "@/features/home/_components/RequestAttendanceModal";
 import { AppColors } from "@/constants/appcolors";
 import {
   calculateAttendanceType,
@@ -12,10 +11,11 @@ import {
   isValidAttendanceQR,
 } from "@/constants/attendanceConfig";
 import { useResponsive } from "@/hooks/useResponsive";
+import { apiClient } from "@/services/api";
 import { verifyAttendanceSecurity } from "@/services/locationService";
 import { sendAttendanceToTelegram } from "@/services/telegramService";
 import { StaffUser, userService } from "@/services/userService";
-import { apiClient } from "@/services/api";
+import { renderAlertModal } from "@/shared/components/alert/alert";
 import { useCameraPermissions } from "expo-camera";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -272,7 +272,9 @@ export default function HomeScreen() {
     try {
       await apiClient
         .put(`/users-query/${user.id}`, { attendance: updatedList })
-        .catch((err) => console.warn("Failed to update attendance in backend:", err));
+        .catch((err) =>
+          console.warn("Failed to update attendance in backend:", err),
+        );
 
       const updatedUser: StaffUser = { ...user, attendance: updatedList };
       setUser(updatedUser);
@@ -297,7 +299,9 @@ export default function HomeScreen() {
 
   // Calculate today's status badges
   const todayStr = formatDateYMD(currentTime);
-  const todayRecords = attendanceList.filter((r) => r.date === todayStr);
+  const todayRecords = attendanceList.filter(
+    (r) => (r.date || (r as any).scanDate) === todayStr,
+  );
   const todayTimeIn = todayRecords.find((r) => r.type === "time-in");
   const todayTimeOut = todayRecords.find((r) => r.type === "time-out");
   const todayOtherCount = todayRecords.filter(

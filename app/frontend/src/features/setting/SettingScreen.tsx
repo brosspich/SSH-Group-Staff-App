@@ -1,10 +1,11 @@
-import Appbar from "@/components/appbar/appbar";
-import Copyright from "@/components/copyright/copyright";
-import Loading from "@/components/loading/loading";
-import { renderLogoutModal } from "@/components/logout/logoutModal";
+import Appbar from "@/shared/components/appbar/appbar";
+import Loading from "@/shared/components/loading/loading";
+import { renderLogoutModal } from "@/shared/components/logout/logoutModal";
 import { AppColors } from "@/constants/appcolors";
+import { useUser } from "@/contexts/UserContext";
 import { useResponsive } from "@/hooks/useResponsive";
 import { StaffUser, userService } from "@/services/userService";
+import Copyright from "@/shared/components/copyright/copyright";
 import { hasAdminOrOwnerRole } from "@/utils/roleUtils";
 import { useEffect, useState } from "react";
 import { ScrollView, StatusBar, StyleSheet, View } from "react-native";
@@ -14,17 +15,25 @@ import { SettingInfrastructureSection } from "./_components/SettingInfrastructur
 import { SettingProfileCard } from "./_components/SettingProfileCard";
 
 export default function SettingScreen() {
-  const [user, setUser] = useState<StaffUser | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user: contextUser } = useUser();
+  const [user, setUser] = useState<StaffUser | null>(contextUser);
+  const [loading, setLoading] = useState(!contextUser);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const { isMobile } = useResponsive();
 
   useEffect(() => {
-    userService.get().then((u) => {
-      setUser(u);
+    if (contextUser) {
+      setUser(contextUser);
       setLoading(false);
-    });
-  }, []);
+    } else {
+      userService.get().then((u) => {
+        if (u) {
+          setUser(u);
+          setLoading(false);
+        }
+      });
+    }
+  }, [contextUser]);
 
   const handleLogout = () => {
     setLogoutModalVisible(true);

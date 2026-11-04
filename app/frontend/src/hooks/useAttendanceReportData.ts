@@ -176,13 +176,26 @@ export function useAttendanceReportData(
 
         userLogs.forEach((rec) => {
           if (!rec || typeof rec !== "object") return;
-          // Normalize record staff_id if missing
+          // Normalize record fields with full fallbacks
           const recordStaffId =
-            rec.staff_id != null ? String(rec.staff_id) : String(u.id || "");
+            rec.staff_id != null
+              ? String(rec.staff_id)
+              : String((rec as any).userId || u.id || "");
           const recordStaffName =
             rec.name != null ? String(rec.name) : String(u.name || "Unknown");
+          const recordDate =
+            rec.date ||
+            (rec as any).scanDate ||
+            (rec.timestamp ? rec.timestamp.split("T")[0] : "");
+          const recordTime =
+            rec.time ||
+            (rec as any).scanTime ||
+            (rec.timestamp ? rec.timestamp.split("T")[1]?.slice(0, 8) : "");
+
           const fullRecord: AttendanceRecord = {
             ...rec,
+            date: recordDate,
+            time: recordTime,
             staff_id: recordStaffId,
             name: recordStaffName,
           };

@@ -2,7 +2,7 @@ import {
   PRIVACY_POLICY_DATA,
   PRIVACY_POLICY_LAST_UPDATED,
   type PolicyLang,
-} from "@/components/privacypolicy/privacyPolicyData";
+} from "@/features/privacy-policy/_utils/privacyPolicyData";
 
 export const POLICY_TITLE_MAP: Record<PolicyLang, string> = {
   en: "Privacy Policy",

@@ -1,7 +1,7 @@
 import type {
   PolicyLang,
   PolicySection,
-} from "@/components/privacypolicy/privacyPolicyData";
+} from "@/features/privacy-policy/_utils/privacyPolicyData";
 
 export type { PolicyLang, PolicySection };
 

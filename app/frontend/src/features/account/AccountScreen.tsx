@@ -1,6 +1,6 @@
-import AppbarBack from "@/components/appbar/appbarback";
-import Loading from "@/components/loading/loading";
-import { renderLogoutModal } from "@/components/logout/logoutModal";
+import AppbarBack from "@/shared/components/appbar/appbarback";
+import Loading from "@/shared/components/loading/loading";
+import { renderLogoutModal } from "@/shared/components/logout/logoutModal";
 import { AppColors } from "@/constants/appcolors";
 import { useResponsive } from "@/hooks/useResponsive";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";

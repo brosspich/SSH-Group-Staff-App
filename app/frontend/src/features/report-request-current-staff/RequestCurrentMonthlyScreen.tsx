@@ -1,6 +1,6 @@
-import AppbarBack from "@/components/appbar/appbarback";
-import { RequestReportBody } from "@/components/report-request/RequestReportBody";
-import { RequestReportPrintModal } from "@/components/report-request/RequestReportPrintModal";
+import AppbarBack from "@/shared/components/appbar/appbarback";
+import { RequestReportBody } from "@/shared/components/report-request/RequestReportBody";
+import { RequestReportPrintModal } from "@/shared/components/report-request/RequestReportPrintModal";
 import { AppColors } from "@/constants/appcolors";
 import {
   MONTH_NAMES,

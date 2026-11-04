@@ -1,4 +1,4 @@
-import { Typography } from "@/components/ui/Typography";
+import { Typography } from "@/shared/components/ui/Typography";
 import React from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { SshGroupMember } from "../types/sshGroup.types";

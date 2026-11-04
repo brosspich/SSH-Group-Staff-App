@@ -1,6 +1,6 @@
-import AppbarBack from "@/components/appbar/appbarback";
-import { AttendanceReportBody } from "@/components/report/AttendanceReportBody";
-import { TotalAttendanceReportPrintModal } from "@/components/report/TotalAttendanceReportPrintModal";
+import AppbarBack from "@/shared/components/appbar/appbarback";
+import { AttendanceReportBody } from "@/shared/components/report/AttendanceReportBody";
+import { TotalAttendanceReportPrintModal } from "@/shared/components/report/TotalAttendanceReportPrintModal";
 import { AppColors } from "@/constants/appcolors";
 import { AnnualSelectorCard, ReportPrintFooter } from "@/features/report";
 import { useAttendanceReportData } from "@/hooks/useAttendanceReportData";
