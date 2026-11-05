@@ -2,10 +2,12 @@ import { AppColors } from "@/constants/appcolors";
 import { AppFonts } from "@/constants/appfonts";
 import { useUserStore } from "@/contexts/UserContext";
 import { useAuthStore } from "@/features/auth";
+import { useLoginStore } from "@/features/login/_store/useLoginStore";
 import { secureStorage } from "@/services/storage/secureStore.service";
 import { userService } from "@/services/userService";
 import { queryClient } from "@/shared/services/api/queryClient";
 import { AntDesign } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -52,10 +54,14 @@ export const renderLogoutModal = ({
           <TouchableOpacity
             onPress={async () => {
               await secureStorage.removeItem("auth_token").catch(() => null);
+              await AsyncStorage.removeItem("ssh_remembered_username").catch(
+                () => null,
+              );
               queryClient.clear();
               await userService.clear();
               useUserStore.getState().clearStore();
               useAuthStore.getState().clearSession();
+              useLoginStore.getState().resetForm();
               setLogoutModalVisible(false);
               router.replace("/login/login");
             }}

@@ -1,3 +1,4 @@
+import { useLoginStore } from "@/features/login/_store/useLoginStore";
 import { logger } from "@/services/logger";
 import { useCallback } from "react";
 import { authApi } from "../api/authApi";
@@ -42,6 +43,7 @@ export function useAuth() {
       logger.warn("Failed to invalidate server session during logout", { err });
     } finally {
       clearSession();
+      useLoginStore.getState().resetForm();
     }
   }, [clearSession]);
 

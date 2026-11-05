@@ -1,7 +1,7 @@
+import { userService } from "@/services/userService";
 import Constants from "expo-constants";
 import { NativeModules, Platform } from "react-native";
 import { secureStorage } from "../storage/secureStore.service";
-import { userService } from "@/services/userService";
 import { ApiError } from "./apiError";
 
 export interface RequestOptions extends RequestInit {
@@ -15,7 +15,12 @@ function getDevServerIp(): string | undefined {
     const scriptURL = (NativeModules as any)?.SourceCode?.scriptURL;
     if (typeof scriptURL === "string") {
       const match = scriptURL.match(/https?:\/\/([^:/]+)/);
-      if (match && match[1] && match[1] !== "localhost" && match[1] !== "127.0.0.1") {
+      if (
+        match &&
+        match[1] &&
+        match[1] !== "localhost" &&
+        match[1] !== "127.0.0.1"
+      ) {
         return match[1];
       }
     }
@@ -42,7 +47,12 @@ function getDevServerIp(): string | undefined {
       const match =
         linkingUri.match(/url=https?%3A%2F%2F([^%:]+)/i) ||
         linkingUri.match(/https?:\/\/([^:/]+)/);
-      if (match && match[1] && match[1] !== "localhost" && match[1] !== "127.0.0.1") {
+      if (
+        match &&
+        match[1] &&
+        match[1] !== "localhost" &&
+        match[1] !== "127.0.0.1"
+      ) {
         return match[1];
       }
     }
@@ -59,11 +69,10 @@ function resolveCandidateBaseUrls(): string[] {
   if (Platform.OS !== "web") {
     return [
       autoHostUrl,
-      envUrl && !envUrl.includes("127.0.0.1") && !envUrl.includes("localhost")
-        ? envUrl
-        : undefined,
-      "http://192.168.1.182:4000",
-      "http://192.168.1.134:4000",
+      envUrl,
+      "http://192.168.1.199:4000",
+      "http://127.0.0.1:4000",
+      "http://localhost:4000",
       "http://10.0.2.2:4000",
     ].filter(Boolean) as string[];
   }
@@ -72,8 +81,7 @@ function resolveCandidateBaseUrls(): string[] {
     envUrl,
     "http://127.0.0.1:4000",
     "http://localhost:4000",
-    "http://192.168.1.182:4000",
-    "http://192.168.1.134:4000",
+    "http://192.168.1.199:4000",
   ].filter(Boolean) as string[];
 }
 
@@ -85,7 +93,7 @@ export class ApiClient {
     this.baseUrl = (
       baseUrl ||
       initialCandidates[0] ||
-      "http://192.168.1.182:4000"
+      "http://192.168.1.199:4000"
     ).replace(/\/+$/, "");
   }
 
@@ -98,7 +106,8 @@ export class ApiClient {
     path: string,
     params?: Record<string, string | number | boolean | undefined>,
   ): string {
-    const isAbsolute = path.startsWith("http://") || path.startsWith("https://");
+    const isAbsolute =
+      path.startsWith("http://") || path.startsWith("https://");
     let fullUrl = path;
 
     if (!isAbsolute) {
@@ -145,11 +154,18 @@ export class ApiClient {
       ...(headers as Record<string, string>),
     };
 
-    const isAbsolute = path.startsWith("http://") || path.startsWith("https://");
+    const isAbsolute =
+      path.startsWith("http://") || path.startsWith("https://");
     const dynamicCandidates = resolveCandidateBaseUrls();
     const targets = isAbsolute
       ? [this.baseUrl]
-      : Array.from(new Set([dynamicCandidates[0] || this.baseUrl, this.baseUrl, ...dynamicCandidates]));
+      : Array.from(
+          new Set([
+            dynamicCandidates[0] || this.baseUrl,
+            this.baseUrl,
+            ...dynamicCandidates,
+          ]),
+        );
 
     let lastError: any = null;
 
@@ -194,7 +210,12 @@ export class ApiClient {
         }
 
         // Automatically unwrap { success: true, data: T } responses from API
-        if (data && typeof data === "object" && "success" in data && "data" in data) {
+        if (
+          data &&
+          typeof data === "object" &&
+          "success" in data &&
+          "data" in data
+        ) {
           return (data as any).data as T;
         }
 
@@ -204,7 +225,12 @@ export class ApiClient {
         lastError = error;
 
         // If it's a 4xx / 5xx ApiError response from the server, do not retry other hosts
-        if (error instanceof ApiError && error.statusCode && error.statusCode >= 400 && error.statusCode !== 408) {
+        if (
+          error instanceof ApiError &&
+          error.statusCode &&
+          error.statusCode >= 400 &&
+          error.statusCode !== 408
+        ) {
           throw error;
         }
 
@@ -213,7 +239,10 @@ export class ApiClient {
       }
     }
 
-    if (lastError?.name === "AbortError" || lastError?.message?.includes("aborted")) {
+    if (
+      lastError?.name === "AbortError" ||
+      lastError?.message?.includes("aborted")
+    ) {
       throw new ApiError(
         `Connection timed out (${Math.round((options.timeout ?? 6000) / 1000)}s). Server unreachable.`,
         408,

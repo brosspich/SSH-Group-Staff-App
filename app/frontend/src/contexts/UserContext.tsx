@@ -3,6 +3,7 @@ import {
   fetchOfficialAttendanceConfig,
 } from "@/constants/attendanceConfig";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { useLoginStore } from "@/features/login/_store/useLoginStore";
 import { apiClient } from "@/services/api";
 import { StaffUser, userService } from "@/services/userService";
 import { queryClient } from "@/shared/services/api/queryClient";
@@ -237,6 +238,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           await userService.clear();
           clearStore();
           queryClient.clear();
+          useLoginStore.getState().resetForm();
           try {
             router.replace("/login/login");
           } catch {}
@@ -274,6 +276,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             await userService.clear();
             clearStore();
             queryClient.clear();
+            useLoginStore.getState().resetForm();
             try {
               router.replace("/login/login");
             } catch {}

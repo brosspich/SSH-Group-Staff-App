@@ -41,19 +41,16 @@ export const useLoginStore = create<LoginStore>((set) => ({
   setIsLoading: (isLoading: boolean) => set({ isLoading }),
 
   loadCachedUsername: async () => {
+    // Clear legacy remembered usernames so inputs always start empty
     try {
-      const cached = await AsyncStorage.getItem(REMEMBERED_USERNAME_KEY);
-      if (cached) set({ username: cached });
+      await AsyncStorage.removeItem(REMEMBERED_USERNAME_KEY);
     } catch {}
+    set({ username: "" });
   },
 
-  cacheUsername: async (username: string) => {
-    try {
-      if (username) {
-        await AsyncStorage.setItem(REMEMBERED_USERNAME_KEY, username.trim());
-      }
-    } catch {}
+  cacheUsername: async () => {
+    // Intentionally no-op: Do not cache or remember username after logout
   },
 
-  resetForm: () => set({ error: null, isLoading: false }),
+  resetForm: () => set({ username: "", error: null, isLoading: false }),
 }));

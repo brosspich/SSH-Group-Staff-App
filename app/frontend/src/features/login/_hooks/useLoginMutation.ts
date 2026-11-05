@@ -28,7 +28,6 @@ export function useLoginMutation() {
     onSuccess: async (data, variables) => {
       setError(null);
       setIsLoading(false);
-      await cacheUsername(variables.username);
 
       // Clear any prior user's queries
       queryClient.clear();

@@ -1,8 +1,8 @@
-import Constants from 'expo-constants';
-import { NativeModules, Platform } from 'react-native';
-import { secureStorage } from '../storage/secureStore.service';
-import { userService } from '../userService';
-import { ApiError } from './apiError';
+import Constants from "expo-constants";
+import { NativeModules, Platform } from "react-native";
+import { secureStorage } from "../storage/secureStore.service";
+import { userService } from "../userService";
+import { ApiError } from "./apiError";
 
 export interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
@@ -13,9 +13,14 @@ function getDevServerIp(): string | undefined {
   // 1. React Native SourceCode.scriptURL (guaranteed in development mode)
   try {
     const scriptURL = (NativeModules as any)?.SourceCode?.scriptURL;
-    if (typeof scriptURL === 'string') {
+    if (typeof scriptURL === "string") {
       const match = scriptURL.match(/https?:\/\/([^:/]+)/);
-      if (match && match[1] && match[1] !== 'localhost' && match[1] !== '127.0.0.1') {
+      if (
+        match &&
+        match[1] &&
+        match[1] !== "localhost" &&
+        match[1] !== "127.0.0.1"
+      ) {
         return match[1];
       }
     }
@@ -27,9 +32,9 @@ function getDevServerIp(): string | undefined {
       Constants.expoConfig?.hostUri ||
       (Constants as any)?.manifest?.debuggerHost ||
       (Constants as any)?.manifest2?.extra?.expoGo?.debuggerHost;
-    if (typeof hostUri === 'string') {
-      const ip = hostUri.split(':')[0];
-      if (ip && ip !== 'localhost' && ip !== '127.0.0.1') {
+    if (typeof hostUri === "string") {
+      const ip = hostUri.split(":")[0];
+      if (ip && ip !== "localhost" && ip !== "127.0.0.1") {
         return ip;
       }
     }
@@ -38,11 +43,16 @@ function getDevServerIp(): string | undefined {
   // 3. Expo linkingUri (e.g. "?url=http%3A%2F%2F192.168.1.182%3A8081")
   try {
     const linkingUri = Constants.linkingUri;
-    if (typeof linkingUri === 'string') {
+    if (typeof linkingUri === "string") {
       const match =
         linkingUri.match(/url=https?%3A%2F%2F([^%:]+)/i) ||
         linkingUri.match(/https?:\/\/([^:/]+)/);
-      if (match && match[1] && match[1] !== 'localhost' && match[1] !== '127.0.0.1') {
+      if (
+        match &&
+        match[1] &&
+        match[1] !== "localhost" &&
+        match[1] !== "127.0.0.1"
+      ) {
         return match[1];
       }
     }
@@ -56,22 +66,22 @@ function resolveCandidateBaseUrls(): string[] {
   const autoHostUrl = dynamicHost ? `http://${dynamicHost}:4000` : undefined;
   const envUrl = process.env.EXPO_PUBLIC_API_URL;
 
-  if (Platform.OS !== 'web') {
+  if (Platform.OS !== "web") {
     return [
       autoHostUrl,
-      envUrl && !envUrl.includes('127.0.0.1') && !envUrl.includes('localhost') ? envUrl : undefined,
-      'http://192.168.1.182:4000',
-      'http://192.168.1.134:4000',
-      'http://10.0.2.2:4000',
+      envUrl,
+      "http://192.168.1.199:4000",
+      "http://127.0.0.1:4000",
+      "http://localhost:4000",
+      "http://10.0.2.2:4000",
     ].filter(Boolean) as string[];
   }
 
   return [
     envUrl,
-    'http://127.0.0.1:4000',
-    'http://localhost:4000',
-    'http://192.168.1.182:4000',
-    'http://192.168.1.134:4000',
+    "http://127.0.0.1:4000",
+    "http://localhost:4000",
+    "http://192.168.1.199:4000",
   ].filter(Boolean) as string[];
 }
 
@@ -80,19 +90,28 @@ export class ApiClient {
 
   constructor(baseUrl?: string) {
     const initialCandidates = resolveCandidateBaseUrls();
-    this.baseUrl = (baseUrl || initialCandidates[0] || 'http://192.168.1.182:4000').replace(/\/+$/, '');
+    this.baseUrl = (
+      baseUrl ||
+      initialCandidates[0] ||
+      "http://192.168.1.199:4000"
+    ).replace(/\/+$/, "");
   }
 
   private async getAuthToken(): Promise<string | null> {
-    return await secureStorage.getItem('auth_token');
+    return await secureStorage.getItem("auth_token");
   }
 
-  private buildUrlWithBase(baseUrl: string, path: string, params?: Record<string, string | number | boolean | undefined>): string {
-    const isAbsolute = path.startsWith('http://') || path.startsWith('https://');
+  private buildUrlWithBase(
+    baseUrl: string,
+    path: string,
+    params?: Record<string, string | number | boolean | undefined>,
+  ): string {
+    const isAbsolute =
+      path.startsWith("http://") || path.startsWith("https://");
     let fullUrl = path;
 
     if (!isAbsolute) {
-      const cleanPath = path.startsWith('/') ? path : `/${path}`;
+      const cleanPath = path.startsWith("/") ? path : `/${path}`;
       fullUrl = `${baseUrl}${cleanPath}`;
     }
 
@@ -122,22 +141,31 @@ export class ApiClient {
     }
 
     const finalHeaders: Record<string, string> = {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
+      "Content-Type": "application/json",
+      Accept: "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(user ? {
-        'x-staff-id': user.id || user.staff_id || '',
-        'x-staff-username': user.username || '',
-        'x-staff-role': roleStr,
-      } : {}),
+      ...(user
+        ? {
+            "x-staff-id": user.id || user.staff_id || "",
+            "x-staff-username": user.username || "",
+            "x-staff-role": roleStr,
+          }
+        : {}),
       ...(headers as Record<string, string>),
     };
 
-    const isAbsolute = path.startsWith('http://') || path.startsWith('https://');
+    const isAbsolute =
+      path.startsWith("http://") || path.startsWith("https://");
     const dynamicCandidates = resolveCandidateBaseUrls();
     const targets = isAbsolute
       ? [this.baseUrl]
-      : Array.from(new Set([dynamicCandidates[0] || this.baseUrl, this.baseUrl, ...dynamicCandidates]));
+      : Array.from(
+          new Set([
+            dynamicCandidates[0] || this.baseUrl,
+            this.baseUrl,
+            ...dynamicCandidates,
+          ]),
+        );
 
     let lastError: any = null;
 
@@ -153,7 +181,7 @@ export class ApiClient {
         if (options.signal.aborted) {
           controller.abort();
         } else {
-          options.signal.addEventListener('abort', () => controller.abort());
+          options.signal.addEventListener("abort", () => controller.abort());
         }
       }
 
@@ -172,7 +200,7 @@ export class ApiClient {
           throw new ApiError(
             data?.message || `Request failed with status ${response.status}`,
             response.status,
-            data
+            data,
           );
         }
 
@@ -182,7 +210,12 @@ export class ApiClient {
         }
 
         // Automatically unwrap { success: true, data: T } responses from API
-        if (data && typeof data === 'object' && 'success' in data && 'data' in data) {
+        if (
+          data &&
+          typeof data === "object" &&
+          "success" in data &&
+          "data" in data
+        ) {
           return (data as any).data as T;
         }
 
@@ -192,7 +225,12 @@ export class ApiClient {
         lastError = error;
 
         // If it's a 4xx / 5xx ApiError response from the server, do not retry other hosts
-        if (error instanceof ApiError && error.statusCode && error.statusCode >= 400 && error.statusCode !== 408) {
+        if (
+          error instanceof ApiError &&
+          error.statusCode &&
+          error.statusCode >= 400 &&
+          error.statusCode !== 408
+        ) {
           throw error;
         }
 
@@ -201,39 +239,42 @@ export class ApiClient {
       }
     }
 
-    if (lastError?.name === 'AbortError' || lastError?.message?.includes('aborted')) {
+    if (
+      lastError?.name === "AbortError" ||
+      lastError?.message?.includes("aborted")
+    ) {
       throw new ApiError(
         `Connection timed out (${Math.round((options.timeout ?? 6000) / 1000)}s). Server unreachable.`,
         408,
-        lastError
+        lastError,
       );
     }
     if (lastError instanceof ApiError) {
       throw lastError;
     }
-    const rawMsg = (lastError as Error)?.message || '';
+    const rawMsg = (lastError as Error)?.message || "";
     if (
-      rawMsg.includes('ConnectException') ||
-      rawMsg.includes('failed to connect') ||
-      rawMsg.includes('Network request failed')
+      rawMsg.includes("ConnectException") ||
+      rawMsg.includes("failed to connect") ||
+      rawMsg.includes("Network request failed")
     ) {
       throw new ApiError(
-        'Cannot connect to server. Please check your network or server status.',
+        "Cannot connect to server. Please check your network or server status.",
         0,
-        lastError
+        lastError,
       );
     }
-    throw new ApiError(rawMsg || 'Network request failed', 0, lastError);
+    throw new ApiError(rawMsg || "Network request failed", 0, lastError);
   }
 
   get<T>(path: string, options?: RequestOptions): Promise<T> {
-    return this.request<T>(path, { ...options, method: 'GET' });
+    return this.request<T>(path, { ...options, method: "GET" });
   }
 
   post<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> {
     return this.request<T>(path, {
       ...options,
-      method: 'POST',
+      method: "POST",
       body: body ? JSON.stringify(body) : undefined,
     });
   }
@@ -241,13 +282,13 @@ export class ApiClient {
   put<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> {
     return this.request<T>(path, {
       ...options,
-      method: 'PUT',
+      method: "PUT",
       body: body ? JSON.stringify(body) : undefined,
     });
   }
 
   delete<T>(path: string, options?: RequestOptions): Promise<T> {
-    return this.request<T>(path, { ...options, method: 'DELETE' });
+    return this.request<T>(path, { ...options, method: "DELETE" });
   }
 }
 

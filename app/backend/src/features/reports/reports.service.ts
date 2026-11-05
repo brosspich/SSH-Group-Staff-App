@@ -52,7 +52,7 @@ export class ReportsService {
     const users = await prisma.user.findMany({
       where: companyId ? { companyId } : undefined,
       include: { attendanceLogs: true },
-      orderBy: { id: "asc" },
+      orderBy: [{ id: "asc" }, { companyId: "asc" }],
     });
 
     const staffList: StaffOptionDto[] = users
@@ -213,7 +213,7 @@ export class ReportsService {
     const users = await prisma.user.findMany({
       where: companyId ? { companyId } : undefined,
       include: { attendanceRequests: true },
-      orderBy: { id: "asc" },
+      orderBy: [{ id: "asc" }, { companyId: "asc" }],
     });
 
     const staffList: StaffOptionDto[] = users

@@ -29,16 +29,19 @@ export default function LoginScreen() {
   const error = useLoginStore((state) => state.error);
   const setError = useLoginStore((state) => state.setError);
   const isLoading = useLoginStore((state) => state.isLoading);
-  const loadCachedUsername = useLoginStore((state) => state.loadCachedUsername);
+  const resetForm = useLoginStore((state) => state.resetForm);
 
   const loginMutation = useLoginMutation();
 
   useEffect(() => {
-    loadCachedUsername();
+    // When visiting or logging out to LoginScreen, username and password must always be empty
+    resetForm();
+    setPassword("");
+
     AsyncStorage.getItem(PRIVACY_ACCEPTED_KEY).then((val) => {
       if (!val) setShowPrivacy(true);
     });
-  }, [loadCachedUsername, setShowPrivacy]);
+  }, [resetForm, setShowPrivacy]);
 
   const handlePrivacyAccept = useCallback(async () => {
     try {

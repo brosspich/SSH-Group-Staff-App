@@ -153,7 +153,7 @@ export class UsersController {
           attendanceLogs: true,
           attendanceRequests: true,
         },
-        orderBy: { username: "asc" },
+        orderBy: [{ id: "asc" }, { companyId: "asc" }],
       });
 
       return res.status(200).json({
