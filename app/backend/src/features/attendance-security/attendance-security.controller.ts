@@ -63,6 +63,7 @@ export class AttendanceSecurityController {
         longitude,
         isMocked,
         ipAddress,
+        previewOnly,
       } = req.body;
 
       if (!userId || !qrData) {
@@ -83,6 +84,7 @@ export class AttendanceSecurityController {
         longitude: typeof longitude === "number" ? longitude : undefined,
         isMocked: Boolean(isMocked),
         ipAddress,
+        previewOnly: Boolean(previewOnly),
       };
 
       const clientIp =
@@ -105,6 +107,44 @@ export class AttendanceSecurityController {
         error: {
           message:
             err?.message || "Internal server error processing attendance scan.",
+        },
+      });
+    }
+  }
+
+  async confirmAttendance(req: Request, res: Response) {
+    try {
+      const { userId, qrData, date, time, type, timestamp, name } = req.body;
+
+      if (!userId || !qrData) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: "userId and qrData are required to confirm attendance.",
+          },
+        });
+      }
+
+      const clientIp =
+        (req.headers["cf-connecting-ip"] as string) ||
+        (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() ||
+        req.socket.remoteAddress;
+
+      const result = await attendanceSecurityService.confirmAttendance(
+        req.body,
+        clientIp,
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: result,
+      });
+    } catch (err: any) {
+      return res.status(500).json({
+        success: false,
+        error: {
+          message:
+            err?.message || "Internal server error confirming attendance.",
         },
       });
     }

@@ -11,6 +11,7 @@ import { useResponsive } from "@/hooks/useResponsive";
 import { apiClient } from "@/services/api";
 import {
   scanAttendanceWithSecurity,
+  submitAttendanceRecord,
   verifyAttendanceSecurity,
 } from "@/services/locationService";
 import { StaffUser, userService } from "@/services/userService";
@@ -218,13 +219,13 @@ export default function HomeScreen() {
     }
 
     try {
-      setSavingAttendance(true);
-
-      // Backend 70%: Evaluates ALL conditions (QR validity, GPS geofence A vs B, Time window A vs B) & saves to DB!
+      // Backend 70%: Validates conditions (QR validity, GPS geofence A vs B, Time window A vs B)
+      // previewOnly: true -> Does NOT save to database and does NOT send to Telegram yet!
       const result = await scanAttendanceWithSecurity({
         userId: user?.id ?? "",
         systemId: user?.system_id,
         qrData: data,
+        previewOnly: true,
       });
 
       if (!result.allowed) {
@@ -253,9 +254,9 @@ export default function HomeScreen() {
         return;
       }
 
-      // Backend succeeded & generated record
+      // Backend succeeded & generated preview record for user confirmation
       if (result.record) {
-        const newRec: AttendanceRecord = {
+        const previewRec: AttendanceRecord = {
           id: result.record.id,
           staff_id: result.record.staff_id,
           system_id: result.record.system_id,
@@ -267,19 +268,7 @@ export default function HomeScreen() {
           qr_data: result.record.qr_data,
         };
 
-        setLastRecord(newRec);
-        setAttendanceList((prev) => [newRec, ...prev]);
-
-        // Sync local cache
-        if (user) {
-          const updatedUser: StaffUser = {
-            ...user,
-            attendance: [newRec, ...attendanceList],
-          };
-          setUser(updatedUser);
-          userService.save(updatedUser).catch(() => {});
-        }
-
+        setLastRecord(previewRec);
         setScannerVisible(false);
         setTimeout(() => {
           setSuccessModalVisible(true);
@@ -291,15 +280,70 @@ export default function HomeScreen() {
         e?.message || "Failed to process attendance scan. Please try again.",
       );
     } finally {
-      setSavingAttendance(false);
       isScanningRef.current = false;
       setScanned(false);
     }
   };
 
-  // Confirm attendance record (Backend already persisted to DB)
-  const handleConfirmAttendance = () => {
-    setSuccessModalVisible(false);
+  // Submit attendance record: commits to Database & dispatches to Telegram!
+  const handleConfirmAttendance = async () => {
+    if (!lastRecord || !user?.id) return;
+
+    try {
+      setSavingAttendance(true);
+
+      const result = await submitAttendanceRecord({
+        userId: user.id,
+        systemId: user.system_id || lastRecord.system_id,
+        qrData: lastRecord.qr_data || "",
+        date: lastRecord.date,
+        time: lastRecord.time,
+        type: lastRecord.type,
+        timestamp: lastRecord.timestamp,
+        name: lastRecord.name,
+      });
+
+      if (result?.record) {
+        const savedRec: AttendanceRecord = {
+          id: result.record.id,
+          staff_id: result.record.staff_id,
+          system_id: result.record.system_id,
+          name: result.record.name,
+          date: result.record.date,
+          time: result.record.time,
+          type: result.record.type,
+          timestamp: result.record.timestamp,
+          qr_data: result.record.qr_data,
+        };
+
+        // Append to local attendance history
+        setAttendanceList((prev) => [savedRec, ...prev]);
+
+        // Sync local cache
+        const updatedUser: StaffUser = {
+          ...user,
+          attendance: [savedRec, ...attendanceList],
+        };
+        setUser(updatedUser);
+        userService.save(updatedUser).catch(() => {});
+
+        if (Platform.OS !== "web") {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+
+        setSuccessModalVisible(false);
+        setLastRecord(null);
+      }
+    } catch (e: any) {
+      Alert.alert(
+        "Submission Error",
+        e?.message || "Failed to submit attendance. Please try again.",
+      );
+    } finally {
+      setSavingAttendance(false);
+      isScanningRef.current = false;
+      setScanned(false);
+    }
   };
 
   // Calculate today's status badges
@@ -424,6 +468,7 @@ export default function HomeScreen() {
         onConfirm={handleConfirmAttendance}
         onClose={() => {
           setSuccessModalVisible(false);
+          setLastRecord(null);
           isScanningRef.current = false;
           setScanned(false);
         }}

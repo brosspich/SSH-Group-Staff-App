@@ -307,9 +307,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   // Periodic heartbeat (every 10 seconds)
   useEffect(() => {
-    if (!ready || !user?.id) return;
+    if (!ready || (!user?.id && !user?.system_id)) return;
 
-    syncDeviceSession(user.id, true).catch((e) =>
+    const targetUserId = user.system_id || user.id;
+    syncDeviceSession(targetUserId, true).catch((e) =>
       console.warn("Initial heartbeat sync failed:", e),
     );
 

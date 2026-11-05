@@ -1,6 +1,8 @@
 import { prisma } from "../../infrastructure/database/prisma.js";
 import {
   AttendanceRecordDto,
+  ConfirmAttendancePayload,
+  ConfirmAttendanceResult,
   ProcessScanPayload,
   ProcessScanResult,
   SecurityCheckResult,
@@ -260,6 +262,15 @@ export class AttendanceSecurityService {
       qr_data: qrData,
     };
 
+    // Default to previewOnly (scan stage before user taps Submit):
+    // Do NOT write to DB, and do NOT send to Telegram on scan!
+    if (payload.previewOnly !== false) {
+      return {
+        allowed: true,
+        record: newRecord,
+      };
+    }
+
     // ── 7. Save to Database (AttendanceLog table) ──
     try {
       await prisma.attendanceLog.create({
@@ -294,6 +305,114 @@ export class AttendanceSecurityService {
     return {
       allowed: true,
       record: newRecord,
+    };
+  }
+
+  /**
+   * Commits Attendance to Database & Dispatches Telegram Notification (Backend 70%).
+   * Triggered when the user taps "Submit" on the Confirm Attendance modal.
+   */
+  async confirmAttendance(
+    payload: ConfirmAttendancePayload,
+    clientIp?: string,
+  ): Promise<ConfirmAttendanceResult> {
+    const { userId, qrData, date, time, type, timestamp } = payload;
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ systemId: userId }, { id: userId }],
+      },
+      include: {
+        details: { include: { company: true } },
+      },
+    });
+
+    if (!user) {
+      throw new Error(`User with ID ${userId} does not exist.`);
+    }
+
+    const company =
+      user.details?.company ||
+      (await prisma.company.findFirst({ orderBy: { id: "asc" } }));
+
+    if (!company) {
+      throw new Error("User is not assigned to an active company.");
+    }
+
+    const now = timestamp ? new Date(timestamp) : new Date();
+    const dateStr = date || formatServerDateYMD(now);
+    const timeStr = time || formatServerTime12h(now);
+    const effectiveType = type || "time-in";
+
+    // 1. Generate sequential record ID
+    let existingList: any[] = [];
+    try {
+      const rawUserAtt = (user as any).attendance;
+      if (Array.isArray(rawUserAtt)) {
+        existingList = rawUserAtt;
+      } else if (typeof rawUserAtt === "string" && rawUserAtt.trim()) {
+        existingList = JSON.parse(rawUserAtt);
+      }
+    } catch {}
+
+    const nextId = generateNextAttendanceId(existingList);
+
+    const record: AttendanceRecordDto = {
+      id: nextId,
+      staff_id: user.id,
+      system_id: company.id,
+      name:
+        payload.name || user.details?.name || user.username || "Staff Member",
+      date: dateStr,
+      time: timeStr,
+      type: effectiveType,
+      timestamp: now.toISOString(),
+      qr_data: qrData,
+    };
+
+    // 2. Persist to Database (AttendanceLog table)
+    try {
+      await prisma.attendanceLog.create({
+        data: {
+          id: `${user.id}_${nextId}_${Date.now()}`,
+          userId: user.systemId,
+          companyId: company.id,
+          scanDate: dateStr,
+          scanTime: timeStr,
+          type: effectiveType.toUpperCase().replace("-", "_"),
+          qrData,
+          createdAt: now,
+        },
+      });
+      console.log(
+        `[Attendance] Successfully stored attendance record in Database for user ${user.id} (${user.systemId})`,
+      );
+    } catch (e: any) {
+      console.warn("Could not insert to AttendanceLog:", e?.message);
+    }
+
+    // Also sync to legacy ssh_group_staff_users if present
+    try {
+      const updatedAttendanceList = [record, ...existingList];
+      await prisma.$executeRawUnsafe(
+        "UPDATE ssh_group_staff_users SET attendance = ? WHERE id = ?",
+        JSON.stringify(updatedAttendanceList),
+        user.id,
+      );
+    } catch {}
+
+    // 3. Dispatch Telegram Notification
+    console.log(
+      `[Attendance] Dispatching Telegram alert for user ${user.id} to company ${company.name}`,
+    );
+    await this.sendTelegramNotification(company, record).catch((err) => {
+      console.warn("Error sending Telegram notification:", err);
+    });
+    console.log(`[Attendance] Telegram alert dispatched.`);
+
+    return {
+      success: true,
+      record,
     };
   }
 

@@ -19,7 +19,8 @@ export function formatUserForResponse(user: any) {
 
   const details = user.details || {};
   const company = details.company || user.company || null;
-  const companyId = details.companyId || user.companyId || (company ? company.id : null);
+  const companyId =
+    details.companyId || user.companyId || (company ? company.id : null);
   const staffId = user.id;
   const systemId =
     user.systemId ||
@@ -33,22 +34,46 @@ export function formatUserForResponse(user: any) {
   const dob = details.dob || null;
   const joined = details.joined || null;
 
-  // Format device sessions into devices array
+  // Format device sessions into devices array with full snake_case and camelCase compatibility
   const devices = (user.deviceSessions || []).map((d: any) => ({
     id: d.id,
-    deviceName: d.deviceName,
-    modelName: d.modelName,
-    os: d.os,
-    osVersion: d.osVersion,
-    appVersion: d.appVersion,
-    ip: d.ipAddress,
-    ipAddress: d.ipAddress,
-    location: parseJsonSafe(d.location),
+    deviceName: d.deviceName || d.modelName || "Device",
+    device_name: d.deviceName || d.modelName || "Device",
+    modelName: d.modelName || d.deviceName || "",
+    model_name: d.modelName || d.deviceName || "",
+    device_type:
+      d.os === "Web" || d.os === "web"
+        ? "web"
+        : (d.deviceName || "").toLowerCase().includes("tablet")
+          ? "tablet"
+          : "phone",
+    deviceType:
+      d.os === "Web" || d.os === "web"
+        ? "web"
+        : (d.deviceName || "").toLowerCase().includes("tablet")
+          ? "tablet"
+          : "phone",
+    os: d.os || "Android",
+    osVersion: d.osVersion || "",
+    os_version: d.osVersion || "",
+    appVersion: d.appVersion || "1.0.1.10311",
+    app_version: d.appVersion || "1.0.1.10311",
+    ip: d.ipAddress || "",
+    ipAddress: d.ipAddress || "",
+    ip_address: d.ipAddress || "",
+    location:
+      typeof d.location === "string"
+        ? d.location
+        : parseJsonSafe(d.location) || "Phnom Penh, Cambodia",
     isTerminated: d.isTerminated === 1 ? "true" : "false",
     terminate: d.isTerminated === 1 ? "true" : "false",
     lastActive:
       d.lastActive instanceof Date ? d.lastActive.toISOString() : d.lastActive,
+    last_active:
+      d.lastActive instanceof Date ? d.lastActive.toISOString() : d.lastActive,
     lastLogin:
+      d.lastLogin instanceof Date ? d.lastLogin.toISOString() : d.lastLogin,
+    last_login:
       d.lastLogin instanceof Date ? d.lastLogin.toISOString() : d.lastLogin,
   }));
 
@@ -172,10 +197,7 @@ export class UsersController {
         ];
       } else {
         if (id) {
-          whereUser.OR = [
-            { id: String(id) },
-            { systemId: String(id) },
-          ];
+          whereUser.OR = [{ id: String(id) }, { systemId: String(id) }];
         }
         if (username) whereUser.username = String(username);
         if (email) whereDetails.email = String(email);
@@ -215,10 +237,7 @@ export class UsersController {
       const { id } = req.params;
       const user = await prisma.user.findFirst({
         where: {
-          OR: [
-            { systemId: String(id) },
-            { id: String(id) },
-          ],
+          OR: [{ systemId: String(id) }, { id: String(id) }],
         },
         include: {
           details: { include: { company: true } },
@@ -256,7 +275,11 @@ export class UsersController {
       const prefix = match ? match[1].toLowerCase() : "system-0001";
 
       const users = await prisma.user.findMany({
-        select: { systemId: true, id: true, details: { select: { companyId: true } } },
+        select: {
+          systemId: true,
+          id: true,
+          details: { select: { companyId: true } },
+        },
       });
 
       let maxSuffix = 0;
@@ -323,8 +346,11 @@ export class UsersController {
         payload.system_id ||
         "system-0001";
 
-      const cleanId = payload.id ? String(payload.id).trim() : String(Date.now()).slice(-4);
-      const systemId = payload.system_id || payload.systemId || `${companyId}-${cleanId}`;
+      const cleanId = payload.id
+        ? String(payload.id).trim()
+        : String(Date.now()).slice(-4);
+      const systemId =
+        payload.system_id || payload.systemId || `${companyId}-${cleanId}`;
 
       // Check systemId uniqueness
       const existingSys = await prisma.user.findUnique({
@@ -378,7 +404,9 @@ export class UsersController {
               name: payload.name ? String(payload.name).trim() : null,
               email: payload.email ? String(payload.email).trim() : null,
               phone: payload.phone ? String(payload.phone).trim() : null,
-              position: payload.position ? String(payload.position).trim() : null,
+              position: payload.position
+                ? String(payload.position).trim()
+                : null,
               dob: payload.dob ? String(payload.dob).trim() : null,
               joined: payload.joined ? String(payload.joined).trim() : null,
             },
@@ -508,11 +536,15 @@ export class UsersController {
               subject: reqRule.subject || "Attendance Request",
               remark: reqRule.remark || null,
               status: reqRule.status || "pending",
-              fromDate: reqRule.fromDate || reqRule.from_date || reqRule.date || null,
-              fromTime: reqRule.fromTime || reqRule.from_time || reqRule.time || null,
+              fromDate:
+                reqRule.fromDate || reqRule.from_date || reqRule.date || null,
+              fromTime:
+                reqRule.fromTime || reqRule.from_time || reqRule.time || null,
               toDate: reqRule.toDate || reqRule.to_date || null,
               toTime: reqRule.toTime || reqRule.to_time || null,
-              createdAt: reqRule.createdAt ? new Date(reqRule.createdAt) : new Date(),
+              createdAt: reqRule.createdAt
+                ? new Date(reqRule.createdAt)
+                : new Date(),
             },
             update: {
               status: reqRule.status || "pending",
@@ -558,7 +590,8 @@ export class UsersController {
       if (payload.position !== undefined)
         detailsUpdateData.position = payload.position;
       if (payload.dob !== undefined) detailsUpdateData.dob = payload.dob;
-      if (payload.joined !== undefined) detailsUpdateData.joined = payload.joined;
+      if (payload.joined !== undefined)
+        detailsUpdateData.joined = payload.joined;
 
       const compId =
         payload.companyId ||

@@ -41,7 +41,7 @@ export function useLoginMutation() {
       setUser(data.user);
 
       try {
-        await syncDeviceSession(data.user.id, true);
+        await syncDeviceSession(data.user.system_id || data.user.id, true, true);
       } catch (err) {
         console.warn("Failed to sync device session during login:", err);
       }

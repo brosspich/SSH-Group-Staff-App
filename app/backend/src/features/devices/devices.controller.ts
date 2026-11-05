@@ -38,6 +38,10 @@ export class DevicesController {
         data: session,
       });
     } catch (err: any) {
+      console.error(
+        "[DevicesController] syncSession error:",
+        err?.message || err,
+      );
       return res.status(400).json({
         success: false,
         error: { message: err?.message || "Failed to sync device session." },
@@ -79,6 +83,29 @@ export class DevicesController {
         success: false,
         error: {
           message: err?.message || "Failed to terminate other sessions.",
+        },
+      });
+    }
+  }
+
+  async autoTerminateInactive(req: Request, res: Response) {
+    try {
+      const { userId, currentSessionId, period } = req.body;
+      const count = await devicesService.autoTerminateInactiveSessions(
+        userId,
+        currentSessionId,
+        period,
+      );
+      return res.status(200).json({
+        success: true,
+        data: { terminatedCount: count },
+      });
+    } catch (err: any) {
+      return res.status(500).json({
+        success: false,
+        error: {
+          message:
+            err?.message || "Failed to auto-terminate inactive sessions.",
         },
       });
     }

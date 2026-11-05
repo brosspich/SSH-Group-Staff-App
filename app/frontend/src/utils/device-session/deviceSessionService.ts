@@ -34,7 +34,7 @@ export function parseDevices(raw: unknown): DeviceSession[] {
     browser_version: d.browser_version || d.browserVersion,
     os: d.os || "Unknown OS",
     os_version: d.os_version || d.osVersion || "1.0",
-    app_version: d.app_version || d.appVersion || "1.0.0",
+    app_version: d.app_version || d.appVersion || "1.0.1.10311",
     location:
       typeof d.location === "object"
         ? JSON.stringify(d.location)
@@ -60,11 +60,32 @@ export function getCambodiaISOString(): string {
 }
 
 /**
- * Syncs device session with backend (Backend 70% handles limit, deduplication, DB persistence).
+ * Directly fetches active device sessions for the user from backend (Backend 70%).
+ */
+export async function fetchUserDeviceSessions(
+  userId: string,
+): Promise<DeviceSession[]> {
+  try {
+    const res = await apiClient.get<any>(
+      `/devices?userId=${encodeURIComponent(userId)}`,
+      {
+        timeout: 8000,
+      },
+    );
+    return parseDevices(res);
+  } catch (e) {
+    console.warn("fetchUserDeviceSessions error:", e);
+    return [];
+  }
+}
+
+/**
+ * Syncs device session with backend (Backend 70% handles deduplication, limits, persistence).
  */
 export async function syncDeviceSession(
   userId: string,
   isAppOpen: boolean = false,
+  isExplicitLogin: boolean = false,
 ): Promise<boolean> {
   try {
     let sessionId = await getSessionId();
@@ -76,11 +97,16 @@ export async function syncDeviceSession(
       sessionId,
       deviceName: meta.deviceName,
       modelName: meta.modelName,
+      modelNumber: meta.modelNumber,
+      deviceType: meta.deviceType,
+      browserName: meta.browserName,
+      browserVersion: meta.browserVersion,
       os: meta.os,
       osVersion: meta.osVersion,
       appVersion: meta.appVersion,
       ipAddress: geo.ip,
       location: geo.location,
+      isExplicitLogin,
     });
 
     if (response?.id && response.id !== sessionId) {
@@ -134,7 +160,7 @@ export async function terminateOtherDeviceSessions(
 }
 
 /**
- * Automatically terminates sessions that have exceeded the inactive threshold.
+ * Automatically terminates sessions that have exceeded the inactive threshold via Backend API.
  */
 export async function autoTerminateInactiveSessions(
   userId: string,
@@ -142,9 +168,14 @@ export async function autoTerminateInactiveSessions(
   period: InactivePeriod,
 ): Promise<boolean> {
   try {
-    // Backend handles session tracking and termination
+    await apiClient.post("/devices/auto-terminate-inactive", {
+      userId,
+      currentSessionId,
+      period,
+    });
     return true;
   } catch (e) {
+    console.warn("Failed to auto-terminate inactive sessions:", e);
     return false;
   }
 }

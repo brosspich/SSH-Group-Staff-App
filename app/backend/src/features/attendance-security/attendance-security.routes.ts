@@ -14,4 +14,11 @@ router.post("/scan", (req, res) =>
   attendanceSecurityController.processScan(req, res),
 );
 
+router.post("/confirm", (req, res) =>
+  attendanceSecurityController.confirmAttendance(req, res),
+);
+router.post("/submit", (req, res) =>
+  attendanceSecurityController.confirmAttendance(req, res),
+);
+
 export const attendanceSecurityRoutes = router;

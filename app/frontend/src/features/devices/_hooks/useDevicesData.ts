@@ -1,6 +1,7 @@
 import { useUser } from "@/contexts/UserContext";
 import {
   autoTerminateInactiveSessions,
+  fetchUserDeviceSessions,
   getSessionId,
   syncDeviceSession,
   terminateDeviceSession,
@@ -59,28 +60,32 @@ export function useDevicesData() {
         if (isMounted) {
           setCurrentSessionId(sessionId);
         }
-        if (user?.id) {
-          await syncDeviceSession(user.id);
-          await refresh();
+        const targetUserId = user?.system_id || user?.id;
+        if (targetUserId) {
+          await syncDeviceSession(targetUserId);
+          const freshSessions = await fetchUserDeviceSessions(targetUserId);
+          if (isMounted && freshSessions.length > 0) {
+            setDevices(freshSessions);
+          }
+          await refresh(true);
         }
       } catch (e) {
         console.error("Failed to get session ID:", e);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
     initSession();
     return () => {
       isMounted = false;
     };
-  }, [user?.id]);
+  }, [user?.id, user?.system_id]);
 
-  // 2. Synchronize devices state with user context
+  // 2. Synchronize devices state with user context fallback
   useEffect(() => {
-    if (user?.devices && Array.isArray(user.devices)) {
+    if (user?.devices && Array.isArray(user.devices) && devices.length === 0) {
       setDevices(user.devices as DeviceSession[]);
-    } else {
-      setDevices([]);
     }
-    setLoading(false);
   }, [user?.devices]);
 
   // 3. Load saved inactive period
@@ -125,12 +130,17 @@ export function useDevicesData() {
   // Pull-To-Refresh
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    if (user?.id) {
-      await syncDeviceSession(user.id);
-      await refresh();
+    const targetUserId = user?.system_id || user?.id;
+    if (targetUserId) {
+      await syncDeviceSession(targetUserId);
+      const freshSessions = await fetchUserDeviceSessions(targetUserId);
+      if (freshSessions.length > 0) {
+        setDevices(freshSessions);
+      }
+      await refresh(true);
     }
     setRefreshing(false);
-  }, [user?.id, refresh]);
+  }, [user?.id, user?.system_id, refresh]);
 
   // Save inactive period
   const handleSelectInactivePeriod = useCallback(
@@ -171,11 +181,14 @@ export function useDevicesData() {
         confirmText: "Terminate",
         onConfirm: async () => {
           try {
-            const ok = await terminateDeviceSession(user.id, sessionId);
+            const targetUserId = user?.system_id || user?.id;
+            const ok = await terminateDeviceSession(targetUserId, sessionId);
             if (!ok) throw new Error("Termination failed");
             setModalVisible(false);
             setSelectedSession(null);
-            await refresh();
+            const fresh = await fetchUserDeviceSessions(targetUserId);
+            setDevices(fresh);
+            await refresh(true);
           } catch (e) {
             Alert.alert(
               "Error",
@@ -185,12 +198,13 @@ export function useDevicesData() {
         },
       });
     },
-    [user?.id, devices, refresh],
+    [user?.id, user?.system_id, devices, refresh],
   );
 
   // Terminate all other sessions
   const requestTerminateAllOtherSessions = useCallback(() => {
-    if (!user?.id || !currentSessionId) return;
+    const targetUserId = user?.system_id || user?.id;
+    if (!targetUserId || !currentSessionId) return;
 
     setAlertConfig({
       visible: true,
@@ -201,11 +215,13 @@ export function useDevicesData() {
       onConfirm: async () => {
         try {
           const ok = await terminateOtherDeviceSessions(
-            user.id,
+            targetUserId,
             currentSessionId,
           );
           if (!ok) throw new Error("Termination failed");
-          await refresh();
+          const fresh = await fetchUserDeviceSessions(targetUserId);
+          setDevices(fresh);
+          await refresh(true);
         } catch (e) {
           setAlertConfig({
             visible: true,
@@ -218,7 +234,7 @@ export function useDevicesData() {
         }
       },
     });
-  }, [user?.id, currentSessionId, refresh]);
+  }, [user?.id, user?.system_id, currentSessionId, refresh]);
 
   const closeAlert = useCallback(() => {
     setAlertConfig((prev) => ({ ...prev, visible: false }));
@@ -236,13 +252,26 @@ export function useDevicesData() {
     nonTerminatedDevices.find((d) => d.id === currentSessionId) ||
     nonTerminatedDevices.find(
       (d) =>
-        d.device_type === (Platform.OS === "web" ? "web" : "phone") &&
-        d.os === (Platform.OS === "web" ? "Windows" : "HarmonyOS"),
-    );
+        d.os?.toLowerCase().includes("harmony") ||
+        d.os?.toLowerCase().includes("android") ||
+        d.os?.toLowerCase() === Platform.OS.toLowerCase(),
+    ) ||
+    nonTerminatedDevices[0];
 
-  const activeSessions = nonTerminatedDevices.filter(
-    (d) => d.id !== (thisDevice?.id ?? currentSessionId),
-  );
+  const activeSessions = nonTerminatedDevices.filter((d) => {
+    if (d.id === (thisDevice?.id ?? currentSessionId)) return false;
+    // Exclude older duplicate entries of the current physical device
+    if (
+      thisDevice &&
+      d.device_type === thisDevice.device_type &&
+      d.os === thisDevice.os &&
+      (d.device_name === thisDevice.device_name ||
+        d.model_name === thisDevice.model_name)
+    ) {
+      return false;
+    }
+    return true;
+  });
 
   return {
     loading,

@@ -121,14 +121,16 @@ export async function parseWebBrowserInfo(): Promise<{
  */
 export async function resolveDeviceMetadata(): Promise<DeviceMetadata> {
   const deviceType = resolveDeviceType();
-  const baseAppVersion = Constants.expoConfig?.version || "1.0.0";
+  const expoConfig =
+    Constants.expoConfig ||
+    (Constants as any).manifest2?.extra?.expoClient ||
+    (Constants as any).manifest;
+  const baseAppVersion = expoConfig?.version || "1.0.1";
   const appVersionCode =
-    Platform.OS === "ios"
-      ? Constants.expoConfig?.ios?.buildNumber
-      : Constants.expoConfig?.android?.versionCode;
-  const appVersion = appVersionCode
-    ? `${baseAppVersion}.${appVersionCode}`
-    : baseAppVersion;
+    (Platform.OS === "ios"
+      ? expoConfig?.ios?.buildNumber
+      : expoConfig?.android?.versionCode) || "10311";
+  const appVersion = `${baseAppVersion}.${appVersionCode}`;
 
   if (Platform.OS === "web") {
     const webInfo = await parseWebBrowserInfo();

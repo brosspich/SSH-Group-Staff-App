@@ -38,6 +38,26 @@ export interface ProcessScanPayload {
   longitude?: number;
   isMocked?: boolean;
   ipAddress?: string;
+  previewOnly?: boolean;
+}
+
+export interface ConfirmAttendancePayload {
+  userId: string;
+  systemId?: string;
+  qrData: string;
+  date: string;
+  time: string;
+  type: "time-in" | "time-out" | "time-other";
+  timestamp?: string;
+  name?: string;
+  latitude?: number;
+  longitude?: number;
+  ipAddress?: string;
+}
+
+export interface ConfirmAttendanceResult {
+  success: boolean;
+  record: AttendanceRecordDto;
 }
 
 export interface AttendanceRecordDto {

@@ -6,6 +6,7 @@
     "strict": true,
     "skipLibCheck": true,
     "noImplicitAny": false,
+    "noEmit": true,
     "paths": {
       "@/*": ["./src/*"],
       "@/features/*": ["./src/features/*"],

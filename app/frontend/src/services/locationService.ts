@@ -178,12 +178,14 @@ export interface ProcessScanResult {
 }
 
 /**
- * Executes End-to-End Attendance Scan (Frontend 30% Sensors/UI -> Backend 70% Conditions/DB)
+ * Executes Attendance Scan Verification (Frontend 30% Sensors/UI -> Backend 70% Conditions/Validation).
+ * By default previewOnly = true, so DB insert and Telegram alert occur ONLY when user taps Submit!
  */
 export async function scanAttendanceWithSecurity(payload: {
   userId: string;
   systemId?: string;
   qrData: string;
+  previewOnly?: boolean;
 }): Promise<ProcessScanResult> {
   try {
     let coords = { latitude: 0, longitude: 0 };
@@ -207,7 +209,8 @@ export async function scanAttendanceWithSecurity(payload: {
       }
     }
 
-    // Call Backend 70%: Backend evaluates ALL conditions (A vs B, QR validity, Time window) & saves to DB!
+    // Call Backend 70%: Validates conditions (Geofence, QR validity, Time window).
+    // previewOnly: true ensures NO DB insert and NO Telegram message until user taps Submit!
     const result = await apiClient.post<ProcessScanResult>(
       "/attendance-security/scan",
       {
@@ -218,6 +221,7 @@ export async function scanAttendanceWithSecurity(payload: {
         longitude: coords.longitude || undefined,
         isMocked,
         ipAddress: localIp,
+        previewOnly: payload.previewOnly ?? true,
       },
     );
 
@@ -229,4 +233,27 @@ export async function scanAttendanceWithSecurity(payload: {
       reason: err?.message || "Failed to process attendance scan with server.",
     };
   }
+}
+
+/**
+ * Commits Attendance to Database & Dispatches Telegram Alert (Backend 70%).
+ * Called when the user taps "Submit" on the Confirm Attendance modal.
+ */
+export async function submitAttendanceRecord(payload: {
+  userId: string;
+  systemId?: string;
+  qrData: string;
+  date: string;
+  time: string;
+  type: "time-in" | "time-out" | "time-other";
+  timestamp?: string;
+  name?: string;
+}): Promise<{
+  success: boolean;
+  record: NonNullable<ProcessScanResult["record"]>;
+}> {
+  return await apiClient.post<{
+    success: boolean;
+    record: NonNullable<ProcessScanResult["record"]>;
+  }>("/attendance-security/confirm", payload);
 }
