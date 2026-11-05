@@ -2,14 +2,14 @@
   "expo": {
     "name": "SSH Group Staff",
     "slug": "ssh-group-staff-app",
-    // 1.0.0 = app version (Apple allows max 3 numbers: major.minor.patch)
-    "version": "1.0.0",
+    // 1.0.1 = app version (Apple allows max 3 numbers: major.minor.patch)
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
     "scheme": "sshgroupstaffapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "buildNumber": "62410",
+      "buildNumber": "10311",
       "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
       "bundleIdentifier": "com.sshgroups.staff",
       "infoPlist": {
@@ -42,7 +42,7 @@
     },
     "android": {
       // "targetSdkVersion": 36,
-      "versionCode": 62410,
+      "versionCode": 10311,
       "predictiveBackGestureEnabled": false,
       "package": "com.sshgroups.staff",
       // "screenOrientation": "unspecified",
