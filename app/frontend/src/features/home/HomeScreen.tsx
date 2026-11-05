@@ -1,21 +1,22 @@
-import AppBarGlass from "@/shared/components/appbar/AppBarGlass";
-import ScannerModal from "@/features/home/_components/ScannerModal";
-import SuccessConfirmationModal from "@/features/home/_components/SuccessConfirmationModal";
-import Loading from "@/shared/components/loading/loading";
-import { RequestAttendanceModal } from "@/features/home/_components/RequestAttendanceModal";
 import { AppColors } from "@/constants/appcolors";
 import {
   calculateAttendanceType,
   fetchOfficialAttendanceConfig,
   getTimeWindowDisplay,
-  isValidAttendanceQR,
 } from "@/constants/attendanceConfig";
+import { RequestAttendanceModal } from "@/features/home/_components/RequestAttendanceModal";
+import ScannerModal from "@/features/home/_components/ScannerModal";
+import SuccessConfirmationModal from "@/features/home/_components/SuccessConfirmationModal";
 import { useResponsive } from "@/hooks/useResponsive";
 import { apiClient } from "@/services/api";
-import { verifyAttendanceSecurity } from "@/services/locationService";
-import { sendAttendanceToTelegram } from "@/services/telegramService";
+import {
+  scanAttendanceWithSecurity,
+  verifyAttendanceSecurity,
+} from "@/services/locationService";
 import { StaffUser, userService } from "@/services/userService";
 import { renderAlertModal } from "@/shared/components/alert/alert";
+import AppBarGlass from "@/shared/components/appbar/AppBarGlass";
+import Loading from "@/shared/components/loading/loading";
 import { useCameraPermissions } from "expo-camera";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
@@ -37,11 +38,7 @@ import { HomeWelcomeBanner } from "./_components/HomeWelcomeBanner";
 import { RecentAttendanceHistory } from "./_components/RecentAttendanceHistory";
 import { TodayAttendanceSummary } from "./_components/TodayAttendanceSummary";
 import { AttendanceRecord, AttendanceType } from "./_types/home.types";
-import {
-  formatDateYMD,
-  formatTime12h,
-  generateNextAttendanceId,
-} from "./_utils/homeUtils";
+import { formatDateYMD } from "./_utils/homeUtils";
 
 export * from "./_types/home.types";
 export * from "./_utils/homeUtils";
@@ -208,10 +205,10 @@ export default function HomeScreen() {
     setRequestModalVisible(true);
   };
 
-  // QR Code Scanner Handler
+  // QR Code Scanner Handler (Thin Client: 30% UI/Sensor -> Backend: 70% Conditions/DB)
   const isScanningRef = useRef(false);
 
-  const handleBarCodeScanned = ({ data }: { data: string }) => {
+  const handleBarCodeScanned = async ({ data }: { data: string }) => {
     if (scanned || isScanningRef.current) return;
     isScanningRef.current = true;
     setScanned(true);
@@ -220,81 +217,89 @@ export default function HomeScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
 
-    const isValid = isValidAttendanceQR(data, officialQrList);
-
-    if (!isValid) {
-      setScannerVisible(false);
-      setTimeout(() => {
-        setInvalidQrModalVisible(true);
-      }, 350);
-      return;
-    }
-
-    const scanMoment = new Date();
-    const evaluatedType = calculateAttendanceType(
-      scanMoment,
-      timeInConfig,
-      timeOutConfig,
-    );
-    const dateStr = formatDateYMD(scanMoment);
-    const timeStr = formatTime12h(scanMoment);
-    const nextAttId = generateNextAttendanceId(attendanceList);
-
-    const newRecord: AttendanceRecord = {
-      id: nextAttId,
-      staff_id: user?.id ?? "UNKNOWN",
-      system_id: user?.system_id,
-      name: user?.name ?? "Staff Member",
-      date: dateStr,
-      time: timeStr,
-      type: evaluatedType,
-      timestamp: scanMoment.toISOString(),
-      qr_data: data,
-    };
-
-    setLastRecord(newRecord);
-    setScannerVisible(false);
-    setTimeout(() => {
-      setSuccessModalVisible(true);
-    }, 400);
-  };
-
-  // Confirm attendance record
-  const handleConfirmAttendance = async () => {
-    if (!lastRecord || !user?.id) {
-      setSuccessModalVisible(false);
-      return;
-    }
-
-    setSavingAttendance(true);
-    const updatedList = [lastRecord, ...attendanceList];
-
     try {
-      await apiClient
-        .put(`/users-query/${user.id}`, { attendance: updatedList })
-        .catch((err) =>
-          console.warn("Failed to update attendance in backend:", err),
-        );
+      setSavingAttendance(true);
 
-      const updatedUser: StaffUser = { ...user, attendance: updatedList };
-      setUser(updatedUser);
-      setAttendanceList(updatedList);
-      await userService.save(updatedUser);
+      // Backend 70%: Evaluates ALL conditions (QR validity, GPS geofence A vs B, Time window A vs B) & saves to DB!
+      const result = await scanAttendanceWithSecurity({
+        userId: user?.id ?? "",
+        systemId: user?.system_id,
+        qrData: data,
+      });
 
-      sendAttendanceToTelegram(
-        { ...lastRecord, system_id: user.system_id || lastRecord.system_id },
-        undefined,
-        user.system_id,
+      if (!result.allowed) {
+        setScannerVisible(false);
+        if (result.code === "INVALID_QR") {
+          setTimeout(() => {
+            setInvalidQrModalVisible(true);
+          }, 350);
+        } else {
+          let title = "Security Verification Failed";
+          if (result.code === "OUT_OF_RANGE") {
+            title = "Outside Company Location";
+          } else if (result.code === "MOCK_LOCATION") {
+            title = "Mock Location Detected";
+          } else if (result.code === "VPN_DETECTED") {
+            title = "VPN Connection Detected";
+          }
+          setSecurityErrorTitle(title);
+          setSecurityErrorMessage(
+            result.reason || "Unable to verify security rules for attendance.",
+          );
+          setTimeout(() => {
+            setSecurityModalVisible(true);
+          }, 350);
+        }
+        return;
+      }
+
+      // Backend succeeded & generated record
+      if (result.record) {
+        const newRec: AttendanceRecord = {
+          id: result.record.id,
+          staff_id: result.record.staff_id,
+          system_id: result.record.system_id,
+          name: result.record.name,
+          date: result.record.date,
+          time: result.record.time,
+          type: result.record.type,
+          timestamp: result.record.timestamp,
+          qr_data: result.record.qr_data,
+        };
+
+        setLastRecord(newRec);
+        setAttendanceList((prev) => [newRec, ...prev]);
+
+        // Sync local cache
+        if (user) {
+          const updatedUser: StaffUser = {
+            ...user,
+            attendance: [newRec, ...attendanceList],
+          };
+          setUser(updatedUser);
+          userService.save(updatedUser).catch(() => {});
+        }
+
+        setScannerVisible(false);
+        setTimeout(() => {
+          setSuccessModalVisible(true);
+        }, 350);
+      }
+    } catch (e: any) {
+      Alert.alert(
+        "Scan Error",
+        e?.message || "Failed to process attendance scan. Please try again.",
       );
-
-      setSuccessModalVisible(false);
-    } catch (e) {
-      Alert.alert("Save Error", "Failed to save attendance. Please try again.");
     } finally {
       setSavingAttendance(false);
       isScanningRef.current = false;
       setScanned(false);
     }
+  };
+
+  // Confirm attendance record (Backend already persisted to DB)
+  const handleConfirmAttendance = () => {
+    setSuccessModalVisible(false);
   };
 
   // Calculate today's status badges

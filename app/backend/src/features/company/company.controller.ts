@@ -80,7 +80,7 @@ function parseCoordinatesFromText(
   return null;
 }
 
-// In-memory cache for resolved short URLs from database to avoid repeated network requests
+// In-memory cache for dynamically resolved URLs to avoid repeated network requests
 const urlCoordinateCache = new Map<
   string,
   { latitude: number; longitude: number } | null
@@ -121,7 +121,7 @@ async function resolveCoordinatesFromLocationArray(
     if (str.startsWith("http://") || str.startsWith("https://")) {
       try {
         const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 1200);
+        const timeout = setTimeout(() => controller.abort(), 4000);
         const res = await fetch(str, {
           redirect: "follow",
           signal: controller.signal,

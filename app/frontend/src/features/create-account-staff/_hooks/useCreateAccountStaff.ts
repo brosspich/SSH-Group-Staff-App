@@ -4,18 +4,14 @@ import {
   fetchAvailableCompanySystems,
 } from "@/constants/attendanceConfig";
 import { StaffUser, userService } from "@/services/userService";
-import { hashPassword } from "@/utils/passwordUtils";
 import { hasAdminOrOwnerRole, isOwnerRole } from "@/utils/roleUtils";
 import { useCallback, useEffect, useState } from "react";
 import {
-  checkStaffIdAvailability,
-  checkUsernameAvailability,
   createStaffAccountApi,
-  fetchAllUsers,
+  fetchNextSystemIdApi,
 } from "../_api/createAccountStaffApi";
 import type { CreateStaffFormData } from "../_types/createAccountStaff.types";
 import {
-  calculateNextSequentialSystemId,
   getTodayFormattedDate,
   validateCreateStaffInput,
 } from "../_utils/createAccountStaffUtils";
@@ -53,8 +49,7 @@ export function useCreateAccountStaff() {
   const generateNextSystemId = useCallback(async (targetSystem: string) => {
     setSuggestedIdLoading(true);
     try {
-      const users = await fetchAllUsers();
-      const nextId = calculateNextSequentialSystemId(targetSystem, users);
+      const nextId = await fetchNextSystemIdApi(targetSystem);
       setSystemId(nextId);
     } catch {
       setSystemId(`${targetSystem.trim().toLowerCase()}-0001`);
@@ -157,32 +152,13 @@ export function useCreateAccountStaff() {
 
     setSaving(true);
     try {
-      const isUsernameAvailable = await checkUsernameAvailability(username);
-      if (!isUsernameAvailable) {
-        setErrorMessage(
-          "This username is already taken. Please choose another.",
-        );
-        setSaving(false);
-        return;
-      }
-
-      const isStaffIdAvailable = await checkStaffIdAvailability(staffId);
-      if (!isStaffIdAvailable) {
-        setErrorMessage(
-          `Staff ID "${staffId}" already exists. Please assign a different ID.`,
-        );
-        setSaving(false);
-        return;
-      }
-
-      const hashedPassword = hashPassword(password.trim());
-
+      // Backend (70%) validates unique username, unique staff ID, and hashes password
       await createStaffAccountApi({
         id: staffId.trim(),
         system_id: systemId.trim(),
         name: name.trim(),
         username: username.trim().toLowerCase(),
-        password: hashedPassword,
+        password: password.trim(),
         position: position.trim(),
         role: selectedRoles,
         email: email.trim() || null,
@@ -198,7 +174,9 @@ export function useCreateAccountStaff() {
     } catch (err: any) {
       console.warn("Failed creating staff account:", err);
       setErrorMessage(
-        err?.message || "Failed to create staff account. Please try again.",
+        err?.message ||
+          err?.response?.data?.error?.message ||
+          "Failed to create staff account. Please try again.",
       );
     } finally {
       setSaving(false);

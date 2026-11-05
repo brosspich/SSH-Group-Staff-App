@@ -1,14 +1,18 @@
-const fs = require('fs');
-const path = require('path');
-const { PrismaClient } = require('@prisma/client');
+const fs = require("fs");
+const path = require("path");
+const { PrismaClient } = require("@prisma/client");
 
-const sqlInputPath = 'C:/Users/itlan/.gemini/antigravity/brain/e31b88d8-d9da-4559-8dc0-11af3467fbc4/.user_uploaded/media_1793775328780_d0e03bc6.sql';
-const outputSqlPath = path.join(__dirname, '../prisma/cloudflare_d1_import_supabase.sql');
+const sqlInputPath =
+  "C:/Users/itlan/.gemini/antigravity/brain/e31b88d8-d9da-4559-8dc0-11af3467fbc4/.user_uploaded/media_1793775328780_d0e03bc6.sql";
+const outputSqlPath = path.join(
+  __dirname,
+  "../prisma/cloudflare_d1_import_supabase.sql",
+);
 
-const content = fs.readFileSync(sqlInputPath, 'utf8');
-const valuesIdx = content.indexOf('VALUES');
+const content = fs.readFileSync(sqlInputPath, "utf8");
+const valuesIdx = content.indexOf("VALUES");
 if (valuesIdx === -1) {
-  console.error('No VALUES found in SQL file');
+  console.error("No VALUES found in SQL file");
   process.exit(1);
 }
 
@@ -16,30 +20,77 @@ const afterValues = content.slice(valuesIdx + 6).trim();
 
 function parseSqlValues(str) {
   const rows = [];
-  let inTuple = false, inString = false, currentVal = '', currentRow = [], i = 0;
+  let inTuple = false,
+    inString = false,
+    currentVal = "",
+    currentRow = [],
+    i = 0;
   while (i < str.length) {
-    const ch = str[i], next = str[i + 1];
+    const ch = str[i],
+      next = str[i + 1];
     if (!inTuple) {
-      if (ch === '(') { inTuple = true; currentRow = []; currentVal = ''; }
-      i++; continue;
+      if (ch === "(") {
+        inTuple = true;
+        currentRow = [];
+        currentVal = "";
+      }
+      i++;
+      continue;
     }
     if (inString) {
-      if (ch === '\'' && next === '\'') { currentVal += '\''; i += 2; continue; }
-      else if (ch === '\'') { inString = false; i++; continue; }
-      else { currentVal += ch; i++; continue; }
+      if (ch === "'" && next === "'") {
+        currentVal += "'";
+        i += 2;
+        continue;
+      } else if (ch === "'") {
+        inString = false;
+        i++;
+        continue;
+      } else {
+        currentVal += ch;
+        i++;
+        continue;
+      }
     }
-    if (ch === '\'') { inString = true; i++; continue; }
-    if (ch === ',') {
+    if (ch === "'") {
+      inString = true;
+      i++;
+      continue;
+    }
+    if (ch === ",") {
       const trimmed = currentVal.trim();
-      currentRow.push(trimmed === 'null' ? null : (trimmed === 'true' ? true : (trimmed === 'false' ? false : currentVal)));
-      currentVal = ''; i++; continue;
+      currentRow.push(
+        trimmed === "null"
+          ? null
+          : trimmed === "true"
+            ? true
+            : trimmed === "false"
+              ? false
+              : currentVal,
+      );
+      currentVal = "";
+      i++;
+      continue;
     }
-    if (ch === ')') {
+    if (ch === ")") {
       const trimmed = currentVal.trim();
-      currentRow.push(trimmed === 'null' ? null : (trimmed === 'true' ? true : (trimmed === 'false' ? false : currentVal)));
-      currentVal = ''; rows.push(currentRow); inTuple = false; i++; continue;
+      currentRow.push(
+        trimmed === "null"
+          ? null
+          : trimmed === "true"
+            ? true
+            : trimmed === "false"
+              ? false
+              : currentVal,
+      );
+      currentVal = "";
+      rows.push(currentRow);
+      inTuple = false;
+      i++;
+      continue;
     }
-    currentVal += ch; i++;
+    currentVal += ch;
+    i++;
   }
   return rows;
 }
@@ -48,44 +99,45 @@ const rows = parseSqlValues(afterValues);
 console.log(`Parsed ${rows.length} staff rows from Supabase SQL export.`);
 
 function sqlEscape(val) {
-  if (val === null || val === undefined) return 'NULL';
-  if (typeof val === 'number') return String(val);
-  if (typeof val === 'boolean') return val ? '1' : '0';
+  if (val === null || val === undefined) return "NULL";
+  if (typeof val === "number") return String(val);
+  if (typeof val === "boolean") return val ? "1" : "0";
   return `'${String(val).replace(/'/g, "''")}'`;
 }
 
 // 1. Companies
 const companies = [
   {
-    id: 'system-0001',
-    name: 'SSH Group',
-    qrCodes: '["SSH_GROUP_ATTENDANCE_OFFICIAL_QR_2026","SSH-GROUP-STAFF-ATTENDANCE","SSH_GROUP_ATTENDANCE","ssh-group-attendance-01"]',
-    location: '["https://maps.app.goo.gl/aC74wDdDSgt3NNuXA"]',
+    id: "system-0001",
+    name: "SSH Group",
+    qrCodes:
+      '["SSH_GROUP_ATTENDANCE_OFFICIAL_QR_2026","SSH-GROUP-STAFF-ATTENDANCE","SSH_GROUP_ATTENDANCE","ssh-group-attendance-01"]',
+    location: '["11.502767, 104.851539"]',
     telegramBotToken: '["8911068365:AAEyHW4A2kWmTCAZgal606ArSsuVwArGEvE"]',
     telegramChatId: '["-5567020132"]',
-    timeIn: '08:00:00',
-    timeOut: '17:00:00'
+    timeIn: "08:00:00",
+    timeOut: "17:00:00",
   },
   {
-    id: 'system-0002',
-    name: 'Bpak Developer',
+    id: "system-0002",
+    name: "Bpak Developer",
     qrCodes: '["bpak_qr_attendance_01"]',
-    location: '["https://maps.app.goo.gl/aC74wDdDSgt3NNuXA","https://maps.app.goo.gl/6YE7CeEwhb91b1tV9"]',
+    location: '["11.536203, 104.858147"]',
     telegramBotToken: '["8976753860:AAG9u37q8E7_FI21R3imZkqL6oHOPfhngj4"]',
     telegramChatId: '["-1004495388034"]',
-    timeIn: '08:00:00',
-    timeOut: '17:00:00'
+    timeIn: "08:00:00",
+    timeOut: "17:00:00",
   },
   {
-    id: 'system-0003',
-    name: 'Test Company',
+    id: "system-0003",
+    name: "Test Company",
     qrCodes: '["test_qr_code_01"]',
-    location: '["https://maps.app.goo.gl/aC74wDdDSgt3NNuXA","https://maps.app.goo.gl/6YE7CeEwhb91b1tV9"]',
+    location: '["11.556372, 104.928210"]',
     telegramBotToken: '["8976753860:AAG9u37q8E7_FI21R3imZkqL6oHOPfhngj4"]',
     telegramChatId: '["-1004495388034"]',
-    timeIn: '08:00:00',
-    timeOut: '17:00:00'
-  }
+    timeIn: "08:00:00",
+    timeOut: "17:00:00",
+  },
 ];
 
 let sqlOutput = `-- ========================================================\n`;
@@ -107,7 +159,7 @@ const attendanceRequests = [];
 const deviceSessions = [];
 
 for (const r of rows) {
-  const id = (r[0] || '').trim();
+  const id = (r[0] || "").trim();
   const name = r[1] ? r[1].trim() : null;
   const username = r[2] ? r[2].trim() : null;
   const password = r[3] ? r[3].trim() : null;
@@ -123,33 +175,41 @@ for (const r of rows) {
   const isActive = r[13] !== false ? 1 : 0;
 
   // Determine normalized role
-  let role = 'member';
-  if (id === '0022' || id === 'bpak-0001' || username === 'brosspich' || username === 'bpak') {
-    role = 'admin';
-  } else if (username === 'pichboyloy') {
-    role = 'owner';
+  let role = "member";
+  if (
+    id === "0022" ||
+    id === "bpak-0001" ||
+    username === "brosspich" ||
+    username === "bpak"
+  ) {
+    role = "admin";
+  } else if (username === "pichboyloy") {
+    role = "owner";
   }
 
   // Determine companyId from systemId (e.g. "system-0001-0022" -> "system-0001")
-  let companyId = 'system-0001';
-  if (systemId && systemId.startsWith('system-0002')) {
-    companyId = 'system-0002';
-  } else if (systemId && systemId.startsWith('system-0003')) {
-    companyId = 'system-0003';
+  let companyId = "system-0001";
+  if (systemId && systemId.startsWith("system-0002")) {
+    companyId = "system-0002";
+  } else if (systemId && systemId.startsWith("system-0003")) {
+    companyId = "system-0003";
   }
 
   sqlOutput += `INSERT OR REPLACE INTO User (id, username, email, passwordHash, name, phone, position, role, isActive, company_id, createdAt, updatedAt) VALUES (${sqlEscape(id)}, ${sqlEscape(username)}, ${sqlEscape(email)}, ${sqlEscape(password)}, ${sqlEscape(name)}, ${sqlEscape(phone)}, ${sqlEscape(position)}, ${sqlEscape(role)}, ${isActive}, ${sqlEscape(companyId)}, datetime('now'), datetime('now'));\n`;
 
   // Parse attendance logs
-  if (attendanceRaw && attendanceRaw !== '[]') {
+  if (attendanceRaw && attendanceRaw !== "[]") {
     try {
       const logs = JSON.parse(attendanceRaw);
       for (const log of logs) {
         // Unique ID per scan
-        const logId = log.id ? `${id}_${log.id}` : `att_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-        const scanDate = log.date || (log.timestamp ? log.timestamp.split('T')[0] : '');
-        const scanTime = log.time || '';
-        const type = log.type || 'time-in';
+        const logId = log.id
+          ? `${id}_${log.id}`
+          : `att_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const scanDate =
+          log.date || (log.timestamp ? log.timestamp.split("T")[0] : "");
+        const scanTime = log.time || "";
+        const type = log.type || "time-in";
         const qrData = log.qr_data || null;
         const createdAt = log.timestamp || new Date().toISOString();
 
@@ -161,7 +221,7 @@ for (const r of rows) {
           scanTime: scanTime,
           type: type,
           qrData: qrData,
-          createdAt: createdAt
+          createdAt: createdAt,
         });
       }
     } catch (e) {
@@ -170,19 +230,22 @@ for (const r of rows) {
   }
 
   // Parse attendance requests
-  if (requestRulesRaw && requestRulesRaw !== '[]') {
+  if (requestRulesRaw && requestRulesRaw !== "[]") {
     try {
       const reqs = JSON.parse(requestRulesRaw);
       for (const req of reqs) {
-        const reqId = req.id ? `${id}_${req.id}` : `req_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-        const subject = req.subject || 'Attendance Request';
+        const reqId = req.id
+          ? `${id}_${req.id}`
+          : `req_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const subject = req.subject || "Attendance Request";
         const remark = req.remark || null;
-        const status = req.status || 'pending';
+        const status = req.status || "pending";
         const fromDate = req.from_date || req.fromDate || null;
         const fromTime = req.from_time || req.fromTime || null;
         const toDate = req.to_date || req.toDate || null;
         const toTime = req.to_time || req.toTime || null;
-        const createdAt = req.created_at || req.createdAt || new Date().toISOString();
+        const createdAt =
+          req.created_at || req.createdAt || new Date().toISOString();
 
         attendanceRequests.push({
           id: reqId,
@@ -194,7 +257,7 @@ for (const r of rows) {
           fromTime: fromTime,
           toDate: toDate,
           toTime: toTime,
-          createdAt: createdAt
+          createdAt: createdAt,
         });
       }
     } catch (e) {
@@ -203,11 +266,13 @@ for (const r of rows) {
   }
 
   // Parse device sessions
-  if (devicesRaw && devicesRaw !== '[]') {
+  if (devicesRaw && devicesRaw !== "[]") {
     try {
       const devs = JSON.parse(devicesRaw);
       for (const dev of devs) {
-        const devId = dev.id || `session_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+        const devId =
+          dev.id ||
+          `session_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
         const deviceName = dev.device_name || null;
         const modelName = dev.model_name || null;
         const os = dev.os || null;
@@ -215,7 +280,8 @@ for (const r of rows) {
         const appVersion = dev.app_version || null;
         const ipAddress = dev.ip_address || null;
         const location = dev.location || null;
-        const isTerminated = (dev.terminate === 'true' || dev.terminate === true) ? 1 : 0;
+        const isTerminated =
+          dev.terminate === "true" || dev.terminate === true ? 1 : 0;
         const lastActive = dev.last_active || new Date().toISOString();
         const lastLogin = dev.last_login || new Date().toISOString();
 
@@ -231,7 +297,7 @@ for (const r of rows) {
           location: location,
           isTerminated: isTerminated,
           lastActive: lastActive,
-          lastLogin: lastLogin
+          lastLogin: lastLogin,
         });
       }
     } catch (e) {
@@ -318,12 +384,18 @@ sqlOutput += `\nCREATE TABLE IF NOT EXISTS ssh_group_staff_users (
     is_active INTEGER DEFAULT 1
 );\n\n`;
 
-let rawSupabaseSql = content.replace(/public\.ssh_group_staff_users/g, 'ssh_group_staff_users');
-rawSupabaseSql = rawSupabaseSql.replace(/INSERT INTO ssh_group_staff_users/g, 'INSERT OR REPLACE INTO ssh_group_staff_users');
-sqlOutput += rawSupabaseSql + '\n';
+let rawSupabaseSql = content.replace(
+  /public\.ssh_group_staff_users/g,
+  "ssh_group_staff_users",
+);
+rawSupabaseSql = rawSupabaseSql.replace(
+  /INSERT INTO ssh_group_staff_users/g,
+  "INSERT OR REPLACE INTO ssh_group_staff_users",
+);
+sqlOutput += rawSupabaseSql + "\n";
 
 // Write to file
-fs.writeFileSync(outputSqlPath, sqlOutput, 'utf8');
+fs.writeFileSync(outputSqlPath, sqlOutput, "utf8");
 console.log(`Generated migration SQL at: ${outputSqlPath}`);
 console.log(`Counts:
   - Companies: ${companies.length}
@@ -335,7 +407,7 @@ console.log(`Counts:
 
 // Now apply directly to local dev.db using PrismaClient!
 async function applyToLocalDb() {
-  console.log('Applying data to local dev.db...');
+  console.log("Applying data to local dev.db...");
   const prisma = new PrismaClient();
 
   // 1. Companies
@@ -343,13 +415,13 @@ async function applyToLocalDb() {
     await prisma.company.upsert({
       where: { id: c.id },
       create: c,
-      update: c
+      update: c,
     });
   }
 
   // 2. Users
   for (const r of rows) {
-    const id = (r[0] || '').trim();
+    const id = (r[0] || "").trim();
     const name = r[1] ? r[1].trim() : null;
     const username = r[2] ? r[2].trim() : null;
     const password = r[3] ? r[3].trim() : null;
@@ -359,16 +431,23 @@ async function applyToLocalDb() {
     const systemId = r[12] ? r[12].trim() : null;
     const isActive = r[13] !== false;
 
-    let role = 'member';
-    if (id === '0022' || id === 'bpak-0001' || username === 'brosspich' || username === 'bpak') {
-      role = 'admin';
-    } else if (username === 'pichboyloy') {
-      role = 'owner';
+    let role = "member";
+    if (
+      id === "0022" ||
+      id === "bpak-0001" ||
+      username === "brosspich" ||
+      username === "bpak"
+    ) {
+      role = "admin";
+    } else if (username === "pichboyloy") {
+      role = "owner";
     }
 
-    let companyId = 'system-0001';
-    if (systemId && systemId.startsWith('system-0002')) companyId = 'system-0002';
-    else if (systemId && systemId.startsWith('system-0003')) companyId = 'system-0003';
+    let companyId = "system-0001";
+    if (systemId && systemId.startsWith("system-0002"))
+      companyId = "system-0002";
+    else if (systemId && systemId.startsWith("system-0003"))
+      companyId = "system-0003";
 
     await prisma.user.upsert({
       where: { id },
@@ -376,13 +455,13 @@ async function applyToLocalDb() {
         id,
         username: username || id,
         email,
-        passwordHash: password || '',
+        passwordHash: password || "",
         name,
         phone,
         position,
         role,
         isActive,
-        companyId
+        companyId,
       },
       update: {
         name,
@@ -391,8 +470,8 @@ async function applyToLocalDb() {
         role,
         isActive,
         companyId,
-        email
-      }
+        email,
+      },
     });
 
     // Also update staffUser table in dev.db
@@ -412,7 +491,7 @@ async function applyToLocalDb() {
         attendance: r[10] ? String(r[10]) : null,
         requestAttendanceRules: r[11] ? String(r[11]) : null,
         systemId,
-        isActive
+        isActive,
       },
       update: {
         name,
@@ -424,8 +503,8 @@ async function applyToLocalDb() {
         attendance: r[10] ? String(r[10]) : null,
         requestAttendanceRules: r[11] ? String(r[11]) : null,
         systemId,
-        isActive
-      }
+        isActive,
+      },
     });
   }
 
@@ -442,8 +521,8 @@ async function applyToLocalDb() {
         scanTime: l.scanTime,
         type: l.type,
         qrData: l.qrData,
-        createdAt: new Date(l.createdAt)
-      }
+        createdAt: new Date(l.createdAt),
+      },
     });
   }
 
@@ -461,8 +540,8 @@ async function applyToLocalDb() {
         fromTime: q.fromTime,
         toDate: q.toDate,
         toTime: q.toTime,
-        createdAt: new Date(q.createdAt)
-      }
+        createdAt: new Date(q.createdAt),
+      },
     });
   }
 
@@ -482,7 +561,7 @@ async function applyToLocalDb() {
         location: d.location,
         isTerminated: d.isTerminated,
         lastActive: new Date(d.lastActive),
-        lastLogin: new Date(d.lastLogin)
+        lastLogin: new Date(d.lastLogin),
       },
       update: {
         deviceName: d.deviceName,
@@ -494,15 +573,15 @@ async function applyToLocalDb() {
         location: d.location,
         isTerminated: d.isTerminated,
         lastActive: new Date(d.lastActive),
-        lastLogin: new Date(d.lastLogin)
-      }
+        lastLogin: new Date(d.lastLogin),
+      },
     });
   }
 
-  console.log('Successfully updated local dev.db with all Supabase data!');
+  console.log("Successfully updated local dev.db with all Supabase data!");
   await prisma.$disconnect();
 }
 
-applyToLocalDb().catch(e => {
-  console.error('Failed applying to local db:', e);
+applyToLocalDb().catch((e) => {
+  console.error("Failed applying to local db:", e);
 });

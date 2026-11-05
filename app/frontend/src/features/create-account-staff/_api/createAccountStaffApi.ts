@@ -1,6 +1,17 @@
 import { apiClient } from "@/services/api";
 import type { CreateStaffPayload } from "../_types/createAccountStaff.types";
 
+export async function fetchNextSystemIdApi(system: string): Promise<string> {
+  try {
+    const res = await apiClient.get<any>("/users-query/next-system-id", {
+      params: { system },
+    });
+    return res?.nextSystemId || `${system}-0001`;
+  } catch {
+    return `${system}-0001`;
+  }
+}
+
 export async function fetchAllUsers(): Promise<any[]> {
   try {
     const data = await apiClient.get<any[]>("/users-query");

@@ -4,6 +4,7 @@ import { usersController } from "./users.controller.js";
 const router = Router();
 
 router.get("/", usersController.getUsers);
+router.get("/next-system-id", usersController.getNextSystemId);
 router.get("/:id", usersController.getUserById);
 router.post("/", usersController.createUser);
 router.put("/:id", usersController.updateUser);

@@ -1,7 +1,6 @@
 import { AttendanceRecord, formatDateYMD } from "@/app/(tabs)/attendance";
 import { apiClient } from "@/services/api";
 import { StaffUser, userService } from "@/services/userService";
-import { isLeaveRole } from "@/utils/roleUtils";
 import { useCallback, useEffect, useState } from "react";
 
 export type ReportType = "Daily" | "Weekly" | "Monthly" | "Annual";
@@ -63,7 +62,6 @@ export function formatDateLabel(date: Date, reportType: ReportType): string {
   if (reportType === "Daily") {
     return `${y}-${m}-${d}`;
   } else if (reportType === "Weekly") {
-    // 7-day range starting from date
     const endDate = new Date(date.getTime() + 6 * 24 * 60 * 60 * 1000);
     const ey = endDate.getFullYear();
     const em = String(endDate.getMonth() + 1).padStart(2, "0");
@@ -86,11 +84,13 @@ export function formatDateLabel(date: Date, reportType: ReportType): string {
     ];
     return `${monthNames[date.getMonth()]} ${y}`;
   } else {
-    // Annual
     return `${y}`;
   }
 }
 
+/**
+ * Attendance Report Data Hook (Thin Client 30% UI -> Backend 70% Conditions & Calculations)
+ */
 export function useAttendanceReportData(
   reportMode: ReportMode,
   reportType: ReportType,
@@ -117,174 +117,41 @@ export function useAttendanceReportData(
     setLoading(true);
     const curDate = new Date(selectedDateMs);
     try {
-      // 1. Fetch current local user as default
       const currentUser = await userService.get();
+      const targetId =
+        activeStaffId ||
+        selectedStaffId ||
+        (reportMode === "current" ? currentUser?.id : "");
+      const dateParam = formatDateYMD(curDate);
 
-      // 2. Fetch all staff users from Backend API
-      const dbUsers = await apiClient
-        .get<StaffUser[]>("/users-query")
-        .catch(() => []);
-
-      let users: StaffUser[] = dbUsers || [];
-      if (users.length === 0 && currentUser) {
-        users = [currentUser];
-      }
-      // Sort staff by id ascending (e.g. 0001, 0002, 0003...)
-      users.sort((a, b) =>
-        (a.id || "").localeCompare(b.id || "", undefined, { numeric: true }),
+      // Backend 70%: Performs all date filtering, aggregations, and summaries on the server!
+      const res = await apiClient.get<{
+        records: AttendanceRecord[];
+        summary: AttendanceSummary;
+        staffList: StaffUser[];
+        targetStaffId: string | null;
+      }>(
+        `/reports/attendance?mode=${reportMode}&type=${reportType}&date=${dateParam}&staffId=${targetId || ""}&currentUserId=${currentUser?.id || ""}`,
       );
-      // Filter out staff on leave from selectable staff list
-      const activeStaffUsers = users.filter((u) => !isLeaveRole(u.role));
-      setStaffList(activeStaffUsers);
 
-      // Determine target staff ID for individual / current mode
-      let targetId = activeStaffId || selectedStaffId;
-      if (reportMode === "current" && currentUser?.id) {
-        targetId = currentUser.id;
-      }
-      if (!targetId && currentUser?.id && !isLeaveRole(currentUser.role)) {
-        targetId = currentUser.id;
-      }
-      if (!targetId && activeStaffUsers.length > 0) {
-        targetId = activeStaffUsers[0].id;
-      }
-      if (
-        reportMode === "individual" &&
-        targetId &&
-        activeStaffUsers.length > 0 &&
-        !activeStaffUsers.some((u) => u.id === targetId)
-      ) {
-        targetId = activeStaffUsers[0].id;
-      }
-      if (targetId !== activeStaffId) {
-        setActiveStaffId(targetId || null);
-      }
-
-      // 3. Extract attendance records
-      let allLogs: AttendanceRecord[] = [];
-      const staffWithLogs = new Set<string>();
-
-      users.forEach((u) => {
-        let userLogs: AttendanceRecord[] = [];
-        if (Array.isArray(u.attendance)) {
-          userLogs = u.attendance;
-        } else if (typeof u.attendance === "string") {
-          try {
-            userLogs = JSON.parse(u.attendance);
-          } catch (e) {}
-        }
-
-        userLogs.forEach((rec) => {
-          if (!rec || typeof rec !== "object") return;
-          // Normalize record fields with full fallbacks
-          const recordStaffId =
-            rec.staff_id != null
-              ? String(rec.staff_id)
-              : String((rec as any).userId || u.id || "");
-          const recordStaffName =
-            rec.name != null ? String(rec.name) : String(u.name || "Unknown");
-          const recordDate =
-            rec.date ||
-            (rec as any).scanDate ||
-            (rec.timestamp ? rec.timestamp.split("T")[0] : "");
-          const recordTime =
-            rec.time ||
-            (rec as any).scanTime ||
-            (rec.timestamp ? rec.timestamp.split("T")[1]?.slice(0, 8) : "");
-
-          const fullRecord: AttendanceRecord = {
-            ...rec,
-            date: recordDate,
-            time: recordTime,
-            staff_id: recordStaffId,
-            name: recordStaffName,
-          };
-          allLogs.push(fullRecord);
-        });
-      });
-
-      // Filter by reportMode (Individual vs Current vs All)
-      if (
-        (reportMode === "individual" || reportMode === "current") &&
-        targetId
-      ) {
-        allLogs = allLogs.filter((r) => r.staff_id === targetId);
-      }
-
-      // 4. Date filtering based on reportType
-      let filteredLogs: AttendanceRecord[] = [];
-
-      const startYMD = formatDateYMD(curDate);
-      const startYear = curDate.getFullYear();
-      const startMonthStr = `${startYear}-${String(curDate.getMonth() + 1).padStart(2, "0")}`;
-
-      if (reportType === "Daily") {
-        filteredLogs = allLogs.filter((r) => r.date === startYMD);
-      } else if (reportType === "Weekly") {
-        const startTime = new Date(
-          curDate.getFullYear(),
-          curDate.getMonth(),
-          curDate.getDate(),
-          0,
-          0,
-          0,
-        ).getTime();
-        const endTime = startTime + 7 * 24 * 60 * 60 * 1000; // 7 days
-
-        filteredLogs = allLogs.filter((r) => {
-          if (!r.date) return false;
-          const [yr, mo, dy] = r.date.split("-").map(Number);
-          const rTime = new Date(yr, mo - 1, dy).getTime();
-          return rTime >= startTime && rTime < endTime;
-        });
-      } else if (reportType === "Monthly") {
-        filteredLogs = allLogs.filter(
-          (r) => r.date && r.date.startsWith(startMonthStr),
+      if (res) {
+        setRecords(res.records || []);
+        setSummary(
+          res.summary || {
+            totalLogs: 0,
+            totalStaff: 0,
+            timeInCount: 0,
+            timeOutCount: 0,
+            timeOtherCount: 0,
+          },
         );
-      } else if (reportType === "Annual") {
-        filteredLogs = allLogs.filter(
-          (r) => r.date && r.date.startsWith(`${startYear}`),
-        );
-      }
-
-      // Sort follow by id ascending (att-0000-0000-0001 -> att-0000-0000-0062)
-      filteredLogs.sort((a, b) => {
-        const idA = a.id != null ? String(a.id) : "";
-        const idB = b.id != null ? String(b.id) : "";
-        if (idA && idB) {
-          return idA.localeCompare(idB, undefined, { numeric: true });
+        setStaffList(res.staffList || []);
+        if (res.targetStaffId && res.targetStaffId !== activeStaffId) {
+          setActiveStaffId(res.targetStaffId);
         }
-        if (idA) return -1;
-        if (idB) return 1;
-        const timeA = a.timestamp || `${a.date} ${a.time}`;
-        const timeB = b.timestamp || `${b.date} ${b.time}`;
-        return String(timeA).localeCompare(String(timeB));
-      });
-
-      setRecords(filteredLogs);
-
-      filteredLogs.forEach((r) => staffWithLogs.add(r.staff_id));
-
-      const timeInCount = filteredLogs.filter(
-        (r) => r.type === "time-in",
-      ).length;
-      const timeOutCount = filteredLogs.filter(
-        (r) => r.type === "time-out",
-      ).length;
-      const timeOtherCount = filteredLogs.filter(
-        (r) => r.type === "time-other",
-      ).length;
-
-      setSummary({
-        totalLogs: filteredLogs.length,
-        totalStaff:
-          reportMode === "individual" ? 1 : staffWithLogs.size || users.length,
-        timeInCount,
-        timeOutCount,
-        timeOtherCount,
-      });
+      }
     } catch (err) {
-      console.error("Error fetching attendance report data:", err);
+      console.error("Error fetching attendance report from backend:", err);
     } finally {
       setLoading(false);
     }
@@ -298,12 +165,12 @@ export function useAttendanceReportData(
 
   return {
     loading,
+    records,
+    summary,
     staffList,
     selectedStaff,
     activeStaffId,
     setActiveStaffId,
-    records,
-    summary,
     refetch: fetchData,
   };
 }

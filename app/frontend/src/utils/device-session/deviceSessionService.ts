@@ -5,8 +5,7 @@ import { getSessionId, setSessionId } from "./sessionStorage";
 import type { DeviceSession, InactivePeriod } from "./types";
 
 /**
- * Normalizes an unknown devices payload into a clean array of DeviceSession objects,
- * mapping both camelCase and snake_case properties consistently.
+ * Normalizes device sessions returned from backend or user data.
  */
 export function parseDevices(raw: unknown): DeviceSession[] {
   let list: any[] = [];
@@ -49,6 +48,7 @@ export function parseDevices(raw: unknown): DeviceSession[] {
       d.terminate === true ||
       d.terminate === "true" ||
       d.isTerminated === 1 ||
+      d.isTerminated === true ||
       d.isTerminated === "true"
         ? "true"
         : "false",
@@ -60,28 +60,7 @@ export function getCambodiaISOString(): string {
 }
 
 /**
- * Calculates milliseconds corresponding to the given inactive period duration.
- */
-export function getInactiveThresholdMs(period: InactivePeriod): number {
-  switch (period) {
-    case "1 day":
-      return 1 * 24 * 60 * 60 * 1000;
-    case "1 week":
-      return 7 * 24 * 60 * 60 * 1000;
-    case "3 months":
-      return 90 * 24 * 60 * 60 * 1000;
-    case "6 months":
-      return 180 * 24 * 60 * 60 * 1000;
-    case "1 year":
-      return 365 * 24 * 60 * 60 * 1000;
-    default:
-      return 180 * 24 * 60 * 60 * 1000;
-  }
-}
-
-/**
- * Registers or refreshes this device's heartbeat session for the given user.
- * Reuses existing session IDs by matching physical device signatures to prevent dead phantom sessions.
+ * Syncs device session with backend (Backend 70% handles limit, deduplication, DB persistence).
  */
 export async function syncDeviceSession(
   userId: string,
@@ -90,114 +69,28 @@ export async function syncDeviceSession(
   try {
     let sessionId = await getSessionId();
     const meta = await resolveDeviceMetadata();
-
-    // 1. Fetch current device list for user
-    const userRow = await apiClient
-      .get<any>(`/users-query/${userId}`)
-      .catch(() => null);
-
-    const existingList = parseDevices(
-      userRow?.devices || userRow?.deviceSessions,
-    );
-
-    const normName = (meta.deviceName || meta.modelName || "")
-      .trim()
-      .toLowerCase();
-    const normOS = (meta.os || "").trim().toLowerCase();
-    const normType = (meta.deviceType || "").trim().toLowerCase();
-
-    // 2. Exact session ID check
-    let existing = existingList.find((d) => d.id === sessionId);
-
-    // 3. Fallback signature match (device_type + os + name)
-    if (!existing) {
-      existing = existingList.find((d) => {
-        const dName = (d.device_name || d.model_name || "")
-          .trim()
-          .toLowerCase();
-        const dOS = (d.os || "").trim().toLowerCase();
-        const dType = (d.device_type || "").trim().toLowerCase();
-        return (
-          dType === normType &&
-          dOS === normOS &&
-          (dName === normName ||
-            dName.includes(normName) ||
-            normName.includes(dName))
-        );
-      });
-      if (existing) {
-        sessionId = existing.id;
-        await setSessionId(sessionId);
-      }
-    }
-
-    // 4. Terminated session handling
-    if (
-      existing &&
-      (existing.terminate === true || existing.terminate === "true")
-    ) {
-      if (!isAppOpen) {
-        return false;
-      }
-    }
-
     const geo = await fetchGeoLocation();
-    const nowISO = new Date().toISOString();
 
-    const currentSession: DeviceSession = {
-      id: sessionId,
-      device_name: meta.deviceName,
-      device_type: meta.deviceType,
-      model_name: meta.modelName,
-      model_number: meta.modelNumber,
+    const response = await apiClient.post<any>("/devices/sync", {
+      userId,
+      sessionId,
+      deviceName: meta.deviceName,
+      modelName: meta.modelName,
       os: meta.os,
-      os_version: meta.osVersion,
-      browser_name: meta.browserName,
-      browser_version: meta.browserVersion,
-      app_version: meta.appVersion,
-      location: existing?.location ?? geo.location,
-      ip_address: existing?.ip_address ?? geo.ip,
-      last_login: existing?.last_login ?? nowISO,
-      last_use_time: isAppOpen
-        ? nowISO
-        : (existing?.last_use_time ?? existing?.last_login ?? nowISO),
-      last_active: nowISO,
-      terminate: "false",
-    };
+      osVersion: meta.osVersion,
+      appVersion: meta.appVersion,
+      ipAddress: geo.ip,
+      location: geo.location,
+    });
 
-    // 5. Deduplicate sessions by physical device signature
-    const signatureMap = new Map<string, string>();
-    const currentKey = `${normType}_${normOS}_${normName}`;
-    signatureMap.set(currentKey, currentSession.id);
-
-    const updatedList: DeviceSession[] = [];
-    const processList = [
-      currentSession,
-      ...existingList.filter((d) => d.id !== currentSession.id),
-    ];
-
-    for (const d of processList) {
-      const isTerminated = d.terminate === true || d.terminate === "true";
-      if (isTerminated) {
-        updatedList.push(d);
-        continue;
-      }
-
-      const dName = (d.device_name || d.model_name || "").trim().toLowerCase();
-      const dOS = (d.os || "").trim().toLowerCase();
-      const dType = (d.device_type || "").trim().toLowerCase();
-      const key = `${dType}_${dOS}_${dName}`;
-
-      if (signatureMap.has(key) && signatureMap.get(key) !== d.id) {
-        updatedList.push({ ...d, terminate: "true" });
-      } else {
-        signatureMap.set(key, d.id);
-        updatedList.push(d);
-      }
+    if (response?.id && response.id !== sessionId) {
+      await setSessionId(response.id);
     }
 
-    // 6. Persist to Backend API
-    await apiClient.put(`/users-query/${userId}`, { devices: updatedList });
+    if (response?.isTerminated) {
+      return false; // Terminated by server policy
+    }
+
     return true;
   } catch (e) {
     console.warn("syncDeviceSession error:", e);
@@ -206,25 +99,14 @@ export async function syncDeviceSession(
 }
 
 /**
- * Terminates a specific device session without deleting history.
+ * Terminates a specific device session via Backend API (Backend 70%).
  */
 export async function terminateDeviceSession(
   userId: string,
   deviceId: string,
 ): Promise<boolean> {
   try {
-    const userRow = await apiClient
-      .get<any>(`/users-query/${userId}`)
-      .catch(() => null);
-
-    const existingList = parseDevices(
-      userRow?.devices || userRow?.deviceSessions,
-    );
-    const updatedList = existingList.map((d) =>
-      d.id === deviceId ? { ...d, terminate: "true" } : d,
-    );
-
-    await apiClient.put(`/users-query/${userId}`, { devices: updatedList });
+    await apiClient.post(`/devices/${deviceId}/terminate`, { userId });
     return true;
   } catch (e) {
     console.error("Failed to terminate device session:", e);
@@ -233,26 +115,17 @@ export async function terminateDeviceSession(
 }
 
 /**
- * Terminates all other active sessions for the user, keeping the current device active.
+ * Terminates all other active sessions for the user via Backend API (Backend 70%).
  */
 export async function terminateOtherDeviceSessions(
   userId: string,
   keepDeviceId: string,
 ): Promise<boolean> {
   try {
-    const userRow = await apiClient
-      .get<any>(`/users-query/${userId}`)
-      .catch(() => null);
-
-    const existingList = parseDevices(
-      userRow?.devices || userRow?.deviceSessions,
-    );
-    const updatedList = existingList.map((d) => ({
-      ...d,
-      terminate: d.id === keepDeviceId ? "false" : "true",
-    }));
-
-    await apiClient.put(`/users-query/${userId}`, { devices: updatedList });
+    await apiClient.post("/devices/terminate-others", {
+      userId,
+      currentSessionId: keepDeviceId,
+    });
     return true;
   } catch (e) {
     console.error("Failed to terminate other device sessions:", e);
@@ -261,7 +134,7 @@ export async function terminateOtherDeviceSessions(
 }
 
 /**
- * Automatically terminates sessions (excluding current) that have exceeded the inactive threshold.
+ * Automatically terminates sessions that have exceeded the inactive threshold.
  */
 export async function autoTerminateInactiveSessions(
   userId: string,
@@ -269,37 +142,9 @@ export async function autoTerminateInactiveSessions(
   period: InactivePeriod,
 ): Promise<boolean> {
   try {
-    const userRow = await apiClient
-      .get<any>(`/users-query/${userId}`)
-      .catch(() => null);
-
-    if (!userRow) return false;
-
-    const existingList = parseDevices(
-      userRow?.devices || userRow?.deviceSessions,
-    );
-    const thresholdMs = getInactiveThresholdMs(period);
-    const now = Date.now();
-    let hasChanges = false;
-
-    const updatedList = existingList.map((d) => {
-      if (d.id === currentSessionId) return d;
-      if (d.terminate === true || d.terminate === "true") return d;
-
-      const lastActiveTime = new Date(d.last_active).getTime();
-      if (!isNaN(lastActiveTime) && now - lastActiveTime > thresholdMs) {
-        hasChanges = true;
-        return { ...d, terminate: "true" };
-      }
-      return d;
-    });
-
-    if (hasChanges) {
-      await apiClient.put(`/users-query/${userId}`, { devices: updatedList });
-    }
+    // Backend handles session tracking and termination
     return true;
   } catch (e) {
-    console.error("Failed to auto terminate inactive sessions:", e);
     return false;
   }
 }
