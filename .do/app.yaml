@@ -1,0 +1,30 @@
+name: ssh-group-backend
+region: sgp # Singapore datacenter - closest & lowest latency for Cambodia
+services:
+  - name: api
+    source_dir: app/backend
+    dockerfile_path: app/backend/Dockerfile
+    http_port: 4000
+    instance_count: 1
+    instance_size_slug: basic-xxs # $5/month starter
+    routes:
+      - path: /
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: "ssh_group_secret_jwt_key_prod_2026"
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: "file:./dev.db"
+    health_check:
+      http_path: /health
+      initial_delay_seconds: 10
+      period_seconds: 15
+      timeout_seconds: 5
+      failure_threshold: 3
