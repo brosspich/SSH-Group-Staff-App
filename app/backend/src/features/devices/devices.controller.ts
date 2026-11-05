@@ -47,7 +47,9 @@ export class DevicesController {
 
   async terminateSession(req: Request, res: Response) {
     try {
-      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const id = Array.isArray(req.params.id)
+        ? req.params.id[0]
+        : req.params.id;
       const success = await devicesService.terminateSession(id);
       return res.status(200).json({
         success,

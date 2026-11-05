@@ -360,12 +360,13 @@ export class AttendanceSecurityService {
 
     const message = [
       `🔔 <b>Attendance Scan Alert</b>`,
-      `🏢 <b>Company:</b> ${company.name}`,
-      `👤 <b>Staff:</b> ${record.name} (${record.staff_id})`,
+      // `🏢 <b>Company:</b> ${company.name}`,
+      `🆔 <b>Staff ID:</b> ${record.staff_id}`,
+      `👤 <b>Staff:</b> ${record.name}`,
       `📌 <b>Status:</b> ${typeEmoji}`,
       `📅 <b>Date:</b> ${record.date}`,
       `⏰ <b>Time:</b> ${record.time}`,
-      `🆔 <b>Record ID:</b> <code>${record.id}</code>`,
+      // `🆔 <b>Record ID:</b> <code>${record.id}</code>`,
     ].join("\n");
 
     for (const chatId of rawChats) {

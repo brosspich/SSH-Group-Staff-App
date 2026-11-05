@@ -161,7 +161,10 @@ export async function resolveCoordinatesAsync(
   const syncResult = parseCoordinates(str);
   if (syncResult) return syncResult;
 
-  if (typeof str === "string" && (str.startsWith("http://") || str.startsWith("https://"))) {
+  if (
+    typeof str === "string" &&
+    (str.startsWith("http://") || str.startsWith("https://"))
+  ) {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 4000);

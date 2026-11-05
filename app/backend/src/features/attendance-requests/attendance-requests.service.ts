@@ -149,14 +149,15 @@ export class AttendanceRequestsService {
 
     const message = [
       `📝 <b>New Attendance Request Submitted</b>`,
-      `🏢 <b>Company:</b> ${company.name}`,
-      `👤 <b>Staff:</b> ${rule.name} (${rule.staff_id})`,
+      // `🏢 <b>Company:</b> ${company.name}`,
+      `🆔 <b>Staff ID:</b> ${rule.staff_id}`,
+      `👤 <b>Staff:</b> ${rule.name}`,
       `📌 <b>Subject:</b> ${rule.subject}`,
       `📅 <b>From:</b> ${rule.from_date} ${rule.from_time}`,
       `📅 <b>To:</b> ${rule.to_date} ${rule.to_time}`,
       `💬 <b>Remark:</b> ${rule.remark || "None"}`,
       `⏳ <b>Status:</b> 🟡 PENDING`,
-      `🆔 <b>Request ID:</b> <code>${rule.id}</code>`,
+      // `🆔 <b>Request ID:</b> <code>${rule.id}</code>`,
     ].join("\n");
 
     for (const chatId of rawChats) {

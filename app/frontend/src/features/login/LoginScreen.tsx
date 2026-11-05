@@ -1,5 +1,5 @@
-import { PrivacyPolicyModal } from "@/features/login/_components/PrivacyPolicyModal";
 import { AppColors } from "@/constants/appcolors";
+import { PrivacyPolicyModal } from "@/features/login/_components/PrivacyPolicyModal";
 import { useResponsive } from "@/hooks/useResponsive";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
