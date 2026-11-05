@@ -18,29 +18,42 @@ model Company {
   timeOut          String?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
-  users            User[]
+  userDetails      UserDetails[]
   attendanceLogs   AttendanceLog[]
 }
 
 model User {
-  id                  String              @id @default(uuid())
+  systemId            String              @id @map("system_id")
+  id                  String              // Staff ID e.g. "0001", "0022"
   username            String              @unique
-  email               String?
   passwordHash        String
-  name                String?
-  phone               String?
-  position            String?
   role                String              @default("member")
   isActive            Boolean             @default(true)
-  companyId           String?             @map("company_id")
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
-  company             Company?            @relation(fields: [companyId], references: [id])
+
+  details             UserDetails?
   memberships         GroupMember[]
   sshKeys             SshKey[]
   attendanceLogs      AttendanceLog[]
   attendanceRequests  AttendanceRequest[]
   deviceSessions      DeviceSession[]
+}
+
+model UserDetails {
+  systemId    String    @id @map("system_id")
+  companyId   String?   @map("company_id")
+  name        String?
+  email       String?
+  phone       String?
+  position    String?
+  dob         String?
+  joined      String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user        User      @relation(fields: [systemId], references: [systemId], onDelete: Cascade)
+  company     Company?  @relation(fields: [companyId], references: [id])
 }
 
 model AttendanceLog {
@@ -52,7 +65,7 @@ model AttendanceLog {
   type       String   // 'TIME_IN', 'TIME_OUT', 'TIME_OTHER'
   qrData     String?
   createdAt  DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [systemId], onDelete: Cascade)
   company    Company? @relation(fields: [companyId], references: [id])
 }
 
@@ -67,7 +80,7 @@ model AttendanceRequest {
   toDate    String?
   toTime    String?
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [systemId], onDelete: Cascade)
 }
 
 model DeviceSession {
@@ -83,7 +96,7 @@ model DeviceSession {
   isTerminated Int      @default(0)
   lastActive   DateTime @default(now())
   lastLogin    DateTime @default(now())
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [systemId], onDelete: Cascade)
 }
 
 model SshGroup {
@@ -102,7 +115,7 @@ model GroupMember {
   groupId    String
   permission String   @default("read") // admin, write, read
   joinedAt   DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [systemId], onDelete: Cascade)
   group      SshGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@unique([userId, groupId])
@@ -118,7 +131,7 @@ model SshKey {
   createdAt   DateTime  @default(now())
   lastUsedAt  DateTime?
   expiresAt   DateTime?
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [systemId], onDelete: Cascade)
 }
 
 model AuditLog {

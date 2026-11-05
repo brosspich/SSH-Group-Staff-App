@@ -46,7 +46,11 @@ export class DevicesService {
     }
 
     // Legacy fallback: check user.devices JSON column
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ systemId: userId }, { id: userId }],
+      },
+    });
     if (user) {
       const legacy = parseJsonField((user as any).devices);
       return legacy.map((d: any) => ({

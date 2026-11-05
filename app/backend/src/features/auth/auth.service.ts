@@ -18,7 +18,7 @@ export class AuthService {
       where: {
         OR: [
           { username: input.username },
-          input.email ? { email: input.email } : {},
+          input.email ? { details: { email: input.email } } : {},
         ],
       },
     });
@@ -28,38 +28,45 @@ export class AuthService {
     }
 
     const passwordHash = await PasswordHasher.hash(input.password);
+    const cleanId = String(Date.now()).slice(-4);
+    const systemId = `system-0001-${cleanId}`;
+
     const user = await this.db.user.create({
       data: {
+        systemId,
+        id: cleanId,
         username: input.username,
-        email: input.email,
         passwordHash,
-        name: input.name,
         role: input.role,
+        details: {
+          create: {
+            companyId: "system-0001",
+            email: input.email,
+            name: input.name,
+          },
+        },
+      },
+      include: {
+        details: { include: { company: true } },
       },
     });
 
     await this.audit.log({
       action: "USER_REGISTERED",
-      actorId: user.id,
+      actorId: user.systemId,
       actorName: user.username,
-      targetId: user.id,
+      targetId: user.systemId,
       ipAddress,
     });
 
     const token = JwtSigner.sign({
-      userId: user.id,
+      userId: user.systemId,
       username: user.username,
       role: user.role,
     });
 
     return {
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
+      user: formatUserForResponse(user),
       token,
     };
   }
@@ -68,19 +75,22 @@ export class AuthService {
     const cleanUsername = (input.username || "").trim();
     const cleanLower = cleanUsername.toLowerCase();
 
-    // 1. Find user by username, email, or id
+    // 1. Find user by systemId, id (staff id), username, or email
     const user = await this.db.user.findFirst({
       where: {
         OR: [
-          { username: cleanUsername },
-          { email: cleanUsername },
+          { systemId: cleanUsername },
           { id: cleanUsername },
+          { username: cleanUsername },
           { username: cleanLower },
-          { email: cleanLower },
+          { details: { email: cleanUsername } },
+          { details: { email: cleanLower } },
         ],
       },
       include: {
-        company: true,
+        details: {
+          include: { company: true },
+        },
         deviceSessions: true,
         attendanceLogs: true,
         attendanceRequests: true,
@@ -126,7 +136,7 @@ export class AuthService {
     }
 
     const token = JwtSigner.sign({
-      userId: user.id,
+      userId: user.systemId,
       username: user.username,
       role: user.role,
     });
@@ -134,9 +144,9 @@ export class AuthService {
     try {
       await this.audit.log({
         action: "USER_LOGIN",
-        actorId: user.id,
+        actorId: user.systemId,
         actorName: user.username,
-        targetId: user.id,
+        targetId: user.systemId,
         ipAddress,
       });
     } catch {}

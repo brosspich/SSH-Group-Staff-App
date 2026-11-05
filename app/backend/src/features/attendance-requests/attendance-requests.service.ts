@@ -66,9 +66,13 @@ export class AttendanceRequestsService {
     }
 
     // 1. Fetch User from Database
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { company: true },
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ systemId: userId }, { id: userId }],
+      },
+      include: {
+        details: { include: { company: true } },
+      },
     });
 
     if (!user) {
@@ -83,8 +87,8 @@ export class AttendanceRequestsService {
     const newRule: AttendanceRequestRuleItemDto = {
       id: newRuleId,
       staff_id: user.id,
-      name: user.name || user.username || "Staff Member",
-      position: user.position || "Staff",
+      name: user.details?.name || user.username || "Staff Member",
+      position: user.details?.position || "Staff",
       date: fromDate,
       time: fromTime,
       from_date: fromDate,
@@ -102,7 +106,7 @@ export class AttendanceRequestsService {
       await prisma.attendanceRequest.create({
         data: {
           id: newRuleId,
-          userId: user.id,
+          userId: user.systemId,
           subject: subject.trim(),
           remark: remark.trim(),
           status: "pending",
@@ -128,8 +132,8 @@ export class AttendanceRequestsService {
     } catch {}
 
     // 5. Dispatch Telegram Notification to Company Group
-    if (user.company) {
-      this.sendTelegramAlert(user.company, newRule).catch(() => {});
+    if (user.details?.company) {
+      this.sendTelegramAlert(user.details.company, newRule).catch(() => {});
     }
 
     return {

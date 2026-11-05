@@ -161,9 +161,13 @@ export class AttendanceSecurityService {
       payload;
 
     // ── 1. Fetch User from Database ──
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { company: true },
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [{ systemId: userId }, { id: userId }],
+      },
+      include: {
+        details: { include: { company: true } },
+      },
     });
 
     if (!user) {
@@ -176,7 +180,7 @@ export class AttendanceSecurityService {
 
     // ── 2. Determine User Company ──
     const company =
-      user.company ||
+      user.details?.company ||
       (await prisma.company.findFirst({ orderBy: { id: "asc" } }));
     if (!company) {
       return {
@@ -248,7 +252,7 @@ export class AttendanceSecurityService {
       id: nextId,
       staff_id: user.id,
       system_id: company.id,
-      name: user.name || user.username || "Staff Member",
+      name: user.details?.name || user.username || "Staff Member",
       date: dateStr,
       time: timeStr,
       type: evaluatedType,
@@ -261,7 +265,7 @@ export class AttendanceSecurityService {
       await prisma.attendanceLog.create({
         data: {
           id: `${user.id}_${nextId}_${Date.now()}`,
-          userId: user.id,
+          userId: user.systemId,
           companyId: company.id,
           scanDate: dateStr,
           scanTime: timeStr,

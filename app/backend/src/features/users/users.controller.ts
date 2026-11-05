@@ -17,6 +17,22 @@ function parseJsonSafe(val: any): any {
 export function formatUserForResponse(user: any) {
   if (!user) return user;
 
+  const details = user.details || {};
+  const company = details.company || user.company || null;
+  const companyId = details.companyId || user.companyId || (company ? company.id : null);
+  const staffId = user.id;
+  const systemId =
+    user.systemId ||
+    user.system_id ||
+    (companyId ? `${companyId}-${staffId}` : staffId);
+
+  const name = details.name || user.name || "";
+  const email = details.email || user.email || null;
+  const phone = details.phone || user.phone || null;
+  const position = details.position || user.position || null;
+  const dob = details.dob || null;
+  const joined = details.joined || null;
+
   // Format device sessions into devices array
   const devices = (user.deviceSessions || []).map((d: any) => ({
     id: d.id,
@@ -39,13 +55,13 @@ export function formatUserForResponse(user: any) {
   // Format attendance logs into attendance array with full backward-compatibility
   const attendance = (user.attendanceLogs || []).map((a: any) => ({
     id: a.id,
-    staff_id: user.id,
-    staffId: user.id,
-    userId: user.id,
-    name: user.name || "",
-    system_id: a.companyId || user.companyId || null,
-    systemId: a.companyId || user.companyId || null,
-    companyId: a.companyId || user.companyId || null,
+    staff_id: staffId,
+    staffId: staffId,
+    userId: systemId,
+    name: name,
+    system_id: a.companyId || companyId || null,
+    systemId: a.companyId || companyId || null,
+    companyId: a.companyId || companyId || null,
     date: a.scanDate,
     scanDate: a.scanDate,
     time: a.scanTime,
@@ -63,11 +79,11 @@ export function formatUserForResponse(user: any) {
   const requestAttendanceRules = (user.attendanceRequests || []).map(
     (r: any) => ({
       id: r.id,
-      staff_id: user.id,
-      staffId: user.id,
-      userId: user.id,
-      name: user.name || "",
-      position: user.position || "",
+      staff_id: staffId,
+      staffId: staffId,
+      userId: systemId,
+      name: name,
+      position: position,
       subject: r.subject,
       remark: r.remark,
       status: r.status,
@@ -94,24 +110,38 @@ export function formatUserForResponse(user: any) {
     }),
   );
 
-  const systemId = user.companyId || user.company?.id || null;
-
   return {
-    id: user.id,
-    staff_id: user.id,
+    id: staffId,
+    staff_id: staffId,
+    system_id: systemId,
+    systemId: systemId,
     username: user.username,
-    email: user.email,
-    name: user.name,
-    phone: user.phone,
-    position: user.position,
+    email: email,
+    name: name,
+    phone: phone,
+    position: position,
+    dob: dob,
+    joined: joined,
     role: user.role,
     isActive: user.isActive,
     is_active: user.isActive,
-    systemId: systemId,
-    system_id: systemId,
-    companyId: user.companyId,
-    company_id: user.companyId,
-    company: user.company,
+    companyId: companyId,
+    company_id: companyId,
+    company: company,
+    details: {
+      system_id: systemId,
+      systemId: systemId,
+      company_id: companyId,
+      companyId: companyId,
+      name: name,
+      email: email,
+      phone: phone,
+      position: position,
+      dob: dob,
+      joined: joined,
+      createdAt: details.createdAt || user.createdAt,
+      updatedAt: details.updatedAt || user.updatedAt,
+    },
     devices: devices,
     deviceSessions: devices,
     attendance: attendance,
@@ -129,31 +159,43 @@ export class UsersController {
     try {
       const { id, username, email, systemId, companyId, search } = req.query;
 
-      const where: any = {};
+      const whereUser: any = {};
+      const whereDetails: any = {};
+
       if (search) {
-        where.OR = [
+        whereUser.OR = [
           { username: { contains: String(search) } },
-          { email: { contains: String(search) } },
-          { name: { contains: String(search) } },
-          { id: String(search) },
+          { id: { contains: String(search) } },
+          { systemId: { contains: String(search) } },
+          { details: { name: { contains: String(search) } } },
+          { details: { email: { contains: String(search) } } },
         ];
       } else {
-        if (id) where.id = String(id);
-        if (username) where.username = String(username);
-        if (email) where.email = String(email);
+        if (id) {
+          whereUser.OR = [
+            { id: String(id) },
+            { systemId: String(id) },
+          ];
+        }
+        if (username) whereUser.username = String(username);
+        if (email) whereDetails.email = String(email);
         const compId = companyId || systemId;
-        if (compId) where.companyId = String(compId);
+        if (compId) whereDetails.companyId = String(compId);
+      }
+
+      if (Object.keys(whereDetails).length > 0) {
+        whereUser.details = whereDetails;
       }
 
       const users = await prisma.user.findMany({
-        where: Object.keys(where).length > 0 ? where : undefined,
+        where: Object.keys(whereUser).length > 0 ? whereUser : undefined,
         include: {
-          company: true,
+          details: { include: { company: true } },
           deviceSessions: true,
           attendanceLogs: true,
           attendanceRequests: true,
         },
-        orderBy: [{ id: "asc" }, { companyId: "asc" }],
+        orderBy: [{ id: "asc" }],
       });
 
       return res.status(200).json({
@@ -171,10 +213,15 @@ export class UsersController {
   async getUserById(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const user = await prisma.user.findUnique({
-        where: { id: String(id) },
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { systemId: String(id) },
+            { id: String(id) },
+          ],
+        },
         include: {
-          company: true,
+          details: { include: { company: true } },
           deviceSessions: true,
           attendanceLogs: true,
           attendanceRequests: true,
@@ -209,16 +256,16 @@ export class UsersController {
       const prefix = match ? match[1].toLowerCase() : "system-0001";
 
       const users = await prisma.user.findMany({
-        select: { id: true, companyId: true },
+        select: { systemId: true, id: true, details: { select: { companyId: true } } },
       });
 
       let maxSuffix = 0;
       const targetPrefix = `${prefix}-`;
 
       for (const u of users) {
-        const uId = String(u.id || "").toLowerCase();
-        if (uId.startsWith(targetPrefix)) {
-          const numMatch = uId.slice(targetPrefix.length).match(/^(\d+)/);
+        const sysId = String(u.systemId || "").toLowerCase();
+        if (sysId.startsWith(targetPrefix)) {
+          const numMatch = sysId.slice(targetPrefix.length).match(/^(\d+)/);
           if (numMatch) {
             const num = parseInt(numMatch[1], 10);
             if (!isNaN(num) && num > maxSuffix) maxSuffix = num;
@@ -269,20 +316,27 @@ export class UsersController {
         });
       }
 
-      // Backend Condition: Staff ID must be unique
-      const cleanId = payload.id ? String(payload.id).trim() : undefined;
-      if (cleanId) {
-        const existingId = await prisma.user.findUnique({
-          where: { id: cleanId },
+      const companyId =
+        payload.companyId ||
+        payload.company_id ||
+        payload.systemId ||
+        payload.system_id ||
+        "system-0001";
+
+      const cleanId = payload.id ? String(payload.id).trim() : String(Date.now()).slice(-4);
+      const systemId = payload.system_id || payload.systemId || `${companyId}-${cleanId}`;
+
+      // Check systemId uniqueness
+      const existingSys = await prisma.user.findUnique({
+        where: { systemId },
+      });
+      if (existingSys) {
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: `User with System ID "${systemId}" already exists.`,
+          },
         });
-        if (existingId) {
-          return res.status(400).json({
-            success: false,
-            error: {
-              message: `Staff ID "${cleanId}" already exists. Please assign a different ID.`,
-            },
-          });
-        }
       }
 
       // Backend Security: Password hashing
@@ -298,12 +352,6 @@ export class UsersController {
         }
       }
 
-      const companyId =
-        payload.companyId ||
-        payload.company_id ||
-        payload.systemId ||
-        payload.system_id ||
-        null;
       const isActive =
         payload.isActive !== undefined
           ? Boolean(payload.isActive)
@@ -313,24 +361,31 @@ export class UsersController {
 
       const created = await prisma.user.create({
         data: {
+          systemId,
           id: cleanId,
           username: cleanUsername,
-          email: payload.email ? String(payload.email).trim() : null,
           passwordHash: finalHash,
-          name: payload.name ? String(payload.name).trim() : null,
-          phone: payload.phone ? String(payload.phone).trim() : null,
-          position: payload.position ? String(payload.position).trim() : null,
           role:
             typeof payload.role === "string"
               ? payload.role
               : Array.isArray(payload.role)
                 ? payload.role[0]
                 : "member",
-          isActive: isActive,
-          companyId: companyId,
+          isActive,
+          details: {
+            create: {
+              companyId,
+              name: payload.name ? String(payload.name).trim() : null,
+              email: payload.email ? String(payload.email).trim() : null,
+              phone: payload.phone ? String(payload.phone).trim() : null,
+              position: payload.position ? String(payload.position).trim() : null,
+              dob: payload.dob ? String(payload.dob).trim() : null,
+              joined: payload.joined ? String(payload.joined).trim() : null,
+            },
+          },
         },
         include: {
-          company: true,
+          details: { include: { company: true } },
           deviceSessions: true,
           attendanceLogs: true,
           attendanceRequests: true,
@@ -354,56 +409,55 @@ export class UsersController {
       const { id } = req.params;
       const payload: any = { ...req.body };
 
+      // Find existing user first to get systemId
+      const existing = await prisma.user.findFirst({
+        where: {
+          OR: [{ systemId: String(id) }, { id: String(id) }],
+        },
+      });
+
+      if (!existing) {
+        return res.status(404).json({
+          success: false,
+          error: { message: "User not found" },
+        });
+      }
+
       // 1. Handle relational DeviceSession updates
       if (Array.isArray(payload.devices)) {
         for (const d of payload.devices) {
           if (!d.id) continue;
-          const isTerminated =
-            d.terminate === "true" ||
+          const isTerm =
+            d.isTerminated === true ||
+            d.isTerminated === 1 ||
             d.isTerminated === "true" ||
-            d.isTerminated === 1
+            d.terminate === true ||
+            d.terminate === "true"
               ? 1
               : 0;
-
-          const lastActiveVal = d.lastActive || d.last_active;
-          const lastLoginVal = d.lastLogin || d.last_login;
-          const ipVal = d.ipAddress || d.ip_address || d.ip || null;
 
           await prisma.deviceSession.upsert({
             where: { id: String(d.id) },
             create: {
               id: String(d.id),
-              userId: String(id),
-              deviceName: d.deviceName || d.device_name || null,
-              modelName: d.modelName || d.model_name || null,
+              userId: existing.systemId,
+              deviceName: d.deviceName || d.modelName || "Device",
+              modelName: d.modelName || null,
               os: d.os || null,
-              osVersion: d.osVersion || d.os_version || null,
-              appVersion: d.appVersion || d.app_version || null,
-              ipAddress: ipVal,
+              osVersion: d.osVersion || null,
+              appVersion: d.appVersion || null,
+              ipAddress: d.ip || d.ipAddress || null,
               location:
                 typeof d.location === "object"
                   ? JSON.stringify(d.location)
                   : d.location || null,
-              isTerminated: isTerminated,
-              lastActive: lastActiveVal ? new Date(lastActiveVal) : new Date(),
-              lastLogin: lastLoginVal ? new Date(lastLoginVal) : new Date(),
+              isTerminated: isTerm,
+              lastActive: d.lastActive ? new Date(d.lastActive) : new Date(),
+              lastLogin: d.lastLogin ? new Date(d.lastLogin) : new Date(),
             },
             update: {
-              deviceName: d.deviceName || d.device_name || undefined,
-              modelName: d.modelName || d.model_name || undefined,
-              os: d.os || undefined,
-              osVersion: d.osVersion || d.os_version || undefined,
-              appVersion: d.appVersion || d.app_version || undefined,
-              ipAddress: ipVal !== null ? ipVal : undefined,
-              location:
-                typeof d.location === "object"
-                  ? JSON.stringify(d.location)
-                  : d.location !== undefined
-                    ? d.location
-                    : undefined,
-              isTerminated: isTerminated,
-              lastActive: lastActiveVal ? new Date(lastActiveVal) : new Date(),
-              lastLogin: lastLoginVal ? new Date(lastLoginVal) : undefined,
+              isTerminated: isTerm,
+              lastActive: d.lastActive ? new Date(d.lastActive) : new Date(),
             },
           });
         }
@@ -411,68 +465,69 @@ export class UsersController {
 
       // 2. Handle relational AttendanceLog updates
       if (Array.isArray(payload.attendance)) {
-        for (const a of payload.attendance) {
-          if (!a.id) continue;
+        for (const att of payload.attendance) {
+          if (!att.id) continue;
+          const dateStr =
+            att.date ||
+            att.scanDate ||
+            (att.timestamp ? String(att.timestamp).split("T")[0] : "");
+          const timeStr = att.time || att.scanTime || "";
+          const scanType = att.type || "TIME_IN";
+
           await prisma.attendanceLog.upsert({
-            where: { id: String(a.id) },
+            where: { id: String(att.id) },
             create: {
-              id: String(a.id),
-              userId: String(id),
-              companyId: a.companyId || a.system_id || null,
-              scanDate: a.scanDate || new Date().toISOString().split("T")[0],
-              scanTime: a.scanTime || new Date().toLocaleTimeString(),
-              type: a.type || "TIME_IN",
-              qrData: a.qrData || null,
+              id: String(att.id),
+              userId: existing.systemId,
+              companyId: att.companyId || att.system_id || null,
+              scanDate: dateStr,
+              scanTime: timeStr,
+              type: scanType,
+              qrData: att.qr_data || att.qrData || null,
+              createdAt: att.timestamp ? new Date(att.timestamp) : new Date(),
             },
             update: {
-              scanDate: a.scanDate || undefined,
-              scanTime: a.scanTime || undefined,
-              type: a.type || undefined,
-              qrData: a.qrData || undefined,
+              scanDate: dateStr,
+              scanTime: timeStr,
+              type: scanType,
+              qrData: att.qr_data || att.qrData || null,
             },
           });
         }
       }
 
       // 3. Handle relational AttendanceRequest updates
-      const reqList =
-        payload.requestAttendanceRules || payload.request_attendance_rules;
-      if (Array.isArray(reqList)) {
-        for (const r of reqList) {
-          if (!r.id) continue;
+      if (Array.isArray(payload.requestAttendanceRules)) {
+        for (const reqRule of payload.requestAttendanceRules) {
+          if (!reqRule.id) continue;
           await prisma.attendanceRequest.upsert({
-            where: { id: String(r.id) },
+            where: { id: String(reqRule.id) },
             create: {
-              id: String(r.id),
-              userId: String(id),
-              subject: r.subject || "Attendance Request",
-              remark: r.remark || null,
-              status: r.status || "pending",
-              fromDate: r.fromDate || null,
-              fromTime: r.fromTime || null,
-              toDate: r.toDate || null,
-              toTime: r.toTime || null,
+              id: String(reqRule.id),
+              userId: existing.systemId,
+              subject: reqRule.subject || "Attendance Request",
+              remark: reqRule.remark || null,
+              status: reqRule.status || "pending",
+              fromDate: reqRule.fromDate || reqRule.from_date || reqRule.date || null,
+              fromTime: reqRule.fromTime || reqRule.from_time || reqRule.time || null,
+              toDate: reqRule.toDate || reqRule.to_date || null,
+              toTime: reqRule.toTime || reqRule.to_time || null,
+              createdAt: reqRule.createdAt ? new Date(reqRule.createdAt) : new Date(),
             },
             update: {
-              subject: r.subject || undefined,
-              remark: r.remark || undefined,
-              status: r.status || undefined,
-              fromDate: r.fromDate || undefined,
-              fromTime: r.fromTime || undefined,
-              toDate: r.toDate || undefined,
-              toTime: r.toTime || undefined,
+              status: reqRule.status || "pending",
+              remark: reqRule.remark || null,
+              toDate: reqRule.toDate || reqRule.to_date || null,
+              toTime: reqRule.toTime || reqRule.to_time || null,
             },
           });
         }
       }
 
-      // 4. Update core User scalar attributes if present
+      // 4. Update core user fields
       const userUpdateData: any = {};
-      if (payload.name !== undefined) userUpdateData.name = payload.name;
-      if (payload.phone !== undefined) userUpdateData.phone = payload.phone;
-      if (payload.position !== undefined)
-        userUpdateData.position = payload.position;
-      if (payload.email !== undefined) userUpdateData.email = payload.email;
+      const detailsUpdateData: any = {};
+
       if (payload.role !== undefined) {
         userUpdateData.role =
           typeof payload.role === "string"
@@ -485,20 +540,51 @@ export class UsersController {
         userUpdateData.isActive = Boolean(payload.isActive);
       if (payload.is_active !== undefined)
         userUpdateData.isActive = Boolean(payload.is_active);
+
+      if (payload.password) {
+        const rawPass = String(payload.password).trim();
+        userUpdateData.passwordHash =
+          rawPass.startsWith("$2a$") || rawPass.startsWith("$2b$")
+            ? rawPass
+            : bcrypt.hashSync(rawPass, 10);
+      } else if (payload.passwordHash) {
+        userUpdateData.passwordHash = payload.passwordHash;
+      }
+
+      // 5. Update user details fields
+      if (payload.name !== undefined) detailsUpdateData.name = payload.name;
+      if (payload.email !== undefined) detailsUpdateData.email = payload.email;
+      if (payload.phone !== undefined) detailsUpdateData.phone = payload.phone;
+      if (payload.position !== undefined)
+        detailsUpdateData.position = payload.position;
+      if (payload.dob !== undefined) detailsUpdateData.dob = payload.dob;
+      if (payload.joined !== undefined) detailsUpdateData.joined = payload.joined;
+
       const compId =
         payload.companyId ||
         payload.company_id ||
         payload.systemId ||
         payload.system_id;
-      if (compId !== undefined) userUpdateData.companyId = compId;
+      if (compId !== undefined) detailsUpdateData.companyId = compId;
+
+      if (Object.keys(detailsUpdateData).length > 0) {
+        await prisma.userDetails.upsert({
+          where: { systemId: existing.systemId },
+          create: {
+            systemId: existing.systemId,
+            ...detailsUpdateData,
+          },
+          update: detailsUpdateData,
+        });
+      }
 
       let updated = null;
       if (Object.keys(userUpdateData).length > 0) {
         updated = await prisma.user.update({
-          where: { id: String(id) },
+          where: { systemId: existing.systemId },
           data: userUpdateData,
           include: {
-            company: true,
+            details: { include: { company: true } },
             deviceSessions: true,
             attendanceLogs: true,
             attendanceRequests: true,
@@ -506,9 +592,9 @@ export class UsersController {
         });
       } else {
         updated = await prisma.user.findUnique({
-          where: { id: String(id) },
+          where: { systemId: existing.systemId },
           include: {
-            company: true,
+            details: { include: { company: true } },
             deviceSessions: true,
             attendanceLogs: true,
             attendanceRequests: true,
@@ -531,9 +617,17 @@ export class UsersController {
   async deleteUser(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      await prisma.user.delete({
-        where: { id: String(id) },
+      const existing = await prisma.user.findFirst({
+        where: {
+          OR: [{ systemId: String(id) }, { id: String(id) }],
+        },
       });
+
+      if (existing) {
+        await prisma.user.delete({
+          where: { systemId: existing.systemId },
+        });
+      }
 
       return res.status(200).json({
         success: true,

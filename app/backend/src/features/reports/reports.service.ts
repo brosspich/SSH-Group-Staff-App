@@ -50,19 +50,19 @@ export class ReportsService {
 
     // 1. Fetch all users from DB
     const users = await prisma.user.findMany({
-      where: companyId ? { companyId } : undefined,
-      include: { attendanceLogs: true },
-      orderBy: [{ id: "asc" }, { companyId: "asc" }],
+      where: companyId ? { details: { companyId } } : undefined,
+      include: { details: true, attendanceLogs: true },
+      orderBy: [{ id: "asc" }],
     });
 
     const staffList: StaffOptionDto[] = users
       .filter((u) => !isLeaveRole(u.role))
       .map((u) => ({
         id: u.id,
-        name: u.name || u.username,
-        position: u.position,
+        name: u.details?.name || u.username,
+        position: u.details?.position || null,
         role: u.role,
-        company_id: u.companyId,
+        company_id: u.details?.companyId || null,
       }));
 
     // 2. Determine target staff ID
@@ -85,8 +85,8 @@ export class ReportsService {
           allLogs.push({
             id: log.id,
             staff_id: u.id,
-            system_id: u.companyId || log.companyId,
-            name: u.name || u.username,
+            system_id: u.details?.companyId || log.companyId,
+            name: u.details?.name || u.username,
             date: log.scanDate,
             time: log.scanTime,
             type: log.type.toLowerCase().replace("_", "-"),
@@ -102,8 +102,8 @@ export class ReportsService {
           allLogs.push({
             id: rec.id || "",
             staff_id: rec.staff_id != null ? String(rec.staff_id) : u.id,
-            system_id: rec.system_id || u.companyId,
-            name: rec.name || u.name || u.username,
+            system_id: rec.system_id || u.details?.companyId || null,
+            name: rec.name || u.details?.name || u.username,
             date:
               rec.date ||
               rec.scanDate ||
@@ -211,19 +211,19 @@ export class ReportsService {
     const { mode, type, dateStr, staffId, companyId, currentUserId } = params;
 
     const users = await prisma.user.findMany({
-      where: companyId ? { companyId } : undefined,
-      include: { attendanceRequests: true },
-      orderBy: [{ id: "asc" }, { companyId: "asc" }],
+      where: companyId ? { details: { companyId } } : undefined,
+      include: { details: true, attendanceRequests: true },
+      orderBy: [{ id: "asc" }],
     });
 
     const staffList: StaffOptionDto[] = users
       .filter((u) => !isLeaveRole(u.role))
       .map((u) => ({
         id: u.id,
-        name: u.name || u.username,
-        position: u.position,
+        name: u.details?.name || u.username,
+        position: u.details?.position || null,
         role: u.role,
-        company_id: u.companyId,
+        company_id: u.details?.companyId || null,
       }));
 
     let targetStaffId = staffId || null;
@@ -245,8 +245,8 @@ export class ReportsService {
           allRequests.push({
             id: req.id,
             staff_id: u.id,
-            name: u.name || u.username,
-            position: u.position || "Staff",
+            name: u.details?.name || u.username,
+            position: u.details?.position || "Staff",
             date: fromDate,
             time: req.fromTime || "08:00 AM",
             from_date: fromDate,
@@ -266,8 +266,8 @@ export class ReportsService {
           allRequests.push({
             id: r.id || "",
             staff_id: r.staff_id != null ? String(r.staff_id) : u.id,
-            name: r.name || u.name || u.username,
-            position: r.position || u.position || "Staff",
+            name: r.name || u.details?.name || u.username,
+            position: r.position || u.details?.position || "Staff",
             date: r.date || r.from_date || "",
             time: r.time || r.from_time || "",
             from_date: r.from_date || r.date || "",

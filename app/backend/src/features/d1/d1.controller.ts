@@ -21,6 +21,10 @@ function getPrismaDelegate(table: string): any {
     case "user":
     case "users":
       return prisma.user;
+    case "UserDetails":
+    case "user_details":
+    case "userDetails":
+      return prisma.userDetails;
     case "AttendanceLog":
     case "attendance_log":
     case "attendance_logs":
