@@ -91,11 +91,21 @@ export class AuthService {
       throw new UnauthorizedError("Invalid username or password.");
     }
 
+    // Backend Condition: Inactive account
     if (!user.isActive) {
       throw new UnauthorizedError("Your account is inactive. Contact admin.");
     }
 
-    // 2. Validate password
+    // Backend Condition: Leave / Suspended account
+    const userRole = String(user.role || "").toLowerCase();
+    if (userRole.includes("leave")) {
+      throw new UnauthorizedError("Your account is on leave. Contact admin.");
+    }
+    if (userRole.includes("suspended")) {
+      throw new UnauthorizedError("Your account is suspended. Contact admin.");
+    }
+
+    // 2. Validate password (Plaintext or Bcrypt Hash)
     const rawStored = user.passwordHash || "";
     const rawInput = (input.password || "").trim();
     let isValid = false;
