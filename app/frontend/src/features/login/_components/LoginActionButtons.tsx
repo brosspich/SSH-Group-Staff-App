@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { AntDesign } from "@expo/vector-icons";
 import {
   ActivityIndicator,
@@ -39,7 +38,7 @@ export default function LoginActionButtons({
         <View style={styles.btnContent}>
           {isLoading ? (
             <>
-              <ActivityIndicator size={24} color={AppColors.background2} />
+              <ActivityIndicator size={24} color={theme.colors.background2} />
               <Text style={styles.txtBtn}>Login...</Text>
             </>
           ) : (
@@ -47,7 +46,7 @@ export default function LoginActionButtons({
               <AntDesign
                 name="logout"
                 size={18}
-                color={AppColors.background2}
+                color={theme.colors.background2}
               />
               <Text style={styles.txtBtn}>Login</Text>
             </>
@@ -60,23 +59,23 @@ export default function LoginActionButtons({
 
 const styles = StyleSheet.create({
   privacyLink: {
-    marginTop: 14,
-    paddingVertical: 6,
+    marginTop: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
   },
   privacyLinkText: {
-    color: AppColors.secondary,
-    fontSize: 13,
+    color: theme.colors.secondary,
+    fontSize: theme.fontSizes.xs,
     textDecorationLine: "underline",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     textAlign: "center",
   },
   conBtn: {
     height: 48,
     width: "100%",
-    backgroundColor: AppColors.secondary,
-    borderRadius: 10,
-    marginTop: 10,
+    backgroundColor: theme.colors.secondary,
+    borderRadius: theme.borderRadius.sm,
+    marginTop: theme.spacing.sm,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -86,11 +85,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   txtBtn: {
-    color: AppColors.background2,
+    color: theme.colors.background2,
     fontWeight: "bold",
     marginLeft: 5,
-    fontSize: 16,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

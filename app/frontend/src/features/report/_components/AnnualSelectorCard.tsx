@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -26,7 +25,7 @@ export function AnnualSelectorCard({
           <MaterialIcons
             name="chevron-left"
             size={24}
-            color={AppColors.textPrimary}
+            color={theme.colors.textPrimary}
           />
         </TouchableOpacity>
 
@@ -40,7 +39,7 @@ export function AnnualSelectorCard({
           <MaterialIcons
             name="chevron-right"
             size={24}
-            color={isLatestYear ? AppColors.grey : AppColors.textPrimary}
+            color={isLatestYear ? theme.colors.grey : theme.colors.textPrimary}
           />
         </TouchableOpacity>
       </View>
@@ -50,27 +49,27 @@ export function AnnualSelectorCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 12,
-    padding: 14,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
     borderWidth: 0.5,
     borderColor: "rgba(0,0,0,0.08)",
   },
   sectionLabel: {
-    fontSize: 11.5,
-    color: AppColors.grey,
-    marginBottom: 8,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    marginBottom: theme.spacing.sm,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   stepperRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: AppColors.background,
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.sm,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
   },
   arrowBtn: {
     padding: 6,
@@ -79,10 +78,10 @@ const styles = StyleSheet.create({
     opacity: 0.35,
   },
   periodLabel: {
-    fontSize: 14,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
     fontWeight: "bold",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

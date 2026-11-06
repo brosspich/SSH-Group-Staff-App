@@ -1,5 +1,5 @@
-import { apiClient } from "@/services/api";
-import { StaffUser, userService } from "@/services/userService";
+import { apiClient } from "@/shared/services/api";
+import { StaffUser, userService } from "@/shared/services/userService";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import {

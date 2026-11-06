@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { PolicyLang } from "../_types/privacyPolicy.types";
@@ -58,29 +57,29 @@ export default function PolicySectionList({ lang }: PolicySectionListProps) {
 
 const styles = StyleSheet.create({
   content: {
-    padding: 16,
+    padding: theme.spacing.md,
   },
   wrapper: {
     width: "100%",
   },
   updatedBadge: {
     alignSelf: "flex-start",
-    backgroundColor: `${AppColors.primary}12`,
-    paddingHorizontal: 12,
+    backgroundColor: `${theme.colors.primary}12`,
+    paddingHorizontal: theme.spacing.md,
     paddingVertical: 6,
-    borderRadius: 8,
-    marginBottom: 12,
+    borderRadius: theme.borderRadius.sm,
+    marginBottom: theme.spacing.md,
   },
   updatedBadgeText: {
-    fontSize: 12,
-    color: AppColors.primary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.primary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
     borderWidth: 1,
     borderColor: "rgba(0, 0, 0, 0.05)",
     shadowColor: "#000",
@@ -90,33 +89,33 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   section: {
-    marginBottom: 24,
+    marginBottom: theme.spacing.lg,
   },
   sectionHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: theme.spacing.sm,
   },
   accentBar: {
     width: 4,
     height: 18,
-    backgroundColor: AppColors.primary ?? "#2e3191",
+    backgroundColor: theme.colors.primary,
     borderRadius: 2,
-    marginRight: 8,
+    marginRight: theme.spacing.sm,
   },
   sectionTitle: {
-    fontSize: 15,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: AppColors.primary ?? "#2e3191",
+    color: theme.colors.primary,
     fontWeight: "bold",
   },
   sectionBody: {
-    fontSize: 13.5,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    color: AppColors.textSecondary ?? "#6B7280",
+    color: theme.colors.textSecondary,
     lineHeight: 22,
-    paddingLeft: 12,
+    paddingLeft: theme.spacing.md,
   },
 });

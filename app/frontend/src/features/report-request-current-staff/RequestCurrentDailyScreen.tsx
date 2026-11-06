@@ -1,14 +1,14 @@
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import { RequestReportBody } from "@/shared/components/report-request/RequestReportBody";
 import { RequestReportPrintModal } from "@/shared/components/report-request/RequestReportPrintModal";
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import { DailyDatePickerCard, ReportPrintFooter } from "@/features/report";
 import {
   formatDateLabel,
   getTodayPP,
   useAttendanceRequestReportData,
-} from "@/hooks/useAttendanceRequestReportData";
-import { useResponsive } from "@/hooks/useResponsive";
+} from "@/shared/hooks/useAttendanceRequestReportData";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
@@ -83,7 +83,7 @@ export default function RequestCurrentDailyScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: AppColors.background },
+  container: { flex: 1, backgroundColor: theme.colors.background },
   content: { padding: 16, gap: 12, paddingBottom: 90 },
   wrapper: { flex: 1, width: "100%", gap: 12 },
 });

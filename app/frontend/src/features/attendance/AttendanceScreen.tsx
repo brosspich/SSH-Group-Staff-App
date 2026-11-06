@@ -1,4 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import AppBarGlass from "@/shared/components/appbar/AppBarGlass";
 import Loading from "@/shared/components/loading/loading";
 import {
@@ -53,7 +53,7 @@ export default function AttendanceScreen() {
   return (
     <View style={styles.safe}>
       <StatusBar
-        backgroundColor={AppColors.background}
+        backgroundColor={theme.colors.background}
         barStyle="light-content"
       />
       <AppBarGlass />
@@ -69,8 +69,8 @@ export default function AttendanceScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={AppColors.primary}
-            colors={[AppColors.primary]}
+            tintColor={theme.colors.primary}
+            colors={[theme.colors.primary]}
           />
         }
         onEndReached={handleLoadMore}
@@ -112,7 +112,7 @@ export default function AttendanceScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   centered: {
     flex: 1,

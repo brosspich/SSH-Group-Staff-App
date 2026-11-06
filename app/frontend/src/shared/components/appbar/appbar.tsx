@@ -1,8 +1,7 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { AppImages } from "@/constants/appImages";
-import { useUser } from "@/contexts/UserContext";
-import { StaffUser, userService } from "@/services/userService";
+import { theme } from "@/shared/styles/theme";
+import { AppImages } from "@/shared/constants/appImages";
+import { useUser } from "@/shared/contexts/UserContext";
+import { StaffUser, userService } from "@/shared/services/userService";
 import { getTwoInitials } from "@/utils/formatters";
 import { BlurView } from "@nguyenduy1412/react-native-blur";
 import { LinearGradient } from "expo-linear-gradient";
@@ -29,7 +28,7 @@ export default function Appbar() {
   return (
     <>
       {/* <StatusBar
-        backgroundColor={AppColors.background}
+        backgroundColor={theme.colors.background}
         barStyle="dark-content"
       /> */}
       {/* <SafeAreaView> */}
@@ -42,7 +41,7 @@ export default function Appbar() {
               height: 37,
             }}
           />
-          <Text style={{ color: AppColors.background2, fontSize: 20 }}>|</Text>
+          <Text style={{ color: theme.colors.background2, fontSize: theme.fontSizes.xl }}>|</Text>
           <Image
             source={AppImages.logoStaffW}
             style={{
@@ -65,7 +64,7 @@ export default function Appbar() {
               height: 37,
             }}
           />
-          <Text style={{ color: AppColors.background2, fontSize: 20 }}>|</Text>
+          <Text style={{ color: theme.colors.background2, fontSize: theme.fontSizes.xl }}>|</Text>
           <Image
             source={AppImages.logoStaffW}
             style={{
@@ -79,12 +78,12 @@ export default function Appbar() {
           {/* <Ionicons
             name="notifications"
             size={24}
-            color={AppColors.secondary}
+            color={theme.colors.secondary}
           /> */}
           {/* <Ionicons name="person-circle-outline" size={24} color="#333" /> */}
           <TouchableOpacity onPress={() => router.push("/account/account")}>
             <LinearGradient
-              colors={[AppColors.secondary, AppColors.primary]}
+              colors={[theme.colors.secondary, theme.colors.primary]}
               start={{ x: 1, y: 0 }}
               end={{ x: 0, y: 1 }}
               locations={[0.3, 0.9]}
@@ -108,9 +107,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     alignContent: "center",
     paddingHorizontal: 15,
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
     // borderBottomWidth: 1,
-    // borderBottomColor: `${AppColors.grey}33`,
+    // borderBottomColor: `${theme.colors.grey}33`,
     // height: 60,
     // height: 60 + (Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0),
     // paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
@@ -121,10 +120,10 @@ const styles = StyleSheet.create({
     // zIndex: 10,
   },
   appBarTitle: {
-    fontSize: 20,
+    fontSize: theme.fontSizes.xl,
     fontWeight: "bold",
     color: "#333",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   appBarIcons: {
@@ -132,45 +131,45 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.5)",
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
   },
   conTxtName: {
     height: 42,
     width: 42,
-    backgroundColor: AppColors.secondary,
-    borderRadius: 10,
+    backgroundColor: theme.colors.secondary,
+    borderRadius: theme.borderRadius.md,
     alignItems: "center",
     justifyContent: "center",
   },
   txtName: {
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "bold",
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 
   appBarLogo: {
-    // borderColor: AppColors.background2,
+    // borderColor: theme.colors.background2,
     flexDirection: "row",
     alignItems: "center",
     gap: 3,
     padding: 4,
     borderWidth: 2,
     // borderColor: "rgba(255, 255, 255, 0.45)",
-    borderColor: AppColors.grey + 70,
-    borderRadius: 10,
+    borderColor: theme.colors.grey + 70,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     overflow: "hidden",
   },
   bgAppBar: {
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
     height: 10,
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    borderTopRightRadius: 12,
-    borderTopLeftRadius: 12,
+    borderTopRightRadius: theme.borderRadius.md,
+    borderTopLeftRadius: theme.borderRadius.md,
   },
 });

@@ -1,4 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import { StyleSheet, View } from "react-native";
 
 const LaptopGraphic = () => {
@@ -264,7 +264,7 @@ const graphicStyles = StyleSheet.create({
     width: 200,
     height: 125,
     backgroundColor: "#1e293b",
-    borderRadius: 8,
+    borderRadius: theme.borderRadius.sm,
     paddingTop: 3,
     paddingHorizontal: 4,
     paddingBottom: 4,
@@ -283,7 +283,7 @@ const graphicStyles = StyleSheet.create({
     flex: 1,
     width: "100%",
     backgroundColor: "#f8fafc",
-    borderRadius: 4,
+    borderRadius: theme.borderRadius.xs,
     overflow: "hidden",
   },
 
@@ -307,18 +307,18 @@ const graphicStyles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 1.5,
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
   },
   appLogoDivider: {
     width: 1,
     height: 6,
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
   },
   userAvatar: {
     width: 8,
     height: 8,
     borderRadius: 2.5,
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
   },
 
   // Screen Body
@@ -338,7 +338,7 @@ const graphicStyles = StyleSheet.create({
   },
   sidebarActiveItem: {
     height: 10,
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
     borderRadius: 2.5,
     flexDirection: "row",
     alignItems: "center",
@@ -368,13 +368,13 @@ const graphicStyles = StyleSheet.create({
     width: 3,
     height: 3,
     borderRadius: 1,
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
   },
   itemText: {
     width: 18,
     height: 2,
     borderRadius: 1,
-    backgroundColor: `${AppColors.secondary}66`,
+    backgroundColor: `${theme.colors.secondary}66`,
   },
 
   // Main Content
@@ -387,7 +387,7 @@ const graphicStyles = StyleSheet.create({
 
   // Welcome Banner Card
   bannerCard: {
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
     borderRadius: 3,
     padding: 3,
     flexDirection: "row",
@@ -502,7 +502,7 @@ const graphicStyles = StyleSheet.create({
 
   // Scan Button
   scanBtn: {
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
     borderRadius: 2.5,
     paddingHorizontal: 3,
     paddingVertical: 2,
@@ -555,7 +555,7 @@ const graphicStyles = StyleSheet.create({
     width: 18,
     height: 2,
     borderRadius: 1,
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
   },
 
   // Log List

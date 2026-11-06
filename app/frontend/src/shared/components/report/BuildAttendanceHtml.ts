@@ -3,8 +3,8 @@ import {
   AttendanceSummary,
   ReportMode,
   ReportType,
-} from "@/hooks/useAttendanceReportData";
-import { StaffUser } from "@/services/userService";
+} from "@/shared/hooks/useAttendanceReportData";
+import { StaffUser } from "@/shared/services/userService";
 import { buildTotalAttendanceHtml } from "./BuildTotalAttendanceHtml";
 
 export { buildTotalAttendanceHtml } from "./BuildTotalAttendanceHtml";

@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/api";
+import { apiClient } from "@/shared/services/api";
 import { AuditFilterParams, AuditLog } from "../types/audit.types";
 
 export const auditApi = {

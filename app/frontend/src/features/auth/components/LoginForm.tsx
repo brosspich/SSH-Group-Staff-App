@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import { Button } from "@/shared/components/ui/Button";
 import { Input } from "@/shared/components/ui/Input";
 import { Typography } from "@/shared/components/ui/Typography";
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
   errorBanner: {
     backgroundColor: "#FFEBEA",
     padding: 12,
-    borderRadius: 8,
+    borderRadius: theme.borderRadius.sm,
     marginBottom: 12,
   },
   submitButton: {

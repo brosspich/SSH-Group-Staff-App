@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export const renderAlertDeleteModal = ({
@@ -28,7 +27,7 @@ export const renderAlertDeleteModal = ({
           },
         ]}
       >
-        <Text style={[styles.txt, { fontSize: 20 }]}>{title}</Text>
+        <Text style={[styles.txt, { fontSize: theme.fontSizes.xl }]}>{title}</Text>
         <Text style={styles.txt}>{bodyTxt}</Text>
         <View style={styles.conBtn}>
           <TouchableOpacity
@@ -43,11 +42,11 @@ export const renderAlertDeleteModal = ({
             }}
             style={[
               styles.btn,
-              { backgroundColor: AppColors.red, borderColor: AppColors.red },
+              { backgroundColor: theme.colors.red, borderColor: theme.colors.red },
             ]}
             disabled={isDeleting}
           >
-            <Text style={[styles.txtBtn, { color: AppColors.background2 }]}>
+            <Text style={[styles.txtBtn, { color: theme.colors.background2 }]}>
               {isDeleting ? "Deleting..." : "Delete"}
             </Text>
           </TouchableOpacity>
@@ -68,21 +67,21 @@ const styles = StyleSheet.create({
   },
   conModal: {
     marginHorizontal: 20,
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     padding: 15,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 20,
+    borderRadius: theme.borderRadius.xl,
     alignSelf: "center",
     gap: 16,
   },
   txt: {
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     textAlign: "center",
     // marginTop: 10,
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   conBtn: {
@@ -95,21 +94,21 @@ const styles = StyleSheet.create({
   },
 
   btn: {
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     // width: "100%",
     flex: 1,
     paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     flexDirection: "row",
     borderWidth: 1.5,
-    borderColor: AppColors.secondary,
+    borderColor: theme.colors.secondary,
   },
   txtBtn: {
     fontWeight: "bold",
-    color: AppColors.secondary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.secondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

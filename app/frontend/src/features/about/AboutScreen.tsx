@@ -1,6 +1,6 @@
 import AppbarBack from "@/shared/components/appbar/appbarback";
-import { AppColors } from "@/constants/appcolors";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import Copyright from "@/shared/components/copyright/copyright";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { AboutBrandHeader } from "./_components/AboutBrandHeader";
@@ -31,7 +31,7 @@ export default function AboutScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   scrollContent: {
     padding: 16,

@@ -1,14 +1,13 @@
+import { theme } from "@/shared/styles/theme";
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
 import {
   GroupCard,
   MemberList,
   SshGroup,
   useSshGroupsQuery,
 } from "@/features/ssh-groups";
-import { useResponsive } from "@/hooks/useResponsive";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
@@ -58,7 +57,7 @@ export default function SshGroupsScreen() {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={handleRefresh}
-                tintColor={AppColors.secondary}
+                tintColor={theme.colors.secondary}
               />
             }
             renderItem={({ item }) => (
@@ -72,7 +71,7 @@ export default function SshGroupsScreen() {
                 <Ionicons
                   name="server-outline"
                   size={48}
-                  color={AppColors.grey}
+                  color={theme.colors.grey}
                 />
                 <Text style={styles.emptyText}>No Server Groups Found</Text>
                 <Text style={styles.emptySubtext}>
@@ -105,7 +104,7 @@ export default function SshGroupsScreen() {
                 onPress={() => setSelectedGroup(null)}
                 style={styles.closeBtn}
               >
-                <Ionicons name="close" size={22} color={AppColors.textPrimary} />
+                <Ionicons name="close" size={22} color={theme.colors.textPrimary} />
               </TouchableOpacity>
             </View>
 
@@ -124,7 +123,7 @@ export default function SshGroupsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
@@ -141,14 +140,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   subtitle: {
     fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
@@ -164,14 +163,14 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   emptySubtext: {
     fontSize: 13,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     textAlign: "center",
   },
@@ -181,7 +180,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalCard: {
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -200,19 +199,19 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: 16,
     borderBottomWidth: 0.5,
-    borderBottomColor: `${AppColors.grey}30`,
+    borderBottomColor: `${theme.colors.grey}30`,
     paddingBottom: 12,
   },
   modalTitle: {
     fontSize: 18,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   modalSubtitle: {
     fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },

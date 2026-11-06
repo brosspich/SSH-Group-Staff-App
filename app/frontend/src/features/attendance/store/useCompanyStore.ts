@@ -2,7 +2,7 @@ import { create } from "zustand";
 import {
   DynamicSystemItem,
   OfficialAttendanceConfig,
-} from "@/constants/attendanceConfig";
+} from "@/shared/constants/attendanceConfig";
 
 export interface CompanyStoreState {
   config: OfficialAttendanceConfig | null;

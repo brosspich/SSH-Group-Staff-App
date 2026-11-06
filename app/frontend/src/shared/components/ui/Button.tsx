@@ -1,4 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import {
   ActivityIndicator,
@@ -103,7 +103,7 @@ export const Button: React.FC<ButtonProps> = ({
           size="small"
           color={
             variant === "outline" || variant === "ghost"
-              ? AppColors.primary
+              ? theme.colors.primary
               : "#FFFFFF"
           }
         />
@@ -129,19 +129,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     gap: 8,
   },
   primary: {
-    backgroundColor: AppColors.primary || "#007AFF",
+    backgroundColor: theme.colors.primary || "#007AFF",
   },
   secondary: {
-    backgroundColor: AppColors.secondary || "#5856D6",
+    backgroundColor: theme.colors.secondary || "#5856D6",
   },
   outline: {
     backgroundColor: "transparent",
     borderWidth: 1.5,
-    borderColor: AppColors.primary || "#007AFF",
+    borderColor: theme.colors.primary || "#007AFF",
   },
   danger: {
     backgroundColor: "#FF3B30",
@@ -166,13 +166,13 @@ const styles = StyleSheet.create({
   },
   textBase: {
     fontWeight: "600",
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
   },
   textLight: {
     color: "#FFFFFF",
   },
   textDark: {
-    color: AppColors.primary || "#007AFF",
+    color: theme.colors.primary || "#007AFF",
   },
   textSecondary: {
     color: "#FFFFFF",

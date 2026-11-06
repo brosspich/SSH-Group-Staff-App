@@ -1,12 +1,12 @@
+import { theme } from "@/shared/styles/theme";
 import { AttendanceRecord } from "@/app/(tabs)/attendance";
-import { AppFonts } from "@/constants/appfonts";
-import { getCompanyName } from "@/constants/attendanceConfig";
+import { getCompanyName } from "@/shared/constants/attendanceConfig";
 import {
   AttendanceSummary,
   ReportMode,
   ReportType,
-} from "@/hooks/useAttendanceReportData";
-import { StaffUser } from "@/services/userService";
+} from "@/shared/hooks/useAttendanceReportData";
+import { StaffUser } from "@/shared/services/userService";
 import { StyleSheet, Text, View } from "react-native";
 
 interface CustomAttendancePaperProps {
@@ -355,7 +355,7 @@ export default function CustomAttendancePaper({
 const styles = StyleSheet.create({
   paperContainer: {
     backgroundColor: "#ffffff",
-    borderRadius: 8,
+    borderRadius: theme.borderRadius.sm,
     padding: 16,
     borderWidth: 1,
     borderColor: "#e2e8f0",
@@ -370,30 +370,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   companyTitle: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "bold",
     color: "#0f172a",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   reportTitle: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     color: "#334155",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     marginTop: 2,
     includeFontPadding: false,
   },
   periodText: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     color: "#64748b",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     marginTop: 2,
     includeFontPadding: false,
   },
   generatedAt: {
     fontSize: 9.5,
     color: "#94a3b8",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   divider: {
@@ -405,26 +405,26 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8fafc",
     borderWidth: 1,
     borderColor: "#cbd5e1",
-    borderRadius: 6,
+    borderRadius: theme.borderRadius.xs,
     paddingVertical: 7,
     paddingHorizontal: 10,
     marginBottom: 12,
   },
   staffInfoText: {
-    fontSize: 10.5,
+    fontSize: theme.fontSizes.xs,
     color: "#1e293b",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   staffInfoLabel: {
     fontWeight: "bold",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   table: {
     borderWidth: 1,
     borderColor: "#cbd5e1",
-    borderRadius: 6,
+    borderRadius: theme.borderRadius.xs,
     overflow: "hidden",
   },
   tableHeader: {
@@ -437,10 +437,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   th: {
-    fontSize: 10,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "bold",
     color: "#334155",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   tableRow: {
@@ -455,9 +455,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8fafc",
   },
   td: {
-    fontSize: 10,
+    fontSize: theme.fontSizes.xs,
     color: "#334155",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   emptyRow: {
@@ -465,9 +465,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     color: "#94a3b8",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   tableFooter: {
@@ -480,17 +480,17 @@ const styles = StyleSheet.create({
     borderTopColor: "#94a3b8",
   },
   tfLabel: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "bold",
     color: "#0f172a",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   tfValue: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "bold",
     color: "#0f172a",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

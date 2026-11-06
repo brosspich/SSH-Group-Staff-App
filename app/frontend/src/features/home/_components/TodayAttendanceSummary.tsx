@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -36,7 +35,7 @@ export const TodayAttendanceSummary: React.FC<TodayAttendanceSummaryProps> = ({
             <Text
               style={[
                 styles.summaryValue,
-                { color: todayTimeIn ? "#0022ff" : AppColors.grey },
+                { color: todayTimeIn ? "#0022ff" : theme.colors.grey },
               ]}
             >
               {todayTimeIn ? todayTimeIn.time : "Not Scanned"}
@@ -47,7 +46,7 @@ export const TodayAttendanceSummary: React.FC<TodayAttendanceSummaryProps> = ({
         {/* Time-Out */}
         <View style={styles.summaryCard}>
           <View style={[styles.summaryIconBox, { backgroundColor: "#fedbdb" }]}>
-            <Feather name="log-out" size={20} color="#ff0000" />
+            <Feather name="log-out" size={20} color={theme.colors.error} />
           </View>
           <View>
             <Text style={styles.summaryLabel}>
@@ -56,7 +55,7 @@ export const TodayAttendanceSummary: React.FC<TodayAttendanceSummaryProps> = ({
             <Text
               style={[
                 styles.summaryValue,
-                { color: todayTimeOut ? "#ff0000" : AppColors.grey },
+                { color: todayTimeOut ? theme.colors.error : theme.colors.grey },
               ]}
             >
               {todayTimeOut ? todayTimeOut.time : "Not Scanned"}
@@ -79,7 +78,7 @@ export const TodayAttendanceSummary: React.FC<TodayAttendanceSummaryProps> = ({
               style={[
                 styles.summaryValue,
                 {
-                  color: todayOtherCount > 0 ? "#7e22ce" : AppColors.grey,
+                  color: todayOtherCount > 0 ? "#7e22ce" : theme.colors.grey,
                 },
               ]}
             >
@@ -94,54 +93,54 @@ export const TodayAttendanceSummary: React.FC<TodayAttendanceSummaryProps> = ({
 
 const styles = StyleSheet.create({
   conSummary: {
-    marginTop: 30,
+    marginTop: theme.spacing.xl,
   },
   bgConSummary: {
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
     height: 55,
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    borderTopRightRadius: 12,
-    borderTopLeftRadius: 12,
+    borderTopRightRadius: theme.borderRadius.md,
+    borderTopLeftRadius: theme.borderRadius.md,
   },
   summaryRow: {
     flexDirection: "row",
-    gap: 10,
+    gap: theme.spacing.sm,
     flexWrap: "wrap",
-    paddingHorizontal: 20,
+    paddingHorizontal: theme.spacing.lg,
   },
   summaryCard: {
     flex: 1,
     minWidth: 95,
-    backgroundColor: AppColors.background2,
-    borderRadius: 12,
-    padding: 12,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
     flexDirection: "column",
     alignItems: "flex-start",
-    gap: 8,
+    gap: theme.spacing.sm,
     borderWidth: 1.5,
-    borderColor: AppColors.grey + 70,
+    borderColor: theme.colors.grey + 70,
   },
   summaryIconBox: {
     width: 38,
     height: 38,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.sm,
     alignItems: "center",
     justifyContent: "center",
   },
   summaryLabel: {
-    fontSize: 9.5,
-    color: AppColors.grey,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    lineHeight: 12,
+    lineHeight: 14,
   },
   summaryValue: {
-    fontSize: 12,
-    marginTop: 4,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xs,
+    marginTop: theme.spacing.xs,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

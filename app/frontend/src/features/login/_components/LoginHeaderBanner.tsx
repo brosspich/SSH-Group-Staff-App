@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { AppImages } from "@/constants/appImages";
+import { theme } from "@/shared/styles/theme";
+import { AppImages } from "@/shared/constants/appImages";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function LoginHeaderBanner() {
@@ -26,28 +25,28 @@ const styles = StyleSheet.create({
     height: 70,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: theme.spacing.lg,
   },
   imgLogo: {
     width: "100%",
     height: "100%",
   },
   conTxt: {
-    marginVertical: 20,
+    marginVertical: theme.spacing.lg,
   },
   txtApp: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "bold",
     textAlign: "center",
-    color: AppColors.secondary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.secondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   subTxt: {
-    fontSize: 13,
-    marginTop: 10,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    marginTop: theme.spacing.sm,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     textAlign: "center",
   },

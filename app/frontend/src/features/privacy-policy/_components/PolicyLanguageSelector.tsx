@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { PolicyLang } from "../_types/privacyPolicy.types";
 import { POLICY_LANGUAGES } from "../_utils/privacyPolicyConstants";
@@ -40,47 +39,47 @@ export default function PolicyLanguageSelector({
 
 const styles = StyleSheet.create({
   langSelectorContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: AppColors.background2,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: theme.colors.background2,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0, 0, 0, 0.05)",
     alignItems: "center",
   },
   langSegmentControl: {
     flexDirection: "row",
-    backgroundColor: AppColors.background,
-    borderRadius: 12,
-    padding: 4,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.xs,
     width: "100%",
     maxWidth: 420,
     justifyContent: "space-between",
   },
   langBtn: {
     flex: 1,
-    paddingVertical: 8,
-    borderRadius: 10,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.sm,
     alignItems: "center",
     justifyContent: "center",
   },
   langBtnActive: {
-    backgroundColor: AppColors.primary ?? "#2e3191",
-    shadowColor: AppColors.primary ?? "#2e3191",
+    backgroundColor: theme.colors.primary,
+    shadowColor: theme.colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 2,
   },
   langText: {
-    fontSize: 13,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    color: AppColors.textSecondary ?? "#6B7280",
+    color: theme.colors.textSecondary,
     fontWeight: "500",
   },
   langTextActive: {
     color: "#ffffff",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     fontWeight: "bold",
   },

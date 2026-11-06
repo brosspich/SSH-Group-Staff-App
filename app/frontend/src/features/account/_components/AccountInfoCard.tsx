@@ -1,7 +1,6 @@
 import { InfoRow } from "@/shared/components/account/InfoRow";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import type { StaffUser } from "@/services/userService";
+import { theme } from "@/shared/styles/theme";
+import type { StaffUser } from "@/shared/services/userService";
 import { formatJoinedDisplay } from "@/utils/formatters";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
@@ -56,25 +55,25 @@ export const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ user }) => {
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingHorizontal: theme.spacing.md,
+    marginBottom: theme.spacing.md,
   },
   sectionTitle: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "700",
-    color: AppColors.textSecondary ?? AppColors.grey,
+    color: theme.colors.textSecondary ?? theme.colors.grey,
     letterSpacing: 0.8,
     textTransform: "uppercase",
-    marginBottom: 8,
+    marginBottom: theme.spacing.sm,
     textAlign: "center",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 4,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
     ...Platform.select({
       web: {
         boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.12)",

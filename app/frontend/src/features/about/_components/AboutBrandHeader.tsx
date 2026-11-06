@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { AppImages } from "@/constants/appImages";
+import { theme } from "@/shared/styles/theme";
+import { AppImages } from "@/shared/constants/appImages";
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
@@ -10,7 +9,7 @@ export const AboutBrandHeader: React.FC = () => {
       {/* Logo and Brand Section */}
       <View style={styles.conLogo}>
         <Image source={AppImages.logoSSH} style={styles.logo} />
-        <Text style={{ color: AppColors.secondary }}>|</Text>
+        <Text style={{ color: theme.colors.secondary }}>|</Text>
         <Image source={AppImages.logoStaffW} style={styles.logo} />
       </View>
 
@@ -38,23 +37,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
-    marginBottom: 20,
-    marginTop: 10,
-    gap: 10,
+    marginBottom: theme.spacing.lg,
+    marginTop: theme.spacing.sm,
+    gap: theme.spacing.sm,
   },
   logo: {
     width: 70,
     height: 70,
     resizeMode: "contain",
-    borderRadius: 10,
-    borderColor: AppColors.secondary,
+    borderRadius: theme.borderRadius.sm,
+    borderColor: theme.colors.secondary,
     borderWidth: 1.5,
   },
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
     borderWidth: 1,
     borderColor: "rgba(0, 0, 0, 0.05)",
     shadowColor: "#000",
@@ -64,10 +63,10 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   txt: {
-    fontSize: 15,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     lineHeight: 24,
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
   },
 });

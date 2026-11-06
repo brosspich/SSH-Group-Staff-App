@@ -1,13 +1,12 @@
+import { theme } from "@/shared/styles/theme";
 import Loading from "@/shared/components/loading/loading";
 import { StaffPickerModal } from "@/shared/components/report/StaffPickerModal";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
 import {
   ReportMode,
   RequestSummary,
-} from "@/hooks/useAttendanceRequestReportData";
-import { AttendanceRequestRuleItem } from "@/services/attendanceRequestService";
-import { StaffUser } from "@/services/userService";
+} from "@/shared/hooks/useAttendanceRequestReportData";
+import { AttendanceRequestRuleItem } from "@/shared/services/attendanceRequestService";
+import { StaffUser } from "@/shared/services/userService";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
@@ -84,7 +83,7 @@ export function RequestReportBody({
           </View>
           <View style={s.selectedStaffBox}>
             <View style={s.avatarBgIcon}>
-              <Ionicons name="person" size={20} color={AppColors.primary} />
+              <Ionicons name="person" size={20} color={theme.colors.primary} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.selectedStaffName}>
@@ -121,7 +120,7 @@ export function RequestReportBody({
             }}
           >
             <View style={s.avatarBgIcon}>
-              <Ionicons name="person" size={20} color={AppColors.primary} />
+              <Ionicons name="person" size={20} color={theme.colors.primary} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.selectedStaffName}>
@@ -136,7 +135,7 @@ export function RequestReportBody({
               <Ionicons
                 name="chevron-forward"
                 size={18}
-                color={AppColors.grey}
+                color={theme.colors.grey}
               />
             )}
           </TouchableOpacity>
@@ -191,17 +190,17 @@ export function RequestReportBody({
 
       {/* Search Input */}
       <View style={s.searchBox}>
-        <Ionicons name="search-outline" size={18} color={AppColors.grey} />
+        <Ionicons name="search-outline" size={18} color={theme.colors.grey} />
         <TextInput
           style={s.searchInput}
           placeholder="Search by name, ID, date, status..."
-          placeholderTextColor={AppColors.grey}
+          placeholderTextColor={theme.colors.grey}
           value={searchQuery}
           onChangeText={setSearchQuery}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => setSearchQuery("")}>
-            <Ionicons name="close-circle" size={18} color={AppColors.grey} />
+            <Ionicons name="close-circle" size={18} color={theme.colors.grey} />
           </TouchableOpacity>
         )}
       </View>
@@ -217,7 +216,7 @@ export function RequestReportBody({
             <Ionicons
               name="document-text-outline"
               size={40}
-              color={AppColors.grey}
+              color={theme.colors.grey}
             />
             <Text style={s.emptyTitle}>No Attendance Requests</Text>
             <Text style={s.emptySub}>
@@ -304,7 +303,7 @@ export function RequestReportBody({
                         <Ionicons
                           name="calendar-outline"
                           size={12}
-                          color={AppColors.grey}
+                          color={theme.colors.grey}
                         />
                         <Text style={s.dateText}>{dateRange}</Text>
                       </View>
@@ -324,7 +323,7 @@ export function RequestReportBody({
                       s.statusText,
                       {
                         color: badgeColor,
-                        fontFamily: AppFonts.bold,
+                        fontFamily: theme.fonts.bold,
                         includeFontPadding: false,
                         fontWeight: "bold",
                       },
@@ -352,16 +351,16 @@ const s = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 14,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     padding: 14,
     borderWidth: 0.5,
     borderColor: "rgba(0,0,0,0.08)",
   },
   sectionLabel: {
-    fontSize: 11.5,
-    color: AppColors.grey,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.bold,
     textTransform: "uppercase",
     includeFontPadding: false,
   },
@@ -372,38 +371,38 @@ const s = StyleSheet.create({
     marginBottom: 8,
   },
   changeStaffText: {
-    fontSize: 12,
-    color: AppColors.secondary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.secondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   selectedStaffBox: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
     padding: 10,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
   },
   avatarBgIcon: {
     width: 36,
     height: 36,
-    borderRadius: 10,
-    backgroundColor: `${AppColors.primary}18`,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: `${theme.colors.primary}18`,
     alignItems: "center",
     justifyContent: "center",
   },
   selectedStaffName: {
-    fontSize: 15,
+    fontSize: theme.fontSizes.md,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   selectedStaffSub: {
-    fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     marginTop: 2,
     includeFontPadding: false,
   },
@@ -415,25 +414,25 @@ const s = StyleSheet.create({
   },
   summaryCard: {
     flex: 1,
-    backgroundColor: AppColors.background2,
-    borderRadius: 12,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.md,
     padding: 12,
     alignItems: "center",
     borderWidth: 0.5,
     borderColor: "rgba(0,0,0,0.08)",
   },
   summaryLabel: {
-    fontSize: 10,
-    color: AppColors.grey,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.bold,
     textTransform: "uppercase",
     includeFontPadding: false,
   },
   summaryValue: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     marginTop: 4,
     includeFontPadding: false,
   },
@@ -442,8 +441,8 @@ const s = StyleSheet.create({
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.background2,
-    borderRadius: 12,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.md,
     paddingHorizontal: 12,
     paddingVertical: 8,
     gap: 8,
@@ -452,31 +451,31 @@ const s = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 13,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 
   // Records
   recordsCard: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 14,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     padding: 14,
     borderWidth: 0.5,
     borderColor: "rgba(0,0,0,0.08)",
     gap: 10,
   },
   recordsTitle: {
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   recordRow: {
-    backgroundColor: AppColors.background,
-    borderRadius: 10,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.md,
     overflow: "hidden",
   },
   recordBody: {
@@ -489,30 +488,30 @@ const s = StyleSheet.create({
     paddingBottom: 6,
   },
   staffName: {
-    fontSize: 13.5,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   staffIdText: {
-    fontSize: 11.5,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     marginTop: 2,
     includeFontPadding: false,
   },
   recordTime: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   recordDate: {
-    fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   recordExtra: {
@@ -521,21 +520,21 @@ const s = StyleSheet.create({
     gap: 2,
   },
   extraLabel: {
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: AppColors.textSecondary,
-    fontSize: 12,
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSizes.xs,
   },
   subjectText: {
-    fontSize: 12.5,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   remarkText: {
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   dateRow: {
@@ -545,14 +544,14 @@ const s = StyleSheet.create({
     marginTop: 2,
   },
   dateText: {
-    fontSize: 11,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   conStatus: {
     borderTopWidth: 0.5,
-    borderTopColor: AppColors.grey + "30",
+    borderTopColor: theme.colors.grey + "30",
     paddingHorizontal: 12,
     paddingVertical: 7,
     alignItems: "center",
@@ -560,9 +559,9 @@ const s = StyleSheet.create({
     flexDirection: "row",
   },
   statusText: {
-    fontSize: 10.5,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 
@@ -572,19 +571,19 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   emptyTitle: {
-    fontSize: 15,
+    fontSize: theme.fontSizes.md,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginTop: 8,
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   emptySub: {
-    fontSize: 12,
-    color: AppColors.grey,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
     textAlign: "center",
     marginTop: 4,
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 });

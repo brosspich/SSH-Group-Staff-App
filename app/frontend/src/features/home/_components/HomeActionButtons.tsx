@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -32,19 +31,19 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
         activeOpacity={0.88}
       >
         <LinearGradient
-          colors={[AppColors.primary, AppColors.secondary]}
+          colors={[theme.colors.primary, theme.colors.secondary]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.scanBtn}
         >
           <View style={styles.scanBtnIconCircle}>
             {verifyingSecurity ? (
-              <ActivityIndicator size="small" color={AppColors.background2} />
+              <ActivityIndicator size="small" color={theme.colors.background2} />
             ) : (
               <Ionicons
                 name="qr-code-outline"
                 size={28}
-                color={AppColors.background2}
+                color={theme.colors.background2}
               />
             )}
           </View>
@@ -63,7 +62,7 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
           <Ionicons
             name="chevron-forward"
             size={24}
-            color={AppColors.background2}
+            color={theme.colors.background2}
           />
         </LinearGradient>
       </TouchableOpacity>
@@ -75,7 +74,7 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
         activeOpacity={0.88}
       >
         <LinearGradient
-          colors={[AppColors.primary, AppColors.secondary]}
+          colors={[theme.colors.primary, theme.colors.secondary]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.requestBtn}
@@ -84,7 +83,7 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
             <Ionicons
               name="calendar-outline"
               size={28}
-              color={AppColors.background2}
+              color={theme.colors.background2}
             />
           </View>
           <View style={styles.requestBtnTextCol}>
@@ -96,7 +95,7 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
           <Ionicons
             name="chevron-forward"
             size={24}
-            color={AppColors.background2}
+            color={theme.colors.background2}
           />
         </LinearGradient>
       </TouchableOpacity>
@@ -106,21 +105,21 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
 
 const styles = StyleSheet.create({
   scanBtnContainer: {
-    marginBottom: 15,
-    marginTop: 20,
-    paddingHorizontal: 15,
+    marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.md,
   },
   scanBtn: {
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    gap: theme.spacing.md,
   },
   scanBtnIconCircle: {
     width: 50,
     height: 50,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: "rgba(255,255,255,0.2)",
     alignItems: "center",
     justifyContent: "center",
@@ -129,34 +128,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scanBtnTitle: {
-    fontSize: 17,
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.base,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   scanBtnSub: {
-    fontSize: 11.5,
+    fontSize: theme.fontSizes.xs,
     color: "rgba(255,255,255,0.85)",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
 
   requestBtnContainer: {
-    marginBottom: 20,
-    paddingHorizontal: 15,
+    marginBottom: theme.spacing.lg,
+    paddingHorizontal: theme.spacing.md,
   },
   requestBtn: {
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    gap: theme.spacing.md,
   },
   requestBtnIconCircle: {
     width: 50,
     height: 50,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: "rgba(255,255,255,0.2)",
     alignItems: "center",
     justifyContent: "center",
@@ -165,15 +164,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   requestBtnTitle: {
-    fontSize: 17,
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.base,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   requestBtnSub: {
-    fontSize: 11.5,
+    fontSize: theme.fontSizes.xs,
     color: "rgba(255,255,255,0.85)",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },

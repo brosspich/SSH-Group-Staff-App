@@ -1,4 +1,4 @@
-import { logger } from "@/services/logger";
+import { logger } from "@/shared/services/logger";
 import { useCallback, useEffect } from "react";
 import { keyApi } from "../api/keyApi";
 import { useKeyStore } from "../store/useKeyStore";

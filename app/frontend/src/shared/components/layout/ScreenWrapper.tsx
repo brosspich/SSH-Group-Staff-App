@@ -1,7 +1,7 @@
+import { theme } from "@/shared/styles/theme";
 import React from 'react';
 import { View, StyleSheet, StatusBar, ViewStyle, StatusBarStyle } from 'react-native';
 import { SafeAreaView, SafeAreaViewProps } from 'react-native-safe-area-context';
-import { AppColors } from '@/constants/appcolors';
 import { Spinner } from '../feedback/Spinner';
 import { Typography } from '../ui/Typography';
 

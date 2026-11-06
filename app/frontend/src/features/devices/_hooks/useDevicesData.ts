@@ -1,4 +1,4 @@
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/shared/contexts/UserContext";
 import {
   autoTerminateInactiveSessions,
   fetchUserDeviceSessions,

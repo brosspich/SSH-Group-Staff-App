@@ -1,4 +1,4 @@
-import { logger } from "@/services/logger";
+import { logger } from "@/shared/services/logger";
 import { useCallback, useEffect, useState } from "react";
 import { auditApi } from "../api/auditApi";
 import { AuditFilterParams, AuditLog } from "../types/audit.types";

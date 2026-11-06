@@ -1,10 +1,9 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useUserStore } from "@/contexts/UserContext";
+import { theme } from "@/shared/styles/theme";
+import { useUserStore } from "@/shared/contexts/UserContext";
 import { useAuthStore } from "@/features/auth";
 import { useLoginStore } from "@/features/login/_store/useLoginStore";
-import { secureStorage } from "@/services/storage/secureStore.service";
-import { userService } from "@/services/userService";
+import { secureStorage } from "@/shared/services/storage/secureStore.service";
+import { userService } from "@/shared/services/userService";
 import { queryClient } from "@/shared/services/api/queryClient";
 import { AntDesign } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -35,14 +34,14 @@ export const renderLogoutModal = ({
       >
         <View
           style={{
-            backgroundColor: AppColors.red,
+            backgroundColor: theme.colors.red,
             padding: 10,
-            borderRadius: 10,
+            borderRadius: theme.borderRadius.md,
           }}
         >
-          <AntDesign name="logout" size={35} color={AppColors.background2} />
+          <AntDesign name="logout" size={35} color={theme.colors.background2} />
         </View>
-        <Text style={[styles.txt, { fontSize: 20 }]}>Logout</Text>
+        <Text style={[styles.txt, { fontSize: theme.fontSizes.xl }]}>Logout</Text>
         <Text style={styles.txt}>Are you sure you want to logout?</Text>
         <View style={styles.conBtn}>
           <TouchableOpacity
@@ -67,14 +66,14 @@ export const renderLogoutModal = ({
             }}
             style={[
               styles.btn,
-              { backgroundColor: AppColors.red, borderColor: AppColors.red },
+              { backgroundColor: theme.colors.red, borderColor: theme.colors.red },
             ]}
           >
-            <AntDesign name="logout" size={18} color={AppColors.background2} />
+            <AntDesign name="logout" size={18} color={theme.colors.background2} />
             <Text
               style={[
                 styles.txtBtn,
-                { marginLeft: 5, color: AppColors.background2 },
+                { marginLeft: 5, color: theme.colors.background2 },
               ]}
             >
               Logout
@@ -94,19 +93,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   conModal: {
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     padding: 20,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     alignSelf: "center",
     gap: 12,
   },
   txt: {
-    color: AppColors.textPrimary,
-    fontSize: 16,
+    color: theme.colors.textPrimary,
+    fontSize: theme.fontSizes.md,
     textAlign: "center",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   conBtn: {
@@ -117,20 +116,20 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   btn: {
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     flex: 1,
     paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     flexDirection: "row",
     borderWidth: 1.5,
-    borderColor: AppColors.secondary,
+    borderColor: theme.colors.secondary,
   },
   txtBtn: {
     fontWeight: "bold",
-    color: AppColors.secondary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.secondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

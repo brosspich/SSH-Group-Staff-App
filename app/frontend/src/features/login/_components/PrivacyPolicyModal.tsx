@@ -3,9 +3,9 @@ import {
   PRIVACY_POLICY_DATA,
   PolicyLang,
 } from "@/features/privacy-policy/_utils/privacyPolicyData";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
@@ -71,13 +71,13 @@ export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
             <View
               style={[
                 styles.iconContainer,
-                { backgroundColor: `${AppColors.primary ?? "#2e3191"}15` },
+                { backgroundColor: `${theme.colors.primary}15` },
               ]}
             >
               <Ionicons
                 name="shield-checkmark-outline"
                 size={20}
-                color={AppColors.primary ?? "#2e3191"}
+                color={theme.colors.primary}
               />
             </View>
             <View style={styles.langRow}>
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 20,
+    borderRadius: theme.borderRadius.xl,
     padding: 24,
     width: "100%",
     borderWidth: 1,
@@ -193,48 +193,48 @@ const styles = StyleSheet.create({
   iconContainer: {
     width: 40,
     height: 40,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     justifyContent: "center",
     alignItems: "center",
   },
   langRow: {
     flexDirection: "row",
-    backgroundColor: AppColors.background ?? "#F3F4F6",
-    borderRadius: 16,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.lg,
     padding: 3,
     gap: 2,
   },
   langBtn: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
   },
   langBtnActive: {
-    backgroundColor: AppColors.primary ?? "#2e3191",
-    shadowColor: AppColors.primary ?? "#2e3191",
+    backgroundColor: theme.colors.primary,
+    shadowColor: theme.colors.primary,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 1,
   },
   langText: {
-    fontSize: 11,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    color: AppColors.textSecondary ?? "#6B7280",
+    color: theme.colors.textSecondary,
     fontWeight: "600",
   },
   langTextActive: {
     color: "#fff",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     fontWeight: "bold",
   },
   title: {
-    fontSize: 19,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xl,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: AppColors.primary ?? "#2e3191",
+    color: theme.colors.primary,
     marginBottom: 16,
     textAlign: "center",
     fontWeight: "bold",
@@ -257,32 +257,32 @@ const styles = StyleSheet.create({
   accentBar: {
     width: 3.5,
     height: 15,
-    backgroundColor: AppColors.primary ?? "#2e3191",
+    backgroundColor: theme.colors.primary,
     borderRadius: 1.5,
     marginRight: 6,
   },
   sectionTitle: {
-    fontSize: 14,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: AppColors.textPrimary ?? "#000000",
+    color: theme.colors.textPrimary,
     fontWeight: "700",
   },
   sectionBody: {
-    fontSize: 12.5,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    color: AppColors.textSecondary ?? "#6B7280",
+    color: theme.colors.textSecondary,
     lineHeight: 18,
     paddingLeft: 10,
   },
   acceptBtn: {
     marginTop: 20,
-    backgroundColor: AppColors.primary ?? "#2e3191",
-    borderRadius: 14,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.lg,
     paddingVertical: 14,
     alignItems: "center",
-    shadowColor: AppColors.primary ?? "#2e3191",
+    shadowColor: theme.colors.primary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
@@ -290,9 +290,9 @@ const styles = StyleSheet.create({
   },
   acceptText: {
     color: "#fff",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    fontSize: 15,
+    fontSize: theme.fontSizes.md,
     fontWeight: "bold",
   },
 });

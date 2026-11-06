@@ -1,7 +1,6 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import { Platform, StyleSheet, Text, View } from "react-native";
 // import DeviceInfo from "react-native-device-info";
-import { AppFonts } from "@/constants/appfonts";
 import Constants from "expo-constants";
 
 export default function Copyright() {
@@ -28,20 +27,20 @@ export default function Copyright() {
 const styles = StyleSheet.create({
   txtVersion: {
     textAlign: "center",
-    color: AppColors.grey,
-    fontSize: 12,
+    color: theme.colors.grey,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "bold",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   footer: {
     textAlign: "center",
-    color: AppColors.grey,
-    fontSize: 12,
+    color: theme.colors.grey,
+    fontSize: theme.fontSizes.xs,
     marginTop: "auto",
     paddingBottom: 16,
     fontWeight: "bold",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

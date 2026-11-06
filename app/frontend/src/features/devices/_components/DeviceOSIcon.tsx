@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
@@ -76,7 +77,7 @@ export default function DeviceOSIcon({
 
 const styles = StyleSheet.create({
   iconContainer: {
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import Constants from "expo-constants";
 import { Platform, StyleSheet, Text } from "react-native";
 
@@ -28,12 +27,12 @@ export default function LoginFooterCopy() {
 
 const styles = StyleSheet.create({
   txtCopy: {
-    color: AppColors.grey,
-    fontSize: 13,
-    marginTop: 20,
+    color: theme.colors.grey,
+    fontSize: theme.fontSizes.xs,
+    marginTop: theme.spacing.lg,
     fontWeight: "400",
-    marginBottom: 20,
-    fontFamily: AppFonts.regular,
+    marginBottom: theme.spacing.lg,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     textAlign: "center",
   },

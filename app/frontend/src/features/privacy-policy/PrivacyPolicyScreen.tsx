@@ -1,5 +1,5 @@
 import AppbarBack from "@/shared/components/appbar/appbarback";
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import PolicyLanguageSelector from "./_components/PolicyLanguageSelector";
@@ -27,6 +27,6 @@ export default function PrivacyPolicyScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
 });

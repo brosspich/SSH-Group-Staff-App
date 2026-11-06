@@ -1,6 +1,6 @@
 import { InfoRow } from "@/shared/components/account/InfoRow";
-import { AppColors } from "@/constants/appcolors";
-import type { StaffUser } from "@/services/userService";
+import { theme } from "@/shared/styles/theme";
+import type { StaffUser } from "@/shared/services/userService";
 import { formatJoinedDisplay } from "@/utils/formatters";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
@@ -90,15 +90,15 @@ export const InformationCard: React.FC<InformationCardProps> = ({
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: 12,
-    marginBottom: 10,
-    marginTop: 10,
+    paddingHorizontal: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
+    marginTop: theme.spacing.sm,
   },
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 4,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
     ...Platform.select({
       web: {
         boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.12)",

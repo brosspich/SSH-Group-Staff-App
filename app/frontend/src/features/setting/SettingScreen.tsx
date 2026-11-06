@@ -1,10 +1,10 @@
+import { theme } from "@/shared/styles/theme";
 import Appbar from "@/shared/components/appbar/appbar";
 import Loading from "@/shared/components/loading/loading";
 import { renderLogoutModal } from "@/shared/components/logout/logoutModal";
-import { AppColors } from "@/constants/appcolors";
-import { useUser } from "@/contexts/UserContext";
-import { useResponsive } from "@/hooks/useResponsive";
-import { StaffUser, userService } from "@/services/userService";
+import { useUser } from "@/shared/contexts/UserContext";
+import { useResponsive } from "@/shared/hooks/useResponsive";
+import { StaffUser, userService } from "@/shared/services/userService";
 import Copyright from "@/shared/components/copyright/copyright";
 import { hasAdminOrOwnerRole } from "@/utils/roleUtils";
 import { useEffect, useState } from "react";
@@ -54,7 +54,7 @@ export default function SettingScreen() {
   return (
     <View style={styles.safe}>
       <StatusBar
-        backgroundColor={AppColors.background}
+        backgroundColor={theme.colors.background}
         barStyle="light-content"
       />
       <Appbar />
@@ -99,7 +99,7 @@ export default function SettingScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   centered: {
     flex: 1,

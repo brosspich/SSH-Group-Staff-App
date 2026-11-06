@@ -1,4 +1,4 @@
-import { userService } from "@/services/userService";
+import { userService } from "../userService";
 import Constants from "expo-constants";
 import { NativeModules, Platform } from "react-native";
 import { secureStorage } from "../storage/secureStore.service";
@@ -70,7 +70,7 @@ function resolveCandidateBaseUrls(): string[] {
     return [
       autoHostUrl,
       envUrl,
-      "http://192.168.100.3:4000",
+      "http://192.168.1.234:4000",
       "http://127.0.0.1:4000",
       "http://localhost:4000",
       "http://10.0.2.2:4000",
@@ -81,7 +81,7 @@ function resolveCandidateBaseUrls(): string[] {
     envUrl,
     "http://127.0.0.1:4000",
     "http://localhost:4000",
-    "http://192.168.100.3:4000",
+    "http://192.168.1.234:4000",
   ].filter(Boolean) as string[];
 }
 
@@ -93,7 +93,7 @@ export class ApiClient {
     this.baseUrl = (
       baseUrl ||
       initialCandidates[0] ||
-      "http://192.168.100.3:4000"
+      "http://192.168.1.234:4000"
     ).replace(/\/+$/, "");
   }
 
@@ -171,7 +171,7 @@ export class ApiClient {
 
     for (const base of targets) {
       const url = this.buildUrlWithBase(base, path, params);
-      const timeoutMs = options.timeout ?? 6000;
+      const timeoutMs = options.timeout ?? 30000;
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();

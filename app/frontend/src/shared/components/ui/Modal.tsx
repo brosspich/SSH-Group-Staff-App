@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import {
   Pressable,
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
   },
   content: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 16,
+    borderRadius: theme.borderRadius.lg,
     padding: 20,
     width: "100%",
     maxWidth: 480,

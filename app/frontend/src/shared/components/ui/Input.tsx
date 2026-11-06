@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import React, { forwardRef } from "react";
 import {
   StyleSheet,
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   label: {
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "500",
     marginBottom: 6,
     color: "#333333",
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: theme.borderRadius.sm,
     backgroundColor: "#FAFAFA",
     minHeight: 48,
     paddingHorizontal: 12,
@@ -92,7 +93,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     color: "#000000",
     paddingVertical: 8,
   },
@@ -102,12 +103,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   errorText: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     color: "#FF3B30",
     marginTop: 4,
   },
   helperText: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     color: "#8E8E93",
     marginTop: 4,
   },

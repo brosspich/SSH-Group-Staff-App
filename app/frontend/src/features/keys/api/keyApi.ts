@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/api";
+import { apiClient } from "@/shared/services/api";
 import { SshKey, UploadKeyDTO } from "../types/key.types";
 
 export const keyApi = {

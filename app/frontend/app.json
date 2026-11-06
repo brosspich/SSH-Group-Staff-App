@@ -105,7 +105,7 @@
           "cameraPermission": "Allow SSH Group Staff App to access your camera to scan attendance QR codes."
         }
       ],
-      "./src/plugins/withTabletOrientation"
+      "./src/shared/plugins/withTabletOrientation"
       // "expo-sharing"
     ],
     "experiments": {

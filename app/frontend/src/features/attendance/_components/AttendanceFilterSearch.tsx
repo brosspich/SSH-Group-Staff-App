@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -33,17 +32,17 @@ export const AttendanceFilterSearch: React.FC<AttendanceFilterSearchProps> = ({
     <>
       {/* ── Search Bar ── */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={18} color={AppColors.grey} />
+        <Ionicons name="search" size={18} color={theme.colors.grey} />
         <TextInput
           style={styles.searchInput}
           placeholder="Search by date, time, status, or ID..."
-          placeholderTextColor={AppColors.grey}
+          placeholderTextColor={theme.colors.grey}
           value={searchQuery}
           onChangeText={onSearchChange}
         />
         {searchQuery.length > 0 && (
           <TouchableOpacity onPress={() => onSearchChange("")}>
-            <Ionicons name="close-circle" size={18} color={AppColors.grey} />
+            <Ionicons name="close-circle" size={18} color={theme.colors.grey} />
           </TouchableOpacity>
         )}
       </View>
@@ -109,53 +108,53 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.background2,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginBottom: 12,
-    gap: 10,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+    gap: theme.spacing.sm,
     borderWidth: 1,
-    borderColor: AppColors.grey + 70,
-    marginTop: 15,
-    marginHorizontal: 15,
+    borderColor: theme.colors.grey + 70,
+    marginTop: theme.spacing.md,
+    marginHorizontal: theme.spacing.md,
   },
   searchInput: {
     flex: 1,
-    fontSize: 13,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     ...(Platform.OS === "web" &&
       ({ outlineStyle: "none", outlineWidth: 0 } as any)),
   },
   filterRow: {
     flexDirection: "row",
-    gap: 8,
-    marginBottom: 16,
-    paddingHorizontal: 15,
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
   },
   filterChip: {
-    paddingHorizontal: 14,
+    paddingHorizontal: theme.spacing.md,
     paddingVertical: 7,
-    borderRadius: 10,
-    backgroundColor: AppColors.background2,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background2,
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.06)",
   },
   filterChipActive: {
-    backgroundColor: AppColors.primary,
-    borderColor: AppColors.primary,
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
   filterChipText: {
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   filterChipTextActive: {
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

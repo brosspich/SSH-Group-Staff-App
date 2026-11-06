@@ -1,5 +1,5 @@
-import type { DynamicSystemItem } from "@/constants/attendanceConfig";
-import type { StaffUser } from "@/services/userService";
+import type { DynamicSystemItem } from "@/shared/constants/attendanceConfig";
+import type { StaffUser } from "@/shared/services/userService";
 
 export type StaffStatusFilter = "all" | "active" | "inactive" | "admin";
 

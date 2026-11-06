@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -12,7 +11,7 @@ export const AttendanceEmptyState: React.FC<AttendanceEmptyStateProps> = React.m
   ({ searchQuery }) => {
     return (
       <View style={styles.emptyCard}>
-        <Ionicons name="calendar-outline" size={44} color={AppColors.grey} />
+        <Ionicons name="calendar-outline" size={44} color={theme.colors.grey} />
         <Text style={styles.emptyTitle}>No Logs Found</Text>
         <Text style={styles.emptySub}>
           {searchQuery
@@ -26,27 +25,27 @@ export const AttendanceEmptyState: React.FC<AttendanceEmptyStateProps> = React.m
 
 const styles = StyleSheet.create({
   emptyCard: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
-    padding: 36,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    marginHorizontal: 15,
+    marginHorizontal: theme.spacing.md,
   },
   emptyTitle: {
-    fontSize: 16,
-    color: AppColors.textPrimary,
-    marginTop: 12,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.md,
+    color: theme.colors.textPrimary,
+    marginTop: theme.spacing.md,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   emptySub: {
-    fontSize: 12.5,
-    color: AppColors.grey,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
     textAlign: "center",
-    marginTop: 6,
+    marginTop: theme.spacing.xs,
     lineHeight: 18,
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 });

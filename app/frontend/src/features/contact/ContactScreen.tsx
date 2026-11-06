@@ -1,6 +1,6 @@
 import AppbarBack from "@/shared/components/appbar/appbarback";
-import { AppColors } from "@/constants/appcolors";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { StyleSheet, Text, View } from "react-native";
 import { ContactItemButton } from "./_components/ContactItemButton";
 import { openSocialLink, SOCIAL_PLATFORMS } from "./_utils/contactConstants";
@@ -33,7 +33,7 @@ export default function ContactScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
   txtHeader: {
     textAlign: "center",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
   },
   conBody: {
     flex: 1,

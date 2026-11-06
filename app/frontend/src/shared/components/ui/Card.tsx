@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { StyleSheet, View, ViewProps } from "react-native";
 
@@ -27,7 +28,7 @@ export const Card: React.FC<CardProps> = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
     borderColor: "#ECECEC",
   },

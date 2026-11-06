@@ -1,7 +1,7 @@
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
-import { AppColors } from "@/constants/appcolors";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import ActiveSessionsSection from "./_components/ActiveSessionsSection";
 import AddDeviceModal from "./_components/AddDeviceModal";
@@ -69,9 +69,9 @@ export default function DevicesScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={AppColors.secondary}
-            colors={[AppColors.secondary]}
-            progressBackgroundColor={AppColors.background2}
+            tintColor={theme.colors.secondary}
+            colors={[theme.colors.secondary]}
+            progressBackgroundColor={theme.colors.background2}
           />
         }
       >
@@ -145,7 +145,7 @@ export default function DevicesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   scrollContent: {
     padding: 16,

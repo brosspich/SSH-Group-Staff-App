@@ -1,4 +1,4 @@
-import type { StaffUser } from "@/services/userService";
+import type { StaffUser } from "@/shared/services/userService";
 import { parseDateString } from "@/utils/formatters";
 import type { FieldConfigItem, FieldKey } from "../_types/information.types";
 

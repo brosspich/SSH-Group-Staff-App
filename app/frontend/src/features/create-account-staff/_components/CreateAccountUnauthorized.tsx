@@ -1,6 +1,5 @@
+import { theme } from "@/shared/styles/theme";
 import AppbarBack from "@/shared/components/appbar/appbarback";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
@@ -15,7 +14,7 @@ export const CreateAccountUnauthorized: React.FC = () => {
       />
       <View style={styles.centerContainer}>
         <View style={styles.lockCircle}>
-          <MaterialIcons name="lock-outline" size={54} color={AppColors.red} />
+          <MaterialIcons name="lock-outline" size={54} color={theme.colors.red} />
         </View>
         <Text style={styles.unauthTitle}>Access Denied</Text>
         <Text style={styles.unauthSubtitle}>
@@ -37,7 +36,7 @@ export const CreateAccountUnauthorized: React.FC = () => {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   centerContainer: {
     flex: 1,
@@ -49,22 +48,22 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: `${AppColors.red}18`,
+    backgroundColor: `${theme.colors.red}18`,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 18,
   },
   unauthTitle: {
-    fontSize: 20,
-    fontFamily: AppFonts.bold,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.xl,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
     marginBottom: 8,
     includeFontPadding: false,
   },
   unauthSubtitle: {
-    fontSize: 14,
-    fontFamily: AppFonts.regular,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.textSecondary,
     textAlign: "center",
     lineHeight: 20,
     marginBottom: 24,
@@ -73,13 +72,13 @@ const styles = StyleSheet.create({
   backBtn: {
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 10,
-    backgroundColor: AppColors.primary,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.primary,
   },
   backBtnText: {
     color: "#fff",
-    fontFamily: AppFonts.bold,
-    fontSize: 14,
+    fontFamily: theme.fonts.bold,
+    fontSize: theme.fontSizes.sm,
     includeFontPadding: false,
   },
 });

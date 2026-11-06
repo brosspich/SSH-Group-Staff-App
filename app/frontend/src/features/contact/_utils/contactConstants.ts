@@ -1,4 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import {
   Fontisto,
   Ionicons,
@@ -49,7 +49,7 @@ export const SOCIAL_PLATFORMS: SocialPlatformItem[] = [
     id: "website",
     name: "WEBSITE",
     url: "https://www.sshgroups.com",
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
     iconComponent: MaterialCommunityIcons,
     iconName: "web",
     iconSize: 24,

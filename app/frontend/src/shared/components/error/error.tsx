@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -16,7 +15,7 @@ export default function Error({ title, txtError, onPress }: ErrorProps) {
       <Text style={styles.errorTitle}>{title}</Text>
       <Text style={styles.errorSub}>{txtError}</Text>
       <TouchableOpacity style={styles.retryBtn} onPress={onPress}>
-        <MaterialIcons name="refresh" size={18} color={AppColors.background2} />
+        <MaterialIcons name="refresh" size={18} color={theme.colors.background2} />
         <Text style={styles.retryText}>Retry</Text>
       </TouchableOpacity>
     </View>
@@ -28,25 +27,25 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
     gap: 12,
     padding: 24,
   },
 
   // Error
   errorTitle: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "700",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 
   errorSub: {
-    fontSize: 12,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
     textAlign: "center",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 
@@ -54,18 +53,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     marginTop: 4,
   },
 
   retryText: {
     color: "#fff",
     fontWeight: "600",
-    fontSize: 14,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import { Component, ErrorInfo, ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button } from "../ui/Button";
@@ -64,13 +65,13 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   title: {
-    fontSize: 20,
+    fontSize: theme.fontSizes.xl,
     fontWeight: "700",
     color: "#1C1C1E",
     marginBottom: 8,
   },
   message: {
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     color: "#8E8E93",
     textAlign: "center",
     marginBottom: 20,

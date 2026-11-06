@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import { BlurView } from "expo-blur";
 import { Pressable, StyleSheet, Text } from "react-native";
 
@@ -29,7 +30,7 @@ export const AppleGlassButton = ({
 
 const styles = StyleSheet.create({
   glassWrapper: {
-    borderRadius: 24,
+    borderRadius: theme.borderRadius.xl,
     overflow: "hidden",
     borderWidth: 0.5,
     borderColor: "rgba(255, 255, 255, 0.25)",
@@ -43,7 +44,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   glassText: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "600",
     color: "#FFFFFF",
     letterSpacing: -0.2,

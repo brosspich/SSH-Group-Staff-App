@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import { Typography } from "@/shared/components/ui/Typography";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: theme.borderRadius.lg,
     backgroundColor: "#E5E5EA",
   },
   chipActive: {

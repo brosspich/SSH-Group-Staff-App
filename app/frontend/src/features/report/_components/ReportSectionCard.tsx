@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { createElement } from "react";
@@ -31,8 +30,8 @@ export const ReportSectionCard: React.FC<ReportSectionCardProps> = ({
                   styles.conBtn,
                   {
                     backgroundColor: pressed
-                      ? `${AppColors.grey}33`
-                      : AppColors.transparent,
+                      ? `${theme.colors.grey}33`
+                      : theme.colors.transparent,
                   },
                 ]}
               >
@@ -41,7 +40,7 @@ export const ReportSectionCard: React.FC<ReportSectionCardProps> = ({
                     {createElement(item.icon, {
                       name: item.iconName,
                       size: 20,
-                      color: AppColors.textPrimary,
+                      color: theme.colors.textPrimary,
                     })}
                   </View>
                   <Text style={styles.txtTitle}>{item.title}</Text>
@@ -49,7 +48,7 @@ export const ReportSectionCard: React.FC<ReportSectionCardProps> = ({
                 <Ionicons
                   name="chevron-forward-outline"
                   size={20}
-                  color={AppColors.textPrimary}
+                  color={theme.colors.textPrimary}
                 />
               </Pressable>
               {!isLast && <View style={styles.border} />}
@@ -63,51 +62,51 @@ export const ReportSectionCard: React.FC<ReportSectionCardProps> = ({
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: 16,
+    paddingHorizontal: theme.spacing.md,
   },
   sectionTitle: {
-    fontSize: 13,
-    color: AppColors.textSecondary ?? AppColors.grey,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary ?? theme.colors.grey,
     textTransform: "uppercase",
-    marginBottom: 10,
-    marginTop: 10,
-    fontFamily: AppFonts.bold,
+    marginBottom: theme.spacing.sm,
+    marginTop: theme.spacing.sm,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     overflow: "hidden",
   },
   conBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 10,
+    paddingHorizontal: theme.spacing.sm,
     paddingVertical: 7,
   },
   iconTxt: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    gap: theme.spacing.sm,
   },
   conIcon: {
     width: 35,
     height: 35,
-    backgroundColor: `${AppColors.grey}50`,
-    borderRadius: 10,
+    backgroundColor: `${theme.colors.grey}50`,
+    borderRadius: theme.borderRadius.sm,
     alignItems: "center",
     justifyContent: "center",
   },
   txtTitle: {
-    fontSize: 16,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.md,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   border: {
     height: 0.3,
     flex: 1,
-    backgroundColor: AppColors.grey,
+    backgroundColor: theme.colors.grey,
   },
 });

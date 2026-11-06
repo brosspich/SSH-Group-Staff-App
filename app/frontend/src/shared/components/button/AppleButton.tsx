@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import { Platform, Pressable, StyleSheet, Text } from "react-native";
 
 type AppleButtonProps = {
@@ -52,25 +53,25 @@ const styles = StyleSheet.create({
   regular: {
     paddingVertical: 11,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
   },
   large: {
     paddingVertical: 15,
     paddingHorizontal: 24,
-    borderRadius: 14,
+    borderRadius: theme.borderRadius.lg,
     width: "100%",
   },
   capsule: {
     paddingVertical: 14,
     paddingHorizontal: 28,
-    borderRadius: 9999, // Pill shape common in watchOS/iOS sheets
+    borderRadius: theme.borderRadius.full, // Pill shape common in watchOS/iOS sheets
   },
 
   // Apple HIG Style Variants
   // 1. Filled: Accent solid background (Apple Blue #007AFF)
   filled: {
     backgroundColor: "#007AFF",
-    // backgroundColor: AppColors.secondary,
+    // backgroundColor: theme.colors.secondary,
   },
   // 2. Tinted: Translucent fill with saturated text
   tinted: {
@@ -109,16 +110,16 @@ const styles = StyleSheet.create({
     }),
   },
   regularText: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     lineHeight: 20,
   },
   largeText: {
-    fontSize: 17,
+    fontSize: theme.fontSizes.lg,
     lineHeight: 22,
     fontWeight: "600",
   },
   capsuleText: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     lineHeight: 20,
     fontWeight: "600",
   },

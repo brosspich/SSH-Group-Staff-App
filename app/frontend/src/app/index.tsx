@@ -1,6 +1,6 @@
+import { theme } from "@/shared/styles/theme";
 import Loading from "@/shared/components/loading/loading";
-import { AppColors } from "@/constants/appcolors";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/shared/contexts/UserContext";
 import { Redirect } from "expo-router";
 import { StatusBar, View } from "react-native";
 
@@ -11,13 +11,13 @@ export default function Index() {
     return (
       <>
         <StatusBar
-          backgroundColor={AppColors.secondary}
+          backgroundColor={theme.colors.secondary}
           barStyle="light-content"
         />
         <View
           style={{
             flex: 1,
-            backgroundColor: AppColors.background,
+            backgroundColor: theme.colors.background,
             alignItems: "center",
             justifyContent: "center",
           }}

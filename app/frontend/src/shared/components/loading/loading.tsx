@@ -1,25 +1,24 @@
-import { AppImages } from "@/constants/appImages";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
+import { AppImages } from "@/shared/constants/appImages";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { Bounce } from "react-native-animated-spinkit";
 
 export default function Loading() {
   return (
     <View style={styles.centered}>
-      {/* <ActivityIndicator size="large" color={AppColors.secondary} /> */}
+      {/* <ActivityIndicator size="large" color={theme.colors.secondary} /> */}
       <View style={styles.loading}>
-        <Bounce size={70} color={AppColors.grey} />
+        <Bounce size={70} color={theme.colors.grey} />
 
         <View
           style={{
             width: 51,
             height: 51,
-            backgroundColor: AppColors.background2,
+            backgroundColor: theme.colors.background2,
             position: "absolute",
             alignItems: "center",
             borderRadius: 100,
-            // borderColor: AppColors.background2,
+            // borderColor: theme.colors.background2,
             // borderWidth: 1,
           }}
         ></View>
@@ -27,8 +26,8 @@ export default function Loading() {
       </View>
       <Text
         style={{
-          color: AppColors.textSecondary,
-          fontFamily: AppFonts.regular,
+          color: theme.colors.textSecondary,
+          fontFamily: theme.fonts.regular,
           includeFontPadding: false,
         }}
       >
@@ -43,7 +42,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
     gap: 12,
     padding: 24,
   },
@@ -53,7 +52,7 @@ const styles = StyleSheet.create({
     height: 70,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
 
   logoGrey: {
@@ -63,7 +62,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // top: 0,
     // left: 0,
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     borderRadius: 100,
   },
 });

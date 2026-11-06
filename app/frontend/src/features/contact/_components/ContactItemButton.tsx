@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
@@ -34,14 +33,14 @@ export const ContactItemButton: React.FC<ContactItemButtonProps> = ({
           <IconComp
             name={platform.iconName}
             size={platform.iconSize ?? 24}
-            color={AppColors.background2}
+            color={theme.colors.background2}
           />
           <Text style={styles.txt}>{platform.name}</Text>
         </View>
         <Ionicons
           name="chevron-forward-outline"
           size={20}
-          color={AppColors.background2}
+          color={theme.colors.background2}
         />
       </View>
     </TouchableHighlight>
@@ -50,8 +49,8 @@ export const ContactItemButton: React.FC<ContactItemButtonProps> = ({
 
 const styles = StyleSheet.create({
   btn: {
-    marginBottom: 10,
-    borderRadius: 15,
+    marginBottom: theme.spacing.sm,
+    borderRadius: theme.borderRadius.lg,
   },
   btnGrid: {
     width: "48%",
@@ -59,24 +58,24 @@ const styles = StyleSheet.create({
   },
   conBoxRow: {
     flexDirection: "row",
-    paddingLeft: 20,
-    paddingRight: 10,
-    paddingVertical: 12,
+    paddingLeft: theme.spacing.lg,
+    paddingRight: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
-    borderRadius: 15,
+    borderRadius: theme.borderRadius.lg,
   },
   icon_txt: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 15,
+    gap: theme.spacing.md,
   },
   txt: {
-    color: AppColors.background2,
+    color: theme.colors.background2,
     fontWeight: "bold",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

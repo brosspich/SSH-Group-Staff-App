@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { StyleSheet, Text, TextProps, TextStyle } from "react-native";
 
@@ -71,38 +72,38 @@ export const Typography: React.FC<TypographyProps> = ({
 
 const styles = StyleSheet.create({
   h1: {
-    fontSize: 28,
+    fontSize: theme.fontSizes.xxxl,
     lineHeight: 34,
     fontWeight: "700",
   },
   h2: {
-    fontSize: 22,
+    fontSize: theme.fontSizes.xxl,
     lineHeight: 28,
     fontWeight: "600",
   },
   h3: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.lg,
     lineHeight: 24,
     fontWeight: "600",
   },
   body: {
-    fontSize: 15,
+    fontSize: theme.fontSizes.md,
     lineHeight: 22,
     fontWeight: "400",
   },
   bodySmall: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     lineHeight: 18,
     fontWeight: "400",
   },
   caption: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     lineHeight: 16,
     fontWeight: "400",
     color: "#8E8E93",
   },
   button: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     lineHeight: 20,
     fontWeight: "600",
   },

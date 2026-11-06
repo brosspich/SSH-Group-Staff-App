@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -36,7 +35,7 @@ export function ReportPrintFooter({
       </View>
       <SafeAreaView
         edges={["bottom"]}
-        style={{ backgroundColor: AppColors.background2 }}
+        style={{ backgroundColor: theme.colors.background2 }}
       />
     </>
   );
@@ -44,29 +43,29 @@ export function ReportPrintFooter({
 
 const styles = StyleSheet.create({
   printBtnCon: {
-    backgroundColor: AppColors.background2,
-    paddingHorizontal: 15,
-    paddingVertical: 14,
-    borderColor: AppColors.grey,
+    backgroundColor: theme.colors.background2,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    borderColor: theme.colors.grey,
     borderTopWidth: 0.5,
   },
   wrapper: {
     width: "100%",
   },
   printBtn: {
-    backgroundColor: AppColors.secondary,
-    borderRadius: 10,
-    paddingVertical: 12,
+    backgroundColor: theme.colors.secondary,
+    borderRadius: theme.borderRadius.sm,
+    paddingVertical: theme.spacing.md,
     alignItems: "center",
   },
   printBtnDisabled: {
     opacity: 0.6,
   },
   printBtnText: {
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "bold",
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

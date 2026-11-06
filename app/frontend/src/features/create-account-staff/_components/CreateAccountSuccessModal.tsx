@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
@@ -32,7 +31,7 @@ export const CreateAccountSuccessModal: React.FC<
           <Text style={styles.modalMessage}>
             Staff account for{" "}
             <Text
-              style={{ fontFamily: AppFonts.bold, color: AppColors.primary }}
+              style={{ fontFamily: theme.fonts.bold, color: theme.colors.primary }}
             >
               {staffName || "Staff"}
             </Text>{" "}
@@ -85,35 +84,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   modalCard: {
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     borderRadius: 18,
     padding: 24,
     width: "100%",
     maxWidth: 420,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: `${AppColors.primary}33`,
+    borderColor: `${theme.colors.primary}33`,
   },
   successIconCircle: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: AppColors.primary,
+    backgroundColor: theme.colors.primary,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
   modalTitle: {
-    fontSize: 20,
-    fontFamily: AppFonts.bold,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.xl,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
     marginBottom: 8,
     includeFontPadding: false,
   },
   modalMessage: {
-    fontSize: 14,
-    fontFamily: AppFonts.regular,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.textSecondary,
     textAlign: "center",
     lineHeight: 20,
     marginBottom: 18,
@@ -121,12 +120,12 @@ const styles = StyleSheet.create({
   },
   summaryBox: {
     width: "100%",
-    backgroundColor: `${AppColors.background}99`,
-    borderRadius: 10,
+    backgroundColor: `${theme.colors.background}99`,
+    borderRadius: theme.borderRadius.md,
     padding: 12,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}22`,
+    borderColor: `${theme.colors.grey}22`,
   },
   summaryRow: {
     flexDirection: "row",
@@ -134,15 +133,15 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   summaryLabel: {
-    fontSize: 13,
-    fontFamily: AppFonts.regular,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.textSecondary,
     includeFontPadding: false,
   },
   summaryVal: {
-    fontSize: 13,
-    fontFamily: AppFonts.bold,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
     includeFontPadding: false,
   },
   modalBtnRow: {
@@ -153,28 +152,28 @@ const styles = StyleSheet.create({
   modalBtn: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     alignItems: "center",
     justifyContent: "center",
   },
   modalBtnSecondary: {
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: AppColors.primary,
+    borderColor: theme.colors.primary,
   },
   modalBtnSecText: {
-    color: AppColors.primary,
-    fontFamily: AppFonts.bold,
-    fontSize: 14,
+    color: theme.colors.primary,
+    fontFamily: theme.fonts.bold,
+    fontSize: theme.fontSizes.sm,
     includeFontPadding: false,
   },
   modalBtnPrimary: {
-    backgroundColor: AppColors.primary,
+    backgroundColor: theme.colors.primary,
   },
   modalBtnPriText: {
     color: "#fff",
-    fontFamily: AppFonts.bold,
-    fontSize: 14,
+    fontFamily: theme.fonts.bold,
+    fontSize: theme.fontSizes.sm,
     includeFontPadding: false,
   },
 });

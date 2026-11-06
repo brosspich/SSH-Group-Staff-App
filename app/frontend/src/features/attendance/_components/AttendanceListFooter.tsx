@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
@@ -15,7 +14,7 @@ export const AttendanceListFooter: React.FC<AttendanceListFooterProps> = React.m
     if (loadingMore) {
       return (
         <View style={styles.loadingMoreBox}>
-          <ActivityIndicator size="small" color={AppColors.primary} />
+          <ActivityIndicator size="small" color={theme.colors.primary} />
           <Text style={styles.loadingMoreText}>Loading 10 more records...</Text>
         </View>
       );
@@ -31,7 +30,7 @@ export const AttendanceListFooter: React.FC<AttendanceListFooterProps> = React.m
       );
     }
 
-    return <View style={{ height: 24 }} />;
+    return <View style={{ height: theme.spacing.lg }} />;
   },
 );
 
@@ -40,24 +39,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 18,
-    gap: 8,
+    paddingVertical: theme.spacing.md,
+    gap: theme.spacing.sm,
   },
   loadingMoreText: {
-    fontSize: 13,
-    color: AppColors.primary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.primary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   allLoadedBox: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 20,
+    paddingVertical: theme.spacing.lg,
   },
   allLoadedText: {
-    fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 });

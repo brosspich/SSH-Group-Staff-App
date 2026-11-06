@@ -1,5 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import type { DynamicSystemItem } from "@/constants/attendanceConfig";
+import { theme } from "@/shared/styles/theme";
+import type { DynamicSystemItem } from "@/shared/constants/attendanceConfig";
 import React from "react";
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { StaffStatusFilter } from "../_types/changeInfoStaff.types";
@@ -108,42 +108,42 @@ const styles = StyleSheet.create({
   filterChip: {
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: AppColors.background2,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background2,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}25`,
+    borderColor: `${theme.colors.grey}25`,
   },
   filterChipActive: {
-    backgroundColor: `${AppColors.primary}18`,
-    borderColor: AppColors.primary,
+    backgroundColor: `${theme.colors.primary}18`,
+    borderColor: theme.colors.primary,
   },
   filterChipText: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "600",
-    color: AppColors.textSecondary,
+    color: theme.colors.textSecondary,
   },
   filterChipTextActive: {
-    color: AppColors.primary,
+    color: theme.colors.primary,
     fontWeight: "700",
   },
   statusChip: {
     paddingVertical: 5,
     paddingHorizontal: 10,
-    borderRadius: 20,
-    backgroundColor: AppColors.background2,
+    borderRadius: theme.borderRadius.xl,
+    backgroundColor: theme.colors.background2,
     marginRight: 6,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}20`,
+    borderColor: `${theme.colors.grey}20`,
   },
   statusChipActive: {
-    backgroundColor: AppColors.primary,
-    borderColor: AppColors.primary,
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
   statusChipText: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "600",
-    color: AppColors.textSecondary,
+    color: theme.colors.textSecondary,
   },
   statusChipTextActive: {
     color: "#fff",

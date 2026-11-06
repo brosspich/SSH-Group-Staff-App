@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React, { ComponentType, createElement } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -20,7 +19,7 @@ export function MenuButtonItem({
   subtitle,
   iconName,
   icon,
-  iconColor = AppColors.textPrimary,
+  iconColor = theme.colors.textPrimary,
   onPress,
   showChevron = true,
   rightElement,
@@ -32,8 +31,8 @@ export function MenuButtonItem({
         styles.conBtn,
         {
           backgroundColor: pressed
-            ? `${AppColors.grey}33`
-            : AppColors.transparent,
+            ? `${theme.colors.grey}33`
+            : theme.colors.transparent,
         },
       ]}
     >
@@ -56,7 +55,7 @@ export function MenuButtonItem({
         <Ionicons
           name="chevron-forward-outline"
           size={20}
-          color={AppColors.textPrimary}
+          color={theme.colors.textPrimary}
         />
       ) : null}
     </Pressable>
@@ -85,7 +84,7 @@ const styles = StyleSheet.create({
   conIcon: {
     width: 32,
     height: 32,
-    borderRadius: 8,
+    borderRadius: theme.borderRadius.sm,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -93,21 +92,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   txtTitle: {
-    fontSize: 14,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   txtSubtitle: {
-    fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
   divider: {
     height: 0.5,
-    backgroundColor: `${AppColors.grey}40`,
+    backgroundColor: `${theme.colors.grey}40`,
     marginLeft: 60,
   },
 });

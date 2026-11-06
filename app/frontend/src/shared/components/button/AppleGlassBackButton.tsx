@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { Platform, Pressable, StyleSheet, View } from "react-native";

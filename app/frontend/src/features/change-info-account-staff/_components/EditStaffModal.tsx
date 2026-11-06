@@ -1,8 +1,7 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
-import { apiClient } from "@/services/api";
-import { StaffUser, userService } from "@/services/userService";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
+import { apiClient } from "@/shared/services/api";
+import { StaffUser, userService } from "@/shared/services/userService";
 import { hashPassword } from "@/utils/passwordUtils";
 import { formatRolesList, isOwnerRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
@@ -300,7 +299,7 @@ export default function EditStaffModal({
               <Ionicons
                 name="close"
                 size={30}
-                color={AppColors.textSecondary}
+                color={theme.colors.textSecondary}
               />
             </TouchableOpacity>
           </View>
@@ -308,7 +307,7 @@ export default function EditStaffModal({
           {/* Error Banner inside modal */}
           {editError && (
             <View style={styles.errorBanner}>
-              <Ionicons name="alert-circle" size={18} color={AppColors.red} />
+              <Ionicons name="alert-circle" size={18} color={theme.colors.red} />
               <Text style={styles.errorBannerText}>{editError}</Text>
             </View>
           )}
@@ -335,7 +334,7 @@ export default function EditStaffModal({
                 value={editName}
                 onChangeText={setEditName}
                 placeholder="Full name"
-                placeholderTextColor={AppColors.grey}
+                placeholderTextColor={theme.colors.grey}
               />
             </View>
 
@@ -349,7 +348,7 @@ export default function EditStaffModal({
                   setEditUsername(v.toLowerCase().replace(/\s/g, ""))
                 }
                 placeholder="Username"
-                placeholderTextColor={AppColors.grey}
+                placeholderTextColor={theme.colors.grey}
                 autoCapitalize="none"
               />
             </View>
@@ -362,7 +361,7 @@ export default function EditStaffModal({
                 value={editPosition}
                 onChangeText={setEditPosition}
                 placeholder="Position"
-                placeholderTextColor={AppColors.grey}
+                placeholderTextColor={theme.colors.grey}
               />
               <ScrollView
                 horizontal
@@ -408,7 +407,7 @@ export default function EditStaffModal({
                 onChangeText={setEditSystemId}
                 editable={isOwner}
                 placeholder="System ID"
-                placeholderTextColor={AppColors.grey}
+                placeholderTextColor={theme.colors.grey}
               />
             </View>
 
@@ -431,7 +430,7 @@ export default function EditStaffModal({
                         name={isSelected ? "checkbox" : "square-outline"}
                         size={18}
                         color={
-                          isSelected ? AppColors.background2 : AppColors.grey
+                          isSelected ? theme.colors.background2 : theme.colors.grey
                         }
                         style={{ marginRight: 6 }}
                       />
@@ -460,8 +459,8 @@ export default function EditStaffModal({
               <Switch
                 value={editIsActive}
                 onValueChange={setEditIsActive}
-                trackColor={{ false: "#D1D5DB", true: AppColors.primary }}
-                thumbColor={AppColors.background2}
+                trackColor={{ false: "#D1D5DB", true: theme.colors.primary }}
+                thumbColor={theme.colors.background2}
               />
             </View>
 
@@ -474,7 +473,7 @@ export default function EditStaffModal({
                   value={editPhone}
                   onChangeText={setEditPhone}
                   placeholder="Phone"
-                  placeholderTextColor={AppColors.grey}
+                  placeholderTextColor={theme.colors.grey}
                   keyboardType="phone-pad"
                 />
               </View>
@@ -485,7 +484,7 @@ export default function EditStaffModal({
                   value={editEmail}
                   onChangeText={setEditEmail}
                   placeholder="Email"
-                  placeholderTextColor={AppColors.grey}
+                  placeholderTextColor={theme.colors.grey}
                   keyboardType="email-address"
                   autoCapitalize="none"
                 />
@@ -500,7 +499,7 @@ export default function EditStaffModal({
                 value={editJoined}
                 onChangeText={setEditJoined}
                 placeholder="YYYY/MM/DD"
-                placeholderTextColor={AppColors.grey}
+                placeholderTextColor={theme.colors.grey}
               />
             </View>
 
@@ -515,14 +514,14 @@ export default function EditStaffModal({
                     name="key-outline"
                     size={20}
                     color={
-                      wantResetPassword ? AppColors.primary : AppColors.grey
+                      wantResetPassword ? theme.colors.primary : theme.colors.grey
                     }
                     style={{ marginRight: 8 }}
                   />
                   <Text
                     style={[
                       styles.resetPasswordTitle,
-                      wantResetPassword && { color: AppColors.primary },
+                      wantResetPassword && { color: theme.colors.primary },
                     ]}
                   >
                     Reset Staff Password
@@ -531,7 +530,7 @@ export default function EditStaffModal({
                 <Ionicons
                   name={wantResetPassword ? "chevron-up" : "chevron-down"}
                   size={20}
-                  color={AppColors.grey}
+                  color={theme.colors.grey}
                 />
               </TouchableOpacity>
 
@@ -544,7 +543,7 @@ export default function EditStaffModal({
                       value={newPassword}
                       onChangeText={setNewPassword}
                       placeholder="Min 6 characters"
-                      placeholderTextColor={AppColors.grey}
+                      placeholderTextColor={theme.colors.grey}
                       secureTextEntry={!showNewPassword}
                       autoCapitalize="none"
                     />
@@ -557,7 +556,7 @@ export default function EditStaffModal({
                           showNewPassword ? "eye-off-outline" : "eye-outline"
                         }
                         size={20}
-                        color={AppColors.grey}
+                        color={theme.colors.grey}
                       />
                     </TouchableOpacity>
                   </View>
@@ -571,7 +570,7 @@ export default function EditStaffModal({
                       value={confirmPassword}
                       onChangeText={setConfirmPassword}
                       placeholder="Re-enter password"
-                      placeholderTextColor={AppColors.grey}
+                      placeholderTextColor={theme.colors.grey}
                       secureTextEntry={!showNewPassword}
                       autoCapitalize="none"
                     />
@@ -597,7 +596,7 @@ export default function EditStaffModal({
               disabled={savingEdit}
             >
               {savingEdit ? (
-                <ActivityIndicator size="small" color={AppColors.background2} />
+                <ActivityIndicator size="small" color={theme.colors.background2} />
               ) : (
                 <Text style={styles.saveBtnText}>Save Changes</Text>
               )}
@@ -618,7 +617,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     width: "100%",
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     borderTopEndRadius: 20,
     borderTopStartRadius: 20,
     overflow: "hidden",
@@ -628,20 +627,20 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderBottomWidth: 0.5,
-    borderBottomColor: AppColors.grey + 70,
+    borderBottomColor: theme.colors.grey + 70,
     paddingBottom: 10,
     paddingHorizontal: 15,
     paddingVertical: 10,
   },
   modalTitle: {
-    fontSize: 18,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.lg,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   modalSub: {
-    fontSize: 12,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
     marginTop: 2,
   },
   closeBtn: {
@@ -655,40 +654,40 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   fieldLabel: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "600",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginBottom: 4,
   },
   input: {
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
     borderWidth: 0.5,
-    borderColor: AppColors.grey + 70,
-    borderRadius: 10,
+    borderColor: theme.colors.grey + 70,
+    borderRadius: theme.borderRadius.md,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    fontSize: 14,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
   },
   quickChip: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 16,
+    borderRadius: theme.borderRadius.lg,
     backgroundColor: "#F3F4F6",
     marginRight: 6,
     borderWidth: 1,
     borderColor: "#E5E7EB",
   },
   quickChipSelected: {
-    backgroundColor: `${AppColors.primary}20`,
-    borderColor: AppColors.primary,
+    backgroundColor: `${theme.colors.primary}20`,
+    borderColor: theme.colors.primary,
   },
   quickChipText: {
-    fontSize: 11,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
   },
   quickChipTextSelected: {
-    color: AppColors.primary,
+    color: theme.colors.primary,
     fontWeight: "600",
   },
   rolesRow: {
@@ -701,22 +700,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 8,
+    borderRadius: theme.borderRadius.sm,
     backgroundColor: "#F3F4F6",
     borderWidth: 1,
     borderColor: "#D1D5DB",
   },
   roleBadgeBtnActive: {
-    backgroundColor: AppColors.primary,
-    borderColor: AppColors.primary,
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
   roleBadgeText: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "700",
-    color: AppColors.textSecondary,
+    color: theme.colors.textSecondary,
   },
   roleBadgeTextActive: {
-    color: AppColors.background2,
+    color: theme.colors.background2,
   },
   switchRow: {
     flexDirection: "row",
@@ -728,19 +727,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   switchLabel: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
   },
   switchSub: {
-    fontSize: 11,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
   },
   errorBanner: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FEE2E2",
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     padding: 10,
     marginBottom: 12,
     marginHorizontal: 15,
@@ -750,17 +749,17 @@ const styles = StyleSheet.create({
   },
   errorBannerText: {
     marginLeft: 6,
-    fontSize: 12,
-    color: AppColors.red,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.red,
     flex: 1,
   },
   resetPasswordCard: {
-    backgroundColor: AppColors.background,
-    borderRadius: 12,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.md,
     padding: 12,
     marginTop: 8,
     borderWidth: 0.5,
-    borderColor: AppColors.grey + 70,
+    borderColor: theme.colors.grey + 70,
   },
   resetPasswordHeader: {
     flexDirection: "row",
@@ -768,59 +767,59 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   resetPasswordTitle: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "700",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
   },
   passwordInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     borderWidth: 0.5,
-    borderColor: AppColors.grey + 70,
-    borderRadius: 10,
+    borderColor: theme.colors.grey + 70,
+    borderRadius: theme.borderRadius.md,
     paddingHorizontal: 12,
     paddingVertical: 5,
   },
   passwordInput: {
     flex: 1,
     paddingVertical: 8,
-    fontSize: 12,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textPrimary,
   },
   actionRow: {
     flexDirection: "row",
     gap: 10,
     marginTop: 14,
     borderTopWidth: 0.5,
-    borderTopColor: AppColors.grey + 70,
+    borderTopColor: theme.colors.grey + 70,
     paddingVertical: 15,
     paddingHorizontal: 15,
   },
   cancelBtn: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: "#F3F4F6",
     alignItems: "center",
   },
   cancelBtnText: {
-    fontSize: 14,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   saveBtn: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 12,
-    backgroundColor: AppColors.primary,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.primary,
     alignItems: "center",
   },
   saveBtnText: {
-    fontSize: 14,
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

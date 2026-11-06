@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { DeviceSession } from "../_types/devices.types";
@@ -30,8 +29,8 @@ export default function ThisDeviceSection({
                 styles.sessionItem,
                 {
                   backgroundColor: pressed
-                    ? `${AppColors.grey}33`
-                    : AppColors.transparent,
+                    ? `${theme.colors.grey}33`
+                    : theme.colors.transparent,
                 },
               ]}
               onPress={() => onSelectDevice(thisDevice)}
@@ -71,8 +70,8 @@ export default function ThisDeviceSection({
                 styles.actionRow,
                 {
                   backgroundColor: pressed
-                    ? `${AppColors.grey}33`
-                    : AppColors.transparent,
+                    ? `${theme.colors.grey}33`
+                    : theme.colors.transparent,
                 },
               ]}
               onPress={onTerminateOtherSessions}
@@ -80,7 +79,7 @@ export default function ThisDeviceSection({
               <Ionicons
                 name="hand-left-outline"
                 size={22}
-                color={AppColors.red}
+                color={theme.colors.red}
               />
               <Text style={styles.terminateOtherText}>
                 Terminate All Other Sessions
@@ -98,17 +97,17 @@ export default function ThisDeviceSection({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     overflow: "hidden",
     marginBottom: 8,
     borderWidth: 1,
     borderColor: "rgba(0, 0, 0, 0.05)",
   },
   sectionHeader: {
-    fontSize: 14,
-    color: AppColors.secondary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.secondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     paddingHorizontal: 16,
     paddingTop: 16,
@@ -128,22 +127,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   deviceNameText: {
-    fontSize: 15,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
   },
   sessionSubtext: {
-    fontSize: 13,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
   locationStatusText: {
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
@@ -156,9 +155,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    fontSize: 13,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   actionRow: {
@@ -168,16 +167,16 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   terminateOtherText: {
-    fontSize: 15,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    color: AppColors.red,
+    color: theme.colors.red,
     marginLeft: 14,
   },
   helpText: {
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     paddingHorizontal: 16,
     marginBottom: 20,

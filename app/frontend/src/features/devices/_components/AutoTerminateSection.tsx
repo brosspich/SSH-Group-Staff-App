@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { InactivePeriod } from "../_types/devices.types";
 
@@ -23,8 +22,8 @@ export default function AutoTerminateSection({
           styles.actionRow,
           {
             backgroundColor: pressed
-              ? `${AppColors.grey}33`
-              : AppColors.transparent,
+              ? `${theme.colors.grey}33`
+              : theme.colors.transparent,
             paddingVertical: 16,
           },
         ]}
@@ -41,17 +40,17 @@ export default function AutoTerminateSection({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     overflow: "hidden",
     marginBottom: 16,
     borderWidth: 1,
     borderColor: "rgba(0, 0, 0, 0.05)",
   },
   sectionHeader: {
-    fontSize: 14,
-    color: AppColors.secondary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.secondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     paddingHorizontal: 16,
     paddingTop: 16,
@@ -70,15 +69,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   optionTitleText: {
-    fontSize: 15,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
   },
   optionValueText: {
-    fontSize: 15,
-    color: AppColors.secondary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.md,
+    color: theme.colors.secondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

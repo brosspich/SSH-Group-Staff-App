@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Modal,
@@ -50,7 +49,7 @@ export default function ConfirmActionModal({
               }
               size={28}
               color={
-                config.type === "destructive" ? "#e53935" : AppColors.secondary
+                config.type === "destructive" ? "#e53935" : theme.colors.secondary
               }
             />
           </View>
@@ -74,7 +73,7 @@ export default function ConfirmActionModal({
                   backgroundColor:
                     config.type === "destructive"
                       ? "#e53935"
-                      : AppColors.secondary,
+                      : theme.colors.secondary,
                 },
               ]}
               onPress={async () => {
@@ -103,8 +102,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   alertCard: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 20,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.xl,
     padding: 24,
     alignItems: "center",
     width: "100%",
@@ -119,17 +118,17 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   alertTitleText: {
-    fontSize: 18,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.lg,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginBottom: 8,
     textAlign: "center",
   },
   alertBodyText: {
-    fontSize: 14,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     textAlign: "center",
     lineHeight: 20,
@@ -143,27 +142,27 @@ const styles = StyleSheet.create({
   alertCancelBtn: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 10,
-    backgroundColor: AppColors.background,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background,
     alignItems: "center",
     justifyContent: "center",
   },
   alertCancelText: {
-    fontSize: 15,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
   },
   alertConfirmBtn: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     alignItems: "center",
     justifyContent: "center",
   },
   alertConfirmText: {
-    fontSize: 15,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     color: "#ffffff",
   },

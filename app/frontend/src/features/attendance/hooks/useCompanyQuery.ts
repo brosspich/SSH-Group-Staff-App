@@ -1,7 +1,7 @@
 import {
   fetchAvailableCompanySystems,
   fetchOfficialAttendanceConfig,
-} from "@/constants/attendanceConfig";
+} from "@/shared/constants/attendanceConfig";
 import { queryKeys } from "@/shared/services/api/queryKeys";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";

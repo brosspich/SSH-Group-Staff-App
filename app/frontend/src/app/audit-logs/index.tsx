@@ -1,14 +1,13 @@
+import { theme } from "@/shared/styles/theme";
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
 import {
   AuditActionType,
   LogFilterBar,
   LogItem,
   useAuditLogs,
 } from "@/features/audit-logs";
-import { useResponsive } from "@/hooks/useResponsive";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
@@ -72,7 +71,7 @@ export default function AuditLogsScreen() {
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={handleRefresh}
-                tintColor={AppColors.secondary}
+                tintColor={theme.colors.secondary}
               />
             }
             renderItem={({ item }) => <LogItem log={item} />}
@@ -81,7 +80,7 @@ export default function AuditLogsScreen() {
                 <Ionicons
                   name="shield-checkmark-outline"
                   size={48}
-                  color={AppColors.grey}
+                  color={theme.colors.grey}
                 />
                 <Text style={styles.emptyText}>No Audit Logs Found</Text>
                 <Text style={styles.emptySubtext}>
@@ -100,7 +99,7 @@ export default function AuditLogsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   content: {
     flex: 1,
@@ -117,14 +116,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   subtitle: {
     fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
@@ -143,14 +142,14 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   emptySubtext: {
     fontSize: 13,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     textAlign: "center",
   },

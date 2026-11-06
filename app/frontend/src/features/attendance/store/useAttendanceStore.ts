@@ -1,4 +1,4 @@
-import { StaffUser } from "@/services/userService";
+import { StaffUser } from "@/shared/services/userService";
 import { create } from "zustand";
 import { AttendanceFilterType } from "../_types/attendance.types";
 import { AttendanceSummary } from "../types/attendance.types";

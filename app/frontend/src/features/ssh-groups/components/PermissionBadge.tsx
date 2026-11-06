@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import { Typography } from "@/shared/components/ui/Typography";
 import React from "react";
 import { StyleSheet, View } from "react-native";
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
   badge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 6,
+    borderRadius: theme.borderRadius.xs,
     alignSelf: "flex-start",
   },
 });

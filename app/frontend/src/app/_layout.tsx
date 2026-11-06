@@ -1,7 +1,6 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { UserProvider } from "@/contexts/UserContext";
+import { UserProvider } from "@/shared/contexts/UserContext";
 import { queryClient } from "@/shared/services/api/queryClient";
+import { theme } from "@/shared/styles/theme";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { NavigationBar } from "expo-navigation-bar";
@@ -14,13 +13,13 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 // Set global default font family to Google Sans for all Text and TextInput components
 (Text as any).defaultProps = (Text as any).defaultProps || {};
 (Text as any).defaultProps.style = {
-  fontFamily: AppFonts.regular,
+  fontFamily: theme.fonts.regular,
   includeFontPadding: false,
 };
 
 (TextInput as any).defaultProps = (TextInput as any).defaultProps || {};
 (TextInput as any).defaultProps.style = {
-  fontFamily: AppFonts.regular,
+  fontFamily: theme.fonts.regular,
   includeFontPadding: false,
 };
 
@@ -78,14 +77,16 @@ if (Platform.OS === "web") {
   };
 }
 
-import { fetchOfficialAttendanceQRCodes } from "@/constants/attendanceConfig";
+import { fetchOfficialAttendanceQRCodes } from "@/shared/constants/attendanceConfig";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    [AppFonts.regular]: require("@/assets/fonts/GoogleSans-Regular.ttf"),
-    [AppFonts.bold]: require("@/assets/fonts/GoogleSans-Bold.ttf"),
+    [theme.fonts.regular]: require("@/assets/fonts/GoogleSans-Regular.ttf"),
+    [theme.fonts.medium]: require("@/assets/fonts/GoogleSans-Medium.ttf"),
+    [theme.fonts.semibold]: require("@/assets/fonts/GoogleSans-SemiBold.ttf"),
+    [theme.fonts.bold]: require("@/assets/fonts/GoogleSans-Bold.ttf"),
   });
 
   useEffect(() => {
@@ -107,7 +108,7 @@ export default function RootLayout() {
       {Platform.OS === "android" && <NavigationBar style="dark" />}
 
       <SafeAreaProvider
-        style={{ flex: 1, backgroundColor: AppColors.background2 }}
+        style={{ flex: 1, backgroundColor: theme.colors.background2 }}
       >
         {Platform.OS === "web" && (
           <Head>

@@ -1,4 +1,4 @@
-import { logger } from "@/services/logger";
+import { logger } from "@/shared/services/logger";
 import { useCallback, useEffect } from "react";
 import { attendanceApi } from "../api/attendanceApi";
 import { useAttendanceStore } from "../store/useAttendanceStore";

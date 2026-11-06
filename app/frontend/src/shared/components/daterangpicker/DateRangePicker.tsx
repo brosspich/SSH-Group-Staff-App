@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
@@ -121,7 +120,7 @@ function MiniCalendar({
             <Ionicons
               name="chevron-back"
               size={16}
-              color={AppColors.textSecondary}
+              color={theme.colors.textSecondary}
             />
           </TouchableOpacity>
           <Text style={cal.monthLabel}>
@@ -131,7 +130,7 @@ function MiniCalendar({
             <Ionicons
               name="chevron-forward"
               size={16}
-              color={AppColors.textSecondary}
+              color={theme.colors.textSecondary}
             />
           </TouchableOpacity>
         </View>
@@ -171,16 +170,16 @@ function MiniCalendar({
             year === todayY && month === todayMo && day === todayD;
           const isSelected = selected && ts === selected.getTime();
           let bg: string = "transparent";
-          let textColor: string = AppColors.textPrimary;
+          let textColor: string = theme.colors.textPrimary;
           let radius = 8;
 
           if (isStart || isEnd || isSelected) {
-            bg = AppColors.secondary;
+            bg = theme.colors.secondary;
             textColor = "#ffffff";
             radius = 99;
           } else if (inRange) {
-            bg = `${AppColors.secondary}22`;
-            textColor = AppColors.secondary;
+            bg = `${theme.colors.secondary}22`;
+            textColor = theme.colors.secondary;
             radius = 0;
           }
 
@@ -218,25 +217,25 @@ const cal = StyleSheet.create({
   },
   navBtn: {
     padding: 6,
-    borderRadius: 8,
+    borderRadius: theme.borderRadius.sm,
     borderWidth: 0.5,
-    borderColor: `${AppColors.textSecondary}44`,
+    borderColor: `${theme.colors.textSecondary}44`,
   },
   monthLabel: {
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   weekRow: { flexDirection: "row", marginBottom: 4 },
   weekDay: {
     flex: 1,
     textAlign: "center",
-    fontSize: 11,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
     fontWeight: "600",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   grid: { flexDirection: "row", flexWrap: "wrap" },
@@ -246,11 +245,11 @@ const cal = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  dayText: { fontSize: 13, fontFamily: AppFonts.regular, includeFontPadding: false },
+  dayText: { fontSize: theme.fontSizes.sm, fontFamily: theme.fonts.regular, includeFontPadding: false },
   todayText: {
     fontWeight: "700",
-    color: AppColors.secondary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.secondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });
@@ -407,7 +406,7 @@ export default function DateRangePicker({
               <MaterialIcons
                 name="close"
                 size={20}
-                color={AppColors.textSecondary}
+                color={theme.colors.textSecondary}
               />
             </TouchableOpacity>
           </View>
@@ -454,7 +453,7 @@ export default function DateRangePicker({
               <MaterialIcons
                 name="arrow-forward"
                 size={16}
-                color={AppColors.textSecondary}
+                color={theme.colors.textSecondary}
               />
               <TouchableOpacity
                 style={[s.rangeBox, selecting === "end" && s.rangeBoxActive]}
@@ -533,9 +532,9 @@ const s = StyleSheet.create({
     justifyContent: "flex-end",
   },
   sheet: {
-    backgroundColor: AppColors.background,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    backgroundColor: theme.colors.background,
+    borderTopLeftRadius: theme.borderRadius.xl,
+    borderTopRightRadius: theme.borderRadius.xl,
     maxHeight: "89%",
     paddingBottom: 24,
   },
@@ -547,19 +546,19 @@ const s = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 14,
     borderBottomWidth: 0.5,
-    borderBottomColor: `${AppColors.textSecondary}33`,
+    borderBottomColor: `${theme.colors.textSecondary}33`,
   },
   headerTitle: {
-    fontSize: 17,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "700",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   closeBtn: { padding: 4 },
   divider: {
     height: 0.5,
-    backgroundColor: `${AppColors.textSecondary}33`,
+    backgroundColor: `${theme.colors.textSecondary}33`,
     marginHorizontal: 0,
   },
   presetRow: {
@@ -571,20 +570,20 @@ const s = StyleSheet.create({
   presetChip: {
     paddingHorizontal: 14,
     paddingVertical: 7,
-    borderRadius: 20,
+    borderRadius: theme.borderRadius.xl,
     borderWidth: 1,
-    borderColor: `${AppColors.secondary}55`,
-    backgroundColor: AppColors.background,
+    borderColor: `${theme.colors.secondary}55`,
+    backgroundColor: theme.colors.background,
   },
   presetChipActive: {
-    backgroundColor: AppColors.secondary,
-    borderColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
+    borderColor: theme.colors.secondary,
   },
   presetText: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "600",
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   presetTextActive: { color: "#fff" },
@@ -597,39 +596,39 @@ const s = StyleSheet.create({
   },
   rangeBox: {
     flex: 1,
-    backgroundColor: AppColors.background2,
-    borderRadius: 12,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.md,
     padding: 10,
     borderWidth: 1.5,
     borderColor: "transparent",
   },
-  rangeBoxActive: { borderColor: AppColors.secondary },
+  rangeBoxActive: { borderColor: theme.colors.secondary },
   rangeBoxLabel: {
-    fontSize: 10,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "600",
-    color: AppColors.textSecondary,
+    color: theme.colors.textSecondary,
     marginBottom: 2,
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   rangeBoxValue: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
-  rangeBoxPlaceholder: { color: AppColors.textSecondary },
+  rangeBoxPlaceholder: { color: theme.colors.textSecondary },
   calSectionLabel: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "600",
-    color: AppColors.textSecondary,
+    color: theme.colors.textSecondary,
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 8,
     letterSpacing: 0.5,
     textTransform: "uppercase",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   footer: {
@@ -638,36 +637,36 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 12,
     borderTopWidth: 0.5,
-    borderTopColor: `${AppColors.textSecondary}33`,
+    borderTopColor: `${theme.colors.textSecondary}33`,
   },
   btnCancel: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 14,
+    borderRadius: theme.borderRadius.lg,
     borderWidth: 1,
-    borderColor: AppColors.secondary,
+    borderColor: theme.colors.secondary,
     alignItems: "center",
   },
   btnCancelText: {
-    fontSize: 15,
+    fontSize: theme.fontSizes.md,
     fontWeight: "600",
-    color: AppColors.secondary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.secondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   btnApply: {
     flex: 1,
     paddingVertical: 14,
-    borderRadius: 14,
-    backgroundColor: AppColors.secondary,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: theme.colors.secondary,
     alignItems: "center",
   },
   btnApplyDisabled: { opacity: 0.4 },
   btnApplyText: {
-    fontSize: 15,
+    fontSize: theme.fontSizes.md,
     fontWeight: "600",
     color: "#fff",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

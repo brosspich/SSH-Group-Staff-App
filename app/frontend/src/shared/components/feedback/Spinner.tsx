@@ -1,4 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import {
   ActivityIndicator,
@@ -13,7 +13,7 @@ export interface SpinnerProps extends ActivityIndicatorProps {
 
 export const Spinner: React.FC<SpinnerProps> = ({
   fullScreen = false,
-  color = AppColors.primary || "#007AFF",
+  color = theme.colors.primary || "#007AFF",
   size = "large",
   ...rest
 }) => {

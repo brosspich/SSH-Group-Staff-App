@@ -1,7 +1,7 @@
+import { theme } from "@/shared/styles/theme";
 import EditStaffModal from "@/features/change-info-account-staff/_components/EditStaffModal";
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
-import { AppColors } from "@/constants/appcolors";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
@@ -89,7 +89,7 @@ export default function ChangeInfoAccountStaffScr() {
         <Loading />
       ) : filteredStaff.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Ionicons name="people-outline" size={54} color={AppColors.grey} />
+          <Ionicons name="people-outline" size={54} color={theme.colors.grey} />
           <Text style={styles.noStaffTitle}>No Staff Accounts Found</Text>
           <Text style={styles.noStaffSub}>
             {searchQuery
@@ -104,7 +104,7 @@ export default function ChangeInfoAccountStaffScr() {
             <Ionicons
               name="add"
               size={18}
-              color={AppColors.background2}
+              color={theme.colors.background2}
               style={{ marginRight: 6 }}
             />
             <Text style={styles.createBtnSecondaryText}>Create New Staff</Text>
@@ -118,8 +118,8 @@ export default function ChangeInfoAccountStaffScr() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={[AppColors.primary]}
-              tintColor={AppColors.primary}
+              colors={[theme.colors.primary]}
+              tintColor={theme.colors.primary}
             />
           }
           contentContainerStyle={[
@@ -149,7 +149,7 @@ export default function ChangeInfoAccountStaffScr() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   toastBox: {
     position: "absolute",
@@ -157,8 +157,8 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     zIndex: 99,
-    backgroundColor: AppColors.primary,
-    borderRadius: 10,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.md,
     paddingVertical: 10,
     paddingHorizontal: 14,
     flexDirection: "row",
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   },
   toastText: {
     color: "#fff",
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
   },
   listContainer: {
@@ -186,14 +186,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   noStaffTitle: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "700",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginTop: 14,
   },
   noStaffSub: {
-    fontSize: 13,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
     textAlign: "center",
     marginTop: 4,
     marginBottom: 20,
@@ -201,14 +201,14 @@ const styles = StyleSheet.create({
   createBtnSecondary: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.primary,
+    backgroundColor: theme.colors.primary,
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
   },
   createBtnSecondaryText: {
     color: "#fff",
     fontWeight: "700",
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
   },
 });

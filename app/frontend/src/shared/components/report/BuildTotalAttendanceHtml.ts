@@ -1,11 +1,11 @@
 import { AttendanceRecord } from "@/app/(tabs)/attendance";
-import { getCompanyName } from "@/constants/attendanceConfig";
+import { getCompanyName } from "@/shared/constants/attendanceConfig";
 import {
   AttendanceSummary,
   ReportMode,
   ReportType,
-} from "@/hooks/useAttendanceReportData";
-import { StaffUser } from "@/services/userService";
+} from "@/shared/hooks/useAttendanceReportData";
+import { StaffUser } from "@/shared/services/userService";
 
 function formatGeneratedAt(date: Date): string {
   const dd = String(date.getDate()).padStart(2, "0");

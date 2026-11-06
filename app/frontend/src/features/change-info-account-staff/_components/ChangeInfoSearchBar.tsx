@@ -1,4 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
@@ -27,13 +27,13 @@ export const ChangeInfoSearchBar: React.FC<ChangeInfoSearchBarProps> = ({
         <Ionicons
           name="search"
           size={20}
-          color={AppColors.grey}
+          color={theme.colors.grey}
           style={{ marginRight: 8 }}
         />
         <TextInput
           style={styles.searchInput}
           placeholder="Search staff name, ID, username..."
-          placeholderTextColor={AppColors.grey}
+          placeholderTextColor={theme.colors.grey}
           value={searchQuery}
           onChangeText={setSearchQuery}
           clearButtonMode="while-editing"
@@ -43,7 +43,7 @@ export const ChangeInfoSearchBar: React.FC<ChangeInfoSearchBarProps> = ({
             onPress={() => setSearchQuery("")}
             style={{ padding: 4 }}
           >
-            <Ionicons name="close-circle" size={18} color={AppColors.grey} />
+            <Ionicons name="close-circle" size={18} color={theme.colors.grey} />
           </TouchableOpacity>
         )}
       </View>
@@ -58,7 +58,7 @@ export const ChangeInfoSearchBar: React.FC<ChangeInfoSearchBarProps> = ({
           style={styles.createShortcutBtn}
           onPress={() => router.push("/account-staff/CreateAccountStaff")}
         >
-          <Ionicons name="person-add" size={14} color={AppColors.primary} />
+          <Ionicons name="person-add" size={14} color={theme.colors.primary} />
           <Text style={styles.createShortcutText}>Add New</Text>
         </TouchableOpacity>
       </View>
@@ -74,17 +74,17 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.background2,
-    borderRadius: 12,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.md,
     paddingHorizontal: 12,
     height: 46,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}25`,
+    borderColor: `${theme.colors.grey}25`,
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
   },
   countRow: {
     flexDirection: "row",
@@ -94,21 +94,21 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   countText: {
-    fontSize: 13,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
   },
   createShortcutBtn: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 4,
     paddingHorizontal: 10,
-    borderRadius: 8,
-    backgroundColor: `${AppColors.primary}18`,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: `${theme.colors.primary}18`,
     gap: 4,
   },
   createShortcutText: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "700",
-    color: AppColors.primary,
+    color: theme.colors.primary,
   },
 });

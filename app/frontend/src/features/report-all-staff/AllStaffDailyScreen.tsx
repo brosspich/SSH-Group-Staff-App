@@ -1,14 +1,14 @@
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import { AttendanceReportBody } from "@/shared/components/report/AttendanceReportBody";
 import { AttendanceReportPrintModal } from "@/shared/components/report/AttendanceReportPrintModal";
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import { DailyDatePickerCard, ReportPrintFooter } from "@/features/report";
 import {
   formatDateLabel,
   getTodayPP,
   useAttendanceReportData,
-} from "@/hooks/useAttendanceReportData";
-import { useResponsive } from "@/hooks/useResponsive";
+} from "@/shared/hooks/useAttendanceReportData";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 
@@ -80,7 +80,7 @@ export default function AllStaffDailyScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: AppColors.background },
+  container: { flex: 1, backgroundColor: theme.colors.background },
   content: { padding: 16, gap: 12, paddingBottom: 90 },
   wrapper: { flex: 1, width: "100%", gap: 12 },
 });

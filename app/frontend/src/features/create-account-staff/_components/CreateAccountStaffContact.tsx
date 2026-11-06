@@ -1,4 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
@@ -26,7 +26,7 @@ export const CreateAccountStaffContact: React.FC<
           <Ionicons
             name="call-outline"
             size={20}
-            color={AppColors.grey}
+            color={theme.colors.grey}
             style={styles.fieldIcon}
           />
           <TextInput
@@ -34,7 +34,7 @@ export const CreateAccountStaffContact: React.FC<
             value={phone}
             onChangeText={setPhone}
             placeholder="e.g. +855 12 345 678"
-            placeholderTextColor={AppColors.grey}
+            placeholderTextColor={theme.colors.grey}
             keyboardType="phone-pad"
           />
         </View>
@@ -47,7 +47,7 @@ export const CreateAccountStaffContact: React.FC<
           <Ionicons
             name="mail-outline"
             size={20}
-            color={AppColors.grey}
+            color={theme.colors.grey}
             style={styles.fieldIcon}
           />
           <TextInput
@@ -55,7 +55,7 @@ export const CreateAccountStaffContact: React.FC<
             value={email}
             onChangeText={setEmail}
             placeholder="staff@company.com"
-            placeholderTextColor={AppColors.grey}
+            placeholderTextColor={theme.colors.grey}
             keyboardType="email-address"
             autoCapitalize="none"
           />
@@ -67,35 +67,35 @@ export const CreateAccountStaffContact: React.FC<
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 14,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}25`,
+    borderColor: `${theme.colors.grey}25`,
   },
   cardSectionTitle: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "700",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginBottom: 14,
   },
   fieldGroup: {
     marginBottom: 14,
   },
   label: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginBottom: 6,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: `${AppColors.grey}15`,
-    borderRadius: 10,
+    backgroundColor: `${theme.colors.grey}15`,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}30`,
+    borderColor: `${theme.colors.grey}30`,
     paddingHorizontal: 12,
     height: 46,
   },
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontSize: 14,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
   },
 });

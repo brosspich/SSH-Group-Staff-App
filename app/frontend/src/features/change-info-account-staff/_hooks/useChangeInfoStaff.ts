@@ -2,8 +2,8 @@ import {
   DynamicSystemItem,
   extractSystemKey,
   fetchAvailableCompanySystems,
-} from "@/constants/attendanceConfig";
-import { StaffUser, userService } from "@/services/userService";
+} from "@/shared/constants/attendanceConfig";
+import { StaffUser, userService } from "@/shared/services/userService";
 import { hasAdminOrOwnerRole, isOwnerRole } from "@/utils/roleUtils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchStaffDirectoryApi } from "../_api/changeInfoStaffApi";

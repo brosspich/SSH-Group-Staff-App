@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import React, { useRef, useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
 
@@ -67,9 +68,9 @@ const styles = StyleSheet.create({
     height: 52,
     borderWidth: 1.5,
     borderColor: "#D1D1D6",
-    borderRadius: 8,
+    borderRadius: theme.borderRadius.sm,
     textAlign: "center",
-    fontSize: 22,
+    fontSize: theme.fontSizes.xxl,
     fontWeight: "700",
     color: "#000000",
     backgroundColor: "#FAFAFA",

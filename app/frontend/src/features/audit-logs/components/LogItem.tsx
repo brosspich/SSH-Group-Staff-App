@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import { Card } from "@/shared/components/ui/Card";
 import { Typography } from "@/shared/components/ui/Typography";
 import { formatDate, formatTime } from "@/utils/formatters";
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
   detailsBox: {
     backgroundColor: "#F9F9FB",
     padding: 6,
-    borderRadius: 4,
+    borderRadius: theme.borderRadius.xs,
     marginTop: 4,
   },
 });

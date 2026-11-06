@@ -1,15 +1,14 @@
+import { theme } from "@/shared/styles/theme";
 import DatePickerModal from "@/shared/components/daterangpicker/DatePickerModal";
 import TimePickerModal from "@/shared/components/daterangpicker/TimePickerModal";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
 import {
   formatTimeDisplay,
   getOfficialTimeIn,
   getOfficialTimeOut,
-} from "@/constants/attendanceConfig";
-import { useResponsive } from "@/hooks/useResponsive";
-import { submitAttendanceRequest } from "@/services/attendanceRequestService";
-import { StaffUser, userService } from "@/services/userService";
+} from "@/shared/constants/attendanceConfig";
+import { useResponsive } from "@/shared/hooks/useResponsive";
+import { submitAttendanceRequest } from "@/shared/services/attendanceRequestService";
+import { StaffUser, userService } from "@/shared/services/userService";
 import { renderAlertModal } from "@/shared/components/alert/alert";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
@@ -359,7 +358,7 @@ export function RequestAttendanceModal({
                 <Ionicons
                   name="calendar-outline"
                   size={20}
-                  color={AppColors.primary}
+                  color={theme.colors.primary}
                 />
               </View>
               <Text style={s.headerTitle}>Request Attendance</Text>
@@ -372,7 +371,7 @@ export function RequestAttendanceModal({
               <MaterialIcons
                 name="close"
                 size={22}
-                color={AppColors.textSecondary}
+                color={theme.colors.textSecondary}
               />
             </TouchableOpacity>
           </View>
@@ -388,7 +387,7 @@ export function RequestAttendanceModal({
             {/* ── Display Staff Info (id, name, position) ── */}
             <View style={s.staffCard}>
               <View style={s.avatarCircle}>
-                <Ionicons name="person" size={20} color={AppColors.primary} />
+                <Ionicons name="person" size={20} color={theme.colors.primary} />
               </View>
               <View style={s.staffDetails}>
                 <Text style={s.staffName} numberOfLines={1}>
@@ -439,7 +438,7 @@ export function RequestAttendanceModal({
                   <Ionicons
                     name="calendar-outline"
                     size={18}
-                    color={AppColors.primary}
+                    color={theme.colors.primary}
                     style={s.pickerIcon}
                   />
                   <View style={s.pickerTextContainer}>
@@ -455,7 +454,7 @@ export function RequestAttendanceModal({
                   <MaterialIcons
                     name="arrow-drop-down"
                     size={20}
-                    color={AppColors.textSecondary}
+                    color={theme.colors.textSecondary}
                   />
                 </TouchableOpacity>
               </View>
@@ -476,7 +475,7 @@ export function RequestAttendanceModal({
                   <Ionicons
                     name="time-outline"
                     size={18}
-                    color={AppColors.primary}
+                    color={theme.colors.primary}
                     style={s.pickerIcon}
                   />
                   <View style={s.pickerTextContainer}>
@@ -488,7 +487,7 @@ export function RequestAttendanceModal({
                   <MaterialIcons
                     name="arrow-drop-down"
                     size={20}
-                    color={AppColors.textSecondary}
+                    color={theme.colors.textSecondary}
                   />
                 </TouchableOpacity>
               </View>
@@ -512,7 +511,7 @@ export function RequestAttendanceModal({
                   <Ionicons
                     name="calendar-outline"
                     size={18}
-                    color={AppColors.primary}
+                    color={theme.colors.primary}
                     style={s.pickerIcon}
                   />
                   <View style={s.pickerTextContainer}>
@@ -530,7 +529,7 @@ export function RequestAttendanceModal({
                   <MaterialIcons
                     name="arrow-drop-down"
                     size={20}
-                    color={AppColors.textSecondary}
+                    color={theme.colors.textSecondary}
                   />
                 </TouchableOpacity>
               </View>
@@ -551,7 +550,7 @@ export function RequestAttendanceModal({
                   <Ionicons
                     name="time-outline"
                     size={18}
-                    color={AppColors.primary}
+                    color={theme.colors.primary}
                     style={s.pickerIcon}
                   />
                   <View style={s.pickerTextContainer}>
@@ -563,7 +562,7 @@ export function RequestAttendanceModal({
                   <MaterialIcons
                     name="arrow-drop-down"
                     size={20}
-                    color={AppColors.textSecondary}
+                    color={theme.colors.textSecondary}
                   />
                 </TouchableOpacity>
               </View>
@@ -581,13 +580,13 @@ export function RequestAttendanceModal({
                 <MaterialIcons
                   name="edit"
                   size={18}
-                  color={AppColors.grey}
+                  color={theme.colors.grey}
                   style={s.inputIcon}
                 />
                 <TextInput
                   style={s.textInput}
                   placeholder="enter your subject"
-                  placeholderTextColor={AppColors.grey}
+                  placeholderTextColor={theme.colors.grey}
                   value={subject}
                   onChangeText={(val) => {
                     setSubject(val);
@@ -612,13 +611,13 @@ export function RequestAttendanceModal({
                 {/* <MaterialIcons
                   name="notes"
                   size={18}
-                  color={AppColors.grey}
+                  color={theme.colors.grey}
                   style={[s.inputIcon, { marginTop: 4 }]}
                 /> */}
                 <TextInput
                   style={[s.textInput, s.textAreaInput]}
                   placeholder="Enter reason or details for this request..."
-                  placeholderTextColor={AppColors.grey}
+                  placeholderTextColor={theme.colors.grey}
                   value={remark}
                   onChangeText={(val) => {
                     setRemark(val);
@@ -661,7 +660,7 @@ export function RequestAttendanceModal({
               <Ionicons
                 name="send-outline"
                 size={16}
-                color={AppColors.background2}
+                color={theme.colors.background2}
                 style={{ marginRight: 6 }}
               />
               <Text style={s.submitBtnText}>Submit</Text>
@@ -723,7 +722,7 @@ export function RequestAttendanceModal({
               <Ionicons
                 name="checkmark"
                 size={40}
-                color={AppColors.background2}
+                color={theme.colors.background2}
               />
             </View>
 
@@ -801,14 +800,14 @@ export function RequestAttendanceModal({
                 {submitting ? (
                   <ActivityIndicator
                     size="small"
-                    color={AppColors.background2}
+                    color={theme.colors.background2}
                   />
                 ) : (
                   <>
                     <Ionicons
                       name="send-outline"
                       size={16}
-                      color={AppColors.background2}
+                      color={theme.colors.background2}
                       style={{ marginRight: 6 }}
                     />
                     <Text style={s.confirmBtnText}>Submit</Text>
@@ -823,7 +822,7 @@ export function RequestAttendanceModal({
                   activeOpacity={0.85}
                 >
                   <Text
-                    style={[s.confirmBtnText, { color: AppColors.textPrimary }]}
+                    style={[s.confirmBtnText, { color: theme.colors.textPrimary }]}
                   >
                     Cancel
                   </Text>
@@ -856,7 +855,7 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.4)",
   },
   sheet: {
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     // paddingHorizontal: 20,
     width: "100%",
   },
@@ -867,7 +866,7 @@ const s = StyleSheet.create({
     paddingTop: 18,
     paddingBottom: 12,
     borderBottomWidth: 0.5,
-    borderBottomColor: `${AppColors.grey}70`,
+    borderBottomColor: `${theme.colors.grey}70`,
     paddingHorizontal: 15,
   },
   headerLeft: {
@@ -878,22 +877,22 @@ const s = StyleSheet.create({
   headerIconBadge: {
     width: 35,
     height: 35,
-    borderRadius: 8,
-    backgroundColor: `${AppColors.primary}15`,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: `${theme.colors.primary}15`,
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: {
-    fontSize: 17,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   closeBtn: {
     padding: 6,
-    borderRadius: 8,
-    backgroundColor: `${AppColors.grey}15`,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: `${theme.colors.grey}15`,
   },
   scrollArea: {
     flexShrink: 1,
@@ -908,19 +907,19 @@ const s = StyleSheet.create({
   staffCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.background,
-    borderRadius: 14,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.lg,
     padding: 12,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}25`,
+    borderColor: `${theme.colors.grey}25`,
     gap: 10,
     marginHorizontal: 15,
   },
   avatarCircle: {
     width: 44,
     height: 44,
-    borderRadius: 12,
-    backgroundColor: `${AppColors.primary}18`,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: `${theme.colors.primary}18`,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -928,10 +927,10 @@ const s = StyleSheet.create({
     flex: 1,
   },
   staffName: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   staffMetaRow: {
@@ -942,20 +941,20 @@ const s = StyleSheet.create({
     gap: 6,
   },
   staffMetaText: {
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   staffMetaBold: {
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     fontWeight: "600",
   },
   staffMetaDot: {
-    fontSize: 10,
-    color: AppColors.grey,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
   },
 
   // Date & Time Row
@@ -971,12 +970,12 @@ const s = StyleSheet.create({
   pickerBtn: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.background,
-    borderRadius: 12,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.md,
     paddingHorizontal: 8,
     paddingVertical: 10,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}35`,
+    borderColor: `${theme.colors.grey}35`,
     minHeight: 46,
     gap: 4,
   },
@@ -988,16 +987,16 @@ const s = StyleSheet.create({
     minWidth: 0,
   },
   pickerMainText: {
-    fontSize: 12,
-    fontFamily: AppFonts.bold,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
     includeFontPadding: false,
     letterSpacing: -0.2,
   },
   pickerSubText: {
     fontSize: 9.5,
-    fontFamily: AppFonts.regular,
-    color: AppColors.textSecondary,
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.textSecondary,
     marginTop: 1,
     includeFontPadding: false,
   },
@@ -1020,31 +1019,31 @@ const s = StyleSheet.create({
   quickSubjectChip: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 8,
-    backgroundColor: `${AppColors.grey}15`,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: `${theme.colors.grey}15`,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}25`,
+    borderColor: `${theme.colors.grey}25`,
   },
   quickSubjectChipActive: {
-    backgroundColor: `${AppColors.primary}18`,
-    borderColor: AppColors.primary,
+    backgroundColor: `${theme.colors.primary}18`,
+    borderColor: theme.colors.primary,
   },
   quickSubjectText: {
-    fontSize: 11,
-    fontFamily: AppFonts.regular,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.textSecondary,
     includeFontPadding: false,
   },
   quickSubjectTextActive: {
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: AppColors.primary,
+    color: theme.colors.primary,
   },
   inputLabel: {
-    fontSize: 12.5,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "600",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   requiredStar: {
@@ -1054,11 +1053,11 @@ const s = StyleSheet.create({
   inputBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.background,
-    borderRadius: 12,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.md,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}35`,
+    borderColor: `${theme.colors.grey}35`,
     minHeight: 50,
   },
   inputIcon: {
@@ -1066,9 +1065,9 @@ const s = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontSize: 14,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     paddingVertical: 8,
     ...(Platform.OS === "web" &&
@@ -1089,7 +1088,7 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fef2f2",
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     paddingHorizontal: 12,
     paddingVertical: 7,
     gap: 6,
@@ -1097,9 +1096,9 @@ const s = StyleSheet.create({
     borderColor: "#fecaca",
   },
   errorText: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     color: "#dc2626",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     flex: 1,
   },
@@ -1111,35 +1110,35 @@ const s = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 4,
     borderTopWidth: 0.5,
-    borderTopColor: `${AppColors.grey}70`,
+    borderTopColor: `${theme.colors.grey}70`,
     paddingHorizontal: 15,
   },
   cancelBtn: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     paddingVertical: 12,
-    backgroundColor: `${AppColors.grey}15`,
+    backgroundColor: `${theme.colors.grey}15`,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: `${AppColors.grey}30`,
+    borderColor: `${theme.colors.grey}30`,
   },
   cancelBtnText: {
-    fontSize: 13.5,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   submitBtn: {
     flex: 1.5,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     paddingVertical: 12,
-    backgroundColor: AppColors.primary,
+    backgroundColor: theme.colors.primary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    // shadowColor: AppColors.primary,
+    // shadowColor: theme.colors.primary,
     // shadowOffset: { width: 0, height: 2 },
     // shadowOpacity: 0.25,
     // shadowRadius: 4,
@@ -1151,10 +1150,10 @@ const s = StyleSheet.create({
     elevation: 0,
   },
   submitBtnText: {
-    fontSize: 13.5,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "bold",
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 
@@ -1167,8 +1166,8 @@ const s = StyleSheet.create({
     padding: 20,
   },
   confirmCard: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 24,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.xl,
     padding: 24,
     width: "100%",
     maxWidth: 380,
@@ -1177,20 +1176,20 @@ const s = StyleSheet.create({
   confirmIconCircle: {
     marginBottom: 10,
     padding: 10,
-    borderRadius: 14,
-    backgroundColor: AppColors.secondary,
+    borderRadius: theme.borderRadius.lg,
+    backgroundColor: theme.colors.secondary,
   },
   confirmTitle: {
-    fontSize: 20,
+    fontSize: theme.fontSizes.xl,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   confirmDetails: {
     width: "100%",
-    backgroundColor: AppColors.background,
-    borderRadius: 12,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.md,
     padding: 16,
     marginVertical: 16,
     gap: 10,
@@ -1202,40 +1201,40 @@ const s = StyleSheet.create({
     gap: 12,
   },
   confirmDetailLabel: {
-    fontSize: 12.5,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   confirmDetailValue: {
-    fontSize: 13.5,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   confirmSubmitBtn: {
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     paddingVertical: 12,
-    backgroundColor: AppColors.primary,
+    backgroundColor: theme.colors.primary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
   confirmCancelBtn: {
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     paddingVertical: 12,
-    backgroundColor: `${AppColors.grey}15`,
+    backgroundColor: `${theme.colors.grey}15`,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: `${AppColors.grey}30`,
+    borderColor: `${theme.colors.grey}30`,
   },
   confirmBtnText: {
-    color: AppColors.background2,
+    color: theme.colors.background2,
     fontWeight: "bold",
-    fontSize: 15,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

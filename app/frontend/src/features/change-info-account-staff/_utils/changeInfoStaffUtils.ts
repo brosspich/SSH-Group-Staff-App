@@ -1,5 +1,5 @@
-import { extractSystemKey } from "@/constants/attendanceConfig";
-import type { StaffUser } from "@/services/userService";
+import { extractSystemKey } from "@/shared/constants/attendanceConfig";
+import type { StaffUser } from "@/shared/services/userService";
 import { formatRolesList, isOwnerRole } from "@/utils/roleUtils";
 import type { StaffStatusFilter } from "../_types/changeInfoStaff.types";
 

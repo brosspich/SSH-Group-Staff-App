@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import type { InactivePeriod } from "../_types/devices.types";
 import { INACTIVE_PERIODS } from "../_utils/devicesConstants";
@@ -41,8 +40,8 @@ export default function SelfDestructModal({
                   styles.radioOptionRow,
                   {
                     backgroundColor: pressed
-                      ? `${AppColors.grey}33`
-                      : AppColors.transparent,
+                      ? `${theme.colors.grey}33`
+                      : theme.colors.transparent,
                     paddingVertical: 16,
                   },
                 ]}
@@ -75,16 +74,16 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   selfDestructCard: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 20,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.xl,
     padding: 20,
     width: "100%",
   },
   selfDestructTitle: {
-    fontSize: 16,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginBottom: 16,
     paddingHorizontal: 4,
   },
@@ -92,31 +91,31 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 4,
-    borderRadius: 8,
+    borderRadius: theme.borderRadius.sm,
   },
   radioCircleOuter: {
     width: 22,
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: AppColors.textSecondary,
+    borderColor: theme.colors.textSecondary,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
   },
   radioCircleOuterActive: {
-    borderColor: AppColors.secondary,
+    borderColor: theme.colors.secondary,
   },
   radioCircleInner: {
     width: 12,
     height: 12,
-    borderRadius: 6,
-    backgroundColor: AppColors.secondary,
+    borderRadius: theme.borderRadius.xs,
+    backgroundColor: theme.colors.secondary,
   },
   radioOptionText: {
-    fontSize: 15,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
   },
 });

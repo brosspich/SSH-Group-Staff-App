@@ -1,4 +1,4 @@
-import type { StaffUser } from "@/services/userService";
+import type { StaffUser } from "@/shared/services/userService";
 import type { KeyboardTypeOptions } from "react-native";
 
 export type FieldKey =

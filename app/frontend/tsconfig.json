@@ -12,6 +12,14 @@
       "@/features/*": ["./src/features/*"],
       "@/shared/*": ["./src/shared/*"],
       "@/shared": ["./src/shared/index.ts"],
+      "@/services/*": ["./src/shared/services/*"],
+      "@/hooks/*": ["./src/shared/hooks/*"],
+      "@/plugins/*": ["./src/shared/plugins/*"],
+      "@/styles/*": ["./src/shared/styles/*"],
+      "@/constants/*": ["./src/shared/constants/*"],
+      "@/contexts/*": ["./src/shared/contexts/*"],
+      "@/utils/*": ["./src/shared/utils/*"],
+      "@/utils": ["./src/shared/utils/index.ts"],
       "@/assets/*": ["./src/assets/*", "./assets/*"]
     }
   },

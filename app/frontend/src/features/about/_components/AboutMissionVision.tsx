@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -19,13 +18,13 @@ export const AboutMissionVision: React.FC<AboutMissionVisionProps> = ({
           <View
             style={[
               styles.iconContainer,
-              { backgroundColor: `${AppColors.primary}15` },
+              { backgroundColor: `${theme.colors.primary}15` },
             ]}
           >
             <Ionicons
               name="rocket-outline"
               size={24}
-              color={AppColors.secondary}
+              color={theme.colors.secondary}
             />
           </View>
           <Text style={styles.title}>Mission</Text>
@@ -46,13 +45,13 @@ export const AboutMissionVision: React.FC<AboutMissionVisionProps> = ({
           <View
             style={[
               styles.iconContainer,
-              { backgroundColor: `${AppColors.secondary}15` },
+              { backgroundColor: `${theme.colors.secondary}15` },
             ]}
           >
             <Ionicons
               name="eye-outline"
               size={24}
-              color={AppColors.secondary}
+              color={theme.colors.secondary}
             />
           </View>
           <Text style={styles.title}>Vision</Text>
@@ -72,10 +71,10 @@ export const AboutMissionVision: React.FC<AboutMissionVisionProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    marginBottom: theme.spacing.md,
     borderWidth: 1,
     borderColor: "rgba(0, 0, 0, 0.05)",
     shadowColor: "#000",
@@ -87,36 +86,36 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: theme.spacing.md,
   },
   iconContainer: {
     width: 44,
     height: 44,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    marginRight: theme.spacing.md,
   },
   title: {
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    fontSize: 18,
-    color: AppColors.primary,
+    fontSize: theme.fontSizes.lg,
+    color: theme.colors.primary,
   },
   cardTxt: {
-    fontSize: 14,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     lineHeight: 22,
-    color: AppColors.textSecondary,
+    color: theme.colors.textSecondary,
   },
   rowMobile: {
     flexDirection: "column",
   },
   rowTablet: {
     flexDirection: "row",
-    gap: 16,
-    marginBottom: 16,
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.md,
   },
   cardHalf: {
     flex: 1,

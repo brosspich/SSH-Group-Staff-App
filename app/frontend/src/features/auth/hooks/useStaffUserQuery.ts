@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { queryKeys } from "@/shared/services/api/queryKeys";
-import { StaffUser, userService } from "@/services/userService";
-import { apiClient } from "@/services/api";
+import { StaffUser, userService } from "@/shared/services/userService";
+import { apiClient } from "@/shared/services/api";
 
 /**
  * TanStack Query Hook: Server data caching for Staff User Profile via Backend API

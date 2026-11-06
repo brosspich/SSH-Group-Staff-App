@@ -1,6 +1,6 @@
-import { useUser } from "@/contexts/UserContext";
-import { secureStorage } from "@/services/storage/secureStore.service";
-import { userService } from "@/services/userService";
+import { useUser } from "@/shared/contexts/UserContext";
+import { secureStorage } from "@/shared/services/storage/secureStore.service";
+import { userService } from "@/shared/services/userService";
 import { syncDeviceSession } from "@/utils/deviceSession";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";

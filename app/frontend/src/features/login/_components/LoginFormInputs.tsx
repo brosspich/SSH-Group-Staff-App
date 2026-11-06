@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import {
   StyleSheet,
@@ -36,25 +35,25 @@ export default function LoginFormInputs({
           value={username}
           onChangeText={onChangeUsername}
           placeholder="username"
-          placeholderTextColor={AppColors.grey}
+          placeholderTextColor={theme.colors.grey}
           autoCapitalize="none"
           autoCorrect={false}
         />
         <MaterialIcons
           name="person"
           size={20}
-          color={AppColors.secondary}
+          color={theme.colors.secondary}
           style={styles.inputIcon}
         />
       </View>
 
-      <View style={[styles.inputContainer, { marginTop: 18 }]}>
+      <View style={[styles.inputContainer, { marginTop: theme.spacing.lg }]}>
         <TextInput
           style={styles.printInput}
           value={password}
           onChangeText={onChangePassword}
           placeholder="password"
-          placeholderTextColor={AppColors.grey}
+          placeholderTextColor={theme.colors.grey}
           secureTextEntry={!showPassword}
           autoComplete="password"
           textContentType="password"
@@ -67,7 +66,7 @@ export default function LoginFormInputs({
           <Ionicons
             name={showPassword ? "eye-off" : "eye"}
             size={20}
-            color={AppColors.secondary}
+            color={theme.colors.secondary}
           />
         </TouchableOpacity>
       </View>
@@ -87,35 +86,35 @@ const styles = StyleSheet.create({
   },
   printInput: {
     height: 48,
-    backgroundColor: AppColors.background2,
-    borderRadius: 10,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.sm,
     borderWidth: 1.5,
-    borderColor: AppColors.secondary,
-    paddingHorizontal: 12,
-    color: AppColors.textPrimary,
-    fontSize: 16,
+    borderColor: theme.colors.secondary,
+    paddingHorizontal: theme.spacing.md,
+    color: theme.colors.textPrimary,
+    fontSize: theme.fontSizes.md,
     paddingRight: 40,
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   inputIcon: {
     position: "absolute",
-    right: 12,
+    right: theme.spacing.md,
     top: "50%",
     transform: [{ translateY: -10 }],
   },
   eyeIcon: {
     position: "absolute",
-    right: 12,
+    right: theme.spacing.md,
     top: "50%",
     transform: [{ translateY: -10 }],
   },
   txtError: {
-    color: "#ff6b6b",
-    fontSize: 13,
-    marginTop: 10,
+    color: theme.colors.error,
+    fontSize: theme.fontSizes.xs,
+    marginTop: theme.spacing.sm,
     textAlign: "center",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 });

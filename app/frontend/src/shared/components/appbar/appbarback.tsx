@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useNavigation } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -33,12 +32,12 @@ export default function AppbarBack({
             styles.appBarIcons,
             {
               backgroundColor: pressed
-                ? `${AppColors.grey}33`
-                : AppColors.transparent,
+                ? `${theme.colors.grey}33`
+                : theme.colors.transparent,
             },
           ]}
         >
-          <Ionicons name="arrow-back" size={22} color={AppColors.background2} />
+          <Ionicons name="arrow-back" size={22} color={theme.colors.background2} />
         </Pressable>
       </View> */}
 
@@ -64,7 +63,7 @@ export default function AppbarBack({
               <Ionicons
                 name="chevron-back"
                 size={24}
-                color={AppColors.background2}
+                color={theme.colors.background2}
               />
             </View>
           </BlurView>
@@ -77,7 +76,7 @@ export default function AppbarBack({
           <Ionicons
             name="chevron-back"
             size={24}
-            color={AppColors.background2}
+            color={theme.colors.background2}
           />
         </TouchableOpacity>
       </View>
@@ -101,7 +100,7 @@ const styles = StyleSheet.create({
     // paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     // height: 60 + (Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0),
     // height: 60,
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
     // borderBottomWidth: 1,
     // borderBottomColor: "#e0e0e0",
     // paddingBottom: 25,
@@ -127,29 +126,29 @@ const styles = StyleSheet.create({
   appBarTitle: {
     flex: 1,
     textAlign: "center",
-    fontSize: 20,
+    fontSize: theme.fontSizes.xl,
     fontWeight: "bold",
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     paddingBottom: 25,
   },
 
   appBarIcons: {
     padding: 8,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     marginBottom: 18,
   },
 
   bgAppBar: {
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
     height: 10,
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    borderTopRightRadius: 12,
-    borderTopLeftRadius: 12,
+    borderTopRightRadius: theme.borderRadius.md,
+    borderTopLeftRadius: theme.borderRadius.md,
   },
 
   outerContainer: {

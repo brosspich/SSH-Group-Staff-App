@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AttendanceRecord } from "../_types/attendance.types";
@@ -15,7 +14,7 @@ export const AttendanceLogCard: React.FC<AttendanceLogCardProps> = ({
   const isTimeOut = record.type === "time-out";
 
   const badgeBg = isTimeIn ? "#dce0fc" : isTimeOut ? "#fedbdb" : "#f3e8ff";
-  const badgeColor = isTimeIn ? "#0022ff" : isTimeOut ? "#ff0000" : "#7e22ce";
+  const badgeColor = isTimeIn ? "#0022ff" : isTimeOut ? theme.colors.error : "#7e22ce";
 
   const displayTime =
     record.time ||
@@ -70,31 +69,31 @@ export const AttendanceLogCard: React.FC<AttendanceLogCardProps> = ({
 
 const styles = StyleSheet.create({
   historyCard: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 10,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.sm,
     borderWidth: 1,
-    borderColor: AppColors.grey + 40,
+    borderColor: theme.colors.grey + 40,
     overflow: "hidden",
-    marginHorizontal: 15,
+    marginHorizontal: theme.spacing.md,
   },
   historyCardBody: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
   },
   historyLeftCol: {},
   historyTimeText: {
-    fontSize: 16,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.md,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   historyDateText: {
-    fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
@@ -102,15 +101,15 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   historyStaffName: {
-    fontSize: 13.5,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   historyStaffId: {
-    fontSize: 11.5,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
@@ -120,12 +119,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
   },
   historyQrText: {
-    fontSize: 11,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 });

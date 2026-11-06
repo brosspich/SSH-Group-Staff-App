@@ -1,5 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import type { DynamicSystemItem } from "@/constants/attendanceConfig";
+import { theme } from "@/shared/styles/theme";
+import type { DynamicSystemItem } from "@/shared/constants/attendanceConfig";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -17,14 +17,14 @@ export const CreateAccountStaffHeader: React.FC<
   return (
     <View style={styles.systemHeaderCard}>
       <View style={styles.systemHeaderLeft}>
-        <Ionicons name="shield-checkmark" size={24} color={AppColors.primary} />
+        <Ionicons name="shield-checkmark" size={24} color={theme.colors.primary} />
         <View style={{ marginLeft: 10 }}>
           <Text style={styles.systemHeaderTitle}>
             {isOwner ? "Owner Administrator" : "Branch Admin"}
           </Text>
           <Text style={styles.systemHeaderSub}>
             Managing System:{" "}
-            <Text style={{ fontWeight: "700", color: AppColors.primary }}>
+            <Text style={{ fontWeight: "700", color: theme.colors.primary }}>
               {systemKey.toUpperCase()}
             </Text>
           </Text>
@@ -68,25 +68,25 @@ export const CreateAccountStaffHeader: React.FC<
 
 const styles = StyleSheet.create({
   systemHeaderCard: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 14,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: `${AppColors.primary}25`,
+    borderColor: `${theme.colors.primary}25`,
   },
   systemHeaderLeft: {
     flexDirection: "row",
     alignItems: "center",
   },
   systemHeaderTitle: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "700",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
   },
   systemHeaderSub: {
-    fontSize: 13,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
     marginTop: 2,
   },
   systemPickerRow: {
@@ -97,21 +97,21 @@ const styles = StyleSheet.create({
   sysChip: {
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: `${AppColors.grey}22`,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: `${theme.colors.grey}22`,
     borderWidth: 1,
     borderColor: "transparent",
   },
   sysChipSelected: {
-    backgroundColor: `${AppColors.primary}20`,
-    borderColor: AppColors.primary,
+    backgroundColor: `${theme.colors.primary}20`,
+    borderColor: theme.colors.primary,
   },
   sysChipText: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "600",
-    color: AppColors.textSecondary,
+    color: theme.colors.textSecondary,
   },
   sysChipTextSelected: {
-    color: AppColors.primary,
+    color: theme.colors.primary,
   },
 });

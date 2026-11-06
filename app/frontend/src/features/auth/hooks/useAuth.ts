@@ -1,5 +1,5 @@
 import { useLoginStore } from "@/features/login/_store/useLoginStore";
-import { logger } from "@/services/logger";
+import { logger } from "@/shared/services/logger";
 import { useCallback } from "react";
 import { authApi } from "../api/authApi";
 import { useAuthStore } from "../store/authStore";

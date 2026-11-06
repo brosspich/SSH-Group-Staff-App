@@ -1,5 +1,5 @@
-import { useUser } from "@/contexts/UserContext";
-import { StaffUser, userService } from "@/services/userService";
+import { useUser } from "@/shared/contexts/UserContext";
+import { StaffUser, userService } from "@/shared/services/userService";
 import { useCallback, useEffect, useState } from "react";
 import { fetchUserByIdApi } from "../_api/informationApi";
 import type { FieldKey } from "../_types/information.types";

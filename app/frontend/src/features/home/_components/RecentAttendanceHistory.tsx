@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -25,15 +24,19 @@ export const RecentAttendanceHistory: React.FC<
           <Ionicons
             name="chevron-forward"
             size={16}
-            color={AppColors.primary}
+            color={theme.colors.primary}
           />
         </TouchableOpacity>
       </View>
 
       {/* Recent History List (First 4) */}
-      {attendanceList.length === 0 ? (
+      {!Array.isArray(attendanceList) || attendanceList.length === 0 ? (
         <View style={styles.emptyCard}>
-          <Ionicons name="calendar-outline" size={42} color={AppColors.grey} />
+          <Ionicons
+            name="calendar-outline"
+            size={42}
+            color={theme.colors.grey}
+          />
           <Text style={styles.emptyTitle}>No Attendance Records</Text>
           <Text style={styles.emptySub}>
             Scan a QR code to record your time-in, time-out, or time-other.
@@ -41,38 +44,65 @@ export const RecentAttendanceHistory: React.FC<
         </View>
       ) : (
         <View style={styles.historyList}>
-          {attendanceList.slice(0, 4).map((item) => {
+          {attendanceList.slice(0, 4).map((item, index) => {
+            if (!item || typeof item !== "object") return null;
+
             const isTimeIn = item.type === "time-in";
             const isTimeOut = item.type === "time-out";
 
             const badgeBg = isTimeIn
-              ? "#dce0fc"
+              ? `${theme.colors.primary}15`
               : isTimeOut
-                ? "#fedbdb"
-                : "#f3e8ff";
+                ? `${theme.colors.error}15`
+                : `${theme.colors.secondary}15`;
             const badgeColor = isTimeIn
-              ? "#0022ff"
+              ? theme.colors.primary
               : isTimeOut
-                ? "#ff0000"
-                : "#7e22ce";
+                ? theme.colors.error
+                : theme.colors.secondary;
 
-            const displayTime =
+            const rawTime =
               item.time ||
               (item as any).scanTime ||
-              (item.timestamp ? item.timestamp.split("T")[1]?.slice(0, 8) : "");
-            const displayDate =
+              (typeof item.timestamp === "string"
+                ? item.timestamp.split("T")[1]?.slice(0, 8)
+                : "");
+            const displayTime =
+              typeof rawTime === "object"
+                ? JSON.stringify(rawTime)
+                : String(rawTime || "—");
+
+            const rawDate =
               item.date ||
               (item as any).scanDate ||
-              (item.timestamp ? item.timestamp.split("T")[0] : "");
-            const displayStaffId =
+              (typeof item.timestamp === "string"
+                ? item.timestamp.split("T")[0]
+                : "");
+            const displayDate =
+              typeof rawDate === "object"
+                ? JSON.stringify(rawDate)
+                : String(rawDate || "—");
+
+            const rawStaffId =
               item.staff_id ||
               (item as any).userId ||
               (item as any).staffId ||
               "";
-            const displayName = item.name || "";
+            const displayStaffId =
+              typeof rawStaffId === "object"
+                ? JSON.stringify(rawStaffId)
+                : String(rawStaffId || "—");
+
+            const rawName = item.name || "";
+            const displayName =
+              typeof rawName === "object"
+                ? (rawName as any)?.name || JSON.stringify(rawName)
+                : String(rawName || "—");
+
+            const itemKey = `${item.id || "att"}_${item.timestamp || ""}_${index}`;
 
             return (
-              <View key={item.id} style={styles.historyItem}>
+              <View key={itemKey} style={styles.historyItem}>
                 <View style={styles.historyItemLeft}>
                   <View
                     style={[styles.historyBadge, { backgroundColor: badgeBg }]}
@@ -80,7 +110,7 @@ export const RecentAttendanceHistory: React.FC<
                     <Text
                       style={[styles.historyBadgeText, { color: badgeColor }]}
                     >
-                      {(item.type || "time-in").toUpperCase()}
+                      {String(item.type || "time-in").toUpperCase()}
                     </Text>
                   </View>
                   <View>
@@ -91,7 +121,9 @@ export const RecentAttendanceHistory: React.FC<
 
                 <View style={styles.historyItemRight}>
                   <Text style={styles.historyStaffName}>{displayName}</Text>
-                  <Text style={styles.historyStaffId}>ID: {displayStaffId}</Text>
+                  <Text style={styles.historyStaffId}>
+                    ID: {displayStaffId}
+                  </Text>
                 </View>
               </View>
             );
@@ -107,69 +139,69 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: theme.spacing.md,
     flexWrap: "wrap",
-    gap: 10,
-    paddingHorizontal: 15,
+    gap: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
   },
   sectionTitle: {
-    fontSize: 16,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.base,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   viewAllBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    paddingVertical: 4,
-    paddingHorizontal: 6,
+    gap: theme.spacing.xs,
+    paddingVertical: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.sm,
   },
   viewAllText: {
-    fontSize: 12.5,
-    color: AppColors.primary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.primary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   historyList: {
-    gap: 10,
+    gap: theme.spacing.sm,
   },
   historyItem: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 12,
-    padding: 14,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: AppColors.grey + 40,
-    marginHorizontal: 15,
+    borderColor: theme.colors.grey + 40,
+    marginHorizontal: theme.spacing.md,
   },
   historyItemLeft: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: theme.spacing.md,
   },
   historyBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.sm,
   },
   historyBadgeText: {
-    fontSize: 11,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   historyItemTime: {
-    fontSize: 14,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   historyItemDate: {
-    fontSize: 11,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
@@ -177,39 +209,39 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   historyStaffName: {
-    fontSize: 13,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   historyStaffId: {
-    fontSize: 11,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
   emptyCard: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
-    padding: 30,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    marginHorizontal: 15,
+    marginHorizontal: theme.spacing.md,
   },
   emptyTitle: {
-    fontSize: 15,
-    color: AppColors.textPrimary,
-    marginTop: 10,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.base,
+    color: theme.colors.textPrimary,
+    marginTop: theme.spacing.sm,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   emptySub: {
-    fontSize: 12,
-    color: AppColors.grey,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
     textAlign: "center",
-    marginTop: 4,
-    fontFamily: AppFonts.regular,
+    marginTop: theme.spacing.xs,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 });

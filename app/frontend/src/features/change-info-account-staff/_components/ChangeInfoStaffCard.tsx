@@ -1,6 +1,6 @@
-import { AppColors } from "@/constants/appcolors";
-import { extractSystemKey } from "@/constants/attendanceConfig";
-import type { StaffUser } from "@/services/userService";
+import { theme } from "@/shared/styles/theme";
+import { extractSystemKey } from "@/shared/constants/attendanceConfig";
+import type { StaffUser } from "@/shared/services/userService";
 import { getTwoInitials } from "@/utils/formatters";
 import { formatRolesList, isLeaveRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
@@ -28,7 +28,7 @@ export const ChangeInfoStaffCard: React.FC<ChangeInfoStaffCardProps> = ({
         <LinearGradient
           colors={
             isActive
-              ? [AppColors.primary, AppColors.secondary]
+              ? [theme.colors.primary, theme.colors.secondary]
               : ["#9CA3AF", "#6B7280"]
           }
           style={styles.avatarCircle}
@@ -128,7 +128,7 @@ export const ChangeInfoStaffCard: React.FC<ChangeInfoStaffCardProps> = ({
           <Ionicons
             name="create-outline"
             size={16}
-            color={AppColors.primary}
+            color={theme.colors.primary}
             style={{ marginRight: 4 }}
           />
           <Text style={styles.editBtnText}>Edit Info</Text>
@@ -140,12 +140,12 @@ export const ChangeInfoStaffCard: React.FC<ChangeInfoStaffCardProps> = ({
 
 const styles = StyleSheet.create({
   staffCard: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 14,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}25`,
+    borderColor: `${theme.colors.grey}25`,
   },
   cardHeader: {
     flexDirection: "row",
@@ -154,13 +154,13 @@ const styles = StyleSheet.create({
   avatarCircle: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: theme.borderRadius.xl,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
   },
   avatarInitials: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "700",
     color: "#fff",
   },
@@ -173,15 +173,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   staffName: {
-    fontSize: 15,
+    fontSize: theme.fontSizes.md,
     fontWeight: "700",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     flex: 1,
     marginRight: 8,
   },
   staffUsername: {
-    fontSize: 13,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
     marginTop: 1,
   },
   statusBadge: {
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 2,
     paddingHorizontal: 8,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
   },
   statusBadgeActive: {
     backgroundColor: "#dcfce7",
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   statusBadgeText: {
-    fontSize: 10,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "700",
   },
   statusBadgeTextActive: {
@@ -220,25 +220,25 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   metaBadge: {
-    backgroundColor: `${AppColors.grey}18`,
+    backgroundColor: `${theme.colors.grey}18`,
     paddingVertical: 2,
     paddingHorizontal: 6,
-    borderRadius: 4,
+    borderRadius: theme.borderRadius.xs,
   },
   metaBadgeText: {
-    fontSize: 11,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
     fontWeight: "600",
   },
   systemBadge: {
-    backgroundColor: `${AppColors.primary}18`,
+    backgroundColor: `${theme.colors.primary}18`,
     paddingVertical: 2,
     paddingHorizontal: 6,
-    borderRadius: 4,
+    borderRadius: theme.borderRadius.xs,
   },
   systemBadgeText: {
-    fontSize: 11,
-    color: AppColors.primary,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.primary,
     fontWeight: "700",
   },
   cardFooter: {
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderColor: `${AppColors.grey}15`,
+    borderColor: `${theme.colors.grey}15`,
   },
   rolesContainer: {
     flexDirection: "row",
@@ -259,10 +259,10 @@ const styles = StyleSheet.create({
   roleTag: {
     paddingVertical: 2,
     paddingHorizontal: 8,
-    borderRadius: 6,
+    borderRadius: theme.borderRadius.xs,
   },
   roleTagStaff: {
-    backgroundColor: `${AppColors.grey}20`,
+    backgroundColor: `${theme.colors.grey}20`,
   },
   roleTagAdmin: {
     backgroundColor: "#dbeafe",
@@ -271,11 +271,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fef3c7",
   },
   roleTagText: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "700",
   },
   roleTagTextStaff: {
-    color: AppColors.textSecondary,
+    color: theme.colors.textSecondary,
   },
   roleTagTextAdmin: {
     color: "#1d4ed8",
@@ -288,12 +288,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: `${AppColors.primary}15`,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: `${theme.colors.primary}15`,
   },
   editBtnText: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "700",
-    color: AppColors.primary,
+    color: theme.colors.primary,
   },
 });

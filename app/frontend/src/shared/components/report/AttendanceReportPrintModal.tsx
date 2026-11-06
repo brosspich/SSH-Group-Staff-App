@@ -1,13 +1,12 @@
+import { theme } from "@/shared/styles/theme";
 import { AttendanceRecord } from "@/app/(tabs)/attendance";
 import CustomAttendancePaper from "@/shared/components/report/CustomAttendancePaper";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
 import {
   AttendanceSummary,
   ReportMode,
   ReportType,
-} from "@/hooks/useAttendanceReportData";
-import { StaffUser } from "@/services/userService";
+} from "@/shared/hooks/useAttendanceReportData";
+import { StaffUser } from "@/shared/services/userService";
 import {
   isNativePrintBusy,
   safePrintAsync,
@@ -274,12 +273,12 @@ export function AttendanceReportPrintModal({
               disabled={isSavingPdf || isPrinting}
             >
               {isSavingPdf ? (
-                <ActivityIndicator size="small" color={AppColors.secondary} />
+                <ActivityIndicator size="small" color={theme.colors.secondary} />
               ) : (
                 <MaterialIcons
                   name="picture-as-pdf"
                   size={18}
-                  color={AppColors.secondary}
+                  color={theme.colors.secondary}
                 />
               )}
               <Text style={s.pdfBtnText}>
@@ -293,12 +292,12 @@ export function AttendanceReportPrintModal({
               disabled={isSavingPdf || isPrinting}
             >
               {isPrinting ? (
-                <ActivityIndicator color={AppColors.background2} size="small" />
+                <ActivityIndicator color={theme.colors.background2} size="small" />
               ) : (
                 <MaterialIcons
                   name="print"
                   size={17}
-                  color={AppColors.background2}
+                  color={theme.colors.background2}
                 />
               )}
               <Text style={s.printBtnText}>
@@ -318,7 +317,7 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.4)",
   },
   container: {
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     height: "88%",
   },
   header: {
@@ -327,22 +326,22 @@ const s = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     borderBottomWidth: 0.5,
-    borderBottomColor: AppColors.grey + 70,
+    borderBottomColor: theme.colors.grey + 70,
   },
   title: {
     flex: 1,
     marginRight: 10,
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   close: {
-    fontSize: 18,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.lg,
+    color: theme.colors.textPrimary,
     padding: 4,
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   previewContainer: {
@@ -360,46 +359,46 @@ const s = StyleSheet.create({
     gap: 10,
     padding: 14,
     borderTopWidth: 0.5,
-    borderColor: AppColors.grey,
+    borderColor: theme.colors.grey,
     alignItems: "center",
   },
   pdfBtn: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderWidth: 1.5,
-    borderColor: AppColors.secondary,
+    borderColor: theme.colors.secondary,
   },
   pdfBtnText: {
-    fontSize: 14,
-    color: AppColors.secondary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.secondary,
     fontWeight: "bold",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   printBtn: {
     flex: 1,
     flexDirection: "row",
     gap: 6,
-    backgroundColor: AppColors.secondary,
-    borderRadius: 10,
+    backgroundColor: theme.colors.secondary,
+    borderRadius: theme.borderRadius.md,
     paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: AppColors.secondary,
+    borderColor: theme.colors.secondary,
   },
   btnDisabled: {
     opacity: 0.6,
   },
   printBtnText: {
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "bold",
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

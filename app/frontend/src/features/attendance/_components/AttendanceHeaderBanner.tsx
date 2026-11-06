@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -21,7 +20,7 @@ export const AttendanceHeaderBanner: React.FC<AttendanceHeaderBannerProps> = ({
 }) => {
   return (
     <LinearGradient
-      colors={[AppColors.secondary, AppColors.primary]}
+      colors={[theme.colors.secondary, theme.colors.primary]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.headerCard}
@@ -66,79 +65,79 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: theme.spacing.lg,
   },
   headerSubTitle: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     color: "rgba(255,255,255,0.8)",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   headerTitle: {
-    fontSize: 22,
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xxl,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     marginTop: 2,
   },
   headerCountBadge: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.md,
   },
   headerCountText: {
-    fontSize: 12,
-    color: AppColors.background2,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 
   // Stat bar
   conStatBar: {
-    marginTop: 30,
+    marginTop: theme.spacing.xl,
   },
   bgConStatBar: {
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
     height: 30,
     position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    borderTopRightRadius: 12,
-    borderTopLeftRadius: 12,
+    borderTopRightRadius: theme.borderRadius.md,
+    borderTopLeftRadius: theme.borderRadius.md,
   },
   statBar: {
     flexDirection: "row",
-    backgroundColor: AppColors.background2,
-    borderRadius: 14,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
     alignItems: "center",
     justifyContent: "space-around",
-    marginHorizontal: 20,
+    marginHorizontal: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: AppColors.grey + 70,
+    borderColor: theme.colors.grey + 70,
   },
   statItem: {
     alignItems: "center",
   },
   statValue: {
-    fontSize: 18,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.lg,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   statLabel: {
-    fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
   statDivider: {
     width: 1,
     height: 24,
-    backgroundColor: AppColors.grey + 70,
+    backgroundColor: theme.colors.grey + 70,
   },
 });

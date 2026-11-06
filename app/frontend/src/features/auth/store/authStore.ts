@@ -1,4 +1,4 @@
-import { zustandStorage } from "@/services/storage";
+import { zustandStorage } from "@/shared/services/storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { UserProfile } from "../types/auth.types";

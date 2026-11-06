@@ -1,6 +1,6 @@
+import { theme } from "@/shared/styles/theme";
 import Appbar from "@/shared/components/appbar/appbar";
-import { AppColors } from "@/constants/appcolors";
-import { useUser } from "@/contexts/UserContext";
+import { useUser } from "@/shared/contexts/UserContext";
 import { hasAdminRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, StatusBar, StyleSheet, View } from "react-native";
@@ -124,7 +124,7 @@ export default function ReportScreen() {
   return (
     <View style={styles.safe}>
       <StatusBar
-        backgroundColor={AppColors.background}
+        backgroundColor={theme.colors.background}
         barStyle="light-content"
       />
       <Appbar />
@@ -169,7 +169,7 @@ export default function ReportScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   container: {},
 });

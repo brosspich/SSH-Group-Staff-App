@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   Modal,
@@ -102,7 +101,7 @@ export default function DeviceDetailModal({
                   <MaterialCommunityIcons
                     name="laptop"
                     size={22}
-                    color={AppColors.textSecondary}
+                    color={theme.colors.textSecondary}
                   />
                 </View>
                 <View style={styles.modalRowText}>
@@ -127,7 +126,7 @@ export default function DeviceDetailModal({
                   <Ionicons
                     name="information-circle-outline"
                     size={22}
-                    color={AppColors.textSecondary}
+                    color={theme.colors.textSecondary}
                   />
                 </View>
                 <View style={styles.modalRowText}>
@@ -145,7 +144,7 @@ export default function DeviceDetailModal({
                   <Ionicons
                     name="location-outline"
                     size={22}
-                    color={AppColors.textSecondary}
+                    color={theme.colors.textSecondary}
                   />
                 </View>
                 <View style={styles.modalRowText}>
@@ -167,7 +166,7 @@ export default function DeviceDetailModal({
                       <Ionicons
                         name="log-in-outline"
                         size={22}
-                        color={AppColors.textSecondary}
+                        color={theme.colors.textSecondary}
                       />
                     </View>
                     <View style={styles.modalRowText}>
@@ -190,7 +189,7 @@ export default function DeviceDetailModal({
                       <Ionicons
                         name="time-outline"
                         size={22}
-                        color={AppColors.textSecondary}
+                        color={theme.colors.textSecondary}
                       />
                     </View>
                     <View style={styles.modalRowText}>
@@ -229,8 +228,8 @@ export default function DeviceDetailModal({
                 style={[
                   styles.terminateBtn,
                   {
-                    backgroundColor: AppColors.background2,
-                    borderColor: AppColors.secondary,
+                    backgroundColor: theme.colors.background2,
+                    borderColor: theme.colors.secondary,
                   },
                 ]}
                 onPress={onClose}
@@ -239,7 +238,7 @@ export default function DeviceDetailModal({
                 <Text
                   style={[
                     styles.terminateBtnText,
-                    { color: AppColors.secondary },
+                    { color: theme.colors.secondary },
                   ]}
                 >
                   Close
@@ -251,8 +250,8 @@ export default function DeviceDetailModal({
                   style={[
                     styles.terminateBtn,
                     {
-                      backgroundColor: AppColors.background2,
-                      borderColor: AppColors.secondary,
+                      backgroundColor: theme.colors.background2,
+                      borderColor: theme.colors.secondary,
                     },
                   ]}
                   onPress={onClose}
@@ -261,7 +260,7 @@ export default function DeviceDetailModal({
                   <Text
                     style={[
                       styles.terminateBtnText,
-                      { color: AppColors.secondary },
+                      { color: theme.colors.secondary },
                     ]}
                   >
                     Cancel
@@ -290,7 +289,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalSheet: {
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -300,17 +299,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalDeviceName: {
-    fontSize: 18,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.lg,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginTop: 12,
     textAlign: "center",
   },
   modalStatusTime: {
-    fontSize: 13,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 4,
   },
@@ -319,8 +318,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   modalList: {
-    backgroundColor: AppColors.background,
-    borderRadius: 14,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.lg,
     overflow: "hidden",
     marginBottom: 20,
   },
@@ -340,15 +339,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   modalRowTitle: {
-    fontSize: 14,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   modalRowSub: {
-    fontSize: 12,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
   },
@@ -364,18 +363,18 @@ const styles = StyleSheet.create({
   },
   terminateBtn: {
     flex: 1,
-    backgroundColor: AppColors.red,
+    backgroundColor: theme.colors.red,
     height: 48,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1.5,
-    borderColor: AppColors.red,
+    borderColor: theme.colors.red,
     alignItems: "center",
     justifyContent: "center",
   },
   terminateBtnText: {
-    color: AppColors.background2,
-    fontSize: 14,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.background2,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

@@ -1,7 +1,7 @@
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
-import { AppColors } from "@/constants/appcolors";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { isOwnerRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -113,7 +113,7 @@ export default function CreateAccountStaffScreen() {
           {/* Error Banner */}
           {errorMessage && (
             <View style={styles.errorBanner}>
-              <Ionicons name="alert-circle" size={20} color={AppColors.red} />
+              <Ionicons name="alert-circle" size={20} color={theme.colors.red} />
               <Text style={styles.errorBannerText}>{errorMessage}</Text>
             </View>
           )}
@@ -203,7 +203,7 @@ export default function CreateAccountStaffScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   scrollContent: {
     padding: 16,
@@ -215,23 +215,23 @@ const styles = StyleSheet.create({
   errorBanner: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: `${AppColors.red}20`,
+    backgroundColor: `${theme.colors.red}20`,
     borderWidth: 1,
-    borderColor: AppColors.red,
-    borderRadius: 10,
+    borderColor: theme.colors.red,
+    borderRadius: theme.borderRadius.md,
     padding: 12,
     marginBottom: 16,
     gap: 8,
   },
   errorBannerText: {
     flex: 1,
-    fontSize: 13,
-    color: AppColors.red,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.red,
     fontWeight: "600",
   },
   createBtn: {
-    backgroundColor: AppColors.primary,
-    borderRadius: 12,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.md,
     height: 50,
     justifyContent: "center",
     alignItems: "center",
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   createBtnText: {
-    fontSize: 15,
+    fontSize: theme.fontSizes.md,
     fontWeight: "700",
     color: "#fff",
   },

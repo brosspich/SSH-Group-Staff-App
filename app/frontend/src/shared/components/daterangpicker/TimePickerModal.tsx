@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
@@ -169,7 +168,7 @@ export default function TimePickerModal({
                 <Ionicons
                   name="time-outline"
                   size={20}
-                  color={AppColors.primary}
+                  color={theme.colors.primary}
                 />
               </View>
               <Text style={s.headerTitle}>Select Time</Text>
@@ -182,7 +181,7 @@ export default function TimePickerModal({
               <MaterialIcons
                 name="close"
                 size={22}
-                color={AppColors.textSecondary}
+                color={theme.colors.textSecondary}
               />
             </TouchableOpacity>
           </View>
@@ -286,7 +285,7 @@ export default function TimePickerModal({
                   <Ionicons
                     name="refresh-outline"
                     size={14}
-                    color={AppColors.primary}
+                    color={theme.colors.primary}
                   />
                   <Text style={s.presetChipNowText}>Now</Text>
                 </TouchableOpacity>
@@ -337,7 +336,7 @@ export default function TimePickerModal({
                     <Ionicons
                       name="remove"
                       size={16}
-                      color={AppColors.textPrimary}
+                      color={theme.colors.textPrimary}
                     />
                   </TouchableOpacity>
                   <Text style={s.stepperValue}>
@@ -351,7 +350,7 @@ export default function TimePickerModal({
                     <Ionicons
                       name="add"
                       size={16}
-                      color={AppColors.textPrimary}
+                      color={theme.colors.textPrimary}
                     />
                   </TouchableOpacity>
                 </View>
@@ -404,7 +403,7 @@ export default function TimePickerModal({
               <Ionicons
                 name="checkmark"
                 size={18}
-                color={AppColors.background2}
+                color={theme.colors.background2}
                 style={{ marginRight: 6 }}
               />
               <Text style={s.confirmBtnText}>Set Time</Text>
@@ -426,14 +425,14 @@ const s = StyleSheet.create({
     ...StyleSheet.absoluteFill,
   },
   sheet: {
-    backgroundColor: AppColors.background2,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    backgroundColor: theme.colors.background2,
+    borderTopLeftRadius: theme.borderRadius.xl,
+    borderTopRightRadius: theme.borderRadius.xl,
     paddingTop: 16,
     maxHeight: "85%",
   },
   sheetDesktop: {
-    borderRadius: 24,
+    borderRadius: theme.borderRadius.xl,
     width: 440,
     maxWidth: "94%",
     paddingBottom: 20,
@@ -456,20 +455,20 @@ const s = StyleSheet.create({
   iconBadge: {
     width: 36,
     height: 36,
-    borderRadius: 10,
-    backgroundColor: `${AppColors.primary}18`,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: `${theme.colors.primary}18`,
     alignItems: "center",
     justifyContent: "center",
   },
   headerTitle: {
-    fontSize: 18,
-    fontFamily: AppFonts.bold,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.lg,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
     includeFontPadding: false,
   },
   closeBtn: {
     padding: 6,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: "rgba(0,0,0,0.04)",
   },
   scrollBody: {
@@ -481,12 +480,12 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: `${AppColors.primary}0D`,
+    backgroundColor: `${theme.colors.primary}0D`,
     borderRadius: 18,
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: `${AppColors.primary}25`,
+    borderColor: `${theme.colors.primary}25`,
     marginBottom: 16,
   },
   timeDisplayBox: {
@@ -494,19 +493,19 @@ const s = StyleSheet.create({
   },
   timeDisplayText: {
     fontSize: 34,
-    fontFamily: AppFonts.bold,
-    color: AppColors.primary,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.primary,
     letterSpacing: 1,
     includeFontPadding: false,
   },
   timeColon: {
-    color: AppColors.textSecondary,
+    color: theme.colors.textSecondary,
     fontSize: 30,
   },
   periodToggle: {
     flexDirection: "row",
     backgroundColor: "rgba(0,0,0,0.06)",
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     padding: 3,
     gap: 4,
   },
@@ -516,21 +515,21 @@ const s = StyleSheet.create({
     borderRadius: 9,
   },
   periodBtnActive: {
-    backgroundColor: AppColors.primary,
-    shadowColor: AppColors.primary,
+    backgroundColor: theme.colors.primary,
+    shadowColor: theme.colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3,
     elevation: 3,
   },
   periodText: {
-    fontSize: 14,
-    fontFamily: AppFonts.bold,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textSecondary,
     includeFontPadding: false,
   },
   periodTextActive: {
-    color: AppColors.background2,
+    color: theme.colors.background2,
   },
   presetSection: {
     marginBottom: 16,
@@ -539,9 +538,9 @@ const s = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 13,
-    fontFamily: AppFonts.bold,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textSecondary,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 8,
@@ -557,7 +556,7 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.04)",
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     paddingHorizontal: 4,
     paddingVertical: 2,
     gap: 8,
@@ -565,16 +564,16 @@ const s = StyleSheet.create({
   stepperBtn: {
     width: 26,
     height: 26,
-    borderRadius: 8,
-    backgroundColor: AppColors.background2,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background2,
     alignItems: "center",
     justifyContent: "center",
     elevation: 1,
   },
   stepperValue: {
-    fontSize: 13,
-    fontFamily: AppFonts.bold,
-    color: AppColors.primary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.primary,
     includeFontPadding: false,
   },
   presetRow: {
@@ -586,33 +585,33 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.04)",
     paddingHorizontal: 12,
     paddingVertical: 7,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.04)",
     alignItems: "center",
   },
   presetChipActive: {
-    backgroundColor: `${AppColors.primary}1A`,
-    borderColor: AppColors.primary,
+    backgroundColor: `${theme.colors.primary}1A`,
+    borderColor: theme.colors.primary,
   },
   presetChipLabel: {
-    fontSize: 13,
-    fontFamily: AppFonts.bold,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
     includeFontPadding: false,
   },
   presetChipLabelActive: {
-    color: AppColors.primary,
+    color: theme.colors.primary,
   },
   presetChipSub: {
-    fontSize: 10,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.regular,
     marginTop: 2,
     includeFontPadding: false,
   },
   presetChipSubActive: {
-    color: AppColors.primary,
+    color: theme.colors.primary,
   },
   presetChipNow: {
     flexDirection: "row",
@@ -620,15 +619,15 @@ const s = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    borderColor: `${AppColors.primary}40`,
-    backgroundColor: `${AppColors.primary}0D`,
+    borderColor: `${theme.colors.primary}40`,
+    backgroundColor: `${theme.colors.primary}0D`,
   },
   presetChipNowText: {
-    fontSize: 13,
-    fontFamily: AppFonts.bold,
-    color: AppColors.primary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.primary,
     includeFontPadding: false,
   },
   gridContainer: {
@@ -643,25 +642,25 @@ const s = StyleSheet.create({
   gridCell: {
     flex: 1,
     height: 40,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: "rgba(0,0,0,0.04)",
     alignItems: "center",
     justifyContent: "center",
   },
   gridCellActive: {
-    backgroundColor: AppColors.primary,
-    shadowColor: AppColors.primary,
+    backgroundColor: theme.colors.primary,
+    shadowColor: theme.colors.primary,
   },
   gridCellText: {
-    fontSize: 13.5,
-    fontFamily: AppFonts.bold,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
     includeFontPadding: false,
     textAlign: "center",
     textAlignVertical: "center",
   },
   gridCellTextActive: {
-    color: AppColors.background2,
+    color: theme.colors.background2,
   },
   footer: {
     flexDirection: "row",
@@ -674,38 +673,38 @@ const s = StyleSheet.create({
   },
   cancelBtn: {
     flex: 1,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     paddingVertical: 12,
-    backgroundColor: `${AppColors.grey}15`,
+    backgroundColor: `${theme.colors.grey}15`,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: `${AppColors.grey}30`,
+    borderColor: `${theme.colors.grey}30`,
   },
   cancelBtnText: {
-    fontSize: 14,
-    fontFamily: AppFonts.bold,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
     includeFontPadding: false,
   },
   confirmBtn: {
     flex: 2,
     flexDirection: "row",
     paddingVertical: 12,
-    borderRadius: 12,
-    backgroundColor: AppColors.secondary,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.secondary,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: AppColors.secondary,
+    shadowColor: theme.colors.secondary,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 3,
   },
   confirmBtnText: {
-    fontSize: 14,
-    fontFamily: AppFonts.bold,
-    color: AppColors.background2,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.background2,
     includeFontPadding: false,
   },
 });

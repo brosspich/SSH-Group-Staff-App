@@ -1,6 +1,6 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import { PrivacyPolicyModal } from "@/features/login/_components/PrivacyPolicyModal";
-import { useResponsive } from "@/hooks/useResponsive";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useState } from "react";
@@ -73,9 +73,9 @@ export default function LoginScreen() {
       <View style={styles.container}>
         <LinearGradient
           colors={[
-            AppColors.secondary,
-            AppColors.background,
-            AppColors.secondary,
+            theme.colors.secondary,
+            theme.colors.background,
+            theme.colors.secondary,
           ]}
           start={{ x: 1, y: 0 }}
           end={{ x: 0, y: 1 }}
@@ -126,7 +126,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   gradient: {
     flex: 1,
@@ -144,13 +144,13 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   conDesign: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 15,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     width: "100%",
     paddingHorizontal: 20,
     alignItems: "center",
     justifyContent: "center",
-    borderColor: AppColors.secondary,
+    borderColor: theme.colors.secondary,
     borderWidth: 1.5,
   },
 });

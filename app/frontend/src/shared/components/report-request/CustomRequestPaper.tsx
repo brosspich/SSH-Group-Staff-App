@@ -1,12 +1,12 @@
-import { AppFonts } from "@/constants/appfonts";
-import { getCompanyName } from "@/constants/attendanceConfig";
+import { theme } from "@/shared/styles/theme";
+import { getCompanyName } from "@/shared/constants/attendanceConfig";
 import {
   ReportMode,
   ReportType,
   RequestSummary,
-} from "@/hooks/useAttendanceRequestReportData";
-import { AttendanceRequestRuleItem } from "@/services/attendanceRequestService";
-import { StaffUser } from "@/services/userService";
+} from "@/shared/hooks/useAttendanceRequestReportData";
+import { AttendanceRequestRuleItem } from "@/shared/services/attendanceRequestService";
+import { StaffUser } from "@/shared/services/userService";
 import { StyleSheet, Text, View } from "react-native";
 
 interface CustomRequestPaperProps {
@@ -225,7 +225,7 @@ export default function CustomRequestPaper({
 const styles = StyleSheet.create({
   paperContainer: {
     backgroundColor: "#ffffff",
-    borderRadius: 8,
+    borderRadius: theme.borderRadius.sm,
     padding: 16,
     borderWidth: 1,
     borderColor: "#e2e8f0",
@@ -240,30 +240,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   companyTitle: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "bold",
     color: "#0f172a",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   reportTitle: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     color: "#334155",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     marginTop: 2,
     includeFontPadding: false,
   },
   periodText: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     color: "#64748b",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     marginTop: 2,
     includeFontPadding: false,
   },
   generatedAt: {
     fontSize: 9.5,
     color: "#94a3b8",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   divider: {
@@ -275,26 +275,26 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8fafc",
     borderWidth: 1,
     borderColor: "#cbd5e1",
-    borderRadius: 6,
+    borderRadius: theme.borderRadius.xs,
     paddingVertical: 7,
     paddingHorizontal: 10,
     marginBottom: 12,
   },
   staffInfoText: {
-    fontSize: 10.5,
+    fontSize: theme.fontSizes.xs,
     color: "#1e293b",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   staffInfoLabel: {
     fontWeight: "bold",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   table: {
     borderWidth: 1,
     borderColor: "#cbd5e1",
-    borderRadius: 6,
+    borderRadius: theme.borderRadius.xs,
     overflow: "hidden",
   },
   tableHeader: {
@@ -307,10 +307,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   thCell: {
-    fontSize: 10,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "bold",
     color: "#334155",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   tableRow: {
@@ -325,27 +325,27 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8fafc",
   },
   tdCell: {
-    fontSize: 10,
+    fontSize: theme.fontSizes.xs,
     color: "#334155",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   timeSubText: {
     fontSize: 9,
     color: "#64748b",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     marginTop: 1,
     includeFontPadding: false,
   },
   badge: {
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 4,
+    borderRadius: theme.borderRadius.xs,
   },
   badgeText: {
     fontSize: 8.5,
     fontWeight: "bold",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   emptyContainer: {
@@ -353,9 +353,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     color: "#94a3b8",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   tableFooter: {
@@ -368,17 +368,17 @@ const styles = StyleSheet.create({
     borderTopColor: "#94a3b8",
   },
   tfLabel: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "bold",
     color: "#0f172a",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   tfValue: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "bold",
     color: "#0f172a",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

@@ -1,6 +1,5 @@
+import { theme } from "@/shared/styles/theme";
 import LaptopGraphic from "@/features/devices/_components/LaptopGraphic";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function DevicesBannerCard() {
@@ -19,8 +18,8 @@ export default function DevicesBannerCard() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     overflow: "hidden",
     marginBottom: 16,
     borderWidth: 1,
@@ -33,18 +32,18 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   graphicTitle: {
-    fontSize: 14,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
     textAlign: "center",
     marginTop: 8,
     lineHeight: 20,
     maxWidth: 290,
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   highlightText: {
-    color: AppColors.secondary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.secondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

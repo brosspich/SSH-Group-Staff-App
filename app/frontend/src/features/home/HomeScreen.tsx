@@ -1,30 +1,30 @@
-import { AppColors } from "@/constants/appcolors";
+import EditAttendanceModal from "@/features/home/_components/EditAttendanceModal";
+import { RequestAttendanceModal } from "@/features/home/_components/RequestAttendanceModal";
+import ScannerModal from "@/features/home/_components/ScannerModal";
+import SuccessConfirmationModal from "@/features/home/_components/SuccessConfirmationModal";
+import { renderAlertModal } from "@/shared/components/alert/alert";
+import AppBarGlass from "@/shared/components/appbar/AppBarGlass";
+import Loading from "@/shared/components/loading/loading";
 import {
   calculateAttendanceType,
   fetchOfficialAttendanceConfig,
   getTimeWindowDisplay,
-} from "@/constants/attendanceConfig";
-import { RequestAttendanceModal } from "@/features/home/_components/RequestAttendanceModal";
-import ScannerModal from "@/features/home/_components/ScannerModal";
-import SuccessConfirmationModal from "@/features/home/_components/SuccessConfirmationModal";
-import { useResponsive } from "@/hooks/useResponsive";
-import { apiClient } from "@/services/api";
+} from "@/shared/constants/attendanceConfig";
+import { useResponsive } from "@/shared/hooks/useResponsive";
+import { apiClient } from "@/shared/services/api";
 import {
   scanAttendanceWithSecurity,
   submitAttendanceRecord,
   verifyAttendanceSecurity,
-} from "@/services/locationService";
-import { StaffUser, userService } from "@/services/userService";
-import { renderAlertModal } from "@/shared/components/alert/alert";
-import AppBarGlass from "@/shared/components/appbar/AppBarGlass";
-import Loading from "@/shared/components/loading/loading";
+} from "@/shared/services/locationService";
+import { StaffUser, userService } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { useCameraPermissions } from "expo-camera";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Platform,
   RefreshControl,
   ScrollView,
@@ -72,10 +72,27 @@ export default function HomeScreen() {
   const [invalidQrModalVisible, setInvalidQrModalVisible] = useState(false);
   const [requestModalVisible, setRequestModalVisible] = useState(false);
 
+  // General alert modal state (shared alert component)
+  const [generalAlert, setGeneralAlert] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+  });
+
+  const showGeneralAlert = (title: string, message: string) => {
+    setGeneralAlert({ visible: true, title, message });
+  };
+
   // Success result modal
   const [lastRecord, setLastRecord] = useState<AttendanceRecord | null>(null);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const [savingAttendance, setSavingAttendance] = useState(false);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [submittingEdit, setSubmittingEdit] = useState(false);
 
   const [permission, requestPermission] = useCameraPermissions();
   const { isMobile } = useResponsive();
@@ -162,7 +179,7 @@ export default function HomeScreen() {
       if (!permission?.granted) {
         const { status } = await requestPermission();
         if (status !== "granted") {
-          Alert.alert(
+          showGeneralAlert(
             "Camera Access Needed",
             "Please allow camera access in Settings to scan QR code.",
           );
@@ -275,7 +292,7 @@ export default function HomeScreen() {
         }, 350);
       }
     } catch (e: any) {
-      Alert.alert(
+      showGeneralAlert(
         "Scan Error",
         e?.message || "Failed to process attendance scan. Please try again.",
       );
@@ -316,13 +333,20 @@ export default function HomeScreen() {
           qr_data: result.record.qr_data,
         };
 
-        // Append to local attendance history
-        setAttendanceList((prev) => [savedRec, ...prev]);
+        // Append / Update local attendance history without duplicates
+        setAttendanceList((prev) => {
+          const filtered = prev.filter((r) => r.id !== savedRec.id);
+          return [savedRec, ...filtered];
+        });
 
         // Sync local cache
+        const nextList = [
+          savedRec,
+          ...attendanceList.filter((r) => r.id !== savedRec.id),
+        ];
         const updatedUser: StaffUser = {
           ...user,
-          attendance: [savedRec, ...attendanceList],
+          attendance: nextList,
         };
         setUser(updatedUser);
         userService.save(updatedUser).catch(() => {});
@@ -335,12 +359,87 @@ export default function HomeScreen() {
         setLastRecord(null);
       }
     } catch (e: any) {
-      Alert.alert(
+      showGeneralAlert(
         "Submission Error",
         e?.message || "Failed to submit attendance. Please try again.",
       );
     } finally {
       setSavingAttendance(false);
+      isScanningRef.current = false;
+      setScanned(false);
+    }
+  };
+
+  const handleEditAttendanceSubmit = async (data: {
+    type: "time-in" | "time-out";
+    remark: string;
+    image: string;
+  }) => {
+    if (!lastRecord || !user?.id) return;
+
+    try {
+      setSubmittingEdit(true);
+
+      const result = await submitAttendanceRecord({
+        userId: user.id,
+        systemId: user.system_id || lastRecord.system_id,
+        qrData: lastRecord.qr_data || "",
+        date: lastRecord.date,
+        time: lastRecord.time,
+        type: data.type,
+        timestamp: lastRecord.timestamp,
+        name: lastRecord.name,
+        remark: data.remark,
+        image: data.image,
+      });
+
+      if (result?.record) {
+        const savedRec: AttendanceRecord = {
+          id: result.record.id,
+          staff_id: result.record.staff_id,
+          system_id: result.record.system_id,
+          name: result.record.name,
+          date: result.record.date,
+          time: result.record.time,
+          type: result.record.type,
+          timestamp: result.record.timestamp,
+          qr_data: result.record.qr_data,
+          remark: result.record.remark,
+          image: result.record.image,
+        };
+
+        setAttendanceList((prev) => {
+          const filtered = prev.filter((r) => r.id !== savedRec.id);
+          return [savedRec, ...filtered];
+        });
+
+        const nextList = [
+          savedRec,
+          ...attendanceList.filter((r) => r.id !== savedRec.id),
+        ];
+        const updatedUser: StaffUser = {
+          ...user,
+          attendance: nextList,
+        };
+        setUser(updatedUser);
+        userService.save(updatedUser).catch(() => {});
+
+        if (Platform.OS !== "web") {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        }
+
+        setEditModalVisible(false);
+        setSuccessModalVisible(false);
+        setLastRecord(null);
+      }
+    } catch (e: any) {
+      showGeneralAlert(
+        "Submission Error",
+        e?.message ||
+          "Failed to submit attendance adjustment. Please try again.",
+      );
+    } finally {
+      setSubmittingEdit(false);
       isScanningRef.current = false;
       setScanned(false);
     }
@@ -361,7 +460,7 @@ export default function HomeScreen() {
     return (
       <>
         <StatusBar
-          backgroundColor={AppColors.secondary}
+          backgroundColor={theme.colors.secondary}
           barStyle="light-content"
         />
         <View style={styles.safe}>
@@ -387,7 +486,7 @@ export default function HomeScreen() {
   return (
     <View style={styles.safe}>
       <StatusBar
-        backgroundColor={AppColors.background}
+        backgroundColor={theme.colors.background}
         barStyle="light-content"
       />
       <AppBarGlass />
@@ -399,15 +498,15 @@ export default function HomeScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={AppColors.primary}
-            colors={[AppColors.primary]}
+            tintColor={theme.colors.primary}
+            colors={[theme.colors.primary]}
           />
         }
       >
         <View style={styles.container}>
           {/* ── Welcome Banner Card ── */}
           <LinearGradient
-            colors={[AppColors.secondary, AppColors.primary]}
+            colors={[theme.colors.secondary, theme.colors.primary]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[styles.bannerCard, { paddingTop: 65 + insets.top }]}
@@ -466,11 +565,27 @@ export default function HomeScreen() {
         savingAttendance={savingAttendance}
         lastRecord={lastRecord}
         onConfirm={handleConfirmAttendance}
+        onEdit={() => {
+          setSuccessModalVisible(false);
+          setEditModalVisible(true);
+        }}
         onClose={() => {
           setSuccessModalVisible(false);
           setLastRecord(null);
           isScanningRef.current = false;
           setScanned(false);
+        }}
+      />
+
+      {/* ── Edit Attendance Modal ── */}
+      <EditAttendanceModal
+        visible={editModalVisible}
+        submitting={submittingEdit}
+        record={lastRecord}
+        onSubmit={handleEditAttendanceSubmit}
+        onClose={() => {
+          setEditModalVisible(false);
+          setSuccessModalVisible(true);
         }}
       />
 
@@ -512,6 +627,16 @@ export default function HomeScreen() {
         isMobile,
       })}
 
+      {/* ── General Alert Modal ── */}
+      {renderAlertModal({
+        alertModalVisible: generalAlert.visible,
+        setAlertModalVisible: (visible) =>
+          setGeneralAlert((prev) => ({ ...prev, visible })),
+        title: generalAlert.title,
+        bodyTxt: generalAlert.message,
+        isMobile,
+      })}
+
       {/* ── Request Attendance Modal ── */}
       <RequestAttendanceModal
         visible={requestModalVisible}
@@ -525,7 +650,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   centered: {
     flex: 1,

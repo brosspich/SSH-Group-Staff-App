@@ -1,4 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -41,7 +41,7 @@ export const CreateAccountStaffCredentials: React.FC<
           <Ionicons
             name="at"
             size={20}
-            color={AppColors.grey}
+            color={theme.colors.grey}
             style={styles.fieldIcon}
           />
           <TextInput
@@ -51,7 +51,7 @@ export const CreateAccountStaffCredentials: React.FC<
               setUsername(val.toLowerCase().replace(/\s/g, ""))
             }
             placeholder="lowercase username, no spaces"
-            placeholderTextColor={AppColors.grey}
+            placeholderTextColor={theme.colors.grey}
             autoCapitalize="none"
             autoCorrect={false}
           />
@@ -67,7 +67,7 @@ export const CreateAccountStaffCredentials: React.FC<
           <Ionicons
             name="lock-closed-outline"
             size={20}
-            color={AppColors.grey}
+            color={theme.colors.grey}
             style={styles.fieldIcon}
           />
           <TextInput
@@ -75,7 +75,7 @@ export const CreateAccountStaffCredentials: React.FC<
             value={password}
             onChangeText={setPassword}
             placeholder="Minimum 6 characters"
-            placeholderTextColor={AppColors.grey}
+            placeholderTextColor={theme.colors.grey}
             secureTextEntry={!showPassword}
             autoCapitalize="none"
             autoCorrect={false}
@@ -87,7 +87,7 @@ export const CreateAccountStaffCredentials: React.FC<
             <Ionicons
               name={showPassword ? "eye-off-outline" : "eye-outline"}
               size={20}
-              color={AppColors.grey}
+              color={theme.colors.grey}
             />
           </TouchableOpacity>
         </View>
@@ -98,38 +98,38 @@ export const CreateAccountStaffCredentials: React.FC<
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 14,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}25`,
+    borderColor: `${theme.colors.grey}25`,
   },
   cardSectionTitle: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "700",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginBottom: 14,
   },
   fieldGroup: {
     marginBottom: 14,
   },
   label: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginBottom: 6,
   },
   requiredStar: {
-    color: AppColors.red,
+    color: theme.colors.red,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: `${AppColors.grey}15`,
-    borderRadius: 10,
+    backgroundColor: `${theme.colors.grey}15`,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}30`,
+    borderColor: `${theme.colors.grey}30`,
     paddingHorizontal: 12,
     height: 46,
   },
@@ -138,8 +138,8 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontSize: 14,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
   },
   eyeBtn: {
     padding: 6,

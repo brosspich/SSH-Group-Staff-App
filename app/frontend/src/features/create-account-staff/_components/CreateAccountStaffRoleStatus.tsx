@@ -1,4 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -51,7 +51,7 @@ export const CreateAccountStaffRoleStatus: React.FC<
               <Ionicons
                 name={isSelected ? "checkbox" : "square-outline"}
                 size={18}
-                color={isSelected ? "#fff" : AppColors.grey}
+                color={isSelected ? "#fff" : theme.colors.grey}
                 style={{ marginRight: 6 }}
               />
               <Text
@@ -78,7 +78,7 @@ export const CreateAccountStaffRoleStatus: React.FC<
         <Switch
           value={isActive}
           onValueChange={setIsActive}
-          trackColor={{ false: "#D1D5DB", true: AppColors.primary }}
+          trackColor={{ false: "#D1D5DB", true: theme.colors.primary }}
           thumbColor="#fff"
         />
       </View>
@@ -90,7 +90,7 @@ export const CreateAccountStaffRoleStatus: React.FC<
           <Ionicons
             name="calendar-outline"
             size={20}
-            color={AppColors.grey}
+            color={theme.colors.grey}
             style={styles.fieldIcon}
           />
           <TextInput
@@ -98,7 +98,7 @@ export const CreateAccountStaffRoleStatus: React.FC<
             value={joinedDate}
             onChangeText={setJoinedDate}
             placeholder="YYYY/MM/DD"
-            placeholderTextColor={AppColors.grey}
+            placeholderTextColor={theme.colors.grey}
           />
         </View>
       </View>
@@ -108,26 +108,26 @@ export const CreateAccountStaffRoleStatus: React.FC<
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 14,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}25`,
+    borderColor: `${theme.colors.grey}25`,
   },
   cardSectionTitle: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "700",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginBottom: 14,
   },
   fieldGroup: {
     marginBottom: 14,
   },
   label: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginBottom: 6,
   },
   rolesRow: {
@@ -140,19 +140,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 8,
     paddingHorizontal: 14,
-    borderRadius: 8,
-    backgroundColor: `${AppColors.grey}15`,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: `${theme.colors.grey}15`,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}30`,
+    borderColor: `${theme.colors.grey}30`,
   },
   roleBadgeBtnActive: {
-    backgroundColor: AppColors.primary,
-    borderColor: AppColors.primary,
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
   },
   roleBadgeText: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: AppColors.textSecondary,
+    color: theme.colors.textSecondary,
   },
   roleBadgeTextActive: {
     color: "#fff",
@@ -164,25 +164,25 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: `${AppColors.grey}20`,
+    borderColor: `${theme.colors.grey}20`,
   },
   switchLabel: {
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
   },
   switchSub: {
-    fontSize: 12,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
     marginTop: 2,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: `${AppColors.grey}15`,
-    borderRadius: 10,
+    backgroundColor: `${theme.colors.grey}15`,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}30`,
+    borderColor: `${theme.colors.grey}30`,
     paddingHorizontal: 12,
     height: 46,
   },
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontSize: 14,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
   },
 });

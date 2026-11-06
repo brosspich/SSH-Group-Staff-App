@@ -2,9 +2,9 @@ import {
   ReportMode,
   ReportType,
   RequestSummary,
-} from "@/hooks/useAttendanceRequestReportData";
-import { AttendanceRequestRuleItem } from "@/services/attendanceRequestService";
-import { StaffUser } from "@/services/userService";
+} from "@/shared/hooks/useAttendanceRequestReportData";
+import { AttendanceRequestRuleItem } from "@/shared/services/attendanceRequestService";
+import { StaffUser } from "@/shared/services/userService";
 import { buildTotalRequestHtml } from "./BuildTotalRequestHtml";
 
 export { buildTotalRequestHtml } from "./BuildTotalRequestHtml";

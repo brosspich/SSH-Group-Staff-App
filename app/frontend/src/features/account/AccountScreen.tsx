@@ -1,8 +1,8 @@
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
 import { renderLogoutModal } from "@/shared/components/logout/logoutModal";
-import { AppColors } from "@/constants/appcolors";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { AccountInfoCard } from "./_components/AccountInfoCard";
 import { AccountProfileHeader } from "./_components/AccountProfileHeader";
@@ -39,8 +39,8 @@ export default function AccountScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={AppColors.secondary}
-            colors={[AppColors.secondary]}
+            tintColor={theme.colors.secondary}
+            colors={[theme.colors.secondary]}
           />
         }
       >
@@ -67,7 +67,7 @@ export default function AccountScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   centered: {
     flex: 1,

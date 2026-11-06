@@ -1,7 +1,6 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
-import { StaffUser, userService } from "@/services/userService";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
+import { StaffUser, userService } from "@/shared/services/userService";
 import { hashPassword } from "@/utils/passwordUtils";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
@@ -131,7 +130,7 @@ export const EditFieldModal: React.FC<EditFieldModalProps> = ({
                   setValue(nextVal);
                 }}
                 placeholder={config.placeholder}
-                placeholderTextColor={AppColors.grey}
+                placeholderTextColor={theme.colors.grey}
                 autoCapitalize={config.autoCapitalize ?? "sentences"}
                 autoCorrect={false}
                 keyboardType={config.keyboardType}
@@ -147,7 +146,7 @@ export const EditFieldModal: React.FC<EditFieldModalProps> = ({
                   <MaterialIcons
                     name={showPassword ? "visibility-off" : "visibility"}
                     size={20}
-                    color={AppColors.grey}
+                    color={theme.colors.grey}
                   />
                 </TouchableOpacity>
               )}
@@ -187,82 +186,82 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
+    padding: theme.spacing.lg,
   },
   container: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 16,
-    padding: 20,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
   },
   title: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "700",
-    color: AppColors.textPrimary,
-    marginBottom: 16,
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.md,
     textAlign: "center",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   field: {
-    marginBottom: 14,
+    marginBottom: theme.spacing.md,
   },
   input: {
     borderWidth: 1,
-    borderColor: AppColors.secondary,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.regular,
+    borderColor: theme.colors.secondary,
+    borderRadius: theme.borderRadius.sm,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   inputError: {
-    borderColor: AppColors.red,
+    borderColor: theme.colors.error,
   },
   errorText: {
-    color: AppColors.red,
-    fontSize: 12,
-    marginTop: 4,
-    fontFamily: AppFonts.regular,
+    color: theme.colors.error,
+    fontSize: theme.fontSizes.xs,
+    marginTop: theme.spacing.xs,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   eyeBtn: {
     position: "absolute",
-    right: 12,
+    right: theme.spacing.md,
     height: "100%",
     justifyContent: "center",
   },
   actions: {
     flexDirection: "row",
-    gap: 10,
-    marginTop: 8,
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.sm,
   },
   btn: {
     flex: 1,
-    borderRadius: 10,
-    paddingVertical: 12,
+    borderRadius: theme.borderRadius.sm,
+    paddingVertical: theme.spacing.md,
     alignItems: "center",
     justifyContent: "center",
   },
   cancelBtn: {
     backgroundColor: "transparent",
     borderWidth: 1.5,
-    borderColor: AppColors.secondary,
+    borderColor: theme.colors.secondary,
   },
   cancelText: {
-    color: AppColors.secondary,
+    color: theme.colors.secondary,
     fontWeight: "600",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   saveBtn: {
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
   },
   saveText: {
     color: "#fff",
     fontWeight: "700",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

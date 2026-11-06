@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { CameraView, type BarcodeSettings } from "expo-camera";
@@ -122,7 +121,7 @@ function ScannerModal({
         {/* ── 1. Full-screen Camera Preview (Rendered FIRST as the background) ── */}
         {Platform.OS === "web" ? (
           <View style={styles.webFallbackContainer}>
-            <Ionicons name="camera-outline" size={60} color={AppColors.grey} />
+            <Ionicons name="camera-outline" size={60} color={theme.colors.grey} />
             <Text style={styles.webFallbackTitle}>Web Camera Preview</Text>
             <Text style={styles.webFallbackSub}>
               Camera QR scanning requires an iOS or Android device.
@@ -185,7 +184,7 @@ function ScannerModal({
             onPress={onClose}
             activeOpacity={0.7}
           >
-            <Ionicons name="close" size={24} color={AppColors.background2} />
+            <Ionicons name="close" size={24} color={theme.colors.background2} />
           </TouchableOpacity>
 
           <Text style={styles.modalHeaderTitle}>Scan Attendance</Text>
@@ -198,7 +197,7 @@ function ScannerModal({
             <Ionicons
               name={torchOn ? "flash" : "flash-outline"}
               size={22}
-              color={torchOn ? "#FACC15" : AppColors.background2}
+              color={torchOn ? "#FACC15" : theme.colors.background2}
             />
           </TouchableOpacity>
         </BlurView>
@@ -223,16 +222,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingBottom: 8,
+    paddingHorizontal: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
     overflow: "hidden",
-    // borderBottomWidth: 0.5,
-    // borderBottomColor: "rgba(255, 255, 255, 0.2)",
   },
   modalHeaderTitle: {
-    color: AppColors.background2,
-    fontSize: 18,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.background2,
+    fontSize: theme.fontSizes.lg,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   modalCloseBtn: {
@@ -271,13 +268,13 @@ const styles = StyleSheet.create({
     left: 10,
     right: 10,
     height: 2.5,
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
     borderRadius: 2,
   },
   corner: {
     width: 30,
     height: 30,
-    borderColor: AppColors.background2,
+    borderColor: theme.colors.background2,
     position: "absolute",
   },
   cornerTL: {
@@ -285,62 +282,62 @@ const styles = StyleSheet.create({
     left: 0,
     borderTopWidth: 4,
     borderLeftWidth: 4,
-    borderTopLeftRadius: 15,
+    borderTopLeftRadius: theme.borderRadius.lg,
   },
   cornerTR: {
     top: 0,
     right: 0,
     borderTopWidth: 4,
     borderRightWidth: 4,
-    borderTopRightRadius: 15,
+    borderTopRightRadius: theme.borderRadius.lg,
   },
   cornerBL: {
     bottom: 0,
     left: 0,
     borderBottomWidth: 4,
     borderLeftWidth: 4,
-    borderBottomLeftRadius: 15,
+    borderBottomLeftRadius: theme.borderRadius.lg,
   },
   cornerBR: {
     bottom: 0,
     right: 0,
     borderBottomWidth: 4,
     borderRightWidth: 4,
-    borderBottomRightRadius: 15,
+    borderBottomRightRadius: theme.borderRadius.lg,
   },
   scanInstruction: {
-    color: AppColors.background2,
-    fontSize: 13,
-    marginTop: 20,
-    fontFamily: AppFonts.regular,
+    color: theme.colors.background2,
+    fontSize: theme.fontSizes.xs,
+    marginTop: theme.spacing.lg,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     backgroundColor: "rgba(255, 255, 255, 0.17)",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.sm,
   },
   webFallbackContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: 30,
+    padding: theme.spacing.xl,
     backgroundColor: "#111827",
   },
   webFallbackTitle: {
-    color: AppColors.background2,
-    fontSize: 18,
+    color: theme.colors.background2,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "bold",
-    marginTop: 12,
-    fontFamily: AppFonts.bold,
+    marginTop: theme.spacing.md,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   webFallbackSub: {
-    color: AppColors.grey,
-    fontSize: 13,
+    color: theme.colors.grey,
+    fontSize: theme.fontSizes.xs,
     textAlign: "center",
-    marginTop: 6,
+    marginTop: theme.spacing.xs,
     lineHeight: 18,
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 });

@@ -1,4 +1,4 @@
-import { apiClient } from "@/services/api";
+import { apiClient } from "@/shared/services/api";
 import type { CreateStaffPayload } from "../_types/createAccountStaff.types";
 
 export async function fetchNextSystemIdApi(system: string): Promise<string> {

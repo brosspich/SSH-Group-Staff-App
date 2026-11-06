@@ -1,4 +1,4 @@
-import type { StaffUser } from "@/services/userService";
+import type { StaffUser } from "@/shared/services/userService";
 
 export interface LoginCredentials {
   username: string;

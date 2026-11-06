@@ -10,6 +10,14 @@ export interface AttendanceRecord {
   type: AttendanceType;
   timestamp: string; // ISO string
   qr_data?: string;
+  remark?: string;
+  image?: string;
+}
+
+export interface EditAttendanceSubmitPayload {
+  type: "time-in" | "time-out";
+  remark: string;
+  image: string;
 }
 
 export type HistoryFilterType = "all" | "today" | "month";

@@ -1,6 +1,5 @@
 import type { AttendanceRecord } from "@/app/(tabs)/index";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
@@ -17,6 +16,7 @@ export interface SuccessConfirmationModalProps {
   lastRecord: AttendanceRecord | null;
   onConfirm: () => void;
   onClose: () => void;
+  onEdit?: () => void;
 }
 
 export default function SuccessConfirmationModal({
@@ -25,6 +25,7 @@ export default function SuccessConfirmationModal({
   lastRecord,
   onConfirm,
   onClose,
+  onEdit,
 }: SuccessConfirmationModalProps) {
   return (
     <Modal
@@ -43,7 +44,7 @@ export default function SuccessConfirmationModal({
             <Ionicons
               name="checkmark"
               size={40}
-              color={AppColors.background2}
+              color={theme.colors.background2}
             />
           </View>
 
@@ -90,7 +91,7 @@ export default function SuccessConfirmationModal({
                           lastRecord.type === "time-in"
                             ? "#0022ff"
                             : lastRecord.type === "time-out"
-                              ? "#ff0000"
+                              ? theme.colors.error
                               : "#7e22ce",
                       },
                     ]}
@@ -112,7 +113,26 @@ export default function SuccessConfirmationModal({
             </View>
           )}
 
-          <View style={{ width: "100%", gap: 10 }}>
+          {/* Edit Button */}
+          <View style={styles.conEditBtn}>
+            <TouchableOpacity
+              onPress={onEdit}
+              disabled={savingAttendance}
+              activeOpacity={0.8}
+              style={[
+                styles.editIconButton,
+                { opacity: savingAttendance ? 0.5 : 1 },
+              ]}
+            >
+              <Ionicons
+                name="create-outline"
+                size={20}
+                color={theme.colors.secondary}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ width: "100%", gap: theme.spacing.sm }}>
             <TouchableOpacity
               style={styles.successBtn}
               onPress={onConfirm}
@@ -120,13 +140,13 @@ export default function SuccessConfirmationModal({
               activeOpacity={0.85}
             >
               {savingAttendance ? (
-                <ActivityIndicator size="small" color={AppColors.background2} />
+                <ActivityIndicator size="small" color={theme.colors.background2} />
               ) : (
                 <>
                   <Ionicons
                     name="send-outline"
                     size={16}
-                    color={AppColors.background2}
+                    color={theme.colors.background2}
                     style={{ marginRight: 6 }}
                   />
                   <Text style={styles.successCloseText}>Submit</Text>
@@ -143,7 +163,7 @@ export default function SuccessConfirmationModal({
                 <Text
                   style={[
                     styles.successCloseText,
-                    { color: AppColors.textPrimary },
+                    { color: theme.colors.textPrimary },
                   ]}
                 >
                   Cancel
@@ -163,36 +183,36 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.65)",
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
+    padding: theme.spacing.lg,
   },
   successCard: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 24,
-    padding: 24,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
     width: "100%",
     maxWidth: 380,
     alignItems: "center",
   },
   successIconCircle: {
-    marginBottom: 10,
-    padding: 10,
-    borderRadius: 14,
-    backgroundColor: AppColors.secondary,
+    marginBottom: theme.spacing.sm,
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.secondary,
   },
   successTitle: {
-    fontSize: 20,
+    fontSize: theme.fontSizes.xl,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   successDetails: {
     width: "100%",
-    backgroundColor: AppColors.background,
-    borderRadius: 12,
-    padding: 16,
-    marginVertical: 16,
-    gap: 10,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    marginVertical: theme.spacing.md,
+    gap: theme.spacing.sm,
   },
   successDetailRow: {
     flexDirection: "row",
@@ -200,51 +220,67 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   successDetailLabel: {
-    fontSize: 12.5,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   successDetailValue: {
-    fontSize: 13.5,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   historyBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.sm,
   },
   historyBadgeText: {
-    fontSize: 11,
+    fontSize: theme.fontSizes.xs,
     fontWeight: "bold",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
+  conEditBtn: {
+    position: "absolute",
+    top: theme.spacing.md,
+    right: theme.spacing.md,
+    zIndex: 10,
+  },
+  editIconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: `${theme.colors.secondary}15`,
+    borderWidth: 1,
+    borderColor: `${theme.colors.secondary}30`,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   successBtn: {
-    borderRadius: 12,
-    paddingVertical: 12,
-    backgroundColor: AppColors.primary,
+    borderRadius: theme.borderRadius.md,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: theme.colors.primary,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
   },
   closeBtn: {
-    borderRadius: 12,
-    paddingVertical: 12,
-    backgroundColor: `${AppColors.grey}15`,
+    borderRadius: theme.borderRadius.md,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: `${theme.colors.grey}15`,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: `${AppColors.grey}30`,
+    borderColor: `${theme.colors.grey}30`,
   },
   successCloseText: {
-    color: AppColors.background2,
+    color: theme.colors.background2,
     fontWeight: "bold",
-    fontSize: 15,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

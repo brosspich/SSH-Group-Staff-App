@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -159,7 +158,7 @@ export default function DatePickerModal({
               <MaterialIcons
                 name="close"
                 size={22}
-                color={AppColors.textSecondary}
+                color={theme.colors.textSecondary}
               />
             </TouchableOpacity>
           </View>
@@ -175,7 +174,7 @@ export default function DatePickerModal({
               <Ionicons
                 name="chevron-back"
                 size={20}
-                color={AppColors.textPrimary}
+                color={theme.colors.textPrimary}
               />
             </TouchableOpacity>
             <Text style={s.monthLabel}>
@@ -191,7 +190,7 @@ export default function DatePickerModal({
               <Ionicons
                 name="chevron-forward"
                 size={20}
-                color={isNextDisabled ? "#d1d5db" : AppColors.textPrimary}
+                color={isNextDisabled ? "#d1d5db" : theme.colors.textPrimary}
               />
             </TouchableOpacity>
           </View>
@@ -260,13 +259,13 @@ const s = StyleSheet.create({
   },
   sheet: {
     backgroundColor: "#f8fafc",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: theme.borderRadius.xl,
+    borderTopRightRadius: theme.borderRadius.xl,
     paddingHorizontal: 20,
     paddingTop: 16,
   },
   sheetDesktop: {
-    borderRadius: 24,
+    borderRadius: theme.borderRadius.xl,
     width: 400,
     maxWidth: "100%",
     paddingBottom: 24,
@@ -279,10 +278,10 @@ const s = StyleSheet.create({
     marginBottom: 8,
   },
   topHeaderTitle: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "600",
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   closeBtn: { padding: 4 },
@@ -296,7 +295,7 @@ const s = StyleSheet.create({
   navBtn: {
     width: 44,
     height: 44,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     backgroundColor: "#ffffff",
     borderWidth: 1,
     borderColor: "#e5e7eb",
@@ -308,10 +307,10 @@ const s = StyleSheet.create({
     borderColor: "#f3f4f6",
   },
   monthLabel: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.lg,
     fontWeight: "700",
     color: "#111827",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   weekRow: {
@@ -321,10 +320,10 @@ const s = StyleSheet.create({
   weekDay: {
     flex: 1,
     textAlign: "center",
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     color: "#6b7280",
     fontWeight: "700",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   grid: {
@@ -340,43 +339,43 @@ const s = StyleSheet.create({
     padding: 2,
   },
   cellSelected: {
-    backgroundColor: AppColors.secondary,
-    borderRadius: 16,
+    backgroundColor: theme.colors.secondary,
+    borderRadius: theme.borderRadius.lg,
   },
   dayText: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     color: "#1f2937",
     fontWeight: "500",
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   todayText: {
     fontWeight: "700",
-    color: AppColors.secondary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.secondary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   selectedText: {
     color: "#ffffff",
     fontWeight: "700",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   disabledText: {
     color: "#d1d5db",
   },
   confirmBtn: {
-    backgroundColor: AppColors.secondary,
-    borderRadius: 14,
+    backgroundColor: theme.colors.secondary,
+    borderRadius: theme.borderRadius.lg,
     paddingVertical: 14,
     alignItems: "center",
     marginTop: 4,
   },
   confirmText: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "600",
     color: "#ffffff",
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

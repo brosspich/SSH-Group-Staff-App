@@ -1,6 +1,5 @@
+import { theme } from "@/shared/styles/theme";
 import AppbarBack from "@/shared/components/appbar/appbarback";
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
@@ -14,7 +13,7 @@ export const ChangeInfoUnauthorized: React.FC = () => {
         fallbackRoute="/(tabs)/setting"
       />
       <View style={styles.centerContainer}>
-        <Ionicons name="lock-closed-outline" size={64} color={AppColors.grey} />
+        <Ionicons name="lock-closed-outline" size={64} color={theme.colors.grey} />
         <Text style={styles.deniedTitle}>Access Restricted</Text>
         <Text style={styles.deniedSub}>
           Only users with Admin or Owner privileges can access this feature.
@@ -34,7 +33,7 @@ export const ChangeInfoUnauthorized: React.FC = () => {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
   },
   centerContainer: {
     flex: 1,
@@ -43,17 +42,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   deniedTitle: {
-    fontSize: 20,
-    fontFamily: AppFonts.bold,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.xl,
+    fontFamily: theme.fonts.bold,
+    color: theme.colors.textPrimary,
     marginTop: 16,
     marginBottom: 8,
     includeFontPadding: false,
   },
   deniedSub: {
-    fontSize: 14,
-    fontFamily: AppFonts.regular,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.regular,
+    color: theme.colors.textSecondary,
     textAlign: "center",
     lineHeight: 20,
     marginBottom: 24,
@@ -62,13 +61,13 @@ const styles = StyleSheet.create({
   backBtn: {
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 10,
-    backgroundColor: AppColors.primary,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.primary,
   },
   backBtnText: {
     color: "#fff",
-    fontFamily: AppFonts.bold,
-    fontSize: 14,
+    fontFamily: theme.fonts.bold,
+    fontSize: theme.fontSizes.sm,
     includeFontPadding: false,
   },
 });

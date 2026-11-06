@@ -1,4 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -51,7 +51,7 @@ export const CreateAccountStaffIdentification: React.FC<
               value={staffId}
               onChangeText={setStaffId}
               placeholder="e.g. ID-0010"
-              placeholderTextColor={AppColors.grey}
+              placeholderTextColor={theme.colors.grey}
               autoCapitalize="characters"
             />
           </View>
@@ -69,7 +69,7 @@ export const CreateAccountStaffIdentification: React.FC<
             {suggestedIdLoading && (
               <ActivityIndicator
                 size="small"
-                color={AppColors.primary}
+                color={theme.colors.primary}
                 style={{ marginBottom: 4 }}
               />
             )}
@@ -77,22 +77,22 @@ export const CreateAccountStaffIdentification: React.FC<
           <View
             style={[
               styles.inputContainer,
-              { backgroundColor: `${AppColors.grey}20` },
+              { backgroundColor: `${theme.colors.grey}20` },
             ]}
           >
             <TextInput
               style={[
                 styles.textInput,
                 {
-                  color: AppColors.textPrimary,
-                  fontSize: 13,
+                  color: theme.colors.textPrimary,
+                  fontSize: theme.fontSizes.sm,
                   fontWeight: "600",
                 },
               ]}
               value={systemId}
               editable={false}
               placeholder="e.g. system-0001-0004"
-              placeholderTextColor={AppColors.grey}
+              placeholderTextColor={theme.colors.grey}
             />
           </View>
         </View>
@@ -107,7 +107,7 @@ export const CreateAccountStaffIdentification: React.FC<
           <Ionicons
             name="person-outline"
             size={20}
-            color={AppColors.grey}
+            color={theme.colors.grey}
             style={styles.fieldIcon}
           />
           <TextInput
@@ -115,7 +115,7 @@ export const CreateAccountStaffIdentification: React.FC<
             value={name}
             onChangeText={setName}
             placeholder="Enter full name"
-            placeholderTextColor={AppColors.grey}
+            placeholderTextColor={theme.colors.grey}
             autoCapitalize="words"
           />
         </View>
@@ -130,7 +130,7 @@ export const CreateAccountStaffIdentification: React.FC<
           <MaterialIcons
             name="badge"
             size={20}
-            color={AppColors.grey}
+            color={theme.colors.grey}
             style={styles.fieldIcon}
           />
           <TextInput
@@ -138,7 +138,7 @@ export const CreateAccountStaffIdentification: React.FC<
             value={position}
             onChangeText={setPosition}
             placeholder="e.g. Barista, Manager, Staff"
-            placeholderTextColor={AppColors.grey}
+            placeholderTextColor={theme.colors.grey}
             autoCapitalize="words"
           />
         </View>
@@ -178,17 +178,17 @@ export const CreateAccountStaffIdentification: React.FC<
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: AppColors.background2,
-    borderRadius: 14,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.lg,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}25`,
+    borderColor: `${theme.colors.grey}25`,
   },
   cardSectionTitle: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     fontWeight: "700",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginBottom: 14,
   },
   rowFields: {
@@ -200,21 +200,21 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   label: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "600",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     marginBottom: 6,
   },
   requiredStar: {
-    color: AppColors.red,
+    color: theme.colors.red,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: `${AppColors.grey}15`,
-    borderRadius: 10,
+    backgroundColor: `${theme.colors.grey}15`,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
-    borderColor: `${AppColors.grey}30`,
+    borderColor: `${theme.colors.grey}30`,
     paddingHorizontal: 12,
     height: 46,
   },
@@ -223,8 +223,8 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontSize: 14,
-    color: AppColors.textPrimary,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
   },
   chipsScroll: {
     marginTop: 8,
@@ -233,22 +233,22 @@ const styles = StyleSheet.create({
   quickChip: {
     paddingVertical: 5,
     paddingHorizontal: 12,
-    borderRadius: 8,
-    backgroundColor: `${AppColors.grey}20`,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: `${theme.colors.grey}20`,
     marginRight: 6,
   },
   quickChipSelected: {
-    backgroundColor: `${AppColors.primary}25`,
+    backgroundColor: `${theme.colors.primary}25`,
     borderWidth: 1,
-    borderColor: AppColors.primary,
+    borderColor: theme.colors.primary,
   },
   quickChipText: {
-    fontSize: 12,
-    color: AppColors.textSecondary,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.textSecondary,
     fontWeight: "500",
   },
   quickChipTextSelected: {
-    color: AppColors.primary,
+    color: theme.colors.primary,
     fontWeight: "700",
   },
 });

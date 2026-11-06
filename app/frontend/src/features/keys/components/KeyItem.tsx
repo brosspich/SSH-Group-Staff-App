@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import { Card } from "@/shared/components/ui/Card";
 import { Typography } from "@/shared/components/ui/Typography";
 import { formatDate } from "@/utils/formatters";
@@ -52,6 +53,6 @@ const styles = StyleSheet.create({
   fingerprintBox: {
     backgroundColor: "#F2F2F7",
     padding: 8,
-    borderRadius: 6,
+    borderRadius: theme.borderRadius.xs,
   },
 });

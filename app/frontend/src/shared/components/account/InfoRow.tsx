@@ -1,5 +1,4 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
+import { theme } from "@/shared/styles/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { ComponentType, createElement } from "react";
 import {
@@ -24,7 +23,7 @@ export function InfoRow({
   label,
   value,
   edit,
-  iconColor = AppColors.secondary,
+  iconColor = theme.colors.secondary,
 }: InfoRowProps) {
   return (
     <View style={styles.infoRow}>
@@ -45,7 +44,7 @@ export function InfoRow({
       </View>
       {edit ? (
         <TouchableOpacity style={styles.editBtn} onPress={edit} hitSlop={8}>
-          <MaterialIcons name="edit" size={18} color={AppColors.secondary} />
+          <MaterialIcons name="edit" size={18} color={theme.colors.secondary} />
         </TouchableOpacity>
       ) : null}
     </View>
@@ -60,7 +59,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderBottomWidth: 0.5,
-    borderBottomColor: `${AppColors.grey}30`,
+    borderBottomColor: `${theme.colors.grey}30`,
   },
   leftContainer: {
     flexDirection: "row",
@@ -72,7 +71,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: `${AppColors.secondary}15`,
+    backgroundColor: `${theme.colors.secondary}15`,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -80,22 +79,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoLabel: {
-    fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginBottom: 2,
   },
   infoValue: {
-    fontSize: 14,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.medium,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.medium,
     includeFontPadding: false,
   },
   editBtn: {
     padding: 6,
-    borderRadius: 8,
-    backgroundColor: `${AppColors.secondary}15`,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: `${theme.colors.secondary}15`,
   },
 });
 

@@ -1,5 +1,5 @@
-import { apiClient } from "@/services/api";
-import type { StaffUser } from "@/services/userService";
+import { apiClient } from "@/shared/services/api";
+import type { StaffUser } from "@/shared/services/userService";
 
 export async function fetchAccountProfileApi(
   userId: string,

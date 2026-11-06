@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import type { StaffUser } from "@/services/userService";
+import { theme } from "@/shared/styles/theme";
+import type { StaffUser } from "@/shared/services/userService";
 import { getTwoInitials } from "@/utils/formatters";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -17,7 +16,7 @@ export const AccountProfileHeader: React.FC<AccountProfileHeaderProps> = ({
     <View style={styles.avatarSection}>
       <View style={styles.conAvatarTxt}>
         <LinearGradient
-          colors={[AppColors.secondary, AppColors.primary]}
+          colors={[theme.colors.secondary, theme.colors.primary]}
           start={{ x: 1, y: 0 }}
           end={{ x: 0, y: 1 }}
           locations={[0.3, 0.9]}
@@ -40,14 +39,14 @@ export const AccountProfileHeader: React.FC<AccountProfileHeaderProps> = ({
 const styles = StyleSheet.create({
   avatarSection: {
     alignItems: "center",
-    paddingVertical: 15,
-    gap: 10,
+    paddingVertical: theme.spacing.md,
+    gap: theme.spacing.sm,
     flexDirection: "row",
-    marginHorizontal: 15,
-    backgroundColor: AppColors.background2,
-    paddingHorizontal: 13,
-    borderRadius: 12,
-    marginVertical: 12,
+    marginHorizontal: theme.spacing.md,
+    backgroundColor: theme.colors.background2,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.borderRadius.md,
+    marginVertical: theme.spacing.md,
     justifyContent: "space-between",
     ...Platform.select({
       web: {
@@ -66,47 +65,47 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
+    gap: theme.spacing.sm,
   },
   avatarCircle: {
     width: 65,
     height: 65,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 4,
+    marginBottom: theme.spacing.xs,
     ...Platform.select({
       web: {
         boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.12)",
       },
       default: {
         shadowOffset: { width: 0, height: 4 },
-        shadowColor: AppColors.secondary,
+        shadowColor: theme.colors.secondary,
         shadowOpacity: 0.3,
         shadowRadius: 10,
       },
     }),
   },
   avatarInitial: {
-    fontSize: 24,
+    fontSize: theme.fontSizes.xxl,
     fontWeight: "700",
-    color: AppColors.background2,
-    fontFamily: AppFonts.regular,
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   conName: {},
   userName: {
-    fontSize: 20,
+    fontSize: theme.fontSizes.xl,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
     letterSpacing: -0.3,
-    fontFamily: AppFonts.bold,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   txtUserName: {
-    fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 });

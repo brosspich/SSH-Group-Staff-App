@@ -1,6 +1,5 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { useResponsive } from "@/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
+import { useResponsive } from "@/shared/hooks/useResponsive";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Modal,
@@ -34,7 +33,7 @@ export default function AddDeviceModal({
         <View
           style={[
             styles.modalSheet,
-            { borderRadius: 24 },
+            { borderRadius: theme.borderRadius.xl },
             !isMobile && {
               maxWidth: 400,
               alignSelf: "center",
@@ -80,7 +79,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   modalSheet: {
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     padding: 24,
     width: "100%",
   },
@@ -98,15 +97,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalDeviceName: {
-    fontSize: 18,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.lg,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: AppColors.textPrimary,
+    color: theme.colors.textPrimary,
   },
   modalStatusTime: {
-    fontSize: 13,
-    color: AppColors.textSecondary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 4,
   },
@@ -115,25 +114,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   bodyText: {
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    color: AppColors.textPrimary,
-    fontSize: 14,
+    color: theme.colors.textPrimary,
+    fontSize: theme.fontSizes.sm,
     lineHeight: 20,
     textAlign: "center",
     paddingHorizontal: 8,
   },
   gotItBtn: {
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
     height: 48,
-    borderRadius: 12,
+    borderRadius: theme.borderRadius.md,
     alignItems: "center",
     justifyContent: "center",
   },
   gotItText: {
-    color: AppColors.background2,
-    fontSize: 15,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.background2,
+    fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
 });

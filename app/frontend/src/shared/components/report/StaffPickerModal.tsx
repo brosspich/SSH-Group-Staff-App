@@ -1,9 +1,8 @@
-import { AppColors } from "@/constants/appcolors";
-import { AppFonts } from "@/constants/appfonts";
-import { extractSystemKey } from "@/constants/attendanceConfig";
-import { useUser } from "@/contexts/UserContext";
-import { useResponsive } from "@/hooks/useResponsive";
-import { StaffUser } from "@/services/userService";
+import { theme } from "@/shared/styles/theme";
+import { extractSystemKey } from "@/shared/constants/attendanceConfig";
+import { useUser } from "@/shared/contexts/UserContext";
+import { useResponsive } from "@/shared/hooks/useResponsive";
+import { StaffUser } from "@/shared/services/userService";
 import { isLeaveRole } from "@/utils/roleUtils";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
@@ -171,18 +170,18 @@ export function StaffPickerModal({
               <MaterialIcons
                 name="close"
                 size={28}
-                color={AppColors.textSecondary}
+                color={theme.colors.textSecondary}
               />
             </TouchableOpacity>
           </View>
 
           {/* Search Box */}
           <View style={s.searchBox}>
-            <Ionicons name="search" size={18} color={AppColors.grey} />
+            <Ionicons name="search" size={18} color={theme.colors.grey} />
             <TextInput
               style={s.searchInput}
               placeholder="Search staff name, ID, or position..."
-              placeholderTextColor={AppColors.grey}
+              placeholderTextColor={theme.colors.grey}
               value={searchQuery}
               onChangeText={setSearchQuery}
             />
@@ -191,7 +190,7 @@ export function StaffPickerModal({
                 <Ionicons
                   name="close-circle"
                   size={18}
-                  color={AppColors.grey}
+                  color={theme.colors.grey}
                 />
               </TouchableOpacity>
             )}
@@ -208,7 +207,7 @@ export function StaffPickerModal({
                 <Ionicons
                   name="people-outline"
                   size={36}
-                  color={AppColors.grey}
+                  color={theme.colors.grey}
                 />
                 <Text style={s.emptyText}>No staff members found</Text>
               </View>
@@ -232,7 +231,7 @@ export function StaffPickerModal({
                         name="person"
                         size={20}
                         color={
-                          isSelected ? AppColors.background2 : AppColors.primary
+                          isSelected ? theme.colors.background2 : theme.colors.primary
                         }
                       />
                     </View>
@@ -252,13 +251,13 @@ export function StaffPickerModal({
                       <Ionicons
                         name="checkmark-circle"
                         size={24}
-                        color={AppColors.secondary}
+                        color={theme.colors.secondary}
                       />
                     ) : (
                       <Ionicons
                         name="chevron-forward"
                         size={18}
-                        color={AppColors.grey}
+                        color={theme.colors.grey}
                       />
                     )}
                   </TouchableOpacity>
@@ -279,7 +278,7 @@ const s = StyleSheet.create({
     justifyContent: "flex-end",
   },
   sheet: {
-    backgroundColor: AppColors.background,
+    backgroundColor: theme.colors.background,
     maxHeight: "80%",
   },
   header: {
@@ -288,14 +287,14 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 15,
     borderBottomWidth: 0.5,
-    borderBottomColor: `${AppColors.grey}70`,
+    borderBottomColor: `${theme.colors.grey}70`,
     marginBottom: 12,
     paddingHorizontal: 15,
   },
   headerTitle: {
-    fontSize: 17,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    fontSize: theme.fontSizes.lg,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   closeBtn: { padding: 0 },
@@ -303,8 +302,8 @@ const s = StyleSheet.create({
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: AppColors.background2,
-    borderRadius: 12,
+    backgroundColor: theme.colors.background2,
+    borderRadius: theme.borderRadius.md,
     paddingHorizontal: 12,
     paddingVertical: 9,
     gap: 8,
@@ -315,9 +314,9 @@ const s = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontSize: 13,
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     ...(Platform.OS === "web" &&
       ({ outlineStyle: "none", outlineWidth: 0 } as any)),
@@ -336,41 +335,41 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: AppColors.background2,
+    backgroundColor: theme.colors.background2,
     padding: 12,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
     borderColor: "rgba(0,0,0,0.05)",
   },
   staffCardSelected: {
-    borderColor: AppColors.secondary,
-    backgroundColor: `${AppColors.secondary}0D`,
+    borderColor: theme.colors.secondary,
+    backgroundColor: `${theme.colors.secondary}0D`,
   },
   avatarBg: {
     width: 40,
     height: 40,
-    borderRadius: 10,
-    backgroundColor: `${AppColors.primary}18`,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: `${theme.colors.primary}18`,
     alignItems: "center",
     justifyContent: "center",
   },
   avatarBgSelected: {
-    backgroundColor: AppColors.secondary,
+    backgroundColor: theme.colors.secondary,
   },
   staffName: {
-    fontSize: 14,
+    fontSize: theme.fontSizes.sm,
     fontWeight: "bold",
-    color: AppColors.textPrimary,
-    fontFamily: AppFonts.bold,
+    color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   staffNameSelected: {
-    color: AppColors.secondary,
+    color: theme.colors.secondary,
   },
   staffSub: {
-    fontSize: 12,
-    color: AppColors.grey,
-    fontFamily: AppFonts.regular,
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
+    fontFamily: theme.fonts.regular,
     marginTop: 2,
     includeFontPadding: false,
   },
@@ -381,10 +380,10 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   emptyText: {
-    fontSize: 13,
-    color: AppColors.grey,
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.grey,
     marginTop: 8,
-    fontFamily: AppFonts.regular,
+    fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
 });
