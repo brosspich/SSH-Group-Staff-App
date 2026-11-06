@@ -1,9 +1,17 @@
-import { theme } from "@/shared/styles/theme";
-import React from 'react';
-import { View, StyleSheet, StatusBar, ViewStyle, StatusBarStyle } from 'react-native';
-import { SafeAreaView, SafeAreaViewProps } from 'react-native-safe-area-context';
-import { Spinner } from '../feedback/Spinner';
-import { Typography } from '../ui/Typography';
+import React from "react";
+import {
+  StatusBar,
+  StatusBarStyle,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from "react-native";
+import {
+  SafeAreaView,
+  SafeAreaViewProps,
+} from "react-native-safe-area-context";
+import { Spinner } from "../feedback/Spinner";
+import { Typography } from "../ui/Typography";
 
 export interface ScreenWrapperProps extends SafeAreaViewProps {
   isLoading?: boolean;
@@ -17,8 +25,8 @@ export interface ScreenWrapperProps extends SafeAreaViewProps {
 export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
   isLoading = false,
   error = null,
-  statusBarStyle = 'dark-content',
-  statusBarColor = '#FFFFFF',
+  statusBarStyle = "dark-content",
+  statusBarColor = "#FFFFFF",
   containerStyle,
   style,
   children,
@@ -50,19 +58,19 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   container: {
     flex: 1,
   },
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 24,
   },
   errorText: {
     marginTop: 8,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

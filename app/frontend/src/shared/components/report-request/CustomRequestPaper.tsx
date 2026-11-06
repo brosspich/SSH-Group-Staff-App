@@ -1,4 +1,3 @@
-import { theme } from "@/shared/styles/theme";
 import { getCompanyName } from "@/shared/constants/attendanceConfig";
 import {
   ReportMode,
@@ -7,6 +6,7 @@ import {
 } from "@/shared/hooks/useAttendanceRequestReportData";
 import { AttendanceRequestRuleItem } from "@/shared/services/attendanceRequestService";
 import { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { StyleSheet, Text, View } from "react-native";
 
 interface CustomRequestPaperProps {

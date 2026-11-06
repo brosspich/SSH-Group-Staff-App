@@ -1,4 +1,3 @@
-import { theme } from "@/shared/styles/theme";
 import { AttendanceRecord } from "@/app/(tabs)/attendance";
 import CustomAttendancePaper from "@/shared/components/report/CustomAttendancePaper";
 import {
@@ -7,6 +6,7 @@ import {
   ReportType,
 } from "@/shared/hooks/useAttendanceReportData";
 import { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import {
   isNativePrintBusy,
   safePrintAsync,
@@ -273,7 +273,10 @@ export function AttendanceReportPrintModal({
               disabled={isSavingPdf || isPrinting}
             >
               {isSavingPdf ? (
-                <ActivityIndicator size="small" color={theme.colors.secondary} />
+                <ActivityIndicator
+                  size="small"
+                  color={theme.colors.secondary}
+                />
               ) : (
                 <MaterialIcons
                   name="picture-as-pdf"
@@ -292,7 +295,10 @@ export function AttendanceReportPrintModal({
               disabled={isSavingPdf || isPrinting}
             >
               {isPrinting ? (
-                <ActivityIndicator color={theme.colors.background2} size="small" />
+                <ActivityIndicator
+                  color={theme.colors.background2}
+                  size="small"
+                />
               ) : (
                 <MaterialIcons
                   name="print"

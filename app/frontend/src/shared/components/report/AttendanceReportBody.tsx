@@ -1,9 +1,12 @@
-import { theme } from "@/shared/styles/theme";
 import { AttendanceRecord } from "@/app/(tabs)/attendance";
 import Loading from "@/shared/components/loading/loading";
 import { StaffPickerModal } from "@/shared/components/report/StaffPickerModal";
-import { AttendanceSummary, ReportMode } from "@/shared/hooks/useAttendanceReportData";
+import {
+  AttendanceSummary,
+  ReportMode,
+} from "@/shared/hooks/useAttendanceReportData";
 import { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {

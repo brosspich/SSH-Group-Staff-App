@@ -1,4 +1,3 @@
-import { theme } from "@/shared/styles/theme";
 import CustomRequestPaper from "@/shared/components/report-request/CustomRequestPaper";
 import {
   ReportMode,
@@ -7,6 +6,7 @@ import {
 } from "@/shared/hooks/useAttendanceRequestReportData";
 import { AttendanceRequestRuleItem } from "@/shared/services/attendanceRequestService";
 import { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import {
   isNativePrintBusy,
   safePrintAsync,
@@ -271,7 +271,10 @@ export function RequestReportPrintModal({
               disabled={isSavingPdf || isPrinting}
             >
               {isSavingPdf ? (
-                <ActivityIndicator size="small" color={theme.colors.secondary} />
+                <ActivityIndicator
+                  size="small"
+                  color={theme.colors.secondary}
+                />
               ) : (
                 <MaterialIcons
                   name="picture-as-pdf"
@@ -290,7 +293,10 @@ export function RequestReportPrintModal({
               disabled={isSavingPdf || isPrinting}
             >
               {isPrinting ? (
-                <ActivityIndicator color={theme.colors.background2} size="small" />
+                <ActivityIndicator
+                  color={theme.colors.background2}
+                  size="small"
+                />
               ) : (
                 <MaterialIcons
                   name="print"

@@ -1,4 +1,3 @@
-import { theme } from "@/shared/styles/theme";
 import Loading from "@/shared/components/loading/loading";
 import { StaffPickerModal } from "@/shared/components/report/StaffPickerModal";
 import {
@@ -7,6 +6,7 @@ import {
 } from "@/shared/hooks/useAttendanceRequestReportData";
 import { AttendanceRequestRuleItem } from "@/shared/services/attendanceRequestService";
 import { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {

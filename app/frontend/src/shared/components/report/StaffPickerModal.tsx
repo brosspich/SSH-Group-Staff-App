@@ -1,8 +1,8 @@
-import { theme } from "@/shared/styles/theme";
 import { extractSystemKey } from "@/shared/constants/attendanceConfig";
 import { useUser } from "@/shared/contexts/UserContext";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { isLeaveRole } from "@/utils/roleUtils";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
@@ -231,7 +231,9 @@ export function StaffPickerModal({
                         name="person"
                         size={20}
                         color={
-                          isSelected ? theme.colors.background2 : theme.colors.primary
+                          isSelected
+                            ? theme.colors.background2
+                            : theme.colors.primary
                         }
                       />
                     </View>

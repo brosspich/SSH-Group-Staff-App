@@ -1,5 +1,5 @@
-import { theme } from "@/shared/styles/theme";
 import { AppImages } from "@/shared/constants/appImages";
+import { theme } from "@/shared/styles/theme";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { Bounce } from "react-native-animated-spinkit";
 

@@ -15,7 +15,11 @@ export default function Error({ title, txtError, onPress }: ErrorProps) {
       <Text style={styles.errorTitle}>{title}</Text>
       <Text style={styles.errorSub}>{txtError}</Text>
       <TouchableOpacity style={styles.retryBtn} onPress={onPress}>
-        <MaterialIcons name="refresh" size={18} color={theme.colors.background2} />
+        <MaterialIcons
+          name="refresh"
+          size={18}
+          color={theme.colors.background2}
+        />
         <Text style={styles.retryText}>Retry</Text>
       </TouchableOpacity>
     </View>

@@ -1,7 +1,7 @@
-import { userService } from "../userService";
 import Constants from "expo-constants";
 import { NativeModules, Platform } from "react-native";
 import { secureStorage } from "../storage/secureStore.service";
+import { userService } from "../userService";
 import { ApiError } from "./apiError";
 
 export interface RequestOptions extends RequestInit {
