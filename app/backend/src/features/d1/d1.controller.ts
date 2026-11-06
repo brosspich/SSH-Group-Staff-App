@@ -4,6 +4,7 @@ import {
   serverCacheStore,
 } from "../../infrastructure/cache/serverCacheStore.js";
 import { prisma } from "../../infrastructure/database/prisma.js";
+import { d1Client } from "../../infrastructure/database/d1Client.js";
 
 function getPrismaDelegate(table: string): any {
   switch (table) {
@@ -296,6 +297,22 @@ export const handleD1Query = async (req: Request, res: Response) => {
         result = await delegate.create({ data: payload });
       }
 
+      // Sync insert directly to Remote Cloudflare D1
+      try {
+        const rows = Array.isArray(payload) ? payload : [payload];
+        for (const row of rows) {
+          const keys = Object.keys(row);
+          if (keys.length > 0) {
+            const cols = keys.join(", ");
+            const placeholders = keys.map(() => "?").join(", ");
+            const vals = keys.map((k) => row[k]);
+            await d1Client.execute(`INSERT OR REPLACE INTO ${table} (${cols}) VALUES (${placeholders})`, vals);
+          }
+        }
+      } catch (d1Err: any) {
+        console.warn(`[Cloudflare D1] Error syncing insert to ${table}:`, d1Err?.message);
+      }
+
       if (isCompanyTable && result) {
         result = normalizeCompanyRow(result);
       } else if (isStaffUserTable && result) {
@@ -317,6 +334,18 @@ export const handleD1Query = async (req: Request, res: Response) => {
           where: { id: mappedWhere.id },
           data: payload,
         });
+        // Sync update directly to Remote Cloudflare D1
+        try {
+          const keys = Object.keys(payload);
+          if (keys.length > 0) {
+            const setClauses = keys.map((k) => `${k} = ?`).join(", ");
+            const vals = keys.map((k) => payload[k]);
+            vals.push(mappedWhere.id);
+            await d1Client.execute(`UPDATE ${table} SET ${setClauses} WHERE id = ?`, vals);
+          }
+        } catch (d1Err: any) {
+          console.warn(`[Cloudflare D1] Error syncing update to ${table}:`, d1Err?.message);
+        }
       } else {
         result = await delegate.updateMany({
           where: mappedWhere,
@@ -334,6 +363,12 @@ export const handleD1Query = async (req: Request, res: Response) => {
       const mappedWhere = mapWhereObject(where, fieldMapper);
       if (mappedWhere?.id) {
         result = await delegate.delete({ where: { id: mappedWhere.id } });
+        // Sync delete directly to Remote Cloudflare D1
+        try {
+          await d1Client.execute(`DELETE FROM ${table} WHERE id = ?`, [mappedWhere.id]);
+        } catch (d1Err: any) {
+          console.warn(`[Cloudflare D1] Error syncing delete to ${table}:`, d1Err?.message);
+        }
       } else {
         result = await delegate.deleteMany({ where: mappedWhere });
       }

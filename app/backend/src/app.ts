@@ -9,11 +9,11 @@ import { Logger } from "./core/utils/logger.js";
 
 import { attendanceRequestsRoutes } from "./features/attendance-requests/index.js";
 import { attendanceSecurityRoutes } from "./features/attendance-security/index.js";
-import { devicesRoutes } from "./features/devices/index.js";
 import { auditRoutes } from "./features/audit-logs/index.js";
 import { authRoutes } from "./features/auth/index.js";
 import { companyRoutes } from "./features/company/index.js";
 import { d1Routes } from "./features/d1/index.js";
+import { devicesRoutes } from "./features/devices/index.js";
 import { keyRoutes } from "./features/keys/index.js";
 import { reportsRoutes } from "./features/reports/index.js";
 import { sshGroupRoutes } from "./features/ssh-groups/index.js";
@@ -30,8 +30,8 @@ export const createApp = (): Application => {
       credentials: true,
     }),
   );
-  app.use(express.json({ limit: "10mb" }));
-  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json({ limit: "50mb" }));
+  app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
   // Live HTTP request logger
   app.use((req: Request, res: Response, next) => {

@@ -1,4 +1,7 @@
+import { exec } from "child_process";
 import { prisma } from "../../infrastructure/database/prisma.js";
+import { d1Client } from "../../infrastructure/database/d1Client.js";
+import { r2Storage } from "../../infrastructure/storage/r2.service.js";
 import {
   AttendanceRecordDto,
   ConfirmAttendancePayload,
@@ -14,8 +17,8 @@ import {
   formatServerDateYMD,
   formatServerTime12h,
   generateNextAttendanceId,
+  getCoordinatesList,
   isVpnSubnet,
-  parseCoordinates,
   resolveCoordinatesAsync,
   validateQrCode,
 } from "./attendance-security.utils.js";
@@ -271,23 +274,44 @@ export class AttendanceSecurityService {
       };
     }
 
-    // ── 7. Save to Database (AttendanceLog table) ──
+    // ── 7. Save to Database (Cloudflare D1 AttendanceLog table) ──
+    const scanLogId = `${user.id}_${nextId}_${Date.now()}`;
+    const scanDbType = evaluatedType.toUpperCase().replace("-", "_");
+    try {
+      await d1Client.ensureSchema();
+      await d1Client.execute(
+        `INSERT OR REPLACE INTO AttendanceLog (id, userId, companyId, scanDate, scanTime, type, qrData, createdAt)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          scanLogId,
+          user.systemId,
+          company.id,
+          dateStr,
+          timeStr,
+          scanDbType,
+          qrData,
+          now.toISOString(),
+        ],
+      );
+      console.log(`[Cloudflare D1] ✅ Stored attendance scan log ${scanLogId}`);
+    } catch (e: any) {
+      console.warn("[Cloudflare D1] AttendanceLog insert warning:", e?.message);
+    }
+
     try {
       await prisma.attendanceLog.create({
         data: {
-          id: `${user.id}_${nextId}_${Date.now()}`,
+          id: scanLogId,
           userId: user.systemId,
           companyId: company.id,
           scanDate: dateStr,
           scanTime: timeStr,
-          type: evaluatedType.toUpperCase().replace("-", "_"),
+          type: scanDbType,
           qrData,
           createdAt: now,
         },
       });
-    } catch (e: any) {
-      console.warn("Could not insert to AttendanceLog:", e?.message);
-    }
+    } catch {}
 
     // Also sync to legacy ssh_group_staff_users if present
     try {
@@ -357,6 +381,61 @@ export class AttendanceSecurityService {
 
     const nextId = generateNextAttendanceId(existingList);
 
+    // ── Upload Proof Image to Cloudflare R2 (ssh-storage) ──
+    let storedImageUrl: string | undefined = undefined;
+    let imageBuffer: Buffer | null = null;
+    let imageMimeType = "image/jpeg";
+
+    if (payload.image && payload.image.trim()) {
+      try {
+        const rawImg = payload.image.trim();
+        let buffer: Buffer | null = null;
+        let ext = "jpeg";
+        let mimeType = "image/jpeg";
+
+        if (rawImg.startsWith("data:image/")) {
+          const match = rawImg.match(
+            /^data:image\/([a-zA-Z0-9.+]+);base64,(.+)$/,
+          );
+          if (match) {
+            ext = match[1] === "png" ? "png" : "jpeg";
+            mimeType = match[1] === "png" ? "image/png" : "image/jpeg";
+            buffer = Buffer.from(match[2], "base64");
+          } else {
+            buffer = Buffer.from(
+              rawImg.replace(/^data:image\/\w+;base64,/, ""),
+              "base64",
+            );
+          }
+        } else if (
+          rawImg.startsWith("http://") ||
+          rawImg.startsWith("https://")
+        ) {
+          storedImageUrl = rawImg;
+        } else if (/^[A-Za-z0-9+/=]+$/.test(rawImg.slice(0, 100))) {
+          buffer = Buffer.from(rawImg, "base64");
+        }
+
+        if (buffer && buffer.length > 0) {
+          imageBuffer = buffer;
+          imageMimeType = mimeType;
+          // Key format: staff-attendance/{system_id_or_userId}/{date}/{timestamp}.ext
+          const userFolder = user.systemId || user.id;
+          const fileName = `${Date.now()}_proof.${ext}`;
+          const r2Key = `staff-attendance/${userFolder}/${dateStr}/${fileName}`;
+          storedImageUrl = await r2Storage.uploadFile(r2Key, buffer, mimeType);
+          console.log(
+            `[Attendance] Stored proof image in Cloudflare R2: ${storedImageUrl}`,
+          );
+        }
+      } catch (err: any) {
+        console.warn(
+          "[Attendance] Cloudflare R2 proof image upload failed:",
+          err?.message,
+        );
+      }
+    }
+
     const record: AttendanceRecordDto = {
       id: nextId,
       staff_id: user.id,
@@ -368,28 +447,56 @@ export class AttendanceSecurityService {
       type: effectiveType,
       timestamp: now.toISOString(),
       qr_data: qrData,
+      remark: payload.remark,
+      image: storedImageUrl || payload.image,
     };
 
-    // 2. Persist to Database (AttendanceLog table)
+    // 2. Persist directly to Remote Cloudflare D1 AttendanceLog (Database)
+    const logId = `${user.id}_${nextId}_${Date.now()}`;
+    const dbType = effectiveType.toUpperCase().replace("-", "_");
+
+    try {
+      await d1Client.ensureSchema();
+      await d1Client.execute(
+        `INSERT OR REPLACE INTO AttendanceLog (id, userId, companyId, scanDate, scanTime, type, qrData, createdAt, image, remark)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          logId,
+          user.systemId,
+          company.id,
+          dateStr,
+          timeStr,
+          dbType,
+          qrData,
+          now.toISOString(),
+          storedImageUrl || null,
+          payload.remark || null,
+        ],
+      );
+      console.log(
+        `[Cloudflare D1] ✅ Successfully stored AttendanceLog to Remote D1 for ${user.id} (${user.systemId}) with image: ${storedImageUrl || "none"}`,
+      );
+    } catch (d1Err: any) {
+      console.warn("[Cloudflare D1] Error storing to Remote D1:", d1Err?.message);
+    }
+
+    // Local Prisma fallback/cache
     try {
       await prisma.attendanceLog.create({
         data: {
-          id: `${user.id}_${nextId}_${Date.now()}`,
+          id: logId,
           userId: user.systemId,
           companyId: company.id,
           scanDate: dateStr,
           scanTime: timeStr,
-          type: effectiveType.toUpperCase().replace("-", "_"),
+          type: dbType,
           qrData,
+          image: storedImageUrl || null,
+          remark: payload.remark || null,
           createdAt: now,
         },
       });
-      console.log(
-        `[Attendance] Successfully stored attendance record in Database for user ${user.id} (${user.systemId})`,
-      );
-    } catch (e: any) {
-      console.warn("Could not insert to AttendanceLog:", e?.message);
-    }
+    } catch {}
 
     // Also sync to legacy ssh_group_staff_users if present
     try {
@@ -405,7 +512,12 @@ export class AttendanceSecurityService {
     console.log(
       `[Attendance] Dispatching Telegram alert for user ${user.id} to company ${company.name}`,
     );
-    await this.sendTelegramNotification(company, record).catch((err) => {
+    await this.sendTelegramNotification(
+      company,
+      record,
+      imageBuffer,
+      imageMimeType,
+    ).catch((err) => {
       console.warn("Error sending Telegram notification:", err);
     });
     console.log(`[Attendance] Telegram alert dispatched.`);
@@ -440,10 +552,19 @@ export class AttendanceSecurityService {
       }
     }
 
-    // Fallback: If no coordinates could be parsed from string, check by companyId
-    if (companyCoords.length === 0 && companyId) {
-      const fallback = parseCoordinates(companyId);
-      if (fallback) companyCoords.push(fallback);
+    // Fallback and multi-branch enhancement: merge pre-resolved coordinates for companyId (e.g. system-0002 branches)
+    if (companyId) {
+      const branchCoords = getCoordinatesList(companyId);
+      for (const branch of branchCoords) {
+        const alreadyExists = companyCoords.some(
+          (c) =>
+            Math.abs(c.latitude - branch.latitude) < 0.0001 &&
+            Math.abs(c.longitude - branch.longitude) < 0.0001,
+        );
+        if (!alreadyExists) {
+          companyCoords.push(branch);
+        }
+      }
     }
 
     return companyCoords;
@@ -467,6 +588,8 @@ export class AttendanceSecurityService {
   private async sendTelegramNotification(
     company: any,
     record: AttendanceRecordDto,
+    imageBuffer?: Buffer | null,
+    imageMimeType: string = "image/jpeg",
   ): Promise<void> {
     const rawTokens = this.parseJsonField(company.telegramBotToken);
     const rawChats = this.parseJsonField(company.telegramChatId);
@@ -481,20 +604,137 @@ export class AttendanceSecurityService {
           ? "🔴 [TIME-OUT]"
           : "🟣 [TIME-OTHER]";
 
-    const message = [
+    const lines = [
       `🔔 <b>Attendance Scan Alert</b>`,
-      // `🏢 <b>Company:</b> ${company.name}`,
       `🆔 <b>Staff ID:</b> ${record.staff_id}`,
       `👤 <b>Staff:</b> ${record.name}`,
       `📌 <b>Status:</b> ${typeEmoji}`,
       `📅 <b>Date:</b> ${record.date}`,
       `⏰ <b>Time:</b> ${record.time}`,
-      // `🆔 <b>Record ID:</b> <code>${record.id}</code>`,
-    ].join("\n");
+    ];
+
+    if (record.remark) {
+      lines.push(`📝 <b>Remark:</b> ${record.remark}`);
+    }
+
+    if (record.image || (imageBuffer && imageBuffer.length > 0)) {
+      if (
+        record.image &&
+        (record.image.startsWith("http://") ||
+          record.image.startsWith("https://")) &&
+        !record.image.includes("r2.cloudflarestorage.com")
+      ) {
+        lines.push(
+          `📷 <b>Proof Image:</b> <a href="${record.image}">View Photo</a>`,
+        );
+      } else {
+        // lines.push(`📷 <b>Proof Image:</b> [Photo Attached]`);
+      }
+    }
+
+    const message = lines.join("\n");
 
     for (const chatId of rawChats) {
       if (!chatId) continue;
       try {
+        let sentPhoto = false;
+
+        // Check if we have an image buffer to upload as multipart photo
+        let directBuffer = imageBuffer;
+        let mime = imageMimeType;
+
+        if (!directBuffer && record.image) {
+          const rawImg = record.image.trim();
+          if (rawImg.startsWith("data:image/")) {
+            const match = rawImg.match(
+              /^data:image\/([a-zA-Z0-9.+]+);base64,(.+)$/,
+            );
+            if (match) {
+              mime = match[1] === "png" ? "image/png" : "image/jpeg";
+              directBuffer = Buffer.from(match[2], "base64");
+            } else {
+              directBuffer = Buffer.from(
+                rawImg.replace(/^data:image\/\w+;base64,/, ""),
+                "base64",
+              );
+            }
+          } else if (/^[A-Za-z0-9+/=]+$/.test(rawImg.slice(0, 100))) {
+            directBuffer = Buffer.from(rawImg, "base64");
+          }
+        }
+
+        if (directBuffer && directBuffer.length > 0) {
+          try {
+            console.log(
+              `[Telegram] Sending photo multipart (${directBuffer.length} bytes) to chatId ${chatId}...`,
+            );
+            const blob = new Blob([new Uint8Array(directBuffer)], {
+              type: mime,
+            });
+            const formData = new FormData();
+            formData.append("chat_id", chatId);
+            formData.append("caption", message);
+            formData.append("parse_mode", "HTML");
+            formData.append("photo", blob, "proof.jpg");
+
+            const photoRes = await fetch(
+              `https://api.telegram.org/bot${botToken}/sendPhoto`,
+              {
+                method: "POST",
+                body: formData,
+              },
+            );
+
+            if (photoRes.ok) {
+              sentPhoto = true;
+              console.log(
+                `[Telegram] ✅ Photo alert successfully delivered to chatId ${chatId}`,
+              );
+            } else {
+              const errBody = await photoRes.text();
+              console.warn(
+                `[Telegram sendPhoto failed] Status ${photoRes.status}:`,
+                errBody,
+              );
+            }
+          } catch (photoErr) {
+            console.warn("[Telegram] Error sending photo multipart:", photoErr);
+          }
+        } else if (
+          record.image &&
+          (record.image.startsWith("http://") ||
+            record.image.startsWith("https://")) &&
+          !record.image.includes("r2.cloudflarestorage.com")
+        ) {
+          try {
+            const photoRes = await fetch(
+              `https://api.telegram.org/bot${botToken}/sendPhoto`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  chat_id: chatId,
+                  photo: record.image,
+                  caption: message,
+                  parse_mode: "HTML",
+                }),
+              },
+            );
+
+            if (photoRes.ok) {
+              sentPhoto = true;
+              console.log(
+                `[Telegram] ✅ Photo URL successfully sent to chatId ${chatId}`,
+              );
+            }
+          } catch (photoErr) {
+            console.warn("[Telegram] Error sending photo URL:", photoErr);
+          }
+        }
+
+        // If photo was dispatched successfully with caption, skip duplicate text
+        if (sentPhoto) continue;
+
         await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -504,7 +744,12 @@ export class AttendanceSecurityService {
             parse_mode: "HTML",
           }),
         });
-      } catch {}
+      } catch (sendErr) {
+        console.warn(
+          `[Telegram] Failed dispatching to chatId ${chatId}:`,
+          sendErr,
+        );
+      }
     }
   }
 }

@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import { prisma } from "../../infrastructure/database/prisma.js";
+import { d1Client } from "../../infrastructure/database/d1Client.js";
 
 function parseJsonSafe(val: any): any {
   if (!val) return val;
@@ -420,6 +421,34 @@ export class UsersController {
         },
       });
 
+      // Direct sync to Cloudflare D1
+      try {
+        await d1Client.execute(
+          `INSERT OR REPLACE INTO User (system_id, id, username, password_hash, role, is_active)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+          [systemId, cleanId, cleanUsername, finalHash, typeof payload.role === "string" ? payload.role : "member", isActive ? 1 : 0]
+        );
+        if (companyId || payload.name || payload.email || payload.phone || payload.position) {
+          await d1Client.execute(
+            `INSERT OR REPLACE INTO UserDetails (system_id, company_id, name, email, phone, position, dob, joined)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              systemId,
+              companyId || null,
+              payload.name ? String(payload.name).trim() : null,
+              payload.email ? String(payload.email).trim() : null,
+              payload.phone ? String(payload.phone).trim() : null,
+              payload.position ? String(payload.position).trim() : null,
+              payload.dob ? String(payload.dob).trim() : null,
+              payload.joined ? String(payload.joined).trim() : null,
+            ]
+          );
+        }
+        console.log(`[Cloudflare D1] ✅ Created user ${systemId} in Remote D1`);
+      } catch (d1Err: any) {
+        console.warn("[Cloudflare D1] Error syncing created user to D1:", d1Err?.message);
+      }
+
       return res.status(201).json({
         success: true,
         data: formatUserForResponse(created),
@@ -521,6 +550,29 @@ export class UsersController {
               qrData: att.qr_data || att.qrData || null,
             },
           });
+
+          // Direct sync to Cloudflare D1 AttendanceLog
+          try {
+            await d1Client.ensureSchema();
+            await d1Client.execute(
+              `INSERT OR REPLACE INTO AttendanceLog (id, userId, companyId, scanDate, scanTime, type, qrData, createdAt, image, remark)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              [
+                String(att.id),
+                existing.systemId,
+                att.companyId || att.system_id || null,
+                dateStr,
+                timeStr,
+                scanType,
+                att.qr_data || att.qrData || null,
+                att.timestamp ? new Date(att.timestamp).toISOString() : new Date().toISOString(),
+                att.image || null,
+                att.remark || null,
+              ]
+            );
+          } catch (d1Err: any) {
+            console.warn("[Cloudflare D1] Attendance update error:", d1Err?.message);
+          }
         }
       }
 
@@ -660,6 +712,17 @@ export class UsersController {
         await prisma.user.delete({
           where: { systemId: existing.systemId },
         });
+
+        // Delete from Cloudflare D1
+        try {
+          await d1Client.execute("DELETE FROM UserDetails WHERE system_id = ?", [existing.systemId]);
+          await d1Client.execute("DELETE FROM AttendanceLog WHERE userId = ?", [existing.systemId]);
+          await d1Client.execute("DELETE FROM DeviceSession WHERE userId = ?", [existing.systemId]);
+          await d1Client.execute("DELETE FROM User WHERE system_id = ? OR id = ?", [existing.systemId, existing.id]);
+          console.log(`[Cloudflare D1] ✅ Deleted user ${existing.systemId} from Remote D1`);
+        } catch (d1Err: any) {
+          console.warn("[Cloudflare D1] Error deleting user from Remote D1:", d1Err?.message);
+        }
       }
 
       return res.status(200).json({

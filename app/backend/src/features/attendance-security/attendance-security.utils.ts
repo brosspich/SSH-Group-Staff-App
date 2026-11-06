@@ -54,49 +54,45 @@ export function isVpnSubnet(ip?: string): boolean {
   return false;
 }
 
+export type Coordinate = { latitude: number; longitude: number };
+
 /**
- * Known pre-resolved coordinates for company Google Maps links.
- * Used for fast, reliable lookup when links are shortened (goo.gl).
+ * Known pre-resolved coordinates for company Google Maps links and companies.
+ * Supports multiple branches/locations per company.
  */
-export const PRE_RESOLVED_COORDINATES: Record<
-  string,
-  { latitude: number; longitude: number }
-> = {
-  "https://maps.app.goo.gl/ac74wdd5gt3nnuxa": {
-    latitude: 11.502767,
-    longitude: 104.851539,
-  },
-  "https://maps.app.goo.gl/454nxaqay31nfqpo8": {
-    latitude: 11.5028527,
-    longitude: 104.8515295,
-  },
-  "https://maps.app.goo.gl/6ye7ceewhb91b1tv9": {
-    latitude: 11.536203,
-    longitude: 104.858147,
-  },
-  "system-0001": { latitude: 11.502767, longitude: 104.851539 },
-  "system-0002": { latitude: 11.536203, longitude: 104.858147 },
-  "system-0003": { latitude: 11.556372, longitude: 104.92821 },
+export const PRE_RESOLVED_COORDINATES: Record<string, Coordinate[]> = {
+  "https://maps.app.goo.gl/ac74wdd5gt3nnuxa": [
+    { latitude: 11.502767, longitude: 104.851539 },
+  ],
+  "https://maps.app.goo.gl/454nxaqay31nfqpo8": [
+    { latitude: 11.5028527, longitude: 104.8515295 },
+  ],
+  "https://maps.app.goo.gl/6ye7ceewhb91b1tv9": [
+    { latitude: 11.536203, longitude: 104.858147 },
+  ],
+  "system-0001": [{ latitude: 11.502767, longitude: 104.851539 }],
+  "system-0002": [
+    { latitude: 11.536203, longitude: 104.858147 }, // Branch A (Bpak Developer Office)
+    { latitude: 11.502767, longitude: 104.851539 }, // Branch B (SSH Group Office)
+  ],
+  "system-0003": [{ latitude: 11.556372, longitude: 104.92821 }],
 };
 
-const resolvedUrlCache = new Map<
-  string,
-  { latitude: number; longitude: number }
->();
+const resolvedUrlCache = new Map<string, Coordinate>();
 
 /**
- * Parses coordinates from text, direct string, or Google Maps URL
+ * Parses coordinates from text, direct string, or Google Maps URL.
+ * If multiple coordinates exist for a key, returns the primary (first) coordinate.
  */
-export function parseCoordinates(
-  str: string,
-): { latitude: number; longitude: number } | null {
+export function parseCoordinates(str: string): Coordinate | null {
   if (!str || typeof str !== "string") return null;
   const trimmed = str.trim();
   const lower = trimmed.toLowerCase();
 
   // 0. Check pre-resolved map & cache
   if (PRE_RESOLVED_COORDINATES[lower]) {
-    return PRE_RESOLVED_COORDINATES[lower];
+    const list = PRE_RESOLVED_COORDINATES[lower];
+    return list.length > 0 ? list[0] : null;
   }
   if (resolvedUrlCache.has(lower)) {
     return resolvedUrlCache.get(lower)!;
@@ -153,11 +149,25 @@ export function parseCoordinates(
 }
 
 /**
+ * Returns all coordinates configured for a key (e.g. company id or url).
+ * Supports multi-location companies with multiple branches (e.g. system-0002).
+ */
+export function getCoordinatesList(key?: string): Coordinate[] {
+  if (!key || typeof key !== "string") return [];
+  const lower = key.trim().toLowerCase();
+  if (PRE_RESOLVED_COORDINATES[lower]) {
+    return [...PRE_RESOLVED_COORDINATES[lower]];
+  }
+  const single = parseCoordinates(key);
+  return single ? [single] : [];
+}
+
+/**
  * Resolves coordinates asynchronously (handles HTTP redirect for shortened Google Maps URLs)
  */
 export async function resolveCoordinatesAsync(
   str: string,
-): Promise<{ latitude: number; longitude: number } | null> {
+): Promise<Coordinate | null> {
   const syncResult = parseCoordinates(str);
   if (syncResult) return syncResult;
 

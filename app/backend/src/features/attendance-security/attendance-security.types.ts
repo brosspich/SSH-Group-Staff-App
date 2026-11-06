@@ -53,6 +53,8 @@ export interface ConfirmAttendancePayload {
   latitude?: number;
   longitude?: number;
   ipAddress?: string;
+  remark?: string;
+  image?: string;
 }
 
 export interface ConfirmAttendanceResult {
@@ -70,6 +72,8 @@ export interface AttendanceRecordDto {
   type: "time-in" | "time-out" | "time-other";
   timestamp: string;
   qr_data: string;
+  remark?: string;
+  image?: string;
 }
 
 export interface ProcessScanResult {

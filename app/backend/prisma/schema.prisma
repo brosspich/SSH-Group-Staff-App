@@ -64,6 +64,8 @@ model AttendanceLog {
   scanTime   String
   type       String   // 'TIME_IN', 'TIME_OUT', 'TIME_OTHER'
   qrData     String?
+  image      String?
+  remark     String?
   createdAt  DateTime @default(now())
   user       User     @relation(fields: [userId], references: [systemId], onDelete: Cascade)
   company    Company? @relation(fields: [companyId], references: [id])
