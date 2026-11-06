@@ -1,5 +1,5 @@
-import { theme } from "@/shared/styles/theme";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {

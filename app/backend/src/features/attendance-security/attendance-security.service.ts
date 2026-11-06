@@ -1,6 +1,5 @@
-import { exec } from "child_process";
-import { prisma } from "../../infrastructure/database/prisma.js";
 import { d1Client } from "../../infrastructure/database/d1Client.js";
+import { prisma } from "../../infrastructure/database/prisma.js";
 import { r2Storage } from "../../infrastructure/storage/r2.service.js";
 import {
   AttendanceRecordDto,
@@ -477,7 +476,10 @@ export class AttendanceSecurityService {
         `[Cloudflare D1] ✅ Successfully stored AttendanceLog to Remote D1 for ${user.id} (${user.systemId}) with image: ${storedImageUrl || "none"}`,
       );
     } catch (d1Err: any) {
-      console.warn("[Cloudflare D1] Error storing to Remote D1:", d1Err?.message);
+      console.warn(
+        "[Cloudflare D1] Error storing to Remote D1:",
+        d1Err?.message,
+      );
     }
 
     // Local Prisma fallback/cache

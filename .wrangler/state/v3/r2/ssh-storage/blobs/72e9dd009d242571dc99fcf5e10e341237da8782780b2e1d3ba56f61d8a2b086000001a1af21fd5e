@@ -1,0 +1,56 @@
+import { S3Client, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import dotenv from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+const accountId = process.env.R2_ACCOUNT_ID;
+const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+const bucketName = process.env.R2_BUCKET_NAME || 'ssh-storage';
+
+console.log('Testing Cloudflare R2 via @aws-sdk/client-s3...');
+console.log('Account:', accountId);
+console.log('Bucket:', bucketName);
+console.log('Endpoint:', `https://${accountId}.r2.cloudflarestorage.com`);
+
+const s3Client = new S3Client({
+  region: 'auto',
+  endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId,
+    secretAccessKey,
+  },
+});
+
+async function run() {
+  try {
+    const key = `staff-attendance/test-user/2026-11-06/test_${Date.now()}.txt`;
+    console.log('Uploading test file to:', key);
+    const putRes = await s3Client.send(
+      new PutObjectCommand({
+        Bucket: bucketName,
+        Key: key,
+        Body: Buffer.from('Test proof upload to R2'),
+        ContentType: 'text/plain',
+      })
+    );
+    console.log('PutObject Success! HTTP status:', putRes.$metadata.httpStatusCode);
+
+    console.log('Listing objects in prefix staff-attendance/...');
+    const listRes = await s3Client.send(
+      new ListObjectsV2Command({
+        Bucket: bucketName,
+        Prefix: 'staff-attendance/',
+        MaxKeys: 10,
+      })
+    );
+    console.log('ListObjects Result:', listRes.Contents);
+  } catch (err) {
+    console.error('S3 Client Error:', err);
+  }
+}
+
+run();
