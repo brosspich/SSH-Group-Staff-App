@@ -15,13 +15,14 @@ An enterprise cross-platform mobile application and backend system built with **
 
 ```
 +----------------------------------------------------------------------------------------------------+
-|                                FRONTEND (Single Cross-Platform Codebase)                           |
-+--------------------+---------------------+--------------------+------------------------------------+
-| React Native       | React Native Web    | React Native       | Expo Router (SDK 57)               |
-| Windows            | (Browser)           | (iOS + Android)    | State: Zustand + TanStack Query    |
-|                    |                     |                    | API: Axios Client + Auto Discovery |
-|                    |                     |                    | Storage: AsyncStorage              |
-+--------------------+---------------------+--------------------+------------------------------------+
+|                               MOBILE APP (React Native / Expo SDK 57)                              |
++-------------------------------------------------------+--------------------------------------------+
+| Native Mobile Platforms (iOS & Android)               | Core Client Architecture                   |
+| * Camera & 0ms Ultra-Fast QR Scanner                  | * Expo Router (File-Based Navigation)      |
+| * Real-time Hardware Geolocation & Haversine Geofence | * State: Zustand + TanStack Query (v5)     |
+| * Anti-Mock GPS & Virtual VPN Adapter Detection       | * API: Axios Client + Dynamic Host IP      |
+| * Proof Photo Capture & Base64 Compression            | * Storage: AsyncStorage                    |
++-------------------------------------------------------+--------------------------------------------+
                                                |
                           REST API HTTP/JSON   |   Port: 4000
                                                v
@@ -197,7 +198,7 @@ npm install
 npx expo start
 ```
 
-Press `a` in the Expo terminal to launch on **Android Emulator**, `i` for **iOS Simulator**, or `w` for **Web Browser**.
+Press `a` in the Expo terminal to launch on **Android Device / Emulator**, or `i` for **iOS Simulator**.
 
 ---
 
