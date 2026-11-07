@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
-import { prisma } from "../../infrastructure/database/prisma.js";
 import { d1Client } from "../../infrastructure/database/d1Client.js";
+import { prisma } from "../../infrastructure/database/prisma.js";
 
 function parseJsonSafe(val: any): any {
   if (!val) return val;
@@ -79,27 +79,41 @@ export function formatUserForResponse(user: any) {
   }));
 
   // Format attendance logs into attendance array with full backward-compatibility
-  const attendance = (user.attendanceLogs || []).map((a: any) => ({
-    id: a.id,
-    staff_id: staffId,
-    staffId: staffId,
-    userId: systemId,
-    name: name,
-    system_id: a.companyId || companyId || null,
-    systemId: a.companyId || companyId || null,
-    companyId: a.companyId || companyId || null,
-    date: a.scanDate,
-    scanDate: a.scanDate,
-    time: a.scanTime,
-    scanTime: a.scanTime,
-    type: a.type,
-    qr_data: a.qrData,
-    qrData: a.qrData,
-    timestamp:
-      a.createdAt instanceof Date ? a.createdAt.toISOString() : a.createdAt,
-    createdAt:
-      a.createdAt instanceof Date ? a.createdAt.toISOString() : a.createdAt,
-  }));
+  const attendance = (user.attendanceLogs || []).map((a: any) => {
+    const rawType = String(a.type || "time-in");
+    const normalizedType = rawType.toLowerCase().replace(/_/g, "-");
+    return {
+      id: a.id,
+      staff_id: staffId,
+      staffId: staffId,
+      userId: systemId,
+      name: name,
+      system_id: a.companyId || companyId || null,
+      systemId: a.companyId || companyId || null,
+      companyId: a.companyId || companyId || null,
+      date: a.scanDate,
+      scanDate: a.scanDate,
+      time: a.scanTime,
+      scanTime: a.scanTime,
+      type: normalizedType,
+      rawType: a.type,
+      qr_data: a.qrData,
+      qrData: a.qrData,
+      remark: a.remark,
+      image: a.image,
+      timestamp:
+        a.createdAt instanceof Date ? a.createdAt.toISOString() : a.createdAt,
+      createdAt:
+        a.createdAt instanceof Date ? a.createdAt.toISOString() : a.createdAt,
+    };
+  });
+
+  // Ensure attendance array is sorted from newest to oldest
+  attendance.sort((a: any, b: any) => {
+    const tA = new Date(a.createdAt || a.timestamp || 0).getTime();
+    const tB = new Date(b.createdAt || b.timestamp || 0).getTime();
+    return tB - tA;
+  });
 
   // Format attendance requests into requestAttendanceRules array with full backward-compatibility
   const requestAttendanceRules = (user.attendanceRequests || []).map(
@@ -215,7 +229,7 @@ export class UsersController {
         include: {
           details: { include: { company: true } },
           deviceSessions: true,
-          attendanceLogs: true,
+          attendanceLogs: { orderBy: { createdAt: "desc" } },
           attendanceRequests: true,
         },
         orderBy: [{ id: "asc" }],
@@ -243,7 +257,7 @@ export class UsersController {
         include: {
           details: { include: { company: true } },
           deviceSessions: true,
-          attendanceLogs: true,
+          attendanceLogs: { orderBy: { createdAt: "desc" } },
           attendanceRequests: true,
         },
       });
@@ -253,6 +267,22 @@ export class UsersController {
           success: false,
           error: { message: "User not found" },
         });
+      }
+
+      // Fetch fresh live attendance logs directly from Cloudflare D1
+      try {
+        const d1Logs = await d1Client.query(
+          "SELECT * FROM AttendanceLog WHERE userId = ? OR userId = ? ORDER BY createdAt DESC LIMIT 50;",
+          [user.systemId, user.id],
+        );
+        if (d1Logs && d1Logs.length > 0) {
+          (user as any).attendanceLogs = d1Logs;
+        }
+      } catch (d1Err: any) {
+        console.warn(
+          "[Cloudflare D1] Could not fetch live attendance logs in getUserById:",
+          d1Err?.message,
+        );
       }
 
       return res.status(200).json({
@@ -416,7 +446,7 @@ export class UsersController {
         include: {
           details: { include: { company: true } },
           deviceSessions: true,
-          attendanceLogs: true,
+          attendanceLogs: { orderBy: { createdAt: "desc" } },
           attendanceRequests: true,
         },
       });
@@ -426,9 +456,22 @@ export class UsersController {
         await d1Client.execute(
           `INSERT OR REPLACE INTO User (system_id, id, username, password_hash, role, is_active)
            VALUES (?, ?, ?, ?, ?, ?)`,
-          [systemId, cleanId, cleanUsername, finalHash, typeof payload.role === "string" ? payload.role : "member", isActive ? 1 : 0]
+          [
+            systemId,
+            cleanId,
+            cleanUsername,
+            finalHash,
+            typeof payload.role === "string" ? payload.role : "member",
+            isActive ? 1 : 0,
+          ],
         );
-        if (companyId || payload.name || payload.email || payload.phone || payload.position) {
+        if (
+          companyId ||
+          payload.name ||
+          payload.email ||
+          payload.phone ||
+          payload.position
+        ) {
           await d1Client.execute(
             `INSERT OR REPLACE INTO UserDetails (system_id, company_id, name, email, phone, position, dob, joined)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -441,12 +484,15 @@ export class UsersController {
               payload.position ? String(payload.position).trim() : null,
               payload.dob ? String(payload.dob).trim() : null,
               payload.joined ? String(payload.joined).trim() : null,
-            ]
+            ],
           );
         }
         console.log(`[Cloudflare D1] ✅ Created user ${systemId} in Remote D1`);
       } catch (d1Err: any) {
-        console.warn("[Cloudflare D1] Error syncing created user to D1:", d1Err?.message);
+        console.warn(
+          "[Cloudflare D1] Error syncing created user to D1:",
+          d1Err?.message,
+        );
       }
 
       return res.status(201).json({
@@ -565,13 +611,18 @@ export class UsersController {
                 timeStr,
                 scanType,
                 att.qr_data || att.qrData || null,
-                att.timestamp ? new Date(att.timestamp).toISOString() : new Date().toISOString(),
+                att.timestamp
+                  ? new Date(att.timestamp).toISOString()
+                  : new Date().toISOString(),
                 att.image || null,
                 att.remark || null,
-              ]
+              ],
             );
           } catch (d1Err: any) {
-            console.warn("[Cloudflare D1] Attendance update error:", d1Err?.message);
+            console.warn(
+              "[Cloudflare D1] Attendance update error:",
+              d1Err?.message,
+            );
           }
         }
       }
@@ -715,13 +766,28 @@ export class UsersController {
 
         // Delete from Cloudflare D1
         try {
-          await d1Client.execute("DELETE FROM UserDetails WHERE system_id = ?", [existing.systemId]);
-          await d1Client.execute("DELETE FROM AttendanceLog WHERE userId = ?", [existing.systemId]);
-          await d1Client.execute("DELETE FROM DeviceSession WHERE userId = ?", [existing.systemId]);
-          await d1Client.execute("DELETE FROM User WHERE system_id = ? OR id = ?", [existing.systemId, existing.id]);
-          console.log(`[Cloudflare D1] ✅ Deleted user ${existing.systemId} from Remote D1`);
+          await d1Client.execute(
+            "DELETE FROM UserDetails WHERE system_id = ?",
+            [existing.systemId],
+          );
+          await d1Client.execute("DELETE FROM AttendanceLog WHERE userId = ?", [
+            existing.systemId,
+          ]);
+          await d1Client.execute("DELETE FROM DeviceSession WHERE userId = ?", [
+            existing.systemId,
+          ]);
+          await d1Client.execute(
+            "DELETE FROM User WHERE system_id = ? OR id = ?",
+            [existing.systemId, existing.id],
+          );
+          console.log(
+            `[Cloudflare D1] ✅ Deleted user ${existing.systemId} from Remote D1`,
+          );
         } catch (d1Err: any) {
-          console.warn("[Cloudflare D1] Error deleting user from Remote D1:", d1Err?.message);
+          console.warn(
+            "[Cloudflare D1] Error deleting user from Remote D1:",
+            d1Err?.message,
+          );
         }
       }
 

@@ -32,7 +32,7 @@ export const ImageSourceModal: React.FC<ImageSourceModalProps> = ({
       statusBarTranslucent
     >
       <View style={styles.overlay}>
-        <View style={[styles.card, { maxWidth: isMobile ? "92%" : 380 }]}>
+        <View style={[styles.card, { maxWidth: isMobile ? "100%" : 380 }]}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.subtitle}>{subtitle}</Text>
 

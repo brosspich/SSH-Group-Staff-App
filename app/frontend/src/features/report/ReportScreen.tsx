@@ -1,6 +1,6 @@
-import { theme } from "@/shared/styles/theme";
 import Appbar from "@/shared/components/appbar/appbar";
 import { useUser } from "@/shared/contexts/UserContext";
+import { theme } from "@/shared/styles/theme";
 import { hasAdminRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView, StatusBar, StyleSheet, View } from "react-native";
@@ -28,12 +28,12 @@ const currentStaffReports: ReportItemConfig[] = [
     iconName: "newspaper-outline",
     icon: Ionicons,
   },
-  {
-    title: "Annual Report",
-    route: "/report-current-staff/annual-report",
-    iconName: "newspaper-outline",
-    icon: Ionicons,
-  },
+  // {
+  //   title: "Annual Report",
+  //   route: "/report-current-staff/annual-report",
+  //   iconName: "newspaper-outline",
+  //   icon: Ionicons,
+  // },
 ];
 
 const requestCurrentStaffReports: ReportItemConfig[] = [
@@ -55,12 +55,12 @@ const requestCurrentStaffReports: ReportItemConfig[] = [
     iconName: "document-text-outline",
     icon: Ionicons,
   },
-  {
-    title: "Annual Report",
-    route: "/report-request-current-staff/annual-report",
-    iconName: "document-text-outline",
-    icon: Ionicons,
-  },
+  // {
+  //   title: "Annual Report",
+  //   route: "/report-request-current-staff/annual-report",
+  //   iconName: "document-text-outline",
+  //   icon: Ionicons,
+  // },
 ];
 
 const individualStaffReports: ReportItemConfig[] = [
@@ -82,12 +82,12 @@ const individualStaffReports: ReportItemConfig[] = [
     iconName: "newspaper-outline",
     icon: Ionicons,
   },
-  {
-    title: "Annual Report",
-    route: "/report-individual-staff/annual-report",
-    iconName: "newspaper-outline",
-    icon: Ionicons,
-  },
+  // {
+  //   title: "Annual Report",
+  //   route: "/report-individual-staff/annual-report",
+  //   iconName: "newspaper-outline",
+  //   icon: Ionicons,
+  // },
 ];
 
 const requestIndividualStaffReports: ReportItemConfig[] = [
@@ -109,12 +109,12 @@ const requestIndividualStaffReports: ReportItemConfig[] = [
     iconName: "document-text-outline",
     icon: Ionicons,
   },
-  {
-    title: "Annual Report",
-    route: "/report-request-individual-staff/annual-report",
-    iconName: "document-text-outline",
-    icon: Ionicons,
-  },
+  // {
+  //   title: "Annual Report",
+  //   route: "/report-request-individual-staff/annual-report",
+  //   iconName: "document-text-outline",
+  //   icon: Ionicons,
+  // },
 ];
 
 export default function ReportScreen() {

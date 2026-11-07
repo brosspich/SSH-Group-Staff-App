@@ -1,6 +1,7 @@
 import { useUser } from "@/shared/contexts/UserContext";
 import { secureStorage } from "@/shared/services/storage/secureStore.service";
 import { userService } from "@/shared/services/userService";
+import { clearSessionId } from "@/shared/utils/device-session/sessionStorage";
 import { syncDeviceSession } from "@/utils/deviceSession";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
@@ -33,21 +34,25 @@ export function useLoginMutation() {
       queryClient.clear();
 
       if (data.token) {
-        await secureStorage.setItem("auth_token", data.token).catch(() => null);
+        secureStorage.setItem("auth_token", data.token).catch(() => null);
       }
 
-      // Persist the newly authenticated user to storage and immediately update context
+      // 1. Immediately save the newly authenticated user & update context
       await userService.save(data.user);
       setUser(data.user);
 
-      try {
-        await syncDeviceSession(data.user.system_id || data.user.id, true, true);
-      } catch (err) {
-        console.warn("Failed to sync device session during login:", err);
-      }
+      // 2. Clear any stale terminated session ID so this login starts fresh
+      await clearSessionId().catch(() => null);
 
-      await refresh(true);
-      router.replace("/");
+      // 3. Fast navigation: Instantly enter the app without blocking on background network calls!
+      router.replace("/(tabs)/" as any);
+
+      // 4. Background Sync: sync device session & hydrate fresh config asynchronously
+      syncDeviceSession(data.user.system_id || data.user.id, true, true)
+        .then(() => refresh(false))
+        .catch((err) => {
+          console.warn("Failed to sync device session in background:", err);
+        });
     },
     onError: (err) => {
       setIsLoading(false);

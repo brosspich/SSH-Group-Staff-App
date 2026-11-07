@@ -17,6 +17,7 @@ export class AttendanceRequestsController {
         to_time,
         subject,
         remark,
+        image,
       } = req.body;
 
       const effectiveUserId = userId || staffId || (req as any).user?.id;
@@ -29,6 +30,7 @@ export class AttendanceRequestsController {
         toTime: toTime || to_time || "05:00 PM",
         subject,
         remark,
+        image,
       });
 
       return res.status(201).json({

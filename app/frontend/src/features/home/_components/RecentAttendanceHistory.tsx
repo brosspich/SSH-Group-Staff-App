@@ -44,90 +44,107 @@ export const RecentAttendanceHistory: React.FC<
         </View>
       ) : (
         <View style={styles.historyList}>
-          {attendanceList.slice(0, 4).map((item, index) => {
-            if (!item || typeof item !== "object") return null;
+          {[...attendanceList]
+            .sort((a, b) => {
+              const tA = new Date(
+                a.timestamp || a.createdAt || a.date || 0,
+              ).getTime();
+              const tB = new Date(
+                b.timestamp || b.createdAt || b.date || 0,
+              ).getTime();
+              return tB - tA;
+            })
+            .slice(0, 4)
+            .map((item, index) => {
+              if (!item || typeof item !== "object") return null;
 
-            const isTimeIn = item.type === "time-in";
-            const isTimeOut = item.type === "time-out";
+              const itemType = String(item.type || "")
+                .toLowerCase()
+                .replace(/_/g, "-");
+              const isTimeIn = itemType === "time-in";
+              const isTimeOut = itemType === "time-out";
 
-            const badgeBg = isTimeIn
-              ? `${theme.colors.primary}15`
-              : isTimeOut
-                ? `${theme.colors.error}15`
-                : `${theme.colors.secondary}15`;
-            const badgeColor = isTimeIn
-              ? theme.colors.primary
-              : isTimeOut
-                ? theme.colors.error
-                : theme.colors.secondary;
+              const badgeBg = isTimeIn
+                ? `${theme.colors.primary}15`
+                : isTimeOut
+                  ? `${theme.colors.error}15`
+                  : `${theme.colors.secondary}15`;
+              const badgeColor = isTimeIn
+                ? theme.colors.primary
+                : isTimeOut
+                  ? theme.colors.error
+                  : theme.colors.secondary;
 
-            const rawTime =
-              item.time ||
-              (item as any).scanTime ||
-              (typeof item.timestamp === "string"
-                ? item.timestamp.split("T")[1]?.slice(0, 8)
-                : "");
-            const displayTime =
-              typeof rawTime === "object"
-                ? JSON.stringify(rawTime)
-                : String(rawTime || "—");
+              const rawTime =
+                item.time ||
+                (item as any).scanTime ||
+                (typeof item.timestamp === "string"
+                  ? item.timestamp.split("T")[1]?.slice(0, 8)
+                  : "");
+              const displayTime =
+                typeof rawTime === "object"
+                  ? JSON.stringify(rawTime)
+                  : String(rawTime || "—");
 
-            const rawDate =
-              item.date ||
-              (item as any).scanDate ||
-              (typeof item.timestamp === "string"
-                ? item.timestamp.split("T")[0]
-                : "");
-            const displayDate =
-              typeof rawDate === "object"
-                ? JSON.stringify(rawDate)
-                : String(rawDate || "—");
+              const rawDate =
+                item.date ||
+                (item as any).scanDate ||
+                (typeof item.timestamp === "string"
+                  ? item.timestamp.split("T")[0]
+                  : "");
+              const displayDate =
+                typeof rawDate === "object"
+                  ? JSON.stringify(rawDate)
+                  : String(rawDate || "—");
 
-            const rawStaffId =
-              item.staff_id ||
-              (item as any).userId ||
-              (item as any).staffId ||
-              "";
-            const displayStaffId =
-              typeof rawStaffId === "object"
-                ? JSON.stringify(rawStaffId)
-                : String(rawStaffId || "—");
+              const rawStaffId =
+                item.staff_id ||
+                (item as any).userId ||
+                (item as any).staffId ||
+                "";
+              const displayStaffId =
+                typeof rawStaffId === "object"
+                  ? JSON.stringify(rawStaffId)
+                  : String(rawStaffId || "—");
 
-            const rawName = item.name || "";
-            const displayName =
-              typeof rawName === "object"
-                ? (rawName as any)?.name || JSON.stringify(rawName)
-                : String(rawName || "—");
+              const rawName = item.name || "";
+              const displayName =
+                typeof rawName === "object"
+                  ? (rawName as any)?.name || JSON.stringify(rawName)
+                  : String(rawName || "—");
 
-            const itemKey = `${item.id || "att"}_${item.timestamp || ""}_${index}`;
+              const itemKey = `${item.id || "att"}_${item.timestamp || ""}_${index}`;
 
-            return (
-              <View key={itemKey} style={styles.historyItem}>
-                <View style={styles.historyItemLeft}>
-                  <View
-                    style={[styles.historyBadge, { backgroundColor: badgeBg }]}
-                  >
-                    <Text
-                      style={[styles.historyBadgeText, { color: badgeColor }]}
+              return (
+                <View key={itemKey} style={styles.historyItem}>
+                  <View style={styles.historyItemLeft}>
+                    <View
+                      style={[
+                        styles.historyBadge,
+                        { backgroundColor: badgeBg },
+                      ]}
                     >
-                      {String(item.type || "time-in").toUpperCase()}
+                      <Text
+                        style={[styles.historyBadgeText, { color: badgeColor }]}
+                      >
+                        {String(item.type || "time-in").toUpperCase()}
+                      </Text>
+                    </View>
+                    <View>
+                      <Text style={styles.historyItemTime}>{displayTime}</Text>
+                      <Text style={styles.historyItemDate}>{displayDate}</Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.historyItemRight}>
+                    <Text style={styles.historyStaffName}>{displayName}</Text>
+                    <Text style={styles.historyStaffId}>
+                      ID: {displayStaffId}
                     </Text>
                   </View>
-                  <View>
-                    <Text style={styles.historyItemTime}>{displayTime}</Text>
-                    <Text style={styles.historyItemDate}>{displayDate}</Text>
-                  </View>
                 </View>
-
-                <View style={styles.historyItemRight}>
-                  <Text style={styles.historyStaffName}>{displayName}</Text>
-                  <Text style={styles.historyStaffId}>
-                    ID: {displayStaffId}
-                  </Text>
-                </View>
-              </View>
-            );
-          })}
+              );
+            })}
         </View>
       )}
     </>

@@ -1,3 +1,4 @@
+import { d1Client } from "../../infrastructure/database/d1Client.js";
 import { prisma } from "../../infrastructure/database/prisma.js";
 import {
   AttendanceReportResponse,
@@ -60,6 +61,7 @@ export class ReportsService {
       .map((u) => ({
         id: u.id,
         name: u.details?.name || u.username,
+        username: u.username,
         position: u.details?.position || null,
         role: u.role,
         company_id: u.details?.companyId || null,
@@ -74,48 +76,82 @@ export class ReportsService {
       targetStaffId = staffList[0].id;
     }
 
-    // 3. Extract and normalize attendance records
+    // 3. Extract and normalize attendance records (Prioritize Cloudflare D1)
     let allLogs: any[] = [];
-    const staffWithLogs = new Set<string>();
+    let d1Logs: any[] = [];
+    try {
+      d1Logs = await d1Client.query(
+        "SELECT id, userId, companyId, scanDate, scanTime, type, remark, image, createdAt FROM AttendanceLog ORDER BY createdAt DESC",
+      );
+    } catch (e: any) {
+      console.warn("D1 query fallback in reports.service:", e?.message);
+    }
 
-    for (const u of users) {
-      // Priority 1: DB normalized attendanceLogs
-      if (u.attendanceLogs && u.attendanceLogs.length > 0) {
-        for (const log of u.attendanceLogs) {
-          allLogs.push({
-            id: log.id,
-            staff_id: u.id,
-            system_id: u.details?.companyId || log.companyId,
-            name: u.details?.name || u.username,
-            date: log.scanDate,
-            time: log.scanTime,
-            type: log.type.toLowerCase().replace("_", "-"),
-            timestamp: log.createdAt.toISOString(),
-            qr_data: log.qrData || "",
-          });
-        }
-      } else {
-        // Priority 2: JSON attendance column fallback
-        const legacyLogs = parseJsonField((u as any).attendance);
-        for (const rec of legacyLogs) {
-          if (!rec || typeof rec !== "object") continue;
-          allLogs.push({
-            id: rec.id || "",
-            staff_id: rec.staff_id != null ? String(rec.staff_id) : u.id,
-            system_id: rec.system_id || u.details?.companyId || null,
-            name: rec.name || u.details?.name || u.username,
-            date:
-              rec.date ||
-              rec.scanDate ||
-              (rec.timestamp ? rec.timestamp.split("T")[0] : ""),
-            time:
-              rec.time ||
-              rec.scanTime ||
-              (rec.timestamp ? rec.timestamp.split("T")[1]?.slice(0, 8) : ""),
-            type: String(rec.type || "time-other").toLowerCase(),
-            timestamp: rec.timestamp || "",
-            qr_data: rec.qr_data || "",
-          });
+    if (d1Logs && d1Logs.length > 0) {
+      for (const log of d1Logs) {
+        const u = users.find(
+          (usr) => usr.systemId === log.userId || usr.id === log.userId,
+        );
+        allLogs.push({
+          id: log.id,
+          staff_id: u?.id || log.userId,
+          system_id: u?.details?.companyId || log.companyId,
+          name: u?.details?.name || u?.username || log.userId,
+          username: u?.username || "",
+          date: log.scanDate,
+          time: log.scanTime,
+          type: String(log.type || "")
+            .toLowerCase()
+            .replace(/_/g, "-"),
+          timestamp: log.createdAt || "",
+          qr_data: log.qrData || "",
+          remark: log.remark || "",
+        });
+      }
+    } else {
+      for (const u of users) {
+        // Priority 1: DB normalized attendanceLogs
+        if (u.attendanceLogs && u.attendanceLogs.length > 0) {
+          for (const log of u.attendanceLogs) {
+            allLogs.push({
+              id: log.id,
+              staff_id: u.id,
+              system_id: u.details?.companyId || log.companyId,
+              name: u.details?.name || u.username,
+              username: u.username,
+              date: log.scanDate,
+              time: log.scanTime,
+              type: log.type.toLowerCase().replace(/_/g, "-"),
+              timestamp: log.createdAt.toISOString(),
+              qr_data: log.qrData || "",
+              remark: log.remark || "",
+            });
+          }
+        } else {
+          // Priority 2: JSON attendance column fallback
+          const legacyLogs = parseJsonField((u as any).attendance);
+          for (const rec of legacyLogs) {
+            if (!rec || typeof rec !== "object") continue;
+            allLogs.push({
+              id: rec.id || "",
+              staff_id: rec.staff_id != null ? String(rec.staff_id) : u.id,
+              system_id: rec.system_id || u.details?.companyId || null,
+              name: rec.name || u.details?.name || u.username,
+              username: rec.username || u.username,
+              date:
+                rec.date ||
+                rec.scanDate ||
+                (rec.timestamp ? rec.timestamp.split("T")[0] : ""),
+              time:
+                rec.time ||
+                rec.scanTime ||
+                (rec.timestamp ? rec.timestamp.split("T")[1]?.slice(0, 8) : ""),
+              type: String(rec.type || "time-other").toLowerCase(),
+              timestamp: rec.timestamp || "",
+              qr_data: rec.qr_data || "",
+              remark: rec.remark || "",
+            });
+          }
         }
       }
     }
@@ -176,6 +212,7 @@ export class ReportsService {
       return String(a.timestamp || "").localeCompare(String(b.timestamp || ""));
     });
 
+    const staffWithLogs = new Set<string>();
     filteredLogs.forEach((r) => staffWithLogs.add(r.staff_id));
 
     // 7. Aggregation Summary (Calculated on server)

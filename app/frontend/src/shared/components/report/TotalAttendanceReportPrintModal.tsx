@@ -1,4 +1,4 @@
-import { AttendanceRecord } from "@/app/(tabs)/attendance";
+import { AttendanceRecord } from "@/features/attendance/_types/attendance.types";
 import CustomAttendancePaper from "@/shared/components/report/CustomAttendancePaper";
 import {
   AttendanceSummary,
@@ -324,7 +324,7 @@ const s = StyleSheet.create({
   },
   container: {
     backgroundColor: theme.colors.background2,
-    height: "88%",
+    height: "87%",
   },
   header: {
     flexDirection: "row",
@@ -374,7 +374,7 @@ const s = StyleSheet.create({
     gap: 6,
     borderRadius: theme.borderRadius.md,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: theme.spacing.md,
     borderWidth: 1.5,
     borderColor: theme.colors.secondary,
   },
@@ -391,7 +391,7 @@ const s = StyleSheet.create({
     gap: 6,
     backgroundColor: theme.colors.secondary,
     borderRadius: theme.borderRadius.md,
-    paddingVertical: 10,
+    paddingVertical: theme.spacing.md,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,

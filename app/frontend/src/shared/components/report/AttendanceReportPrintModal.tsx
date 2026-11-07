@@ -1,4 +1,4 @@
-import { AttendanceRecord } from "@/app/(tabs)/attendance";
+import { AttendanceRecord } from "@/features/attendance/_types/attendance.types";
 import CustomAttendancePaper from "@/shared/components/report/CustomAttendancePaper";
 import {
   AttendanceSummary,

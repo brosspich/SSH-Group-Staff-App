@@ -16,6 +16,35 @@ export function formatDateYMD(date = new Date()): string {
   return `${y}-${m}-${d}`;
 }
 
+export function formatDateDisplay(date: Date): string {
+  const d = date.getDate();
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const m = months[date.getMonth()];
+  const y = date.getFullYear();
+  return `${d} ${m} ${y}`;
+}
+
+export function isSameDay(d1: Date, d2: Date): boolean {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
+}
+
 /**
  * Generates formatted attendance ID: att-XXXX-YYYY-ZZZZ
  * att-0000-0000-9999 -> att-0000-0001-0000

@@ -214,6 +214,7 @@ export class DevicesService {
     });
 
     // 3. Deduplicate: Terminate older active duplicate sessions for this exact physical device
+    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
     const otherActiveSessions = await prisma.deviceSession.findMany({
       where: {
         userId: effectiveUserId,
@@ -224,6 +225,8 @@ export class DevicesService {
 
     const duplicatesToTerminate = otherActiveSessions
       .filter((s) => {
+        // Guard against race conditions: never terminate sessions active within the last 2 minutes
+        if (s.lastActive && s.lastActive > twoMinutesAgo) return false;
         const sOs = (s.os || "").trim().toLowerCase();
         const sName = (s.deviceName || s.modelName || "").trim().toLowerCase();
         return (

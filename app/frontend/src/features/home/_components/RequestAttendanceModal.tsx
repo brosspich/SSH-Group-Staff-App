@@ -1,25 +1,23 @@
-import { theme } from "@/shared/styles/theme";
+import { ImageSourceModal } from "@/features/home/_components/ImageSourceModal";
+import { ModalFooterButtons } from "@/features/home/_components/ModalFooterButtons";
+import { ProofImageUpload } from "@/features/home/_components/ProofImageUpload";
+import { RequestConfirmModal } from "@/features/home/_components/RequestConfirmModal";
+import { useRequestAttendanceForm } from "@/features/home/_hooks/useRequestAttendanceForm";
+import { formatDateDisplay } from "@/features/home/_utils/homeUtils";
+import { renderAlertModal } from "@/shared/components/alert/alert";
 import DatePickerModal from "@/shared/components/daterangpicker/DatePickerModal";
 import TimePickerModal from "@/shared/components/daterangpicker/TimePickerModal";
-import {
-  formatTimeDisplay,
-  getOfficialTimeIn,
-  getOfficialTimeOut,
-} from "@/shared/constants/attendanceConfig";
 import { useResponsive } from "@/shared/hooks/useResponsive";
-import { submitAttendanceRequest } from "@/shared/services/attendanceRequestService";
-import { StaffUser, userService } from "@/shared/services/userService";
-import { renderAlertModal } from "@/shared/components/alert/alert";
+import { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import {
-  ActivityIndicator,
   Keyboard,
   Modal,
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -27,51 +25,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-function formatDateDisplay(date: Date): string {
-  const d = date.getDate();
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const m = months[date.getMonth()];
-  const y = date.getFullYear();
-  return `${d} ${m} ${y}`;
-}
-
-function formatDateYMD(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-function getDefaultTime(): string {
-  const now = new Date();
-  let h = now.getHours();
-  const m = now.getMinutes();
-  const p = h >= 12 ? "PM" : "AM";
-  h = h % 12 || 12;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")} ${p}`;
-}
-
-function isSameDay(d1: Date, d2: Date): boolean {
-  return (
-    d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth() &&
-    d1.getDate() === d2.getDate()
-  );
-}
+import { styles as s } from "./RequestAttendanceModal.styles";
 
 const QUICK_SUBJECTS = [
   "Forgot Check-In",
@@ -94,9 +48,13 @@ export interface RequestAttendanceModalProps {
     fromTime?: string;
     toDate?: string;
     toTime?: string;
+    image?: string;
   }) => Promise<void> | void;
 }
 
+/**
+ * Clean Request Attendance Modal following SOLID, DRY & Feature-based structure.
+ */
 export function RequestAttendanceModal({
   visible,
   onClose,
@@ -106,84 +64,55 @@ export function RequestAttendanceModal({
   const insets = useSafeAreaInsets();
   const { isMobile } = useResponsive();
   const { height: windowHeight } = useWindowDimensions();
-
-  const [currentUser, setCurrentUser] = useState<StaffUser | null>(
-    user || null,
-  );
-
-  useEffect(() => {
-    if (user) {
-      setCurrentUser(user);
-    } else {
-      userService.get().then((u) => {
-        if (u) setCurrentUser(u);
-      });
-    }
-  }, [user, visible]);
-
-  // From Date & Time (defaults to today and official Time-In from database)
-  const [fromDate, setFromDate] = useState<Date>(new Date());
-  const [fromTime, setFromTime] = useState<string>(() =>
-    formatTimeDisplay(getOfficialTimeIn(), "08:00 AM"),
-  );
-
-  // To Date & Time (defaults to today and official Time-Out from database)
-  const [toDate, setToDate] = useState<Date>(new Date());
-  const [toTime, setToTime] = useState<string>(() =>
-    formatTimeDisplay(getOfficialTimeOut(), "05:00 PM"),
-  );
-
-  // Picker target states: 'from' | 'to' | null
-  const [datePickerTarget, setDatePickerTarget] = useState<
-    "from" | "to" | null
-  >(null);
-  const [timePickerTarget, setTimePickerTarget] = useState<
-    "from" | "to" | null
-  >(null);
-
-  const [subject, setSubject] = useState("");
-  const [remark, setRemark] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-
-  // Confirmation Modal state
-  const [confirmModalVisible, setConfirmModalVisible] = useState(false);
-
-  // Custom Alert Modal states
-  const [alertModalVisible, setAlertModalVisible] = useState(false);
-  const [alertTitle, setAlertTitle] = useState("");
-  const [alertBody, setAlertBody] = useState("");
-  const [alertOnPress, setAlertOnPress] = useState<(() => void) | undefined>(
-    undefined,
-  );
-
   const scrollRef = useRef<ScrollView>(null);
-  const isSubmittingRef = useRef(false);
 
-  useEffect(() => {
-    if (visible) {
-      const now = new Date();
-      setFromDate(now);
-      setFromTime(formatTimeDisplay(getOfficialTimeIn(), "08:00 AM"));
-      setToDate(now);
-      setToTime(formatTimeDisplay(getOfficialTimeOut(), "05:00 PM"));
-      setDatePickerTarget(null);
-      setTimePickerTarget(null);
-      setSubject("");
-      setRemark("");
-      setErrorMessage(null);
-      setSubmitting(false);
-      isSubmittingRef.current = false;
-      setKeyboardHeight(0);
-      setConfirmModalVisible(false);
-      setAlertModalVisible(false);
-      setAlertTitle("");
-      setAlertBody("");
-      setAlertOnPress(undefined);
-    }
-  }, [visible]);
+  // Form State, Proof Image & Validation Hook (SRP)
+  const {
+    currentUser,
+    fromDate,
+    setFromDate,
+    fromTime,
+    setFromTime,
+    toDate,
+    setToDate,
+    toTime,
+    setToTime,
+    datePickerTarget,
+    setDatePickerTarget,
+    timePickerTarget,
+    setTimePickerTarget,
+    subject,
+    setSubject,
+    remark,
+    setRemark,
+    imageUri,
+    imageError,
+    imageSourceModalVisible,
+    setImageSourceModalVisible,
+    submitting,
+    errorMessage,
+    setErrorMessage,
+    confirmModalVisible,
+    setConfirmModalVisible,
+    alertModalVisible,
+    alertTitle,
+    alertBody,
+    alertOnPress,
+    handlePickImage,
+    handleRemoveImage,
+    handleClose,
+    handleAlertDismiss,
+    handleOpenConfirm,
+    handleConfirmSubmit,
+  } = useRequestAttendanceForm({
+    visible,
+    user,
+    onClose,
+    onSubmit,
+  });
 
+  // Track keyboard height to adjust modal sheet
   useEffect(() => {
     const showSub = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
@@ -204,470 +133,378 @@ export function RequestAttendanceModal({
     };
   }, []);
 
-  const handleClose = () => {
-    Keyboard.dismiss();
-    setConfirmModalVisible(false);
-    onClose();
-  };
-
-  const handleAlertDismiss = (visible: boolean) => {
-    setAlertModalVisible(visible);
-    if (!visible && alertTitle === "Request Submitted") {
-      handleClose();
-    }
-  };
-
-  const handleOpenConfirm = () => {
-    if (!subject.trim()) {
-      setErrorMessage("Please enter a subject.");
-      return;
-    }
-    if (!remark.trim()) {
-      setErrorMessage("Please enter a remark.");
-      return;
-    }
-
-    const targetUser = currentUser || user;
-    if (!targetUser?.id) {
-      setErrorMessage("User information not found. Please log in again.");
-      return;
-    }
-
-    setErrorMessage(null);
-    Keyboard.dismiss();
-    setConfirmModalVisible(true);
-  };
-
-  const handleConfirmSubmit = async () => {
-    if (isSubmittingRef.current) return;
-    const targetUser = currentUser || user;
-    if (!targetUser?.id) {
-      setErrorMessage("User information not found. Please log in again.");
-      setConfirmModalVisible(false);
-      return;
-    }
-
-    isSubmittingRef.current = true;
-    setErrorMessage(null);
-    setSubmitting(true);
-
-    try {
-      const fromDateStr = formatDateYMD(fromDate);
-      const toDateStr = formatDateYMD(toDate);
-
-      // Save directly to Backend API table ssh_group_staff_users (request_attendance_rules column)
-      // and send notification to Telegram
-      await submitAttendanceRequest({
-        user: targetUser,
-        fromDate: fromDateStr,
-        fromTime,
-        toDate: toDateStr,
-        toTime,
-        subject: subject.trim(),
-        remark: remark.trim(),
-      });
-
-      // Also invoke optional callback if provided
-      if (onSubmit) {
-        await onSubmit({
-          subject: subject.trim(),
-          remark: remark.trim(),
-          date: fromDateStr,
-          time: fromTime,
-          fromDate: fromDateStr,
-          fromTime,
-          toDate: toDateStr,
-          toTime,
-        });
-      }
-
-      setConfirmModalVisible(false);
-      setAlertTitle("Request Submitted");
-      setAlertBody(
-        "Your attendance request has been saved and sent to Telegram successfully.",
-      );
-      setAlertOnPress(() => () => {
-        handleClose();
-      });
-      setAlertModalVisible(true);
-    } catch (err: any) {
-      console.warn("Error submitting attendance request:", err);
-      setConfirmModalVisible(false);
-      setAlertTitle("Submission Failed");
-      setAlertBody(
-        err?.message ||
-          "Failed to submit attendance request. Please try again.",
-      );
-      setAlertOnPress(undefined);
-      setAlertModalVisible(true);
-    } finally {
-      setSubmitting(false);
-      isSubmittingRef.current = false;
-    }
-  };
-
-  // Calculate maximum allowed height so modal never overflows top when keyboard opens
   const maxSheetHeight =
     keyboardHeight > 0
       ? windowHeight - keyboardHeight - insets.top - 20
-      : windowHeight * 0.85;
+      : windowHeight * 0.88;
 
   return (
-    <Modal
-      visible={visible}
-      statusBarTranslucent
-      animationType={isMobile ? "slide" : "fade"}
-      transparent
-      onRequestClose={handleClose}
-    >
-      <View
-        style={[
-          s.backdrop,
-          {
-            justifyContent: !isMobile ? "center" : "flex-end",
-            alignItems: !isMobile ? "center" : "stretch",
-            padding: !isMobile ? 16 : 0,
-          },
-        ]}
+    <>
+      <Modal
+        visible={visible}
+        statusBarTranslucent
+        animationType={isMobile ? "slide" : "fade"}
+        transparent
+        onRequestClose={handleClose}
       >
-        <Pressable style={StyleSheet.absoluteFill} onPress={handleClose} />
         <View
           style={[
-            s.sheet,
+            s.backdrop,
             {
-              maxWidth: !isMobile ? 480 : "100%",
-              width: !isMobile ? 480 : "100%",
-              borderRadius: !isMobile ? 20 : 0,
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-              maxHeight: maxSheetHeight,
-              marginBottom: keyboardHeight,
-              paddingBottom:
-                keyboardHeight > 0
-                  ? 12
-                  : isMobile
-                    ? Math.max(insets.bottom, 16)
-                    : 20,
+              justifyContent: !isMobile ? "center" : "flex-end",
+              alignItems: !isMobile ? "center" : "stretch",
+              padding: !isMobile ? 16 : 0,
             },
           ]}
         >
-          {/* Header */}
-          <View style={s.header}>
-            <View style={s.headerLeft}>
-              <View style={s.headerIconBadge}>
-                <Ionicons
-                  name="calendar-outline"
-                  size={20}
-                  color={theme.colors.primary}
-                />
-              </View>
-              <Text style={s.headerTitle}>Request Attendance</Text>
-            </View>
-            <TouchableOpacity
-              onPress={handleClose}
-              style={s.closeBtn}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <MaterialIcons
-                name="close"
-                size={22}
-                color={theme.colors.textSecondary}
-              />
-            </TouchableOpacity>
-          </View>
-
-          {/* Scrollable Content Body */}
-          <ScrollView
-            ref={scrollRef}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            style={s.scrollArea}
-            contentContainerStyle={s.scrollContent}
+          <Pressable style={s.backdrop} onPress={handleClose} />
+          <View
+            style={[
+              s.sheet,
+              {
+                maxWidth: !isMobile ? 480 : "100%",
+                width: !isMobile ? 480 : "100%",
+                borderRadius: !isMobile ? 20 : 0,
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                maxHeight: maxSheetHeight,
+                marginBottom: keyboardHeight,
+                paddingBottom:
+                  keyboardHeight > 0
+                    ? 12
+                    : isMobile
+                      ? Math.max(insets.bottom, 16)
+                      : 20,
+              },
+            ]}
           >
-            {/* ── Display Staff Info (id, name, position) ── */}
-            <View style={s.staffCard}>
-              <View style={s.avatarCircle}>
-                <Ionicons name="person" size={20} color={theme.colors.primary} />
+            {/* Header */}
+            <View style={s.header}>
+              <View style={s.headerLeft}>
+                <View style={s.headerIconBadge}>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={20}
+                    color={theme.colors.primary}
+                  />
+                </View>
+                <Text style={s.headerTitle}>Request Attendance</Text>
               </View>
-              <View style={s.staffDetails}>
-                <Text style={s.staffName} numberOfLines={1}>
-                  {currentUser?.name || user?.name || "Staff Member"}
-                </Text>
-                <View style={s.staffMetaRow}>
-                  <Text style={s.staffMetaText}>
-                    ID:{" "}
-                    <Text style={s.staffMetaBold}>
-                      {currentUser?.id || user?.id || "—"}
-                    </Text>
+              <TouchableOpacity
+                onPress={handleClose}
+                style={s.closeBtn}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <MaterialIcons
+                  name="close"
+                  size={22}
+                  color={theme.colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Scrollable Content Body */}
+            <ScrollView
+              ref={scrollRef}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              style={s.scrollArea}
+              contentContainerStyle={s.scrollContent}
+            >
+              {/* Display Staff Info */}
+              <View style={s.staffCard}>
+                <View style={s.avatarCircle}>
+                  <Ionicons
+                    name="person"
+                    size={20}
+                    color={theme.colors.primary}
+                  />
+                </View>
+                <View style={s.staffDetails}>
+                  <Text style={s.staffName} numberOfLines={1}>
+                    {currentUser?.name || user?.name || "Staff Member"}
                   </Text>
-                  <Text style={s.staffMetaDot}>•</Text>
-                  <Text style={s.staffMetaText} numberOfLines={1}>
-                    Position:{" "}
-                    <Text style={s.staffMetaBold}>
-                      {currentUser?.position || user?.position || "Staff"}
+                  <View style={s.staffMetaRow}>
+                    <Text style={s.staffMetaText}>
+                      ID:{" "}
+                      <Text style={s.staffMetaBold}>
+                        {currentUser?.id || user?.id || "—"}
+                      </Text>
                     </Text>
-                  </Text>
+                    <Text style={s.staffMetaDot}>•</Text>
+                    <Text style={s.staffMetaText} numberOfLines={1}>
+                      Position:{" "}
+                      <Text style={s.staffMetaBold}>
+                        {currentUser?.position || user?.position || "Staff"}
+                      </Text>
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
 
-            {/* Error Alert Message */}
-            {errorMessage && (
-              <View style={s.errorBox}>
-                <MaterialIcons name="error-outline" size={16} color="#dc2626" />
-                <Text style={s.errorText}>{errorMessage}</Text>
-              </View>
-            )}
-
-            {/* ── Attendance From & To Selection ── */}
-            {/* From Date & Time */}
-            <View style={s.dateTimeRow}>
-              {/* From Date Selector */}
-              <View style={s.dateTimeCol}>
-                <Text style={s.inputLabel}>
-                  Date <Text style={s.requiredStar}>*</Text>
-                </Text>
-                <TouchableOpacity
-                  style={s.pickerBtn}
-                  onPress={() => {
-                    Keyboard.dismiss();
-                    setDatePickerTarget("from");
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons
-                    name="calendar-outline"
-                    size={18}
-                    color={theme.colors.primary}
-                    style={s.pickerIcon}
-                  />
-                  <View style={s.pickerTextContainer}>
-                    <Text style={s.pickerMainText} numberOfLines={1}>
-                      {formatDateDisplay(fromDate)}
-                    </Text>
-                    <Text style={s.pickerSubText}>
-                      {isSameDay(fromDate, new Date())
-                        ? "Today"
-                        : formatDateYMD(fromDate)}
-                    </Text>
-                  </View>
+              {/* Error Message Alert */}
+              {errorMessage && (
+                <View style={s.errorBox}>
                   <MaterialIcons
-                    name="arrow-drop-down"
-                    size={20}
-                    color={theme.colors.textSecondary}
+                    name="error-outline"
+                    size={16}
+                    color="#dc2626"
                   />
-                </TouchableOpacity>
+                  <Text style={s.errorText}>{errorMessage}</Text>
+                </View>
+              )}
+
+              {/* From Date & Time */}
+              <View style={s.dateTimeRow}>
+                <View style={s.dateTimeCol}>
+                  <Text style={s.inputLabel}>
+                    From Date <Text style={s.requiredStar}>*</Text>
+                  </Text>
+                  <TouchableOpacity
+                    style={s.pickerBtn}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      setDatePickerTarget("from");
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name="calendar-outline"
+                      size={18}
+                      color={theme.colors.primary}
+                      style={s.pickerIcon}
+                    />
+                    <View style={s.pickerTextContainer}>
+                      <Text style={s.pickerMainText} numberOfLines={1}>
+                        {formatDateDisplay(fromDate)}
+                      </Text>
+                      <Text style={s.pickerSubText}>Selected</Text>
+                    </View>
+                    <MaterialIcons
+                      name="arrow-drop-down"
+                      size={20}
+                      color={theme.colors.textSecondary}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={s.dateTimeCol}>
+                  <Text style={s.inputLabel}>
+                    From Time <Text style={s.requiredStar}>*</Text>
+                  </Text>
+                  <TouchableOpacity
+                    style={s.pickerBtn}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      setTimePickerTarget("from");
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name="time-outline"
+                      size={18}
+                      color={theme.colors.primary}
+                      style={s.pickerIcon}
+                    />
+                    <View style={s.pickerTextContainer}>
+                      <Text style={s.pickerMainText} numberOfLines={1}>
+                        {fromTime}
+                      </Text>
+                      <Text style={s.pickerSubText}>Selected</Text>
+                    </View>
+                    <MaterialIcons
+                      name="arrow-drop-down"
+                      size={20}
+                      color={theme.colors.textSecondary}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
 
-              {/* From Time Selector */}
-              <View style={s.dateTimeCol}>
-                <Text style={s.inputLabel}>
-                  Time <Text style={s.requiredStar}>*</Text>
-                </Text>
-                <TouchableOpacity
-                  style={s.pickerBtn}
-                  onPress={() => {
-                    Keyboard.dismiss();
-                    setTimePickerTarget("from");
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons
-                    name="time-outline"
-                    size={18}
-                    color={theme.colors.primary}
-                    style={s.pickerIcon}
-                  />
-                  <View style={s.pickerTextContainer}>
-                    <Text style={s.pickerMainText} numberOfLines={1}>
-                      {fromTime}
-                    </Text>
-                    <Text style={s.pickerSubText}>Selected</Text>
-                  </View>
+              {/* To Date & Time */}
+              <View style={s.dateTimeRow}>
+                <View style={s.dateTimeCol}>
+                  <Text style={s.inputLabel}>
+                    To Date <Text style={s.requiredStar}>*</Text>
+                  </Text>
+                  <TouchableOpacity
+                    style={s.pickerBtn}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      setDatePickerTarget("to");
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name="calendar-outline"
+                      size={18}
+                      color={theme.colors.primary}
+                      style={s.pickerIcon}
+                    />
+                    <View style={s.pickerTextContainer}>
+                      <Text style={s.pickerMainText} numberOfLines={1}>
+                        {formatDateDisplay(toDate)}
+                      </Text>
+                      <Text style={s.pickerSubText}>Selected</Text>
+                    </View>
+                    <MaterialIcons
+                      name="arrow-drop-down"
+                      size={20}
+                      color={theme.colors.textSecondary}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={s.dateTimeCol}>
+                  <Text style={s.inputLabel}>
+                    To Time <Text style={s.requiredStar}>*</Text>
+                  </Text>
+                  <TouchableOpacity
+                    style={s.pickerBtn}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      setTimePickerTarget("to");
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name="time-outline"
+                      size={18}
+                      color={theme.colors.primary}
+                      style={s.pickerIcon}
+                    />
+                    <View style={s.pickerTextContainer}>
+                      <Text style={s.pickerMainText} numberOfLines={1}>
+                        {toTime}
+                      </Text>
+                      <Text style={s.pickerSubText}>Selected</Text>
+                    </View>
+                    <MaterialIcons
+                      name="arrow-drop-down"
+                      size={20}
+                      color={theme.colors.textSecondary}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Subject Input & Quick Presets */}
+              <View style={s.inputGroup}>
+                <View style={s.labelWithQuickRow}>
+                  <Text style={s.inputLabel}>
+                    Subject <Text style={s.requiredStar}>*</Text>
+                  </Text>
+                </View>
+
+                <View style={s.inputBox}>
                   <MaterialIcons
-                    name="arrow-drop-down"
-                    size={20}
-                    color={theme.colors.textSecondary}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* To Date & Time */}
-            <View style={s.dateTimeRow}>
-              {/* To Date Selector */}
-              <View style={s.dateTimeCol}>
-                <Text style={s.inputLabel}>
-                  To Date <Text style={s.requiredStar}>*</Text>
-                </Text>
-                <TouchableOpacity
-                  style={s.pickerBtn}
-                  onPress={() => {
-                    Keyboard.dismiss();
-                    setDatePickerTarget("to");
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons
-                    name="calendar-outline"
+                    name="edit"
                     size={18}
-                    color={theme.colors.primary}
-                    style={s.pickerIcon}
+                    color={theme.colors.grey}
+                    style={s.inputIcon}
                   />
-                  <View style={s.pickerTextContainer}>
-                    <Text style={s.pickerMainText} numberOfLines={1}>
-                      {formatDateDisplay(toDate)}
-                    </Text>
-                    <Text style={s.pickerSubText}>
-                      {isSameDay(toDate, fromDate)
-                        ? "Same Day"
-                        : isSameDay(toDate, new Date())
-                          ? "Today"
-                          : formatDateYMD(toDate)}
-                    </Text>
-                  </View>
-                  <MaterialIcons
-                    name="arrow-drop-down"
-                    size={20}
-                    color={theme.colors.textSecondary}
+                  <TextInput
+                    style={s.textInput}
+                    placeholder="Enter request subject..."
+                    placeholderTextColor={theme.colors.grey}
+                    value={subject}
+                    onChangeText={(val) => {
+                      setSubject(val);
+                      if (errorMessage) setErrorMessage(null);
+                    }}
+                    onFocus={() => {
+                      setTimeout(() => {
+                        scrollRef.current?.scrollTo({ y: 50, animated: true });
+                      }, 150);
+                    }}
+                    returnKeyType="next"
                   />
-                </TouchableOpacity>
-              </View>
+                </View>
 
-              {/* To Time Selector */}
-              <View style={s.dateTimeCol}>
-                <Text style={s.inputLabel}>
-                  To Time <Text style={s.requiredStar}>*</Text>
-                </Text>
-                <TouchableOpacity
-                  style={s.pickerBtn}
-                  onPress={() => {
-                    Keyboard.dismiss();
-                    setTimePickerTarget("to");
-                  }}
-                  activeOpacity={0.7}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={s.quickChipsRow}
                 >
-                  <Ionicons
-                    name="time-outline"
-                    size={18}
-                    color={theme.colors.primary}
-                    style={s.pickerIcon}
-                  />
-                  <View style={s.pickerTextContainer}>
-                    <Text style={s.pickerMainText} numberOfLines={1}>
-                      {toTime}
-                    </Text>
-                    <Text style={s.pickerSubText}>Selected</Text>
-                  </View>
-                  <MaterialIcons
-                    name="arrow-drop-down"
-                    size={20}
-                    color={theme.colors.textSecondary}
-                  />
-                </TouchableOpacity>
+                  {QUICK_SUBJECTS.map((item) => {
+                    const isSelected = subject === item;
+                    return (
+                      <TouchableOpacity
+                        key={item}
+                        style={[s.quickChip, isSelected && s.quickChipSelected]}
+                        onPress={() => {
+                          setSubject(item);
+                          if (errorMessage) setErrorMessage(null);
+                        }}
+                        activeOpacity={0.7}
+                      >
+                        <Text
+                          style={[
+                            s.quickChipText,
+                            isSelected && s.quickChipTextSelected,
+                          ]}
+                        >
+                          {item}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
               </View>
-            </View>
 
-            {/* ── Subject * (icon, quick presets and input) ── */}
-            <View style={s.inputGroup}>
-              <View style={s.labelWithQuickRow}>
+              {/* Remark Input */}
+              <View style={s.inputGroup}>
                 <Text style={s.inputLabel}>
-                  Subject <Text style={s.requiredStar}>*</Text>
+                  Remark <Text style={s.requiredStar}>*</Text>
                 </Text>
+                <View style={[s.inputBox, s.textAreaBox]}>
+                  <TextInput
+                    style={[s.textInput, s.textAreaInput]}
+                    placeholder="Enter reason or details for this request..."
+                    placeholderTextColor={theme.colors.grey}
+                    value={remark}
+                    onChangeText={(val) => {
+                      setRemark(val);
+                      if (errorMessage) setErrorMessage(null);
+                    }}
+                    onFocus={() => {
+                      setTimeout(() => {
+                        scrollRef.current?.scrollToEnd({ animated: true });
+                      }, 150);
+                    }}
+                    multiline={true}
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                  />
+                </View>
               </View>
 
-              <View style={s.inputBox}>
-                <MaterialIcons
-                  name="edit"
-                  size={18}
-                  color={theme.colors.grey}
-                  style={s.inputIcon}
-                />
-                <TextInput
-                  style={s.textInput}
-                  placeholder="enter your subject"
-                  placeholderTextColor={theme.colors.grey}
-                  value={subject}
-                  onChangeText={(val) => {
-                    setSubject(val);
-                    if (errorMessage) setErrorMessage(null);
-                  }}
-                  onFocus={() => {
-                    setTimeout(() => {
-                      scrollRef.current?.scrollTo({ y: 50, animated: true });
-                    }, 150);
-                  }}
-                  returnKeyType="next"
-                />
-              </View>
-            </View>
-
-            {/* ── Remark * (icon and input) ── */}
-            <View style={s.inputGroup}>
-              <Text style={s.inputLabel}>
-                Remark <Text style={s.requiredStar}>*</Text>
-              </Text>
-              <View style={[s.inputBox, s.textAreaBox]}>
-                {/* <MaterialIcons
-                  name="notes"
-                  size={18}
-                  color={theme.colors.grey}
-                  style={[s.inputIcon, { marginTop: 4 }]}
-                /> */}
-                <TextInput
-                  style={[s.textInput, s.textAreaInput]}
-                  placeholder="Enter reason or details for this request..."
-                  placeholderTextColor={theme.colors.grey}
-                  value={remark}
-                  onChangeText={(val) => {
-                    setRemark(val);
-                    if (errorMessage) setErrorMessage(null);
-                  }}
-                  onFocus={() => {
-                    setTimeout(() => {
-                      scrollRef.current?.scrollToEnd({ animated: true });
-                    }, 150);
-                  }}
-                  multiline={true}
-                  numberOfLines={3}
-                  textAlignVertical="top"
-                />
-              </View>
-            </View>
-          </ScrollView>
-
-          {/* ── Pinned Footer (Cancel and Submit) ── */}
-          <View style={s.footer}>
-            <TouchableOpacity
-              style={s.cancelBtn}
-              onPress={handleClose}
-              disabled={submitting}
-              activeOpacity={0.8}
-            >
-              <Text style={s.cancelBtnText}>Cancel</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                s.submitBtn,
-                (!subject.trim() || !remark.trim() || submitting) &&
-                  s.submitBtnDisabled,
-              ]}
-              onPress={handleOpenConfirm}
-              disabled={!subject.trim() || !remark.trim() || submitting}
-              activeOpacity={0.85}
-            >
-              <Ionicons
-                name="send-outline"
-                size={16}
-                color={theme.colors.background2}
-                style={{ marginRight: 6 }}
+              {/* Proof Photo Upload Component (DRY & SOLID) */}
+              <ProofImageUpload
+                imageUri={imageUri}
+                onPressUpload={() => setImageSourceModalVisible(true)}
+                onRemoveImage={handleRemoveImage}
+                disabled={submitting}
+                error={imageError}
+                label="Proof Photo (Optional)"
               />
-              <Text style={s.submitBtnText}>Submit</Text>
-            </TouchableOpacity>
+            </ScrollView>
+
+            {/* Pinned Footer (Cancel and Submit) - Shared with EditAttendanceModal */}
+            <View style={s.footerContainer}>
+              <ModalFooterButtons
+                onClose={handleClose}
+                onSubmit={handleOpenConfirm}
+                closeText="Cancel"
+                submitText="Submit"
+                submitting={submitting}
+                disabled={!subject.trim() || !remark.trim() || submitting}
+                iconName="send-outline"
+              />
+            </View>
           </View>
         </View>
-      </View>
+      </Modal>
 
       {/* Date Picker Modal */}
       <DatePickerModal
@@ -677,7 +514,6 @@ export function RequestAttendanceModal({
         onChange={(d) => {
           if (datePickerTarget === "from") {
             setFromDate(d);
-            // If toDate is before new fromDate, auto-sync toDate
             if (toDate.getTime() < d.getTime()) {
               setToDate(d);
             }
@@ -704,136 +540,38 @@ export function RequestAttendanceModal({
         }}
       />
 
-      {/* ── Success Confirmation Modal ── */}
-      <Modal
-        visible={confirmModalVisible}
-        transparent
-        animationType="fade"
-        statusBarTranslucent
-        onRequestClose={() => {
-          if (!submitting) {
-            setConfirmModalVisible(false);
-          }
+      {/* Image Source Selection Modal */}
+      <ImageSourceModal
+        visible={imageSourceModalVisible}
+        onClose={() => setImageSourceModalVisible(false)}
+        onSelectCamera={() => {
+          setImageSourceModalVisible(false);
+          handlePickImage(true);
         }}
-      >
-        <View style={s.confirmOverlay}>
-          <View style={s.confirmCard}>
-            <View style={s.confirmIconCircle}>
-              <Ionicons
-                name="checkmark"
-                size={40}
-                color={theme.colors.background2}
-              />
-            </View>
+        onSelectGallery={() => {
+          setImageSourceModalVisible(false);
+          handlePickImage(false);
+        }}
+      />
 
-            <Text style={s.confirmTitle}>
-              {submitting ? "Submitting Request..." : "Confirm Request"}
-            </Text>
+      {/* Confirmation Modal Component (SRP) */}
+      <RequestConfirmModal
+        visible={confirmModalVisible}
+        onClose={() => setConfirmModalVisible(false)}
+        onConfirm={handleConfirmSubmit}
+        submitting={submitting}
+        userName={currentUser?.name || user?.name || "Staff"}
+        userId={currentUser?.id || user?.id || "—"}
+        subject={subject}
+        remark={remark}
+        fromDate={fromDate}
+        toDate={toDate}
+        fromTime={fromTime}
+        toTime={toTime}
+        imageUri={imageUri}
+      />
 
-            <View style={s.confirmDetails}>
-              <View style={s.confirmDetailRow}>
-                <Text style={s.confirmDetailLabel}>Staff Name:</Text>
-                <Text style={s.confirmDetailValue} numberOfLines={1}>
-                  {(currentUser || user)?.name || "N/A"}
-                </Text>
-              </View>
-
-              <View style={s.confirmDetailRow}>
-                <Text style={s.confirmDetailLabel}>Staff ID:</Text>
-                <Text style={s.confirmDetailValue}>
-                  {(currentUser || user)?.staff_id ||
-                    (currentUser || user)?.id ||
-                    "N/A"}
-                </Text>
-              </View>
-
-              <View style={s.confirmDetailRow}>
-                <Text style={s.confirmDetailLabel}>Subject:</Text>
-                <Text
-                  style={[
-                    s.confirmDetailValue,
-                    { flex: 1, textAlign: "right" },
-                  ]}
-                  numberOfLines={2}
-                >
-                  {subject.trim()}
-                </Text>
-              </View>
-
-              <View style={s.confirmDetailRow}>
-                <Text style={s.confirmDetailLabel}>Remark:</Text>
-                <Text
-                  style={[
-                    s.confirmDetailValue,
-                    { flex: 1, textAlign: "right" },
-                  ]}
-                  numberOfLines={3}
-                >
-                  {remark.trim()}
-                </Text>
-              </View>
-
-              <View style={s.confirmDetailRow}>
-                <Text style={s.confirmDetailLabel}>Date:</Text>
-                <Text style={s.confirmDetailValue}>
-                  {isSameDay(fromDate, toDate)
-                    ? formatDateYMD(fromDate)
-                    : `${formatDateYMD(fromDate)} to ${formatDateYMD(toDate)}`}
-                </Text>
-              </View>
-
-              <View style={s.confirmDetailRow}>
-                <Text style={s.confirmDetailLabel}>Time:</Text>
-                <Text style={s.confirmDetailValue}>
-                  {`${fromTime} - ${toTime}`}
-                </Text>
-              </View>
-            </View>
-
-            <View style={{ width: "100%", gap: 10 }}>
-              <TouchableOpacity
-                style={s.confirmSubmitBtn}
-                onPress={handleConfirmSubmit}
-                disabled={submitting}
-                activeOpacity={0.85}
-              >
-                {submitting ? (
-                  <ActivityIndicator
-                    size="small"
-                    color={theme.colors.background2}
-                  />
-                ) : (
-                  <>
-                    <Ionicons
-                      name="send-outline"
-                      size={16}
-                      color={theme.colors.background2}
-                      style={{ marginRight: 6 }}
-                    />
-                    <Text style={s.confirmBtnText}>Submit</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-
-              {!submitting && (
-                <TouchableOpacity
-                  style={s.confirmCancelBtn}
-                  onPress={() => setConfirmModalVisible(false)}
-                  activeOpacity={0.85}
-                >
-                  <Text
-                    style={[s.confirmBtnText, { color: theme.colors.textPrimary }]}
-                  >
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Custom Alert Modal */}
+      {/* Shared Alert Modal */}
       {renderAlertModal({
         alertModalVisible,
         setAlertModalVisible: handleAlertDismiss,
@@ -842,399 +580,8 @@ export function RequestAttendanceModal({
         onPress: alertOnPress,
         isMobile,
       })}
-    </Modal>
+    </>
   );
 }
 
-// Backward-compatible alias
-export const RquestAttendanceModal = RequestAttendanceModal;
-
-const s = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-  },
-  sheet: {
-    backgroundColor: theme.colors.background2,
-    // paddingHorizontal: 20,
-    width: "100%",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingTop: 18,
-    paddingBottom: 12,
-    borderBottomWidth: 0.5,
-    borderBottomColor: `${theme.colors.grey}70`,
-    paddingHorizontal: 15,
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  headerIconBadge: {
-    width: 35,
-    height: 35,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: `${theme.colors.primary}15`,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerTitle: {
-    fontSize: theme.fontSizes.lg,
-    fontWeight: "bold",
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-  },
-  closeBtn: {
-    padding: 6,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: `${theme.colors.grey}15`,
-  },
-  scrollArea: {
-    flexShrink: 1,
-  },
-  scrollContent: {
-    paddingTop: 12,
-    paddingBottom: 8,
-    gap: 12,
-  },
-
-  // Display Staff Info
-  staffCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.lg,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: `${theme.colors.grey}25`,
-    gap: 10,
-    marginHorizontal: 15,
-  },
-  avatarCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: `${theme.colors.primary}18`,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  staffDetails: {
-    flex: 1,
-  },
-  staffName: {
-    fontSize: theme.fontSizes.md,
-    fontWeight: "bold",
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-  },
-  staffMetaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 3,
-    flexWrap: "wrap",
-    gap: 6,
-  },
-  staffMetaText: {
-    fontSize: theme.fontSizes.xs,
-    color: theme.colors.textSecondary,
-    fontFamily: theme.fonts.regular,
-    includeFontPadding: false,
-  },
-  staffMetaBold: {
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-    fontWeight: "600",
-  },
-  staffMetaDot: {
-    fontSize: theme.fontSizes.xs,
-    color: theme.colors.grey,
-  },
-
-  // Date & Time Row
-  dateTimeRow: {
-    flexDirection: "row",
-    gap: 10,
-    paddingHorizontal: 15,
-  },
-  dateTimeCol: {
-    flex: 1,
-    gap: 5,
-  },
-  pickerBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: 8,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: `${theme.colors.grey}35`,
-    minHeight: 46,
-    gap: 4,
-  },
-  pickerIcon: {
-    marginRight: 2,
-  },
-  pickerTextContainer: {
-    flex: 1,
-    minWidth: 0,
-  },
-  pickerMainText: {
-    fontSize: theme.fontSizes.xs,
-    fontFamily: theme.fonts.bold,
-    color: theme.colors.textPrimary,
-    includeFontPadding: false,
-    letterSpacing: -0.2,
-  },
-  pickerSubText: {
-    fontSize: 9.5,
-    fontFamily: theme.fonts.regular,
-    color: theme.colors.textSecondary,
-    marginTop: 1,
-    includeFontPadding: false,
-  },
-
-  // Input Group
-  inputGroup: {
-    gap: 5,
-    paddingHorizontal: 15,
-  },
-  labelWithQuickRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  quickSubjectRow: {
-    flexDirection: "row",
-    gap: 6,
-    paddingVertical: 2,
-  },
-  quickSubjectChip: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: theme.borderRadius.sm,
-    backgroundColor: `${theme.colors.grey}15`,
-    borderWidth: 1,
-    borderColor: `${theme.colors.grey}25`,
-  },
-  quickSubjectChipActive: {
-    backgroundColor: `${theme.colors.primary}18`,
-    borderColor: theme.colors.primary,
-  },
-  quickSubjectText: {
-    fontSize: theme.fontSizes.xs,
-    fontFamily: theme.fonts.regular,
-    color: theme.colors.textSecondary,
-    includeFontPadding: false,
-  },
-  quickSubjectTextActive: {
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-    color: theme.colors.primary,
-  },
-  inputLabel: {
-    fontSize: theme.fontSizes.xs,
-    fontWeight: "600",
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-  },
-  requiredStar: {
-    color: "#dc2626",
-    fontWeight: "bold",
-  },
-  inputBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: `${theme.colors.grey}35`,
-    minHeight: 50,
-  },
-  inputIcon: {
-    marginRight: 8,
-  },
-  textInput: {
-    flex: 1,
-    fontSize: theme.fontSizes.sm,
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.regular,
-    includeFontPadding: false,
-    paddingVertical: 8,
-    ...(Platform.OS === "web" &&
-      ({ outlineStyle: "none", outlineWidth: 0 } as any)),
-  },
-  textAreaBox: {
-    alignItems: "flex-start",
-    minHeight: 76,
-    paddingVertical: 8,
-  },
-  textAreaInput: {
-    minHeight: 60,
-    paddingVertical: 0,
-  },
-
-  // Error Message
-  errorBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fef2f2",
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    gap: 6,
-    borderWidth: 1,
-    borderColor: "#fecaca",
-  },
-  errorText: {
-    fontSize: theme.fontSizes.xs,
-    color: "#dc2626",
-    fontFamily: theme.fonts.regular,
-    includeFontPadding: false,
-    flex: 1,
-  },
-
-  // Pinned Footer Buttons
-  footer: {
-    flexDirection: "row",
-    gap: 12,
-    paddingTop: 12,
-    paddingBottom: 4,
-    borderTopWidth: 0.5,
-    borderTopColor: `${theme.colors.grey}70`,
-    paddingHorizontal: 15,
-  },
-  cancelBtn: {
-    flex: 1,
-    borderRadius: theme.borderRadius.md,
-    paddingVertical: 12,
-    backgroundColor: `${theme.colors.grey}15`,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: `${theme.colors.grey}30`,
-  },
-  cancelBtnText: {
-    fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-  },
-  submitBtn: {
-    flex: 1.5,
-    borderRadius: theme.borderRadius.md,
-    paddingVertical: 12,
-    backgroundColor: theme.colors.primary,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    // shadowColor: theme.colors.primary,
-    // shadowOffset: { width: 0, height: 2 },
-    // shadowOpacity: 0.25,
-    // shadowRadius: 4,
-    // elevation: 3,
-  },
-  submitBtnDisabled: {
-    opacity: 0.45,
-    shadowOpacity: 0,
-    elevation: 0,
-  },
-  submitBtnText: {
-    fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
-    color: theme.colors.background2,
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-  },
-
-  // Confirmation Modal
-  confirmOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.65)",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  confirmCard: {
-    backgroundColor: theme.colors.background2,
-    borderRadius: theme.borderRadius.xl,
-    padding: 24,
-    width: "100%",
-    maxWidth: 380,
-    alignItems: "center",
-  },
-  confirmIconCircle: {
-    marginBottom: 10,
-    padding: 10,
-    borderRadius: theme.borderRadius.lg,
-    backgroundColor: theme.colors.secondary,
-  },
-  confirmTitle: {
-    fontSize: theme.fontSizes.xl,
-    fontWeight: "bold",
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-  },
-  confirmDetails: {
-    width: "100%",
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.md,
-    padding: 16,
-    marginVertical: 16,
-    gap: 10,
-  },
-  confirmDetailRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: 12,
-  },
-  confirmDetailLabel: {
-    fontSize: theme.fontSizes.xs,
-    color: theme.colors.grey,
-    fontFamily: theme.fonts.regular,
-    includeFontPadding: false,
-  },
-  confirmDetailValue: {
-    fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
-    color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-  },
-  confirmSubmitBtn: {
-    borderRadius: theme.borderRadius.md,
-    paddingVertical: 12,
-    backgroundColor: theme.colors.primary,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  confirmCancelBtn: {
-    borderRadius: theme.borderRadius.md,
-    paddingVertical: 12,
-    backgroundColor: `${theme.colors.grey}15`,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: `${theme.colors.grey}30`,
-  },
-  confirmBtnText: {
-    color: theme.colors.background2,
-    fontWeight: "bold",
-    fontSize: theme.fontSizes.md,
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-  },
-});
+export default RequestAttendanceModal;

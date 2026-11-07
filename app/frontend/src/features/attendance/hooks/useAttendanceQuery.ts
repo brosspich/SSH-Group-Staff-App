@@ -1,8 +1,8 @@
-import { AttendanceRecord } from "@/app/(tabs)/index";
 import { apiClient } from "@/shared/services/api";
 import { queryKeys } from "@/shared/services/api/queryKeys";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { AttendanceRecord } from "../_types/attendance.types";
 import { useAttendanceStore } from "../store/useAttendanceStore";
 
 /**

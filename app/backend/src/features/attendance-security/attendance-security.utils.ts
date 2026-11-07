@@ -319,21 +319,68 @@ export function formatServerTime12h(date = new Date()): string {
 }
 
 /**
- * Generates the next sequential Attendance ID (e.g. "ATT-0000-0000-0080")
+ * Generates the next sequential Attendance ID formatted per user:
+ * e.g. "system-0001-0022-ATT-0000-0001", "system-0002-0001-ATT-0000-0001"
  */
-export function generateNextAttendanceId(existingList: any[] = []): string {
-  let maxNum = 0;
-  for (const item of existingList) {
-    const rawId = String(item?.id || "");
-    const match = rawId.match(/(\d+)$/);
-    if (match) {
-      const num = parseInt(match[1], 10);
-      if (!isNaN(num) && num > maxNum) {
-        maxNum = num;
+export function generateNextAttendanceId(
+  systemId: string = "system-0001-0000",
+  existingList: any[] = [],
+  existingDbRecords: any[] = [],
+): string {
+  const cleanSystemId = (systemId || "system-0001-0000").trim();
+  let maxSeq = 0;
+  const allRecords = [...existingList, ...existingDbRecords];
+
+  for (const item of allRecords) {
+    if (item?.userId && String(item.userId).trim() !== cleanSystemId) {
+      continue;
+    }
+
+    const rawId = String(item?.id || "").trim();
+    if (!rawId) continue;
+
+    // Skip records that clearly belong to another user's prefix
+    if (rawId.startsWith("system-") && !rawId.startsWith(cleanSystemId)) {
+      continue;
+    }
+
+    // 1. Standard format: system-0001-0022-ATT-0000-0001 or ATT-0000-0001
+    const matchNew = rawId.match(/ATT-(\d{4})-(\d{4})(?:$|[^\d])/i);
+    if (matchNew) {
+      const num = parseInt(matchNew[1] + matchNew[2], 10);
+      if (!isNaN(num) && num > maxSeq) {
+        maxSeq = num;
+        continue;
+      }
+    }
+
+    // 2. Legacy triple-block format: att-0000-0000-0022 or 0022_att-0000-0000-0022
+    const matchOldTriple = rawId.match(/att-(\d{4})-(\d{4})-(\d{4})/i);
+    if (matchOldTriple) {
+      const num = parseInt(
+        matchOldTriple[1] + matchOldTriple[2] + matchOldTriple[3],
+        10,
+      );
+      if (!isNaN(num) && num > maxSeq) {
+        maxSeq = num;
+        continue;
+      }
+    }
+
+    // 3. Fallback for any other ATT-(\d+) pattern
+    const matchGeneral = rawId.match(/ATT-?(\d+)/i);
+    if (matchGeneral) {
+      const num = parseInt(matchGeneral[1], 10);
+      if (!isNaN(num) && num > maxSeq && num < 100000000) {
+        maxSeq = num;
       }
     }
   }
-  const nextNum = maxNum + 1;
-  const padded = String(nextNum).padStart(4, "0");
-  return `ATT-0000-0000-${padded}`;
+
+  const nextSeq = maxSeq + 1;
+  const seqStr = String(nextSeq).padStart(8, "0");
+  const block1 = seqStr.substring(0, 4);
+  const block2 = seqStr.substring(4, 8);
+
+  return `${cleanSystemId}-ATT-${block1}-${block2}`;
 }

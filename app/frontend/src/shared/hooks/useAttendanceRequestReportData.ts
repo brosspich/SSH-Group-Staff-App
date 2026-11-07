@@ -1,7 +1,7 @@
-import { formatDateYMD } from "@/app/(tabs)/attendance";
 import { apiClient } from "@/shared/services/api";
 import { AttendanceRequestRuleItem } from "@/shared/services/attendanceRequestService";
 import { StaffUser, userService } from "@/shared/services/userService";
+import { formatDateYMD } from "@/shared/utils/formatters";
 import { useCallback, useEffect, useState } from "react";
 
 export type ReportType = "Daily" | "Weekly" | "Monthly" | "Annual";

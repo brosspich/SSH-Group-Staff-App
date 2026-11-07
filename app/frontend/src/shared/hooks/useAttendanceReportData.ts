@@ -1,6 +1,7 @@
-import { AttendanceRecord, formatDateYMD } from "@/app/(tabs)/attendance";
+import { AttendanceRecord } from "@/features/attendance/_types/attendance.types";
 import { apiClient } from "@/shared/services/api";
 import { StaffUser, userService } from "@/shared/services/userService";
+import { formatDateYMD } from "@/shared/utils/formatters";
 import { useCallback, useEffect, useState } from "react";
 
 export type ReportType = "Daily" | "Weekly" | "Monthly" | "Annual";
@@ -98,7 +99,14 @@ export function useAttendanceReportData(
   selectedStaffId?: string | null,
 ) {
   const [loading, setLoading] = useState<boolean>(true);
+  const [currentUser, setCurrentUser] = useState<StaffUser | null>(null);
   const [staffList, setStaffList] = useState<StaffUser[]>([]);
+
+  useEffect(() => {
+    userService.get().then((u) => {
+      if (u) setCurrentUser(u);
+    });
+  }, []);
   const [activeStaffId, setActiveStaffId] = useState<string | null>(
     selectedStaffId || null,
   );
@@ -161,7 +169,16 @@ export function useAttendanceReportData(
     fetchData();
   }, [fetchData]);
 
-  const selectedStaff = staffList.find((s) => s.id === activeStaffId) || null;
+  const selectedStaff =
+    staffList.find(
+      (s) =>
+        s.id === activeStaffId ||
+        (s as any).system_id === activeStaffId ||
+        (s as any).systemId === activeStaffId,
+    ) ||
+    (reportMode === "current" ? currentUser : null) ||
+    staffList[0] ||
+    null;
 
   return {
     loading,

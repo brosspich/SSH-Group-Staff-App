@@ -1,7 +1,7 @@
 import { apiClient } from "@/shared/services/api";
 import { StaffUser, userService } from "@/shared/services/userService";
 import { useFocusEffect } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AttendanceFilterType,
   AttendanceRecord,
@@ -32,6 +32,13 @@ export function useAttendanceLogs() {
   const [loading, setLoading] = useState(!isCacheValid());
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const loadMoreTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (loadMoreTimerRef.current) clearTimeout(loadMoreTimerRef.current);
+    };
+  }, []);
 
   // 1. Fetch Attendance Logs from Backend API & Save locally
   const fetchAttendanceLogs = useCallback(
@@ -121,7 +128,8 @@ export function useAttendanceLogs() {
   const handleLoadMore = useCallback(() => {
     if (loadingMore || !hasMore) return;
     setLoadingMore(true);
-    setTimeout(() => {
+    if (loadMoreTimerRef.current) clearTimeout(loadMoreTimerRef.current);
+    loadMoreTimerRef.current = setTimeout(() => {
       setVisibleCount((prev) =>
         Math.min(prev + ATTENDANCE_PAGE_SIZE, filteredList.length),
       );

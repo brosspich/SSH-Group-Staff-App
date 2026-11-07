@@ -19,6 +19,7 @@ export interface RequestReportSummary {
 export interface StaffOptionDto {
   id: string;
   name: string;
+  username?: string | null;
   position?: string | null;
   role?: string | null;
   company_id?: string | null;

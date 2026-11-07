@@ -1,4 +1,4 @@
-import { AttendanceRecord } from "@/app/(tabs)/attendance";
+import { AttendanceRecord } from "@/features/attendance/_types/attendance.types";
 import { getCompanyName } from "@/shared/constants/attendanceConfig";
 import {
   AttendanceSummary,
@@ -92,6 +92,7 @@ interface DayAttendanceGroup {
   timeOut: string;
   totalTime: string;
   diffSeconds: number;
+  remark: string;
 }
 
 export function buildTotalAttendanceHtml(
@@ -175,6 +176,12 @@ export function buildTotalAttendanceHtml(
       }
     }
 
+    const remark =
+      inRec?.remark ||
+      outRec?.remark ||
+      groupRecords.find((r) => r.remark)?.remark ||
+      "-";
+
     dayRows.push({
       staffId,
       staffName,
@@ -183,6 +190,7 @@ export function buildTotalAttendanceHtml(
       timeOut: timeOutStr,
       totalTime: totalTimeStr,
       diffSeconds,
+      remark,
     });
   });
 
@@ -194,23 +202,33 @@ export function buildTotalAttendanceHtml(
     return a.staffId.localeCompare(b.staffId, undefined, { numeric: true });
   });
 
-  // Calculate grand total time work attendance: 00Day 00H 00M 00S
+  // Calculate grand total time work attendance: cumulative hours (e.g. 05H 14M 29S or 250H 30M 45S)
   const grandTotalSeconds = dayRows.reduce((sum, r) => sum + r.diffSeconds, 0);
-  const days = Math.floor(grandTotalSeconds / 86400);
-  const remSecondsAfterDays = grandTotalSeconds % 86400;
-  const hours = Math.floor(remSecondsAfterDays / 3600);
-  const remSecondsAfterHours = remSecondsAfterDays % 3600;
-  const minutes = Math.floor(remSecondsAfterHours / 60);
-  const seconds = remSecondsAfterHours % 60;
+  const totalHours = Math.floor(grandTotalSeconds / 3600);
+  const remSeconds = grandTotalSeconds % 3600;
+  const minutes = Math.floor(remSeconds / 60);
+  const seconds = remSeconds % 60;
 
-  const grandDaysStr = String(days).padStart(2, "0");
-  const grandHoursStr = String(hours).padStart(2, "0");
+  const grandHoursStr = String(totalHours).padStart(2, "0");
   const grandMinsStr = String(minutes).padStart(2, "0");
   const grandSecsStr = String(seconds).padStart(2, "0");
-  const grandTotalFormatted = `${grandDaysStr}Day ${grandHoursStr}H ${grandMinsStr}M ${grandSecsStr}S`;
+  const grandTotalFormatted = `${grandHoursStr}H ${grandMinsStr}M ${grandSecsStr}S`;
+
+  const isAllStaff = reportMode === "all";
 
   const rowsHtml = dayRows
     .map((row, index) => {
+      if (!isAllStaff) {
+        return `
+    <tr>
+      <td style="text-align: center; font-weight: 600;">${index + 1}</td>
+      <td style="text-align: center; white-space: nowrap;">${row.date}</td>
+      <td style="text-align: center; white-space: nowrap; font-weight: 600; color: #0022ff;">${row.timeIn}</td>
+      <td style="text-align: center; white-space: nowrap; font-weight: 600; color: #ff0000;">${row.timeOut}</td>
+      <td style="text-align: center; font-weight: 700; white-space: nowrap;">${row.totalTime}</td>
+      <td style="text-align: center;">${row.remark || "-"}</td>
+    </tr>`;
+      }
       return `
     <tr>
       <td style="text-align: center; font-weight: 600;">${index + 1}</td>
@@ -220,6 +238,7 @@ export function buildTotalAttendanceHtml(
       <td style="text-align: center; white-space: nowrap; font-weight: 600; color: #0022ff;">${row.timeIn}</td>
       <td style="text-align: center; white-space: nowrap; font-weight: 600; color: #ff0000;">${row.timeOut}</td>
       <td style="text-align: center; font-weight: 700; white-space: nowrap;">${row.totalTime}</td>
+      <td style="text-align: center;">${row.remark || "-"}</td>
     </tr>`;
     })
     .join("");
@@ -227,21 +246,28 @@ export function buildTotalAttendanceHtml(
   const titlePrefix = reportType ? `${reportType} ` : "";
   const reportTitle = `${companyName} — ${titlePrefix}Attendance Total Report`;
 
-  // Staff info block
+  // Staff info block (only shown for current / individual staff reports)
   const staffId =
-    targetStaff?.id || (records.length > 0 ? records[0].staff_id : "-");
+    targetStaff?.id ||
+    targetStaff?.staff_id ||
+    (records.length > 0 ? records[0].staff_id : "-");
   const staffName =
     targetStaff?.name || (records.length > 0 ? records[0].name : "-");
   const position = targetStaff?.position || "Staff Member";
-  const username = targetStaff?.username || "-";
+  const username =
+    targetStaff?.username ||
+    (records.length > 0 ? (records[0] as any).username : "") ||
+    (staffId !== "-" ? staffId : "-");
 
-  const staffDetailInfo = `
+  const staffDetailInfo = !isAllStaff
+    ? `
   <div style="margin-bottom: 16px; background: #f8fafc; border: 1px solid #cbd5e1; padding: 10px 14px; border-radius: 6px; font-size: 11px; color: #1e293b;">
     <strong>Staff id :</strong> ${staffId} &nbsp;&nbsp;|&nbsp;&nbsp; 
     <strong>Staff Name :</strong> ${staffName} &nbsp;&nbsp;|&nbsp;&nbsp; 
     <strong>Position :</strong> ${position} &nbsp;&nbsp;|&nbsp;&nbsp; 
     <strong>Username :</strong> ${username}
-  </div>`;
+  </div>`
+    : "";
 
   return `<!DOCTYPE html>
 <html>
@@ -361,27 +387,45 @@ export function buildTotalAttendanceHtml(
 
   <table>
     <thead>
+      ${
+        !isAllStaff
+          ? `
+      <tr>
+        <th style="width: 6%;">#</th>
+        <th style="width: 17%;">Date</th>
+        <th style="width: 17%;">Time In</th>
+        <th style="width: 17%;">Time Out</th>
+        <th style="width: 18%;">Total Time</th>
+        <th style="width: 25%;">Remark</th>
+      </tr>`
+          : `
       <tr>
         <th style="width: 5%;">#</th>
-        <th style="width: 12%;">Staff ID</th>
+        <th style="width: 11%;">Staff ID</th>
         <th>Staff Name</th>
-        <th style="width: 14%;">Date</th>
-        <th style="width: 16%;">Time In</th>
-        <th style="width: 16%;">Time Out</th>
-        <th style="width: 15%;">Total Time</th>
-      </tr>
+        <th style="width: 13%;">Date</th>
+        <th style="width: 15%;">Time In</th>
+        <th style="width: 15%;">Time Out</th>
+        <th style="width: 13%;">Total Time</th>
+        <th style="width: 12%;">Remark</th>
+      </tr>`
+      }
     </thead>
     <tbody>
-      ${rowsHtml || `<tr><td colspan="7" style="text-align:center;padding:20px;color:#94a3b8;">No attendance records found for this period.</td></tr>`}
+      ${
+        rowsHtml ||
+        `<tr><td colspan="${!isAllStaff ? 6 : 8}" style="text-align:center;padding:20px;color:#94a3b8;">No attendance records found for this period.</td></tr>`
+      }
     </tbody>
     <tfoot>
       <tr>
-        <td colspan="6" style="text-align: left; font-weight: 700; font-size: 12px; color: #0f172a;">
+        <td colspan="${!isAllStaff ? 4 : 6}" style="text-align: left; font-weight: 700; font-size: 12px; color: #0f172a;">
           Total Time Work Attendance
         </td>
         <td style="text-align: center; font-weight: 700; font-size: 12px; color: #0f172a; white-space: nowrap;">
           ${grandTotalFormatted}
         </td>
+        <td style="text-align: center; color: #94a3b8;">-</td>
       </tr>
     </tfoot>
   </table>

@@ -1,5 +1,5 @@
 async function run() {
-  const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.234:4000";
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL || "http://172.19.240.1:4000";
   console.log("Updating location via Backend API:", apiUrl);
   const updatedLocation = [
     "https://www.google.com/maps?q=11.502767,104.851553",

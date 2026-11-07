@@ -1,5 +1,5 @@
-import { theme } from "@/shared/styles/theme";
 import { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { Platform, StyleSheet, Text, View } from "react-native";

@@ -2,6 +2,7 @@ import type {
   AttendanceRecord,
   EditAttendanceSubmitPayload,
 } from "@/features/home/_types/home.types";
+import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
 
@@ -87,9 +88,25 @@ export function useEditAttendanceForm({
       if (!result.canceled && result.assets && result.assets.length > 0) {
         const asset = result.assets[0];
         setImageUri(asset.uri);
-        setImageBase64(
-          asset.base64 ? `data:image/jpeg;base64,${asset.base64}` : asset.uri,
-        );
+
+        let b64 = asset.base64;
+        if (!b64 && asset.uri) {
+          try {
+            b64 = await FileSystem.readAsStringAsync(asset.uri, {
+              encoding: FileSystem.EncodingType.Base64,
+            });
+          } catch (e) {
+            console.warn("Failed to read image as base64:", e);
+          }
+        }
+
+        const mime =
+          asset.mimeType ||
+          (asset.uri.toLowerCase().endsWith(".png")
+            ? "image/png"
+            : "image/jpeg");
+
+        setImageBase64(b64 ? `data:${mime};base64,${b64}` : asset.uri);
         setImageError(null);
       }
     } catch (err: any) {

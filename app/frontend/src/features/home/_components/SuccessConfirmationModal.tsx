@@ -1,4 +1,3 @@
-import type { AttendanceRecord } from "@/app/(tabs)/index";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -9,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import type { AttendanceRecord } from "../_types/home.types";
 
 export interface SuccessConfirmationModalProps {
   visible: boolean;
@@ -140,7 +140,10 @@ export default function SuccessConfirmationModal({
               activeOpacity={0.85}
             >
               {savingAttendance ? (
-                <ActivityIndicator size="small" color={theme.colors.background2} />
+                <ActivityIndicator
+                  size="small"
+                  color={theme.colors.background2}
+                />
               ) : (
                 <>
                   <Ionicons

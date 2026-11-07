@@ -1,5 +1,5 @@
-import { theme } from "@/shared/styles/theme";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -54,9 +54,12 @@ const styles = StyleSheet.create({
   },
   printBtn: {
     backgroundColor: theme.colors.secondary,
-    borderRadius: theme.borderRadius.sm,
+    borderRadius: theme.borderRadius.md,
     paddingVertical: theme.spacing.md,
     alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1.5,
+    borderColor: theme.colors.secondary,
   },
   printBtnDisabled: {
     opacity: 0.6,

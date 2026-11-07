@@ -5,10 +5,14 @@ export interface AttendanceRecord {
   staff_id: string;
   system_id?: string;
   name: string;
+  username?: string;
   date: string; // YYYY-MM-DD
   time: string; // hh:mm:ss AM/PM
   type: AttendanceType;
   timestamp: string; // ISO string
+  createdAt?: string;
+  scanDate?: string;
+  scanTime?: string;
   qr_data?: string;
   remark?: string;
   image?: string;

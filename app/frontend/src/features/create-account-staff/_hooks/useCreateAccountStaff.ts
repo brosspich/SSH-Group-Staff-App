@@ -5,7 +5,7 @@ import {
 } from "@/shared/constants/attendanceConfig";
 import { StaffUser, userService } from "@/shared/services/userService";
 import { hasAdminOrOwnerRole, isOwnerRole } from "@/utils/roleUtils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createStaffAccountApi,
   fetchNextSystemIdApi,
@@ -28,7 +28,7 @@ export function useCreateAccountStaff() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [staffId, setStaffId] = useState("");
-  const [systemKey, setSystemKey] = useState("system-0001");
+  const [systemKey, setSystemKey] = useState("");
   const [systemId, setSystemId] = useState("");
   const [position, setPosition] = useState("");
   const [email, setEmail] = useState("");
@@ -46,15 +46,26 @@ export function useCreateAccountStaff() {
     [{ id: "system-0001" }, { id: "system-0002" }],
   );
 
+  const latestTargetSystemRef = useRef<string>("");
+
   const generateNextSystemId = useCallback(async (targetSystem: string) => {
+    if (!targetSystem) return;
+    const cleanSystem = targetSystem.trim().toLowerCase();
+    latestTargetSystemRef.current = cleanSystem;
     setSuggestedIdLoading(true);
     try {
-      const nextId = await fetchNextSystemIdApi(targetSystem);
-      setSystemId(nextId);
+      const nextId = await fetchNextSystemIdApi(cleanSystem);
+      if (latestTargetSystemRef.current === cleanSystem) {
+        setSystemId(nextId);
+      }
     } catch {
-      setSystemId(`${targetSystem.trim().toLowerCase()}-0001`);
+      if (latestTargetSystemRef.current === cleanSystem) {
+        setSystemId(`${cleanSystem}-0001`);
+      }
     } finally {
-      setSuggestedIdLoading(false);
+      if (latestTargetSystemRef.current === cleanSystem) {
+        setSuggestedIdLoading(false);
+      }
     }
   }, []);
 
@@ -73,7 +84,6 @@ export function useCreateAccountStaff() {
         if (authorized && u) {
           const sys = extractSystemKey(u.system_id);
           setSystemKey(sys);
-          await generateNextSystemId(sys);
 
           if (isOwnerRole(u?.role)) {
             const systems = await fetchAvailableCompanySystems();
@@ -92,14 +102,14 @@ export function useCreateAccountStaff() {
     return () => {
       mounted = false;
     };
-  }, [generateNextSystemId]);
+  }, []);
 
-  // Recalculate next system ID when systemKey changes
+  // Recalculate next system ID when systemKey changes (and auth check is complete)
   useEffect(() => {
-    if (systemKey) {
+    if (systemKey && !checkingAuth) {
       generateNextSystemId(systemKey);
     }
-  }, [systemKey, generateNextSystemId]);
+  }, [systemKey, checkingAuth, generateNextSystemId]);
 
   const toggleRole = (role: string) => {
     if (selectedRoles.includes(role)) {

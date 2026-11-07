@@ -1,18 +1,18 @@
+import { useAuthStore } from "@/features/auth/store/authStore";
+import { useLoginStore } from "@/features/login/_store/useLoginStore";
 import {
   extractSystemKey,
   fetchOfficialAttendanceConfig,
 } from "@/shared/constants/attendanceConfig";
-import { useAuthStore } from "@/features/auth/store/authStore";
-import { useLoginStore } from "@/features/login/_store/useLoginStore";
 import { apiClient } from "@/shared/services/api";
-import { StaffUser, userService } from "@/shared/services/userService";
 import { queryClient } from "@/shared/services/api/queryClient";
 import { queryKeys } from "@/shared/services/api/queryKeys";
+import { StaffUser, userService } from "@/shared/services/userService";
 import { syncDeviceSession } from "@/utils/deviceSession";
 import { isLeaveRole } from "@/utils/roleUtils";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, useRef } from "react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -129,6 +129,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const setLoading = useUserStore((state) => state.setLoading);
   const setReady = useUserStore((state) => state.setReady);
   const clearStore = useUserStore((state) => state.clearStore);
+  const isRefreshingRef = useRef(false);
 
   const updateUser = (u: StaffUser | null) => {
     setUser(u);
@@ -162,6 +163,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
    * deduplication/caching (staleTime 5m) and Zustand for local state persistence.
    */
   const refresh = async (forceNetwork: boolean = false) => {
+    if (isRefreshingRef.current) return;
+    isRefreshingRef.current = true;
     try {
       // 1. Always prioritize reading fresh user from userService disk storage
       const diskUser = await userService.get().catch(() => null);
@@ -269,18 +272,35 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           const isTerminated =
             currentSessionObj &&
             (currentSessionObj.terminate === true ||
-              currentSessionObj.terminate === "true");
+              currentSessionObj.terminate === "true" ||
+              currentSessionObj.isTerminated === 1 ||
+              currentSessionObj.isTerminated === true);
 
           if (isTerminated) {
-            // Terminated by another device -> Force logout
-            await userService.clear();
-            clearStore();
-            queryClient.clear();
-            useLoginStore.getState().resetForm();
-            try {
-              router.replace("/login/login");
-            } catch {}
-            return;
+            // Attempt a fresh sync once to verify if server really barred this device
+            const syncTargetId =
+              dbUser.system_id ||
+              dbUser.id ||
+              localUser?.system_id ||
+              localUser?.id ||
+              "";
+            const syncSuccess = await syncDeviceSession(
+              syncTargetId,
+              true,
+              false,
+            ).catch(() => false);
+
+            if (!syncSuccess) {
+              // Truly terminated by admin/server policy -> Force logout
+              await userService.clear();
+              clearStore();
+              queryClient.clear();
+              useLoginStore.getState().resetForm();
+              try {
+                router.replace("/login/login");
+              } catch {}
+              return;
+            }
           }
         }
 
@@ -296,6 +316,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.warn("Failed to refresh user and company:", e);
     } finally {
+      isRefreshingRef.current = false;
       setLoading(false);
       setReady(true);
     }

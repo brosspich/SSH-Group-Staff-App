@@ -14,6 +14,7 @@ export interface AttendanceRequestRuleItem {
   to_time: string;
   subject: string;
   remark: string;
+  image?: string;
   status: "pending" | "approved" | "rejected";
   created_at: string;
 }
@@ -33,8 +34,10 @@ export async function submitAttendanceRequest(params: {
   toTime: string;
   subject: string;
   remark: string;
+  image?: string;
 }): Promise<{ success: boolean; rule: AttendanceRequestRuleItem }> {
-  const { user, fromDate, fromTime, toDate, toTime, subject, remark } = params;
+  const { user, fromDate, fromTime, toDate, toTime, subject, remark, image } =
+    params;
 
   if (!user?.id) {
     throw new Error("User information is missing. Please log in again.");
@@ -52,6 +55,7 @@ export async function submitAttendanceRequest(params: {
     toTime,
     subject,
     remark,
+    image,
   });
 
   const newRule = res?.rule || (res as any)?.data?.rule;

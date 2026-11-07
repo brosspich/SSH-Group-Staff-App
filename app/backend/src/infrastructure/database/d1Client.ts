@@ -27,15 +27,10 @@ export class CloudflareD1Client {
   private schemaChecked = false;
 
   constructor() {
-    this.accountId =
-      process.env.D1_ACCOUNT_ID ||
-      process.env.CLOUDFLARE_ACCOUNT_ID ||
-      "9a061f4a584c2e1727526b1006284098";
-    this.databaseId =
-      process.env.D1_DATABASE_ID || "81928e3d-002e-4e4e-bc70-bd2a1e4120e7";
-    this.apiToken =
-      process.env.CLOUDFLARE_API_TOKEN ||
-      "cfat_voEolL8Iz48cH9I4VMvuqPQ6B8Ec6MQWvQmGoWUj3e3e6d2b";
+    this.accountId = (process.env.D1_ACCOUNT_ID ||
+      process.env.CLOUDFLARE_ACCOUNT_ID) as string;
+    this.databaseId = process.env.D1_DATABASE_ID as string;
+    this.apiToken = process.env.CLOUDFLARE_API_TOKEN as string;
     this.baseUrl = `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/d1/database/${this.databaseId}`;
   }
 
@@ -50,7 +45,10 @@ export class CloudflareD1Client {
   /**
    * Execute a query and return the first row, or null if empty
    */
-  async queryFirst<T = any>(sql: string, params: any[] = []): Promise<T | null> {
+  async queryFirst<T = any>(
+    sql: string,
+    params: any[] = [],
+  ): Promise<T | null> {
     const list = await this.query<T>(sql, params);
     return list.length > 0 ? list[0] : null;
   }
@@ -65,7 +63,9 @@ export class CloudflareD1Client {
   /**
    * Execute multiple statements in batch on Cloudflare D1
    */
-  async batch(statements: { sql: string; params?: any[] }[]): Promise<D1QueryResult[]> {
+  async batch(
+    statements: { sql: string; params?: any[] }[],
+  ): Promise<D1QueryResult[]> {
     if (!statements || statements.length === 0) return [];
 
     const url = `${this.baseUrl}/query`;
@@ -81,7 +81,8 @@ export class CloudflareD1Client {
     const data = (await response.json()) as D1ApiResponse;
     if (!data.success || (data.errors && data.errors.length > 0)) {
       const errMsg =
-        data.errors?.map((e) => e.message).join(", ") || "Cloudflare D1 batch query failed";
+        data.errors?.map((e) => e.message).join(", ") ||
+        "Cloudflare D1 batch query failed";
       Logger.error(`[Cloudflare D1 Batch Error]: ${errMsg}`);
       throw new Error(`[Cloudflare D1]: ${errMsg}`);
     }
@@ -92,7 +93,10 @@ export class CloudflareD1Client {
   /**
    * Low-level query executor against Cloudflare D1 REST API
    */
-  private async rawQuery(sql: string, params: any[] = []): Promise<D1QueryResult> {
+  private async rawQuery(
+    sql: string,
+    params: any[] = [],
+  ): Promise<D1QueryResult> {
     const url = `${this.baseUrl}/query`;
     const response = await fetch(url, {
       method: "POST",
@@ -112,7 +116,8 @@ export class CloudflareD1Client {
     const data = (await response.json()) as D1ApiResponse;
     if (!data.success || (data.errors && data.errors.length > 0)) {
       const errMsg =
-        data.errors?.map((e) => e.message).join(", ") || "Cloudflare D1 execution failed";
+        data.errors?.map((e) => e.message).join(", ") ||
+        "Cloudflare D1 execution failed";
       Logger.error(`[Cloudflare D1 Error]: ${errMsg}`);
       throw new Error(`[Cloudflare D1]: ${errMsg}`);
     }

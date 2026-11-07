@@ -23,6 +23,9 @@ import {
 } from "./attendance-security.utils.js";
 
 export class AttendanceSecurityService {
+  private userCache = new Map<string, { user: any; timestamp: number }>();
+  private companyCache = new Map<string, { company: any; timestamp: number }>();
+
   /**
    * Evaluates geofencing and device security conditions on the backend.
    */
@@ -56,7 +59,7 @@ export class AttendanceSecurityService {
       };
     }
 
-    // ── Condition 3: Find Target Company in Database ──
+    // ── Condition 3: Find Target Company in Database (with fast memory cache) ──
     const rawId = payload.systemId || payload.companyId || "";
     let targetSystemId = rawId.trim().toLowerCase();
     const match = targetSystemId.match(/^(system-\d+)/i);
@@ -64,16 +67,32 @@ export class AttendanceSecurityService {
       targetSystemId = match[1].toLowerCase();
     }
 
-    let company = targetSystemId
-      ? await prisma.company.findUnique({
-          where: { id: targetSystemId },
-        })
-      : null;
+    const companyCacheKey = targetSystemId || "default";
+    let company: any = null;
+    const cachedCompEntry = this.companyCache.get(companyCacheKey);
+    if (
+      cachedCompEntry &&
+      Date.now() - cachedCompEntry.timestamp < 10 * 60 * 1000
+    ) {
+      company = cachedCompEntry.company;
+    } else {
+      company = targetSystemId
+        ? await prisma.company.findUnique({
+            where: { id: targetSystemId },
+          })
+        : null;
 
-    if (!company) {
-      company = await prisma.company.findFirst({
-        orderBy: { id: "asc" },
-      });
+      if (!company) {
+        company = await prisma.company.findFirst({
+          orderBy: { id: "asc" },
+        });
+      }
+      if (company) {
+        this.companyCache.set(companyCacheKey, {
+          company,
+          timestamp: Date.now(),
+        });
+      }
     }
 
     if (!company) {
@@ -164,15 +183,28 @@ export class AttendanceSecurityService {
     const { userId, qrData, latitude, longitude, isMocked, ipAddress } =
       payload;
 
-    // ── 1. Fetch User from Database ──
-    const user = await prisma.user.findFirst({
-      where: {
-        OR: [{ systemId: userId }, { id: userId }],
-      },
-      include: {
-        details: { include: { company: true } },
-      },
-    });
+    // ── 1. Fetch User from Database (with fast memory cache) ──
+    const userKey = userId.trim().toLowerCase();
+    let user: any = null;
+    const cachedUserEntry = this.userCache.get(userKey);
+    if (
+      cachedUserEntry &&
+      Date.now() - cachedUserEntry.timestamp < 5 * 60 * 1000
+    ) {
+      user = cachedUserEntry.user;
+    } else {
+      user = await prisma.user.findFirst({
+        where: {
+          OR: [{ systemId: userId }, { id: userId }],
+        },
+        include: {
+          details: { include: { company: true } },
+        },
+      });
+      if (user) {
+        this.userCache.set(userKey, { user, timestamp: Date.now() });
+      }
+    }
 
     if (!user) {
       return {
@@ -194,7 +226,19 @@ export class AttendanceSecurityService {
       };
     }
 
-    // ── 3. Evaluate Device Security & Geofence (Condition A vs B) ──
+    // ── 3. Evaluate QR Code Condition (A == B) FIRST for instant rejection (< 1ms) ──
+    const allowedQrs = this.parseJsonField(company.qrCodes);
+    const isQrValid = validateQrCode(qrData, allowedQrs);
+
+    if (!isQrValid) {
+      return {
+        allowed: false,
+        code: "INVALID_QR",
+        reason: `Scanned QR code does not belong to ${company.name}.`,
+      };
+    }
+
+    // ── 4. Evaluate Device Security & Geofence (Condition A vs B) ──
     if (typeof latitude === "number" && typeof longitude === "number") {
       const secCheck = await this.verifySecurity(
         {
@@ -217,18 +261,6 @@ export class AttendanceSecurityService {
       }
     }
 
-    // ── 4. Evaluate QR Code Condition (A == B) ──
-    const allowedQrs = this.parseJsonField(company.qrCodes);
-    const isQrValid = validateQrCode(qrData, allowedQrs);
-
-    if (!isQrValid) {
-      return {
-        allowed: false,
-        code: "INVALID_QR",
-        reason: `Scanned QR code does not belong to ${company.name}.`,
-      };
-    }
-
     // ── 5. Evaluate Time Window Condition (A < B, A = B, A > B) ──
     const now = new Date();
     const evaluatedType = evaluateAttendanceType(
@@ -240,6 +272,7 @@ export class AttendanceSecurityService {
     const timeStr = formatServerTime12h(now);
 
     // ── 6. Parse Existing Attendance & Generate Next ID ──
+    const userSystemId = user.systemId || user.id;
     let existingList: any[] = [];
     try {
       const rawUserAtt = (user as any).attendance;
@@ -250,7 +283,29 @@ export class AttendanceSecurityService {
       }
     } catch {}
 
-    const nextId = generateNextAttendanceId(existingList);
+    let existingDb: { id: string }[] = [];
+    try {
+      existingDb = await prisma.attendanceLog.findMany({
+        where: { userId: userSystemId },
+        select: { id: true },
+        take: 500,
+      });
+    } catch {}
+    try {
+      const d1Logs = await d1Client.query<{ id: string }>(
+        "SELECT id FROM AttendanceLog WHERE userId = ? ORDER BY createdAt DESC LIMIT 500",
+        [userSystemId],
+      );
+      if (d1Logs && Array.isArray(d1Logs)) {
+        existingDb = [...existingDb, ...d1Logs];
+      }
+    } catch {}
+
+    const nextId = generateNextAttendanceId(
+      userSystemId,
+      existingList,
+      existingDb,
+    );
 
     const newRecord: AttendanceRecordDto = {
       id: nextId,
@@ -367,7 +422,8 @@ export class AttendanceSecurityService {
     const timeStr = time || formatServerTime12h(now);
     const effectiveType = type || "time-in";
 
-    // 1. Generate sequential record ID
+    // 1. Fetch existing attendance records and generate next sequential ID scoped per user
+    const userSystemId = user.systemId || user.id;
     let existingList: any[] = [];
     try {
       const rawUserAtt = (user as any).attendance;
@@ -378,7 +434,29 @@ export class AttendanceSecurityService {
       }
     } catch {}
 
-    const nextId = generateNextAttendanceId(existingList);
+    let existingDb: { id: string }[] = [];
+    try {
+      existingDb = await prisma.attendanceLog.findMany({
+        where: { userId: userSystemId },
+        select: { id: true },
+        take: 500,
+      });
+    } catch {}
+    try {
+      const d1Logs = await d1Client.query<{ id: string }>(
+        "SELECT id FROM AttendanceLog WHERE userId = ? ORDER BY createdAt DESC LIMIT 500",
+        [userSystemId],
+      );
+      if (d1Logs && Array.isArray(d1Logs)) {
+        existingDb = [...existingDb, ...d1Logs];
+      }
+    } catch {}
+
+    const nextId = generateNextAttendanceId(
+      userSystemId,
+      existingList,
+      existingDb,
+    );
 
     // ── Upload Proof Image to Cloudflare R2 (ssh-storage) ──
     let storedImageUrl: string | undefined = undefined;
@@ -451,7 +529,7 @@ export class AttendanceSecurityService {
     };
 
     // 2. Persist directly to Remote Cloudflare D1 AttendanceLog (Database)
-    const logId = `${user.id}_${nextId}_${Date.now()}`;
+    const logId = nextId;
     const dbType = effectiveType.toUpperCase().replace("-", "_");
 
     try {
@@ -473,7 +551,7 @@ export class AttendanceSecurityService {
         ],
       );
       console.log(
-        `[Cloudflare D1] ✅ Successfully stored AttendanceLog to Remote D1 for ${user.id} (${user.systemId}) with image: ${storedImageUrl || "none"}`,
+        `[Cloudflare D1] ✅ Successfully stored AttendanceLog to Remote D1 for ${user.id} (${user.systemId}) with ID ${logId} and image: ${storedImageUrl || "none"}`,
       );
     } catch (d1Err: any) {
       console.warn(
@@ -484,8 +562,19 @@ export class AttendanceSecurityService {
 
     // Local Prisma fallback/cache
     try {
-      await prisma.attendanceLog.create({
-        data: {
+      await prisma.attendanceLog.upsert({
+        where: { id: logId },
+        update: {
+          userId: user.systemId,
+          companyId: company.id,
+          scanDate: dateStr,
+          scanTime: timeStr,
+          type: dbType,
+          qrData,
+          image: storedImageUrl || null,
+          remark: payload.remark || null,
+        },
+        create: {
           id: logId,
           userId: user.systemId,
           companyId: company.id,
@@ -530,10 +619,25 @@ export class AttendanceSecurityService {
     };
   }
 
+  private companyCoordsCache = new Map<
+    string,
+    { coords: { latitude: number; longitude: number }[]; timestamp: number }
+  >();
+
   private async extractCompanyCoordinates(
     rawLocations: any,
     companyId?: string,
   ): Promise<{ latitude: number; longitude: number }[]> {
+    const cacheKey = `${companyId || ""}_${
+      typeof rawLocations === "string"
+        ? rawLocations
+        : JSON.stringify(rawLocations)
+    }`;
+    const cached = this.companyCoordsCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < 30 * 60 * 1000) {
+      return cached.coords;
+    }
+
     let locationList: string[] = [];
     if (Array.isArray(rawLocations)) {
       locationList = rawLocations;
@@ -568,6 +672,11 @@ export class AttendanceSecurityService {
         }
       }
     }
+
+    this.companyCoordsCache.set(cacheKey, {
+      coords: companyCoords,
+      timestamp: Date.now(),
+    });
 
     return companyCoords;
   }

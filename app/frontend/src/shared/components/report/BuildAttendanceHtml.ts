@@ -1,4 +1,4 @@
-import { AttendanceRecord } from "@/app/(tabs)/attendance";
+import { AttendanceRecord } from "@/features/attendance/_types/attendance.types";
 import {
   AttendanceSummary,
   ReportMode,

@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   printInput: {
     height: 48,
     backgroundColor: theme.colors.background2,
-    borderRadius: theme.borderRadius.sm,
+    borderRadius: theme.borderRadius.md,
     borderWidth: 1.5,
     borderColor: theme.colors.secondary,
     paddingHorizontal: theme.spacing.md,

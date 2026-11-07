@@ -1,11 +1,11 @@
-import { theme } from "@/shared/styles/theme";
 import Appbar from "@/shared/components/appbar/appbar";
+import Copyright from "@/shared/components/copyright/copyright";
 import Loading from "@/shared/components/loading/loading";
 import { renderLogoutModal } from "@/shared/components/logout/logoutModal";
 import { useUser } from "@/shared/contexts/UserContext";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { StaffUser, userService } from "@/shared/services/userService";
-import Copyright from "@/shared/components/copyright/copyright";
+import { theme } from "@/shared/styles/theme";
 import { hasAdminOrOwnerRole } from "@/utils/roleUtils";
 import { useEffect, useState } from "react";
 import { ScrollView, StatusBar, StyleSheet, View } from "react-native";

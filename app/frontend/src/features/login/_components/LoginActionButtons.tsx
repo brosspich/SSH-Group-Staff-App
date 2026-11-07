@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     height: 48,
     width: "100%",
     backgroundColor: theme.colors.secondary,
-    borderRadius: theme.borderRadius.sm,
+    borderRadius: theme.borderRadius.md,
     marginTop: theme.spacing.sm,
     alignItems: "center",
     justifyContent: "center",

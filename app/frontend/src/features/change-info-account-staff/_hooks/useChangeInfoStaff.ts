@@ -5,7 +5,7 @@ import {
 } from "@/shared/constants/attendanceConfig";
 import { StaffUser, userService } from "@/shared/services/userService";
 import { hasAdminOrOwnerRole, isOwnerRole } from "@/utils/roleUtils";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchStaffDirectoryApi } from "../_api/changeInfoStaffApi";
 import type { StaffStatusFilter } from "../_types/changeInfoStaff.types";
 import { filterStaffDirectory } from "../_utils/changeInfoStaffUtils";
@@ -29,6 +29,13 @@ export function useChangeInfoStaff() {
   // Edit Modal State
   const [editingStaff, setEditingStaff] = useState<StaffUser | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
   const [availableSystems, setAvailableSystems] = useState<DynamicSystemItem[]>(
     [{ id: "system-0001" }, { id: "system-0002" }],
   );
@@ -100,7 +107,8 @@ export function useChangeInfoStaff() {
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => {
       setToastMessage(null);
     }, 3500);
   };

@@ -6,6 +6,7 @@ export interface CreateAttendanceRequestPayload {
   toTime: string;
   subject: string;
   remark: string;
+  image?: string;
 }
 
 export interface AttendanceRequestRuleItemDto {
@@ -21,6 +22,7 @@ export interface AttendanceRequestRuleItemDto {
   to_time: string;
   subject: string;
   remark: string;
+  image?: string;
   status: "pending" | "approved" | "rejected";
   created_at: string;
 }

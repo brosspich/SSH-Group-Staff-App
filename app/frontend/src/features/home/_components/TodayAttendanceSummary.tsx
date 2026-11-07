@@ -38,7 +38,7 @@ export const TodayAttendanceSummary: React.FC<TodayAttendanceSummaryProps> = ({
                 { color: todayTimeIn ? "#0022ff" : theme.colors.grey },
               ]}
             >
-              {todayTimeIn ? todayTimeIn.time : "Not Scanned"}
+              {todayTimeIn ? todayTimeIn.time : "None"}
             </Text>
           </View>
         </View>
@@ -55,10 +55,12 @@ export const TodayAttendanceSummary: React.FC<TodayAttendanceSummaryProps> = ({
             <Text
               style={[
                 styles.summaryValue,
-                { color: todayTimeOut ? theme.colors.error : theme.colors.grey },
+                {
+                  color: todayTimeOut ? theme.colors.error : theme.colors.grey,
+                },
               ]}
             >
-              {todayTimeOut ? todayTimeOut.time : "Not Scanned"}
+              {todayTimeOut ? todayTimeOut.time : "None"}
             </Text>
           </View>
         </View>

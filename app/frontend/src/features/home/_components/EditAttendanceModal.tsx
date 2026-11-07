@@ -1,4 +1,6 @@
 import { ImageSourceModal } from "@/features/home/_components/ImageSourceModal";
+import { ModalFooterButtons } from "@/features/home/_components/ModalFooterButtons";
+import { ProofImageUpload } from "@/features/home/_components/ProofImageUpload";
 import { useEditAttendanceForm } from "@/features/home/_hooks/useEditAttendanceForm";
 import type {
   AttendanceRecord,
@@ -9,8 +11,6 @@ import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  ActivityIndicator,
-  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -218,112 +218,29 @@ export default function EditAttendanceModal({
                 </View>
 
                 {/* Proof Image Upload / Preview */}
-                <View style={styles.fieldSection}>
-                  <Text style={styles.fieldLabel}>Proof Image *</Text>
-                  {imageUri ? (
-                    <View style={styles.imagePreviewContainer}>
-                      <Image
-                        source={{ uri: imageUri }}
-                        style={styles.imagePreview}
-                      />
-                      <View style={styles.imageActionRow}>
-                        <TouchableOpacity
-                          style={styles.changeImageBtn}
-                          onPress={() => setImageSourceModalVisible(true)}
-                          disabled={submitting}
-                          activeOpacity={0.8}
-                        >
-                          <Ionicons
-                            name="camera-outline"
-                            size={16}
-                            color={theme.colors.primary}
-                            style={{ marginRight: 4 }}
-                          />
-                          <Text style={styles.changeImageText}>Change</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                          style={styles.removeImageBtn}
-                          onPress={handleRemoveImage}
-                          disabled={submitting}
-                          activeOpacity={0.8}
-                        >
-                          <Ionicons
-                            name="trash-outline"
-                            size={16}
-                            color={theme.colors.error}
-                            style={{ marginRight: 4 }}
-                          />
-                          <Text style={styles.removeImageText}>Remove</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={[
-                        styles.uploadBox,
-                        imageError ? styles.inputErrorBorder : null,
-                      ]}
-                      onPress={() => setImageSourceModalVisible(true)}
-                      disabled={submitting}
-                      activeOpacity={0.75}
-                    >
-                      <View style={styles.uploadIconCircle}>
-                        <Ionicons
-                          name="cloud-upload-outline"
-                          size={28}
-                          color={theme.colors.primary}
-                        />
-                      </View>
-                      <Text style={styles.uploadPromptTitle}>
-                        Choose proof photo
-                      </Text>
-                      <Text style={styles.uploadPromptSub}>
-                        Take photo or choose from gallery
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                  {imageError && (
-                    <Text style={styles.errorText}>{imageError}</Text>
-                  )}
-                </View>
-
-                {/* Action Buttons */}
-                <View style={styles.actionRow}>
-                  <TouchableOpacity
-                    style={styles.submitBtn}
-                    onPress={handleSubmit}
-                    disabled={submitting}
-                    activeOpacity={0.85}
-                  >
-                    {submitting ? (
-                      <ActivityIndicator
-                        size="small"
-                        color={theme.colors.background2}
-                      />
-                    ) : (
-                      <>
-                        <Ionicons
-                          name="checkmark-circle-outline"
-                          size={20}
-                          color={theme.colors.background2}
-                          style={{ marginRight: 6 }}
-                        />
-                        <Text style={styles.submitBtnText}>Submit</Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.closeBtn}
-                    onPress={onClose}
-                    disabled={submitting}
-                    activeOpacity={0.85}
-                  >
-                    <Text style={styles.closeBtnText}>Close</Text>
-                  </TouchableOpacity>
-                </View>
+                <ProofImageUpload
+                  imageUri={imageUri}
+                  onPressUpload={() => setImageSourceModalVisible(true)}
+                  onRemoveImage={handleRemoveImage}
+                  disabled={submitting}
+                  error={imageError}
+                  label="Proof Image"
+                  required
+                />
               </ScrollView>
+
+              {/* ── Pinned Footer (Close and Submit) ── */}
+              <View style={styles.footerContainer}>
+                <ModalFooterButtons
+                  onClose={onClose}
+                  onSubmit={handleSubmit}
+                  closeText="Close"
+                  submitText="Submit"
+                  submitting={submitting}
+                  disabled={submitting}
+                  iconName="checkmark-circle-outline"
+                />
+              </View>
             </View>
           </KeyboardAvoidingView>
         </View>
@@ -472,8 +389,10 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   typeOptionBtnActiveIn: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
+    // backgroundColor: theme.colors.primary,
+    // borderColor: theme.colors.primary,
+    backgroundColor: "#0022ff",
+    borderColor: "#0022ff",
   },
   typeOptionBtnActiveOut: {
     backgroundColor: theme.colors.error,
@@ -591,9 +510,18 @@ const styles = StyleSheet.create({
     color: theme.colors.error,
     fontFamily: theme.fonts.bold,
   },
+  footerContainer: {
+    paddingHorizontal: theme.spacing.md,
+    paddingBottom: theme.spacing.md,
+  },
   actionRow: {
     marginTop: theme.spacing.sm,
     gap: theme.spacing.sm,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0,0,0,0.06)",
+    paddingTop: theme.spacing.md,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   submitBtn: {
     backgroundColor: theme.colors.primary,

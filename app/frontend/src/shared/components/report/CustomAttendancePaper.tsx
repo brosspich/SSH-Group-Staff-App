@@ -1,4 +1,4 @@
-import { AttendanceRecord } from "@/app/(tabs)/attendance";
+import { AttendanceRecord } from "@/features/attendance/_types/attendance.types";
 import { getCompanyName } from "@/shared/constants/attendanceConfig";
 import {
   AttendanceSummary,
@@ -7,7 +7,7 @@ import {
 } from "@/shared/hooks/useAttendanceReportData";
 import { StaffUser } from "@/shared/services/userService";
 import { theme } from "@/shared/styles/theme";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 interface CustomAttendancePaperProps {
   periodLabel: string;
@@ -86,6 +86,7 @@ interface DayRow {
   timeOut: string;
   totalTime: string;
   diffSeconds: number;
+  remark: string;
 }
 
 export default function CustomAttendancePaper({
@@ -157,6 +158,12 @@ export default function CustomAttendancePaper({
       }
     }
 
+    const remark =
+      inRec?.remark ||
+      outRec?.remark ||
+      groupRecords.find((r) => r.remark)?.remark ||
+      "-";
+
     dayRows.push({
       staffId,
       staffName,
@@ -165,6 +172,7 @@ export default function CustomAttendancePaper({
       timeOut: timeOutStr,
       totalTime: totalTimeStr,
       diffSeconds,
+      remark,
     });
   });
 
@@ -175,27 +183,29 @@ export default function CustomAttendancePaper({
     return a.staffId.localeCompare(b.staffId, undefined, { numeric: true });
   });
 
-  // Grand total
+  // Grand total formatted as cumulative hours: e.g. 05H 14M 29S or 250H 30M 45S
   const grandTotalSeconds = dayRows.reduce((sum, r) => sum + r.diffSeconds, 0);
-  const days = Math.floor(grandTotalSeconds / 86400);
-  const remSecondsAfterDays = grandTotalSeconds % 86400;
-  const hours = Math.floor(remSecondsAfterDays / 3600);
-  const remSecondsAfterHours = remSecondsAfterDays % 3600;
-  const minutes = Math.floor(remSecondsAfterHours / 60);
-  const seconds = remSecondsAfterHours % 60;
+  const totalHours = Math.floor(grandTotalSeconds / 3600);
+  const remSeconds = grandTotalSeconds % 3600;
+  const minutes = Math.floor(remSeconds / 60);
+  const seconds = remSeconds % 60;
 
-  const grandDaysStr = String(days).padStart(2, "0");
-  const grandHoursStr = String(hours).padStart(2, "0");
+  const grandHoursStr = String(totalHours).padStart(2, "0");
   const grandMinsStr = String(minutes).padStart(2, "0");
   const grandSecsStr = String(seconds).padStart(2, "0");
-  const grandTotalFormatted = `${grandDaysStr}Day ${grandHoursStr}H ${grandMinsStr}M ${grandSecsStr}S`;
+  const grandTotalFormatted = `${grandHoursStr}H ${grandMinsStr}M ${grandSecsStr}S`;
 
   const staffId =
-    targetStaff?.id || (records.length > 0 ? records[0].staff_id : "-");
+    targetStaff?.id ||
+    targetStaff?.staff_id ||
+    (records.length > 0 ? records[0].staff_id : "-");
   const staffName =
     targetStaff?.name || (records.length > 0 ? records[0].name : "-");
   const position = targetStaff?.position || "Staff Member";
-  const username = targetStaff?.username || "-";
+  const username =
+    targetStaff?.username ||
+    (records.length > 0 ? (records[0] as any).username : "") ||
+    (staffId !== "-" ? staffId : "-");
 
   const staffSystemId =
     targetStaff?.system_id ||
@@ -204,6 +214,8 @@ export default function CustomAttendancePaper({
       ? records[0].system_id || records[0].staff_id
       : undefined);
   const companyName = getCompanyName(staffSystemId);
+
+  const isAllStaff = reportMode === "all";
 
   return (
     <View style={styles.paperContainer}>
@@ -221,133 +233,306 @@ export default function CustomAttendancePaper({
 
       <View style={styles.divider} />
 
-      {/* Staff detail info */}
-      <View style={styles.staffInfoCard}>
-        <Text style={styles.staffInfoText} numberOfLines={1}>
-          <Text style={styles.staffInfoLabel}>Staff id : </Text>
-          {staffId} &nbsp;|&nbsp;
-          <Text style={styles.staffInfoLabel}>Staff Name : </Text>
-          {staffName} &nbsp;|&nbsp;
-          <Text style={styles.staffInfoLabel}>Position : </Text>
-          {position} &nbsp;|&nbsp;
-          <Text style={styles.staffInfoLabel}>Username : </Text>
-          {username}
-        </Text>
-      </View>
+      {/* Staff detail info (only for current or individual staff) */}
+      {!isAllStaff && (
+        <View style={styles.staffInfoCard}>
+          <Text style={styles.staffInfoText} numberOfLines={1}>
+            <Text style={styles.staffInfoLabel}>Staff id : </Text>
+            {staffId} &nbsp;|&nbsp;
+            <Text style={styles.staffInfoLabel}>Staff Name : </Text>
+            {staffName} &nbsp;|&nbsp;
+            <Text style={styles.staffInfoLabel}>Position : </Text>
+            {position} &nbsp;|&nbsp;
+            <Text style={styles.staffInfoLabel}>Username : </Text>
+            {username}
+          </Text>
+        </View>
+      )}
 
       {/* ── Records Table ── */}
-      <View style={styles.table}>
-        {/* Table Header */}
-        <View style={styles.tableHeader}>
-          <Text style={[styles.th, { width: 24, textAlign: "center" }]}>#</Text>
-          <Text style={[styles.th, { width: 55, textAlign: "center" }]}>
-            Staff ID
-          </Text>
-          <Text style={[styles.th, { flex: 1.2 }]}>Staff Name</Text>
-          <Text style={[styles.th, { width: 75, textAlign: "center" }]}>
-            Date
-          </Text>
-          <Text style={[styles.th, { width: 80, textAlign: "center" }]}>
-            Time In
-          </Text>
-          <Text style={[styles.th, { width: 80, textAlign: "center" }]}>
-            Time Out
-          </Text>
-          <Text style={[styles.th, { width: 65, textAlign: "center" }]}>
-            Total Time
-          </Text>
-        </View>
-
-        {/* Table Rows */}
-        {dayRows.length === 0 ? (
-          <View style={styles.emptyRow}>
-            <Text style={styles.emptyText}>No logs found for this period.</Text>
-          </View>
-        ) : (
-          dayRows.map((item, index) => {
-            const isEven = index % 2 === 0;
-            return (
-              <View
-                key={`${item.staffId}-${item.date}-${index}`}
-                style={[styles.tableRow, isEven && styles.tableRowEven]}
+      {!isAllStaff ? (
+        /* Single Staff View: 6 columns with horizontal scroll */
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={[styles.table, { minWidth: 540 }]}>
+            {/* Table Header */}
+            <View style={styles.tableHeader}>
+              <Text
+                style={[styles.th, { width: 32, textAlign: "center" }]}
+                numberOfLines={1}
               >
-                <Text
-                  style={[
-                    styles.td,
-                    { width: 24, textAlign: "center", fontWeight: "600" },
-                  ]}
-                >
-                  {index + 1}
-                </Text>
-                <Text
-                  style={[
-                    styles.td,
-                    { width: 55, textAlign: "center", fontWeight: "600" },
-                  ]}
-                  numberOfLines={1}
-                >
-                  {item.staffId}
-                </Text>
-                <Text
-                  style={[styles.td, { flex: 1.2, fontWeight: "700" }]}
-                  numberOfLines={1}
-                >
-                  {item.staffName}
-                </Text>
-                <Text
-                  style={[styles.td, { width: 75, textAlign: "center" }]}
-                  numberOfLines={1}
-                >
-                  {item.date}
-                </Text>
-                <Text
-                  style={[
-                    styles.td,
-                    {
-                      width: 80,
-                      textAlign: "center",
-                      fontWeight: "600",
-                      color: "#0022ff",
-                    },
-                  ]}
-                  numberOfLines={1}
-                >
-                  {item.timeIn}
-                </Text>
-                <Text
-                  style={[
-                    styles.td,
-                    {
-                      width: 80,
-                      textAlign: "center",
-                      fontWeight: "600",
-                      color: "#ff0000",
-                    },
-                  ]}
-                  numberOfLines={1}
-                >
-                  {item.timeOut}
-                </Text>
-                <Text
-                  style={[
-                    styles.td,
-                    { width: 65, textAlign: "center", fontWeight: "700" },
-                  ]}
-                  numberOfLines={1}
-                >
-                  {item.totalTime}
+                #
+              </Text>
+              <Text
+                style={[styles.th, { width: 92, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                Date
+              </Text>
+              <Text
+                style={[styles.th, { width: 92, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                Time In
+              </Text>
+              <Text
+                style={[styles.th, { width: 92, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                Time Out
+              </Text>
+              <Text
+                style={[styles.th, { width: 96, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                Total Time
+              </Text>
+              <Text
+                style={[styles.th, { width: 136, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                Remark
+              </Text>
+            </View>
+
+            {/* Table Rows */}
+            {dayRows.length === 0 ? (
+              <View style={styles.emptyRow}>
+                <Text style={styles.emptyText}>
+                  No logs found for this period.
                 </Text>
               </View>
-            );
-          })
-        )}
+            ) : (
+              dayRows.map((item, index) => {
+                const isEven = index % 2 === 0;
+                return (
+                  <View
+                    key={`${item.staffId}-${item.date}-${index}`}
+                    style={[styles.tableRow, isEven && styles.tableRowEven]}
+                  >
+                    <Text
+                      style={[
+                        styles.td,
+                        { width: 32, textAlign: "center", fontWeight: "600" },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {index + 1}
+                    </Text>
+                    <Text
+                      style={[styles.td, { width: 92, textAlign: "center" }]}
+                      numberOfLines={1}
+                    >
+                      {item.date}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.td,
+                        {
+                          width: 92,
+                          textAlign: "center",
+                          fontWeight: "600",
+                          color: "#0022ff",
+                        },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.timeIn}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.td,
+                        {
+                          width: 92,
+                          textAlign: "center",
+                          fontWeight: "600",
+                          color: "#ff0000",
+                        },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.timeOut}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.td,
+                        { width: 96, textAlign: "center", fontWeight: "700" },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.totalTime}
+                    </Text>
+                    <Text
+                      style={[styles.td, { width: 136, textAlign: "center" }]}
+                      numberOfLines={1}
+                    >
+                      {item.remark || "-"}
+                    </Text>
+                  </View>
+                );
+              })
+            )}
 
-        {/* Table Footer */}
-        <View style={styles.tableFooter}>
-          <Text style={styles.tfLabel}>Total Time Work Attendance</Text>
-          <Text style={styles.tfValue}>{grandTotalFormatted}</Text>
-        </View>
-      </View>
+            {/* Table Footer */}
+            <View style={styles.tableFooter}>
+              <Text style={styles.tfLabel}>Total Time Work Attendance</Text>
+              <Text style={styles.tfValue}>{grandTotalFormatted}</Text>
+            </View>
+          </View>
+        </ScrollView>
+      ) : (
+        /* All Staff View: 8 columns with smooth horizontal scroll */
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View style={[styles.table, { minWidth: 660 }]}>
+            {/* Table Header */}
+            <View style={styles.tableHeader}>
+              <Text
+                style={[styles.th, { width: 32, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                #
+              </Text>
+              <Text
+                style={[styles.th, { width: 72, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                Staff ID
+              </Text>
+              <Text style={[styles.th, { width: 110 }]} numberOfLines={1}>
+                Staff Name
+              </Text>
+              <Text
+                style={[styles.th, { width: 85, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                Date
+              </Text>
+              <Text
+                style={[styles.th, { width: 98, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                Time In
+              </Text>
+              <Text
+                style={[styles.th, { width: 98, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                Time Out
+              </Text>
+              <Text
+                style={[styles.th, { width: 85, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                Total Time
+              </Text>
+              <Text
+                style={[styles.th, { width: 78, textAlign: "center" }]}
+                numberOfLines={1}
+              >
+                Remark
+              </Text>
+            </View>
+
+            {/* Table Rows */}
+            {dayRows.length === 0 ? (
+              <View style={styles.emptyRow}>
+                <Text style={styles.emptyText}>
+                  No logs found for this period.
+                </Text>
+              </View>
+            ) : (
+              dayRows.map((item, index) => {
+                const isEven = index % 2 === 0;
+                return (
+                  <View
+                    key={`${item.staffId}-${item.date}-${index}`}
+                    style={[styles.tableRow, isEven && styles.tableRowEven]}
+                  >
+                    <Text
+                      style={[
+                        styles.td,
+                        { width: 32, textAlign: "center", fontWeight: "600" },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {index + 1}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.td,
+                        { width: 72, textAlign: "center", fontWeight: "600" },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.staffId}
+                    </Text>
+                    <Text
+                      style={[styles.td, { width: 110, fontWeight: "700" }]}
+                      numberOfLines={1}
+                    >
+                      {item.staffName}
+                    </Text>
+                    <Text
+                      style={[styles.td, { width: 85, textAlign: "center" }]}
+                      numberOfLines={1}
+                    >
+                      {item.date}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.td,
+                        {
+                          width: 98,
+                          textAlign: "center",
+                          fontWeight: "600",
+                          color: "#0022ff",
+                        },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.timeIn}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.td,
+                        {
+                          width: 98,
+                          textAlign: "center",
+                          fontWeight: "600",
+                          color: "#ff0000",
+                        },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.timeOut}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.td,
+                        { width: 85, textAlign: "center", fontWeight: "700" },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {item.totalTime}
+                    </Text>
+                    <Text
+                      style={[styles.td, { width: 78, textAlign: "center" }]}
+                      numberOfLines={1}
+                    >
+                      {item.remark || "-"}
+                    </Text>
+                  </View>
+                );
+              })
+            )}
+
+            {/* Table Footer */}
+            <View style={styles.tableFooter}>
+              <Text style={styles.tfLabel}>Total Time Work Attendance</Text>
+              <Text style={styles.tfValue}>{grandTotalFormatted}</Text>
+            </View>
+          </View>
+        </ScrollView>
+      )}
     </View>
   );
 }

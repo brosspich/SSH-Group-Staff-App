@@ -33,40 +33,141 @@ let lastSecurityResult: {
 } | null = null;
 const SECURITY_CACHE_TTL_MS = 60 * 1000;
 
+// High-speed in-memory GPS cache (3 minutes) for instant scan verification
+let cachedDeviceGps: {
+  position: Location.LocationObject;
+  timestamp: number;
+} | null = null;
+const GPS_CACHE_TTL_MS = 3 * 60 * 1000;
+
+// Active in-flight GPS query to prevent redundant parallel hardware access
+let inFlightGpsPromise: Promise<Location.LocationObject> | null = null;
+
+// Local IP cache (5 minutes)
+let cachedLocalIp: string | undefined = undefined;
+let cachedIpTimestamp = 0;
+
 /**
- * Reads device GPS position with timeout protection (Thin Client Sensor Layer)
+ * Returns currently cached GPS position if fresh, avoiding sensor query latency (0ms).
  */
-async function getDeviceGpsPosition(): Promise<Location.LocationObject> {
-  // Try fast last known position first (0ms)
-  const lastKnown = await Location.getLastKnownPositionAsync().catch(
-    () => null,
-  );
+export function getCachedGpsPosition(): Location.LocationObject | null {
   if (
-    lastKnown &&
-    Date.now() - lastKnown.timestamp < 30 * 1000 &&
-    lastKnown.coords.accuracy !== null &&
-    lastKnown.coords.accuracy < 100
+    cachedDeviceGps &&
+    Date.now() - cachedDeviceGps.timestamp < GPS_CACHE_TTL_MS
   ) {
-    return lastKnown;
+    return cachedDeviceGps.position;
+  }
+  return null;
+}
+
+/**
+ * Fast cached Local IP helper (0ms on repeated calls)
+ */
+export async function getCachedLocalIp(): Promise<string | undefined> {
+  if (cachedLocalIp && Date.now() - cachedIpTimestamp < 5 * 60 * 1000) {
+    return cachedLocalIp;
+  }
+  const ip = await Network.getIpAddressAsync().catch(() => undefined);
+  if (ip) {
+    cachedLocalIp = ip;
+    cachedIpTimestamp = Date.now();
+  }
+  return ip;
+}
+
+/**
+ * Reads device GPS position with multi-tier fast caching & timeout protection.
+ * Tier 1: In-memory cache (< 3 mins) -> 0ms
+ * Tier 2: In-flight deduplication -> shares same sensor query
+ * Tier 3: OS Last-known GPS fix (< 5 mins, accuracy < 150m) -> 0ms
+ * Tier 4: Fresh satellite lock with 1500ms timeout & instant fallback to last known
+ */
+export async function getDeviceGpsPosition(): Promise<Location.LocationObject> {
+  // 1. Fast in-memory cache hit (0ms)
+  const memoryCached = getCachedGpsPosition();
+  if (memoryCached) {
+    return memoryCached;
   }
 
-  const positionPromise = Location.getCurrentPositionAsync({
-    accuracy: Location.Accuracy.Balanced,
-  });
+  // 2. Reuse already running in-flight query
+  if (inFlightGpsPromise) {
+    return inFlightGpsPromise;
+  }
 
-  const timeoutPromise = new Promise<Location.LocationObject>((_, reject) =>
-    setTimeout(
-      () =>
-        reject(
-          new Error(
-            "GPS location request timed out. Please ensure GPS/Location is enabled on your device.",
-          ),
-        ),
-      6000,
-    ),
-  );
+  inFlightGpsPromise = (async () => {
+    try {
+      // 3. Query OS last known location (instantaneous on Android/iOS, 0ms)
+      const lastKnown = await Location.getLastKnownPositionAsync().catch(
+        () => null,
+      );
+      if (
+        lastKnown &&
+        Date.now() - lastKnown.timestamp < 5 * 60 * 1000 &&
+        lastKnown.coords.accuracy !== null &&
+        lastKnown.coords.accuracy < 150
+      ) {
+        cachedDeviceGps = {
+          position: lastKnown,
+          timestamp: Date.now(),
+        };
+        return lastKnown;
+      }
 
-  return await Promise.race([positionPromise, timeoutPromise]);
+      // 4. Fallback to active GPS lock with 1500ms timeout and graceful fallback
+      const positionPromise = Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      const timeoutPromise = new Promise<Location.LocationObject>(
+        (resolve, reject) =>
+          setTimeout(async () => {
+            if (lastKnown) {
+              resolve(lastKnown);
+            } else {
+              const fallback = await Location.getLastKnownPositionAsync().catch(
+                () => null,
+              );
+              if (fallback) {
+                resolve(fallback);
+              } else {
+                reject(
+                  new Error(
+                    "GPS location request timed out. Please ensure GPS/Location is enabled on your device.",
+                  ),
+                );
+              }
+            }
+          }, 1500),
+      );
+
+      const pos = await Promise.race([positionPromise, timeoutPromise]);
+      if (pos) {
+        cachedDeviceGps = {
+          position: pos,
+          timestamp: Date.now(),
+        };
+      }
+      return pos;
+    } finally {
+      inFlightGpsPromise = null;
+    }
+  })();
+
+  return inFlightGpsPromise;
+}
+
+/**
+ * Pre-warms device GPS in background (e.g. on HomeScreen mount or camera open)
+ * so attendance scans can resolve coordinates in 0ms without delaying the camera.
+ */
+export async function prewarmDeviceGps(): Promise<void> {
+  if (Platform.OS === "web") return;
+  try {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status === "granted") {
+      await getDeviceGpsPosition();
+    }
+  } catch {}
 }
 
 /**
@@ -188,19 +289,32 @@ export async function scanAttendanceWithSecurity(payload: {
     let localIp: string | undefined;
 
     if (Platform.OS !== "web") {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status === "granted") {
-        const [pos, ip] = await Promise.all([
-          getDeviceGpsPosition().catch(() => null),
-          Network.getIpAddressAsync().catch(() => undefined),
-        ]);
-        if (pos) {
-          coords = pos.coords;
-          isMocked = Boolean(
-            (pos.coords as any).isMocked || (pos as any).mocked,
-          );
+      // Fast path: use memory cached GPS fix (0ms)
+      const cached = getCachedGpsPosition();
+      if (cached) {
+        coords = cached.coords;
+        isMocked = Boolean(
+          (cached.coords as any).isMocked || (cached as any).mocked,
+        );
+        localIp = await getCachedLocalIp();
+      } else {
+        const { status } =
+          await Location.requestForegroundPermissionsAsync().catch(() => ({
+            status: "denied",
+          }));
+        if (status === "granted") {
+          const [pos, ip] = await Promise.all([
+            getDeviceGpsPosition().catch(() => null),
+            getCachedLocalIp(),
+          ]);
+          if (pos) {
+            coords = pos.coords;
+            isMocked = Boolean(
+              (pos.coords as any).isMocked || (pos as any).mocked,
+            );
+          }
+          localIp = ip;
         }
-        localIp = ip;
       }
     }
 

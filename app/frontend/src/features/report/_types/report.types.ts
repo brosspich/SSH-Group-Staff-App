@@ -1,6 +1,6 @@
 import { ComponentType } from "react";
 
-export type ReportPeriod = "daily" | "weekly" | "monthly" | "annual";
+export type ReportPeriod = "daily" | "weekly" | "monthly"; // | "annual"
 
 export interface ReportItemConfig {
   title: string;

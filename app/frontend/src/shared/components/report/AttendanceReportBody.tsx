@@ -1,4 +1,4 @@
-import { AttendanceRecord } from "@/app/(tabs)/attendance";
+import { AttendanceRecord } from "@/features/attendance/_types/attendance.types";
 import Loading from "@/shared/components/loading/loading";
 import { StaffPickerModal } from "@/shared/components/report/StaffPickerModal";
 import {
@@ -249,7 +249,7 @@ export function AttendanceReportBody({
                     <Text style={s.staffIdText}>
                       Staff ID:{" "}
                       {item.staff_id != null ? String(item.staff_id) : "-"}
-                      {idStr ? ` • ${idStr}` : ""}
+                      {/* {idStr ? ` • ${idStr}` : ""} */}
                     </Text>
                   </View>
                   <View style={{ alignItems: "flex-end" }}>
@@ -474,7 +474,7 @@ const s = StyleSheet.create({
     fontSize: theme.fontSizes.xs,
     color: theme.colors.grey,
     fontFamily: theme.fonts.regular,
-    marginTop: 2,
+    marginTop: 3,
     includeFontPadding: false,
   },
   recordDate: {
@@ -482,6 +482,7 @@ const s = StyleSheet.create({
     color: theme.colors.grey,
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
+    marginTop: 3,
   },
   conStatus: {
     borderTopWidth: 0.5,
