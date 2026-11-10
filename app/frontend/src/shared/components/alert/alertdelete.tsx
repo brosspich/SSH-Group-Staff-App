@@ -1,5 +1,18 @@
+import { ModalFooterButtons } from "@/shared/components/button/ModalFooterButtons";
 import { theme } from "@/shared/styles/theme";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Modal, StyleSheet, Text, View } from "react-native";
+
+export interface AlertDeleteModalProps {
+  alertModalVisible: boolean;
+  setAlertModalVisible: (visible: boolean) => void;
+  title: string;
+  bodyTxt: string;
+  deleteAction: () => Promise<void> | void;
+  isDeleting?: boolean;
+  isMobile?: boolean;
+  cancelText?: string;
+  deleteText?: string;
+}
 
 export const renderAlertDeleteModal = ({
   alertModalVisible,
@@ -9,12 +22,16 @@ export const renderAlertDeleteModal = ({
   deleteAction,
   isDeleting = false,
   isMobile = false,
-}: any) => (
+  cancelText = "Cancel",
+  deleteText = "Delete",
+}: AlertDeleteModalProps) => (
   <Modal
     visible={alertModalVisible}
     animationType="fade"
     transparent
-    onRequestClose={() => setAlertModalVisible(false)}
+    onRequestClose={() => {
+      if (!isDeleting) setAlertModalVisible(false);
+    }}
     statusBarTranslucent
   >
     <View style={styles.conModalLogout}>
@@ -27,48 +44,39 @@ export const renderAlertDeleteModal = ({
           },
         ]}
       >
-        <Text style={[styles.txt, { fontSize: theme.fontSizes.xl }]}>{title}</Text>
+        <Text style={[styles.txt, { fontSize: theme.fontSizes.xl }]}>
+          {title}
+        </Text>
         <Text style={styles.txt}>{bodyTxt}</Text>
-        <View style={styles.conBtn}>
-          <TouchableOpacity
-            onPress={() => setAlertModalVisible(false)}
-            style={styles.btn}
-          >
-            <Text style={styles.txtBtn}>Cancel</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={async () => {
-              await deleteAction();
-            }}
-            style={[
-              styles.btn,
-              { backgroundColor: theme.colors.red, borderColor: theme.colors.red },
-            ]}
-            disabled={isDeleting}
-          >
-            <Text style={[styles.txtBtn, { color: theme.colors.background2 }]}>
-              {isDeleting ? "Deleting..." : "Delete"}
-            </Text>
-          </TouchableOpacity>
-        </View>
+
+        <ModalFooterButtons
+          onClose={() => setAlertModalVisible(false)}
+          onSubmit={async () => {
+            await deleteAction();
+          }}
+          closeText={cancelText}
+          submitText={isDeleting ? "Deleting..." : deleteText}
+          submitting={isDeleting}
+          variant="danger"
+          iconName="trash-outline"
+          noBorderTop
+        />
       </View>
     </View>
   </Modal>
 );
 
 const styles = StyleSheet.create({
-  // Modal Logout
   conModalLogout: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.3)",
     justifyContent: "center",
     alignItems: "center",
-    // paddingHorizontal: 20,
   },
   conModal: {
     marginHorizontal: 20,
     backgroundColor: theme.colors.background2,
-    padding: 15,
+    padding: 20,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: theme.borderRadius.xl,
@@ -80,34 +88,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: theme.fontSizes.md,
     textAlign: "center",
-    // marginTop: 10,
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-  },
-  conBtn: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 10,
-    // marginTop: 15,
-  },
-
-  btn: {
-    backgroundColor: theme.colors.background2,
-    // width: "100%",
-    flex: 1,
-    paddingVertical: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: theme.borderRadius.md,
-    flexDirection: "row",
-    borderWidth: 1.5,
-    borderColor: theme.colors.secondary,
-  },
-  txtBtn: {
-    fontWeight: "bold",
-    color: theme.colors.secondary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

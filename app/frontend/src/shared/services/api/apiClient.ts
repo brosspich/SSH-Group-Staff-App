@@ -70,7 +70,7 @@ function resolveCandidateBaseUrls(): string[] {
     return [
       envUrl,
       autoHostUrl,
-      "http://192.168.1.15:4000",
+      "http://172.20.240.1:4000",
       "http://10.0.2.2:4000",
       "http://127.0.0.1:4000",
       "http://localhost:4000",
@@ -81,7 +81,7 @@ function resolveCandidateBaseUrls(): string[] {
     envUrl,
     "http://127.0.0.1:4000",
     "http://localhost:4000",
-    "http://192.168.1.15:4000",
+    "http://172.20.240.1:4000",
   ].filter(Boolean) as string[];
 }
 
@@ -93,7 +93,7 @@ export class ApiClient {
     this.baseUrl = (
       baseUrl ||
       initialCandidates[0] ||
-      "http://192.168.1.15:4000"
+      "http://172.20.240.1:4000"
     ).replace(/\/+$/, "");
   }
 
