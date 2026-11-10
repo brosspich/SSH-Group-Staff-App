@@ -1,4 +1,4 @@
-# SSH Group Staff (Mobile App)
+# SSH Group Staff (Full Stack Mobile App)
 
 An enterprise cross-platform mobile application and backend system built with **React Native (Expo SDK 57)**, **Node.js (Express & Prisma ORM)**, **Cloudflare D1 (Distributed SQLite Database)**, and **Cloudflare R2** for encrypted proof photo storage — with zero Docker requirement.
 
