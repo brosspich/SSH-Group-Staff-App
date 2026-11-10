@@ -49,9 +49,42 @@ export class ReportsService {
   }): Promise<AttendanceReportResponse> {
     const { mode, type, dateStr, staffId, companyId, currentUserId } = params;
 
-    // 1. Fetch all users from DB
+    // Resolve system/company isolation
+    let resolvedCompanyId = companyId
+      ? String(companyId).trim().toLowerCase()
+      : undefined;
+    if (!resolvedCompanyId && currentUserId) {
+      const actor = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { systemId: currentUserId },
+            { id: currentUserId },
+            { username: currentUserId },
+          ],
+        },
+        include: { details: true },
+      });
+      if (actor?.details?.companyId) {
+        resolvedCompanyId = actor.details.companyId.trim().toLowerCase();
+      } else if (actor?.systemId) {
+        const match = actor.systemId.match(/^(system-\d+)/i);
+        if (match) resolvedCompanyId = match[1].toLowerCase();
+      } else {
+        const match = currentUserId.match(/^(system-\d+)/i);
+        if (match) resolvedCompanyId = match[1].toLowerCase();
+      }
+    }
+
+    // 1. Fetch users from DB strictly scoped to system/company
     const users = await prisma.user.findMany({
-      where: companyId ? { details: { companyId } } : undefined,
+      where: resolvedCompanyId
+        ? {
+            OR: [
+              { details: { companyId: resolvedCompanyId } },
+              { systemId: { startsWith: resolvedCompanyId } },
+            ],
+          }
+        : undefined,
       include: { details: true, attendanceLogs: true },
       orderBy: [{ id: "asc" }],
     });
@@ -60,29 +93,57 @@ export class ReportsService {
       .filter((u) => !isLeaveRole(u.role))
       .map((u) => ({
         id: u.id,
+        system_id: u.systemId,
         name: u.details?.name || u.username,
         username: u.username,
         position: u.details?.position || null,
         role: u.role,
-        company_id: u.details?.companyId || null,
+        company_id: u.details?.companyId || resolvedCompanyId || null,
       }));
 
-    // 2. Determine target staff ID
+    // 2. Determine target staff ID (Auto-select current logged-in user by default)
     let targetStaffId = staffId || null;
     if (mode === "current" && currentUserId) {
-      targetStaffId = currentUserId;
+      const cur = users.find(
+        (u) => u.id === currentUserId || u.systemId === currentUserId,
+      );
+      targetStaffId = cur?.id || currentUserId;
+    }
+    if (!targetStaffId && currentUserId) {
+      const cur = users.find(
+        (u) => u.id === currentUserId || u.systemId === currentUserId,
+      );
+      if (cur) {
+        targetStaffId = cur.id;
+      }
     }
     if (!targetStaffId && staffList.length > 0 && mode !== "all") {
       targetStaffId = staffList[0].id;
+    } else if (
+      targetStaffId &&
+      mode !== "all" &&
+      !staffList.some((s) => s.id === targetStaffId)
+    ) {
+      const cur = users.find(
+        (u) => u.id === currentUserId || u.systemId === currentUserId,
+      );
+      targetStaffId = cur?.id || staffList[0]?.id || null;
     }
 
     // 3. Extract and normalize attendance records (Prioritize Cloudflare D1)
     let allLogs: any[] = [];
     let d1Logs: any[] = [];
     try {
-      d1Logs = await d1Client.query(
-        "SELECT id, userId, companyId, scanDate, scanTime, type, remark, image, createdAt FROM AttendanceLog ORDER BY createdAt DESC",
-      );
+      if (resolvedCompanyId) {
+        d1Logs = await d1Client.query(
+          "SELECT id, userId, companyId, scanDate, scanTime, type, remark, image, createdAt FROM AttendanceLog WHERE companyId = ? OR userId LIKE ? ORDER BY createdAt DESC",
+          [resolvedCompanyId, `${resolvedCompanyId}%`],
+        );
+      } else {
+        d1Logs = await d1Client.query(
+          "SELECT id, userId, companyId, scanDate, scanTime, type, remark, image, createdAt FROM AttendanceLog ORDER BY createdAt DESC",
+        );
+      }
     } catch (e: any) {
       console.warn("D1 query fallback in reports.service:", e?.message);
     }
@@ -92,10 +153,28 @@ export class ReportsService {
         const u = users.find(
           (usr) => usr.systemId === log.userId || usr.id === log.userId,
         );
+        if (resolvedCompanyId) {
+          const logComp = log.companyId || u?.details?.companyId;
+          const userMatches =
+            !!u ||
+            String(log.userId || "")
+              .toLowerCase()
+              .startsWith(resolvedCompanyId.toLowerCase());
+          if (
+            logComp &&
+            logComp.toLowerCase() !== resolvedCompanyId.toLowerCase()
+          ) {
+            continue;
+          }
+          if (!userMatches) {
+            continue;
+          }
+        }
         allLogs.push({
           id: log.id,
           staff_id: u?.id || log.userId,
-          system_id: u?.details?.companyId || log.companyId,
+          system_id:
+            u?.details?.companyId || log.companyId || resolvedCompanyId,
           name: u?.details?.name || u?.username || log.userId,
           username: u?.username || "",
           date: log.scanDate,
@@ -116,7 +195,8 @@ export class ReportsService {
             allLogs.push({
               id: log.id,
               staff_id: u.id,
-              system_id: u.details?.companyId || log.companyId,
+              system_id:
+                u.details?.companyId || log.companyId || resolvedCompanyId,
               name: u.details?.name || u.username,
               username: u.username,
               date: log.scanDate,
@@ -135,7 +215,8 @@ export class ReportsService {
             allLogs.push({
               id: rec.id || "",
               staff_id: rec.staff_id != null ? String(rec.staff_id) : u.id,
-              system_id: rec.system_id || u.details?.companyId || null,
+              system_id:
+                rec.system_id || u.details?.companyId || resolvedCompanyId,
               name: rec.name || u.details?.name || u.username,
               username: rec.username || u.username,
               date:
@@ -247,8 +328,41 @@ export class ReportsService {
   }): Promise<RequestReportResponse> {
     const { mode, type, dateStr, staffId, companyId, currentUserId } = params;
 
+    // Resolve system/company isolation
+    let resolvedCompanyId = companyId
+      ? String(companyId).trim().toLowerCase()
+      : undefined;
+    if (!resolvedCompanyId && currentUserId) {
+      const actor = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { systemId: currentUserId },
+            { id: currentUserId },
+            { username: currentUserId },
+          ],
+        },
+        include: { details: true },
+      });
+      if (actor?.details?.companyId) {
+        resolvedCompanyId = actor.details.companyId.trim().toLowerCase();
+      } else if (actor?.systemId) {
+        const match = actor.systemId.match(/^(system-\d+)/i);
+        if (match) resolvedCompanyId = match[1].toLowerCase();
+      } else {
+        const match = currentUserId.match(/^(system-\d+)/i);
+        if (match) resolvedCompanyId = match[1].toLowerCase();
+      }
+    }
+
     const users = await prisma.user.findMany({
-      where: companyId ? { details: { companyId } } : undefined,
+      where: resolvedCompanyId
+        ? {
+            OR: [
+              { details: { companyId: resolvedCompanyId } },
+              { systemId: { startsWith: resolvedCompanyId } },
+            ],
+          }
+        : undefined,
       include: { details: true, attendanceRequests: true },
       orderBy: [{ id: "asc" }],
     });
@@ -257,18 +371,40 @@ export class ReportsService {
       .filter((u) => !isLeaveRole(u.role))
       .map((u) => ({
         id: u.id,
+        system_id: u.systemId,
         name: u.details?.name || u.username,
         position: u.details?.position || null,
         role: u.role,
-        company_id: u.details?.companyId || null,
+        company_id: u.details?.companyId || resolvedCompanyId || null,
       }));
 
+    // 2. Determine target staff ID (Auto-select current logged-in user by default)
     let targetStaffId = staffId || null;
     if (mode === "current" && currentUserId) {
-      targetStaffId = currentUserId;
+      const cur = users.find(
+        (u) => u.id === currentUserId || u.systemId === currentUserId,
+      );
+      targetStaffId = cur?.id || currentUserId;
+    }
+    if (!targetStaffId && currentUserId) {
+      const cur = users.find(
+        (u) => u.id === currentUserId || u.systemId === currentUserId,
+      );
+      if (cur) {
+        targetStaffId = cur.id;
+      }
     }
     if (!targetStaffId && staffList.length > 0 && mode !== "all") {
       targetStaffId = staffList[0].id;
+    } else if (
+      targetStaffId &&
+      mode !== "all" &&
+      !staffList.some((s) => s.id === targetStaffId)
+    ) {
+      const cur = users.find(
+        (u) => u.id === currentUserId || u.systemId === currentUserId,
+      );
+      targetStaffId = cur?.id || staffList[0]?.id || null;
     }
 
     let allRequests: any[] = [];

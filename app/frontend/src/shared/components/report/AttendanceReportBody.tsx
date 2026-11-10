@@ -1,6 +1,8 @@
 import { AttendanceRecord } from "@/features/attendance/_types/attendance.types";
 import Loading from "@/shared/components/loading/loading";
 import { StaffPickerModal } from "@/shared/components/report/StaffPickerModal";
+import { extractSystemKey } from "@/shared/constants/attendanceConfig";
+import { useUser } from "@/shared/contexts/UserContext";
 import {
   AttendanceSummary,
   ReportMode,
@@ -38,6 +40,7 @@ export function AttendanceReportBody({
   activeStaffId,
   onSelectStaff,
 }: AttendanceReportBodyProps) {
+  const { user: loggedInUser } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [showStaffModal, setShowStaffModal] = useState(false);
 
@@ -141,7 +144,12 @@ export function AttendanceReportBody({
             visible={showStaffModal}
             staffList={staffList}
             selectedStaffId={activeStaffId}
-            systemId={selectedStaff?.system_id}
+            systemId={
+              extractSystemKey(loggedInUser?.system_id) ||
+              extractSystemKey(loggedInUser?.details?.company_id) ||
+              extractSystemKey(loggedInUser?.company_id) ||
+              extractSystemKey(selectedStaff?.system_id)
+            }
             onClose={() => setShowStaffModal(false)}
             onSelect={(id) => onSelectStaff(id)}
           />

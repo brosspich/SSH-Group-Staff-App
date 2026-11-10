@@ -1,5 +1,7 @@
 import Loading from "@/shared/components/loading/loading";
 import { StaffPickerModal } from "@/shared/components/report/StaffPickerModal";
+import { extractSystemKey } from "@/shared/constants/attendanceConfig";
+import { useUser } from "@/shared/contexts/UserContext";
 import {
   ReportMode,
   RequestSummary,
@@ -38,6 +40,7 @@ export function RequestReportBody({
   activeStaffId,
   onSelectStaff,
 }: RequestReportBodyProps) {
+  const { user: loggedInUser } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [showStaffModal, setShowStaffModal] = useState(false);
 
@@ -144,7 +147,12 @@ export function RequestReportBody({
             visible={showStaffModal}
             staffList={staffList}
             selectedStaffId={activeStaffId}
-            systemId={selectedStaff?.system_id}
+            systemId={
+              extractSystemKey(loggedInUser?.system_id) ||
+              extractSystemKey(loggedInUser?.details?.company_id) ||
+              extractSystemKey(loggedInUser?.company_id) ||
+              extractSystemKey(selectedStaff?.system_id)
+            }
             onClose={() => setShowStaffModal(false)}
             onSelect={(id) => {
               setShowStaffModal(false);

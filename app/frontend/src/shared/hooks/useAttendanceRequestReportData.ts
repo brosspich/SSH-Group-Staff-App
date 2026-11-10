@@ -102,6 +102,19 @@ export function useAttendanceRequestReportData(
   const [activeStaffId, setActiveStaffId] = useState<string | null>(
     selectedStaffId || null,
   );
+
+  const [currentUser, setCurrentUser] = useState<StaffUser | null>(null);
+
+  useEffect(() => {
+    userService.get().then((u) => {
+      if (u) {
+        setCurrentUser(u);
+        if (!selectedStaffId) {
+          setActiveStaffId((prev) => prev || u.id);
+        }
+      }
+    });
+  }, [selectedStaffId]);
   const [records, setRecords] = useState<AttendanceRequestRuleItem[]>([]);
   const [summary, setSummary] = useState<RequestSummary>({
     totalRequests: 0,
@@ -117,10 +130,19 @@ export function useAttendanceRequestReportData(
     const curDate = new Date(selectedDateMs);
     try {
       const currentUser = await userService.get();
+      const userSys =
+        currentUser?.details?.company_id ||
+        currentUser?.details?.companyId ||
+        currentUser?.company_id ||
+        currentUser?.companyId ||
+        currentUser?.system_id ||
+        currentUser?.systemId ||
+        "";
+      const matchComp = userSys.match(/^(system-\d+)/i);
+      const companyParam = matchComp ? matchComp[1].toLowerCase() : "";
+
       const targetId =
-        activeStaffId ||
-        selectedStaffId ||
-        (reportMode === "current" ? currentUser?.id : "");
+        activeStaffId || selectedStaffId || currentUser?.id || "";
       const dateParam = formatDateYMD(curDate);
 
       // Backend 70%: Performs all date filtering, request status aggregations, and summaries on the server!
@@ -130,7 +152,7 @@ export function useAttendanceRequestReportData(
         staffList: StaffUser[];
         targetStaffId: string | null;
       }>(
-        `/reports/requests?mode=${reportMode}&type=${reportType}&date=${dateParam}&staffId=${targetId || ""}&currentUserId=${currentUser?.id || ""}`,
+        `/reports/requests?mode=${reportMode}&type=${reportType}&date=${dateParam}&staffId=${targetId || ""}&currentUserId=${currentUser?.system_id || currentUser?.id || ""}&companyId=${companyParam}`,
       );
 
       if (res) {
@@ -159,7 +181,21 @@ export function useAttendanceRequestReportData(
     fetchData();
   }, [fetchData]);
 
-  const selectedStaff = staffList.find((s) => s.id === activeStaffId) || null;
+  const selectedStaff =
+    staffList.find(
+      (s) =>
+        s.id === activeStaffId ||
+        (s as any).system_id === activeStaffId ||
+        (s as any).systemId === activeStaffId,
+    ) ||
+    staffList.find(
+      (s) =>
+        s.id === currentUser?.id ||
+        (s as any).system_id === currentUser?.system_id,
+    ) ||
+    (reportMode === "current" ? currentUser : null) ||
+    staffList[0] ||
+    null;
 
   return {
     loading,

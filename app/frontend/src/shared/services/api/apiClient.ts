@@ -140,6 +140,24 @@ export class ApiClient {
       }
     }
 
+    const userSystemId =
+      user?.system_id ||
+      user?.systemId ||
+      user?.details?.system_id ||
+      user?.details?.systemId ||
+      "";
+    const userCompanyId =
+      user?.company_id ||
+      user?.companyId ||
+      user?.details?.company_id ||
+      user?.details?.companyId ||
+      "";
+    const resolvedCompany = (
+      userCompanyId.match(/^(system-\d+)/i)?.[1] ||
+      userSystemId.match(/^(system-\d+)/i)?.[1] ||
+      ""
+    ).toLowerCase();
+
     const finalHeaders: Record<string, string> = {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -147,6 +165,8 @@ export class ApiClient {
       ...(user
         ? {
             "x-staff-id": user.id || user.staff_id || "",
+            "x-staff-system-id": userSystemId,
+            "x-company-id": resolvedCompany,
             "x-staff-username": user.username || "",
             "x-staff-role": roleStr,
           }

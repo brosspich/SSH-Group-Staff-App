@@ -22,42 +22,64 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export function getStaffSystemKey(st?: StaffUser | null): string {
   if (!st) return "system-0001";
 
-  const lowerId = String(st.id || "")
+  // 1. Direct company identifier (company_id, companyId, details.companyId, details.company_id)
+  const rawComp = String(
+    st.company_id ||
+      st.companyId ||
+      st.details?.company_id ||
+      st.details?.companyId ||
+      "",
+  )
     .toLowerCase()
     .trim();
-  const lowerStaffId = String(st.staff_id || "")
-    .toLowerCase()
-    .trim();
-  const lowerUsername = String(st.username || "")
-    .toLowerCase()
-    .trim();
-  const rawSys = String(st.system_id || "")
-    .toLowerCase()
-    .trim();
-
-  // 1. Explicit BPAK identifier anywhere in id, staff_id, username, or system_id is strictly system-0002
-  if (
-    lowerId.startsWith("bpak") ||
-    lowerStaffId.startsWith("bpak") ||
-    lowerUsername.startsWith("bpak") ||
-    rawSys.includes("bpak")
-  ) {
-    return "system-0002";
+  const matchComp = rawComp.match(/^(system-\d+)/i);
+  if (matchComp) {
+    return matchComp[1].toLowerCase();
   }
 
-  // 2. Check for any explicit dynamic system code in system_id (e.g. system-0001, system-0002, system-0003, ...)
+  // 2. Direct system_id identifier (system_id, systemId, details.system_id, details.systemId)
+  const rawSys = String(
+    st.system_id ||
+      st.systemId ||
+      st.details?.system_id ||
+      st.details?.systemId ||
+      "",
+  )
+    .toLowerCase()
+    .trim();
   const matchSys = rawSys.match(/^(system-\d+)/i);
   if (matchSys) {
     return matchSys[1].toLowerCase();
   }
 
-  // 3. Check for dynamic system pattern in user ID (e.g. system-0001-xxxx, system-0002-xxxx, system-0003-xxxx)
+  const lowerId = String(st.id || "")
+    .toLowerCase()
+    .trim();
+  const lowerStaffId = String(st.staff_id || st.staffId || "")
+    .toLowerCase()
+    .trim();
+  const lowerUsername = String(st.username || "")
+    .toLowerCase()
+    .trim();
+
+  // 3. Explicit BPAK identifier anywhere in id, staff_id, username, or system_id is strictly system-0002
+  if (
+    lowerId.startsWith("bpak") ||
+    lowerStaffId.startsWith("bpak") ||
+    lowerUsername.startsWith("bpak") ||
+    rawSys.includes("bpak") ||
+    rawComp.includes("bpak")
+  ) {
+    return "system-0002";
+  }
+
+  // 4. Check for dynamic system pattern in user ID (e.g. system-0001-xxxx, system-0002-xxxx, system-0003-xxxx)
   const matchId = lowerId.match(/^(system-\d+)/i);
   if (matchId) {
     return matchId[1].toLowerCase();
   }
 
-  // 4. Default company (SSH Group: 0001, 0021, 0022, 0024, 0025, etc.) is system-0001
+  // 5. Default company (SSH Group: 0001, 0021, 0022, 0024, 0025, etc.) is system-0001
   return "system-0001";
 }
 
@@ -92,21 +114,21 @@ export function StaffPickerModal({
 
   // Determine target system:
   // 1. Explicit prop `systemId`
-  // 2. Selected staff member's system
-  // 3. Logged-in user's system
+  // 2. Logged-in user's system (Strict Authority: users view only staff in their own company)
+  // 3. Selected staff member's system
+  const loggedInUserSystem = loggedInUser
+    ? getStaffSystemKey(loggedInUser)
+    : "";
+
   const selectedStaff = staffList.find((s) => s.id === selectedStaffId);
   const selectedStaffSystem = selectedStaff
     ? getStaffSystemKey(selectedStaff)
     : "";
 
-  const loggedInUserSystem = loggedInUser
-    ? getStaffSystemKey(loggedInUser)
-    : "";
-
   const effectiveSystemKey =
     (systemId ? extractSystemKey(systemId) : "") ||
-    selectedStaffSystem ||
     loggedInUserSystem ||
+    selectedStaffSystem ||
     "system-0001";
 
   // Filter staff strictly by current system (system-0001, system-0002, system-0003, etc.) and active status (not on leave)
@@ -213,7 +235,9 @@ export function StaffPickerModal({
               </View>
             ) : (
               filteredStaff.map((item) => {
-                const isSelected = item.id === selectedStaffId;
+                const isSelected =
+                  item.id === selectedStaffId ||
+                  (item.system_id && item.system_id === selectedStaffId);
                 return (
                   <TouchableOpacity
                     key={item.id}

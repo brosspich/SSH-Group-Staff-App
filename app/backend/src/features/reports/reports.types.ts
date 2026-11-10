@@ -18,6 +18,7 @@ export interface RequestReportSummary {
 
 export interface StaffOptionDto {
   id: string;
+  system_id?: string | null;
   name: string;
   username?: string | null;
   position?: string | null;
