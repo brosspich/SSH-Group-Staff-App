@@ -115,7 +115,7 @@ SSH-Group-Staff-App/
 │   ├── REPORTS_AND_PRINTING.md         # Report Aggregation, PDF Export & Column Layouts
 │   └── ARCHITECTURE_AND_STANDARDS.md   # Clean Code, SOLID, DRY & Troubleshooting
 │
-├── LICENSE                             # MIT License
+├── LICENSE                             # Proprietary License (SSH Group Cambodia)
 └── README.md                           # Main Project Readme
 ```
 
@@ -124,22 +124,26 @@ SSH-Group-Staff-App/
 ## ⚡ Key Features
 
 ### 1. 0ms Ultra-Fast Attendance Scanner
+
 - **Instant Client-Side Check**: Validates scanned QR strings locally against official branch lists in 0ms, instantly displaying confirmation without waiting for server roundtrips.
 - **Background Deep Security**: Concurrently verifies device coordinates using the **Haversine Formula** against registered branch geofences, detects mock GPS (`isMocked`), and inspects network interfaces for VPN adapters (`tun0`, `10.8.x.x`).
 
 ### 2. Standardized User-Scoped Sequential IDs
+
 All records generated across SQLite, Cloudflare D1, and JSON user records follow a strict, human-readable format scoped per staff user:
 
-| Type | Format Pattern | Example |
-| :--- | :--- | :--- |
-| **Attendance Log** | `{system_id}-ATT-0000-0001` | `system-0001-0022-ATT-0000-0001` |
+| Type                   | Format Pattern              | Example                          |
+| :--------------------- | :-------------------------- | :------------------------------- |
+| **Attendance Log**     | `{system_id}-ATT-0000-0001` | `system-0001-0022-ATT-0000-0001` |
 | **Attendance Request** | `{system_id}-REQ-0000-0001` | `system-0001-0022-REQ-0000-0001` |
 
 - **Isolated Counters**: Sequence counts reset per user (Staff A's scans do not increment Staff B's sequence).
 - **Dual-Database Sync**: Scans sync to local SQLite (`dev.db`) and remote Cloudflare D1 (`ssh-database`).
 
 ### 3. Cloudflare R2 Proof Photo Storage
+
 Proof photos submitted with attendance scans or leave requests are uploaded directly to **Cloudflare R2 (`ssh-storage`)** using an AWS S3-compatible SDK:
+
 ```
 ssh-storage/
 └── staff-attendance-request/
@@ -149,10 +153,12 @@ ssh-storage/
 ```
 
 ### 4. Native Telegram Multipart Photo Alerts
+
 - Sends native Telegram `POST /sendPhoto` multipart requests containing the proof image and an HTML-formatted caption detailing staff name, ID, time window, and subject.
 - Dynamically routes alerts to the appropriate Telegram Group using branch bot tokens and chat IDs configured in `Company`.
 
 ### 5. Multi-Layer Caching (Zustand + TanStack Query)
+
 - **TanStack Query (v5)**: Server-state caching (`staleTime: 5m`, `gcTime: 15m`), query deduplication, and automatic invalidation on mutations.
 - **Zustand**: Fast client-side persistent storage using AsyncStorage with re-entrancy and race condition guards.
 
@@ -161,6 +167,7 @@ ssh-storage/
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - **Node.js**: `v20.x` or `v22.x`
 - **npm** or **pnpm**
 - **Expo CLI** (included with project dependencies)
@@ -206,17 +213,20 @@ Press `a` in the Expo terminal to launch on **Android Device / Emulator**, or `i
 
 For deep technical specifications, please consult the dedicated documentation suite:
 
-| Document | Topic |
-| :--- | :--- |
-| 🗄️ [docs/DATABASE.md](file:///d:/Code/SSH-Group-Staff-App/docs/DATABASE.md) | Database models, Cloudflare D1 integration, and schema definitions |
-| 🛡️ [docs/ATTENDANCE_SECURITY.md](file:///d:/Code/SSH-Group-Staff-App/docs/ATTENDANCE_SECURITY.md) | 0ms QR verification, Haversine formula, and anti-spoofing engine |
-| 📝 [docs/ATTENDANCE_REQUESTS.md](file:///d:/Code/SSH-Group-Staff-App/docs/ATTENDANCE_REQUESTS.md) | Attendance requests, Cloudflare R2 folder structures, and approval lifecycle |
-| 📊 [docs/REPORTS_AND_PRINTING.md](file:///d:/Code/SSH-Group-Staff-App/docs/REPORTS_AND_PRINTING.md) | Daily, Weekly, Monthly, and Annual report aggregation & PDF export |
-| 📋 [docs/AUDIT_LOGS.md](file:///d:/Code/SSH-Group-Staff-App/docs/AUDIT_LOGS.md) | Domain audit logging, event emitters, and security tracking |
-| 🏛️ [docs/ARCHITECTURE_AND_STANDARDS.md](file:///d:/Code/SSH-Group-Staff-App/docs/ARCHITECTURE_AND_STANDARDS.md) | Clean Architecture, SOLID, DRY principles, and network troubleshooting |
+| Document                                                                                                        | Topic                                                                        |
+| :-------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------- |
+| 🗄️ [docs/DATABASE.md](file:///d:/Code/SSH-Group-Staff-App/docs/DATABASE.md)                                     | Database models, Cloudflare D1 integration, and schema definitions           |
+| 🛡️ [docs/ATTENDANCE_SECURITY.md](file:///d:/Code/SSH-Group-Staff-App/docs/ATTENDANCE_SECURITY.md)               | 0ms QR verification, Haversine formula, and anti-spoofing engine             |
+| 📝 [docs/ATTENDANCE_REQUESTS.md](file:///d:/Code/SSH-Group-Staff-App/docs/ATTENDANCE_REQUESTS.md)               | Attendance requests, Cloudflare R2 folder structures, and approval lifecycle |
+| 📊 [docs/REPORTS_AND_PRINTING.md](file:///d:/Code/SSH-Group-Staff-App/docs/REPORTS_AND_PRINTING.md)             | Daily, Weekly, Monthly, and Annual report aggregation & PDF export           |
+| 📋 [docs/AUDIT_LOGS.md](file:///d:/Code/SSH-Group-Staff-App/docs/AUDIT_LOGS.md)                                 | Domain audit logging, event emitters, and security tracking                  |
+| 🏛️ [docs/ARCHITECTURE_AND_STANDARDS.md](file:///d:/Code/SSH-Group-Staff-App/docs/ARCHITECTURE_AND_STANDARDS.md) | Clean Architecture, SOLID, DRY principles, and network troubleshooting       |
 
 ---
 
-## 📄 License
+## 📄 License & Copyright
 
-This project is licensed under the **MIT License** — see the [LICENSE](file:///d:/Code/SSH-Group-Staff-App/LICENSE) file for details.
+Copyright (c) 2026 **SSH Group Cambodia**. All rights reserved.  
+Developed by **BROSSPICH**.
+
+This project and its entire source code are proprietary and confidential to **SSH Group Cambodia**. Unauthorized copying, reverse engineering, redistribution, or exploitation of any part of this software, via any medium, is strictly prohibited.

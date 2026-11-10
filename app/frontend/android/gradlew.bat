@@ -1,7 +1,5 @@
-@REM Copyright (c) Meta Platforms, Inc. and affiliates.
-@REM
-@REM This source code is licensed under the MIT license found in the
-@REM LICENSE file in the root directory of this source tree.
+@REM Copyright (c) 2026 SSH Group Cambodia. All rights reserved.
+@REM Developed by BROSSPICH
 
 @rem
 @rem Copyright 2015 the original author or authors.
