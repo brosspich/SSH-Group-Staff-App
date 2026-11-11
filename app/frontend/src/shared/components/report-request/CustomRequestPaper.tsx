@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { getCompanyName } from "@/shared/constants/attendanceConfig";
 import {
   ReportMode,
@@ -25,6 +26,7 @@ export default function CustomRequestPaper({
   records,
   targetStaff,
 }: CustomRequestPaperProps) {
+  const { t } = useLanguage();
   const generatedTimeStr = new Date().toLocaleString();
 
   // Sort records by date/from_date ascending, then id
@@ -105,22 +107,22 @@ export default function CustomRequestPaper({
           <Text style={[styles.thCell, { width: 26, textAlign: "center" }]}>
             #
           </Text>
-          <Text style={[styles.thCell, { flex: 1.2 }]}>Subject</Text>
-          <Text style={[styles.thCell, { width: 120, textAlign: "center" }]}>
-            Date
+          <Text style={[styles.thCell, { flex: 1.2 }]}>
+            {t("report.subject")}
           </Text>
-          <Text style={[styles.thCell, { flex: 1 }]}>Remark</Text>
+          <Text style={[styles.thCell, { width: 120, textAlign: "center" }]}>
+            {t("report.date")}
+          </Text>
+          <Text style={[styles.thCell, { flex: 1 }]}>{t("report.remark")}</Text>
           <Text style={[styles.thCell, { width: 68, textAlign: "center" }]}>
-            Status
+            {t("home.currentStatus")}
           </Text>
         </View>
 
         {/* Table Rows */}
         {sortedRecords.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>
-              No request records found for this period.
-            </Text>
+            <Text style={styles.emptyText}>{t("report.noRequests")}</Text>
           </View>
         ) : (
           sortedRecords.map((r, index) => {
@@ -173,20 +175,38 @@ export default function CustomRequestPaper({
                 <Text
                   style={[
                     styles.tdCell,
-                    { width: 26, textAlign: "center", fontWeight: "600" },
+                    {
+                      width: 26,
+                      textAlign: "center",
+                      // fontWeight: "600",
+                      fontFamily: theme.fonts.semibold,
+                    },
                   ]}
                 >
                   {index + 1}
                 </Text>
                 <Text
-                  style={[styles.tdCell, { flex: 1.2, fontWeight: "600" }]}
+                  style={[
+                    styles.tdCell,
+                    {
+                      flex: 1.2,
+                      // fontWeight: "600",
+                      fontFamily: theme.fonts.semibold,
+                    },
+                  ]}
                   numberOfLines={2}
                 >
                   {subject}
                 </Text>
                 <View style={{ width: 120, alignItems: "center" }}>
                   <Text
-                    style={[styles.tdCell, { fontWeight: "600" }]}
+                    style={[
+                      styles.tdCell,
+                      {
+                        // fontWeight: "600",
+                        fontFamily: theme.fonts.semibold,
+                      },
+                    ]}
                     numberOfLines={1}
                   >
                     {dateLine}
@@ -214,8 +234,8 @@ export default function CustomRequestPaper({
 
         {/* Table Footer */}
         <View style={styles.tableFooter}>
-          <Text style={styles.tfLabel}>Total Attendance Request</Text>
-          <Text style={styles.tfValue}>{totalCount} Request</Text>
+          <Text style={styles.tfLabel}>{t("report.totalRequests")}</Text>
+          <Text style={styles.tfValue}>{totalCount}</Text>
         </View>
       </View>
     </View>
@@ -241,7 +261,7 @@ const styles = StyleSheet.create({
   },
   companyTitle: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#0f172a",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -287,7 +307,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   staffInfoLabel: {
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -308,7 +328,7 @@ const styles = StyleSheet.create({
   },
   thCell: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#334155",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -344,7 +364,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 8.5,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -369,14 +389,14 @@ const styles = StyleSheet.create({
   },
   tfLabel: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#0f172a",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   tfValue: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#0f172a",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,

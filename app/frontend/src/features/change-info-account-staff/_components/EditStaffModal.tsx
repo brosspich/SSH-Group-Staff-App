@@ -1,7 +1,8 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { apiClient } from "@/shared/services/api";
 import { StaffUser, userService } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { hashPassword } from "@/utils/passwordUtils";
 import { formatRolesList, isOwnerRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
@@ -57,6 +58,7 @@ export default function EditStaffModal({
   onClose,
   onSaved,
 }: EditStaffModalProps) {
+  const { t } = useLanguage();
   const { isMobile } = useResponsive();
   const isOwner = isOwnerRole(currentUser?.role);
   const { height: windowHeight } = useWindowDimensions();
@@ -147,55 +149,120 @@ export default function EditStaffModal({
 
     // Validations
     if (!cleanName) {
-      setEditError("Full name is required.");
+      setEditError(
+        t("changeInfoStaff.errNameRequired", "Full name is required."),
+      );
       return;
     }
     if (!cleanUsername) {
-      setEditError("Username is required.");
+      setEditError(
+        t("changeInfoStaff.errUsernameRequired", "Username is required."),
+      );
       return;
     }
     if (!USERNAME_REGEX.test(cleanUsername)) {
       setEditError(
-        "Username must be 3-20 alphanumeric characters (letters, numbers, _, -).",
+        t(
+          "changeInfoStaff.errUsernameFormat",
+          "Username must be 3-20 alphanumeric characters (letters, numbers, _, -).",
+        ),
       );
       return;
     }
     if (!cleanPosition) {
-      setEditError("Position is required.");
+      setEditError(
+        t("changeInfoStaff.errPositionRequired", "Position is required."),
+      );
       return;
     }
     if (cleanEmail && !EMAIL_REGEX.test(cleanEmail)) {
-      setEditError("Please enter a valid email address.");
+      setEditError(
+        t(
+          "changeInfoStaff.errValidEmail",
+          "Please enter a valid email address.",
+        ),
+      );
       return;
     }
     if (cleanPhone && !PHONE_REGEX.test(cleanPhone)) {
-      setEditError("Please enter a valid phone number.");
+      setEditError(
+        t(
+          "changeInfoStaff.errValidPhone",
+          "Please enter a valid phone number.",
+        ),
+      );
       return;
     }
 
     if (wantResetPassword) {
       const cleanPw = newPassword.trim();
       if (!cleanPw || cleanPw.length < 6) {
-        setEditError("New password must be at least 6 characters.");
+        setEditError(
+          t(
+            "changeInfoStaff.errPasswordLength",
+            "New password must be at least 6 characters.",
+          ),
+        );
         return;
       }
       if (cleanPw !== confirmPassword.trim()) {
-        setEditError("New passwords do not match.");
+        setEditError(
+          t("changeInfoStaff.errPasswordMatch", "New passwords do not match."),
+        );
         return;
       }
     }
 
     setSavingEdit(true);
     try {
-      // 1. Uniqueness check for username if changed via Backend API
+      // 1. Uniqueness check for username within the same system/company
       if (cleanUsername !== (staff.username || "").toLowerCase().trim()) {
+        const staffSystem =
+          (staff.system_id || staff.systemId || "")
+            .match(/^(system-\d+)/i)?.[1]
+            ?.toLowerCase() ||
+          staff.companyId ||
+          staff.company_id ||
+          "";
+
         const matches = await apiClient
-          .get<any[]>("/users-query", { params: { username: cleanUsername } })
+          .get<any[]>("/users-query", {
+            params: {
+              username: cleanUsername,
+              ...(staffSystem ? { systemId: staffSystem } : {}),
+            },
+          })
           .catch(() => []);
 
-        const existingUser = matches.find((u: any) => u.id !== staff.id);
+        const existingUser = matches.find((u: any) => {
+          if (
+            u.id === staff.id ||
+            u.systemId === (staff.systemId || staff.system_id)
+          ) {
+            return false;
+          }
+          if (staffSystem) {
+            const uSys = (
+              u.systemId ||
+              u.system_id ||
+              u.companyId ||
+              u.company_id ||
+              ""
+            )
+              .match(/^(system-\d+)/i)?.[1]
+              ?.toLowerCase();
+            return uSys === staffSystem;
+          }
+          return true;
+        });
+
         if (existingUser) {
-          setEditError("This username is already taken by another account.");
+          setEditError(
+            t(
+              "changeInfoStaff.errUsernameTaken",
+              "This username is already taken by another account in this system.",
+            ),
+          );
           setSavingEdit(false);
           return;
         }
@@ -241,7 +308,11 @@ export default function EditStaffModal({
     } catch (err: any) {
       console.warn("Failed saving staff info:", err);
       setEditError(
-        err?.message || "Failed to update staff info. Please try again.",
+        err?.message ||
+          t(
+            "changeInfoStaff.errUpdateFailed",
+            "Failed to update staff info. Please try again.",
+          ),
       );
     } finally {
       setSavingEdit(false);
@@ -290,9 +361,15 @@ export default function EditStaffModal({
           {/* Modal Header */}
           <View style={styles.headerRow}>
             <View>
-              <Text style={styles.modalTitle}>Edit Staff Account</Text>
+              <Text style={styles.modalTitle}>
+                {t("changeInfoStaff.editModalTitle", "Edit Staff Account")}
+              </Text>
               <Text style={styles.modalSub}>
-                ID: {staff?.id} • @{staff?.username}
+                {t("changeInfoStaff.idLabel", {
+                  id: staff?.id,
+                  defaultValue: `ID: ${staff?.id}`,
+                })}{" "}
+                • @{staff?.username}
               </Text>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
@@ -307,7 +384,11 @@ export default function EditStaffModal({
           {/* Error Banner inside modal */}
           {editError && (
             <View style={styles.errorBanner}>
-              <Ionicons name="alert-circle" size={18} color={theme.colors.red} />
+              <Ionicons
+                name="alert-circle"
+                size={18}
+                color={theme.colors.red}
+              />
               <Text style={styles.errorBannerText}>{editError}</Text>
             </View>
           )}
@@ -328,26 +409,36 @@ export default function EditStaffModal({
           >
             {/* Full Name */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Full Name</Text>
+              <Text style={styles.fieldLabel}>
+                {t("changeInfoStaff.fullName", "Full Name")}
+              </Text>
               <TextInput
                 style={styles.input}
                 value={editName}
                 onChangeText={setEditName}
-                placeholder="Full name"
+                placeholder={t(
+                  "changeInfoStaff.fullNamePlaceholder",
+                  "Full name",
+                )}
                 placeholderTextColor={theme.colors.grey}
               />
             </View>
 
             {/* Username */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Username</Text>
+              <Text style={styles.fieldLabel}>
+                {t("changeInfoStaff.username", "Username")}
+              </Text>
               <TextInput
                 style={styles.input}
                 value={editUsername}
                 onChangeText={(v) =>
                   setEditUsername(v.toLowerCase().replace(/\s/g, ""))
                 }
-                placeholder="Username"
+                placeholder={t(
+                  "changeInfoStaff.usernamePlaceholder",
+                  "Username",
+                )}
                 placeholderTextColor={theme.colors.grey}
                 autoCapitalize="none"
               />
@@ -355,12 +446,17 @@ export default function EditStaffModal({
 
             {/* Position */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Position</Text>
+              <Text style={styles.fieldLabel}>
+                {t("changeInfoStaff.position", "Position")}
+              </Text>
               <TextInput
                 style={styles.input}
                 value={editPosition}
                 onChangeText={setEditPosition}
-                placeholder="Position"
+                placeholder={t(
+                  "changeInfoStaff.positionPlaceholder",
+                  "Position",
+                )}
                 placeholderTextColor={theme.colors.grey}
               />
               <ScrollView
@@ -394,26 +490,33 @@ export default function EditStaffModal({
 
             {/* System ID */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>System ID</Text>
+              <Text style={styles.fieldLabel}>
+                {t("changeInfoStaff.systemId", "System ID")}
+              </Text>
               <TextInput
                 style={[
                   styles.input,
                   !isOwner && {
-                    backgroundColor: "#E5E7EB",
-                    color: "#6B7280",
+                    backgroundColor: theme.colors.background,
+                    color: theme.colors.textSecondary,
                   },
                 ]}
                 value={editSystemId}
                 onChangeText={setEditSystemId}
                 editable={isOwner}
-                placeholder="System ID"
+                placeholder={t(
+                  "changeInfoStaff.systemIdPlaceholder",
+                  "System ID",
+                )}
                 placeholderTextColor={theme.colors.grey}
               />
             </View>
 
             {/* Roles */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Assigned Roles</Text>
+              <Text style={styles.fieldLabel}>
+                {t("changeInfoStaff.assignedRoles", "Assigned Roles")}
+              </Text>
               <View style={styles.rolesRow}>
                 {AVAILABLE_ROLES.map((r) => {
                   const isSelected = editRoles.includes(r);
@@ -430,7 +533,9 @@ export default function EditStaffModal({
                         name={isSelected ? "checkbox" : "square-outline"}
                         size={18}
                         color={
-                          isSelected ? theme.colors.background2 : theme.colors.grey
+                          isSelected
+                            ? theme.colors.background2
+                            : theme.colors.grey
                         }
                         style={{ marginRight: 6 }}
                       />
@@ -451,15 +556,23 @@ export default function EditStaffModal({
             {/* Active Account Switch */}
             <View style={styles.switchRow}>
               <View>
-                <Text style={styles.switchLabel}>Active Account</Text>
+                <Text style={styles.switchLabel}>
+                  {t("changeInfoStaff.activeAccount", "Active Account")}
+                </Text>
                 <Text style={styles.switchSub}>
-                  Account active and allowed to record attendance
+                  {t(
+                    "changeInfoStaff.activeAccountDesc",
+                    "Account active and allowed to record attendance",
+                  )}
                 </Text>
               </View>
               <Switch
                 value={editIsActive}
                 onValueChange={setEditIsActive}
-                trackColor={{ false: "#D1D5DB", true: theme.colors.primary }}
+                trackColor={{
+                  false: theme.colors.border,
+                  true: theme.colors.primary,
+                }}
                 thumbColor={theme.colors.background2}
               />
             </View>
@@ -467,23 +580,27 @@ export default function EditStaffModal({
             {/* Contact: Phone & Email */}
             <View style={styles.rowFields}>
               <View style={{ flex: 1, marginRight: 6 }}>
-                <Text style={styles.fieldLabel}>Phone</Text>
+                <Text style={styles.fieldLabel}>
+                  {t("changeInfoStaff.phone", "Phone")}
+                </Text>
                 <TextInput
                   style={styles.input}
                   value={editPhone}
                   onChangeText={setEditPhone}
-                  placeholder="Phone"
+                  placeholder={t("changeInfoStaff.phonePlaceholder", "Phone")}
                   placeholderTextColor={theme.colors.grey}
                   keyboardType="phone-pad"
                 />
               </View>
               <View style={{ flex: 1, marginLeft: 6 }}>
-                <Text style={styles.fieldLabel}>Email</Text>
+                <Text style={styles.fieldLabel}>
+                  {t("changeInfoStaff.email", "Email")}
+                </Text>
                 <TextInput
                   style={styles.input}
                   value={editEmail}
                   onChangeText={setEditEmail}
-                  placeholder="Email"
+                  placeholder={t("changeInfoStaff.emailPlaceholder", "Email")}
                   placeholderTextColor={theme.colors.grey}
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -493,7 +610,9 @@ export default function EditStaffModal({
 
             {/* Joined Date */}
             <View style={styles.fieldGroup}>
-              <Text style={styles.fieldLabel}>Joined Date (YYYY/MM/DD)</Text>
+              <Text style={styles.fieldLabel}>
+                {t("changeInfoStaff.joinedDate", "Joined Date (YYYY/MM/DD)")}
+              </Text>
               <TextInput
                 style={styles.input}
                 value={editJoined}
@@ -514,7 +633,9 @@ export default function EditStaffModal({
                     name="key-outline"
                     size={20}
                     color={
-                      wantResetPassword ? theme.colors.primary : theme.colors.grey
+                      wantResetPassword
+                        ? theme.colors.primary
+                        : theme.colors.grey
                     }
                     style={{ marginRight: 8 }}
                   />
@@ -524,7 +645,10 @@ export default function EditStaffModal({
                       wantResetPassword && { color: theme.colors.primary },
                     ]}
                   >
-                    Reset Staff Password
+                    {t(
+                      "changeInfoStaff.resetPasswordTitle",
+                      "Reset Staff Password",
+                    )}
                   </Text>
                 </View>
                 <Ionicons
@@ -536,13 +660,18 @@ export default function EditStaffModal({
 
               {wantResetPassword && (
                 <View style={{ marginTop: 12 }}>
-                  <Text style={styles.fieldLabel}>New Password</Text>
+                  <Text style={styles.fieldLabel}>
+                    {t("changeInfoStaff.newPassword", "New Password")}
+                  </Text>
                   <View style={styles.passwordInputContainer}>
                     <TextInput
                       style={styles.passwordInput}
                       value={newPassword}
                       onChangeText={setNewPassword}
-                      placeholder="Min 6 characters"
+                      placeholder={t(
+                        "changeInfoStaff.newPasswordPlaceholder",
+                        "Min 6 characters",
+                      )}
                       placeholderTextColor={theme.colors.grey}
                       secureTextEntry={!showNewPassword}
                       autoCapitalize="none"
@@ -562,14 +691,20 @@ export default function EditStaffModal({
                   </View>
 
                   <Text style={[styles.fieldLabel, { marginTop: 10 }]}>
-                    Confirm New Password
+                    {t(
+                      "changeInfoStaff.confirmNewPassword",
+                      "Confirm New Password",
+                    )}
                   </Text>
                   <View style={styles.passwordInputContainer}>
                     <TextInput
                       style={styles.passwordInput}
                       value={confirmPassword}
                       onChangeText={setConfirmPassword}
-                      placeholder="Re-enter password"
+                      placeholder={t(
+                        "changeInfoStaff.confirmNewPasswordPlaceholder",
+                        "Re-enter password",
+                      )}
                       placeholderTextColor={theme.colors.grey}
                       secureTextEntry={!showNewPassword}
                       autoCapitalize="none"
@@ -587,7 +722,9 @@ export default function EditStaffModal({
               onPress={onClose}
               disabled={savingEdit}
             >
-              <Text style={styles.cancelBtnText}>Cancel</Text>
+              <Text style={styles.cancelBtnText}>
+                {t("changeInfoStaff.cancel", "Cancel")}
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -596,9 +733,14 @@ export default function EditStaffModal({
               disabled={savingEdit}
             >
               {savingEdit ? (
-                <ActivityIndicator size="small" color={theme.colors.background2} />
+                <ActivityIndicator
+                  size="small"
+                  color={theme.colors.background2}
+                />
               ) : (
-                <Text style={styles.saveBtnText}>Save Changes</Text>
+                <Text style={styles.saveBtnText}>
+                  {t("changeInfoStaff.saveChanges", "Save Changes")}
+                </Text>
               )}
             </TouchableOpacity>
           </View>
@@ -655,9 +797,11 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textPrimary,
     marginBottom: 4,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   input: {
     backgroundColor: theme.colors.background,
@@ -673,10 +817,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: theme.borderRadius.lg,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: theme.colors.background,
     marginRight: 6,
     borderWidth: 1,
-    borderColor: "#E5E7EB",
+    borderColor: theme.colors.border,
   },
   quickChipSelected: {
     backgroundColor: `${theme.colors.primary}20`,
@@ -688,7 +832,9 @@ const styles = StyleSheet.create({
   },
   quickChipTextSelected: {
     color: theme.colors.primary,
-    fontWeight: "600",
+    // fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   rolesRow: {
     flexDirection: "row",
@@ -701,9 +847,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: theme.borderRadius.sm,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: theme.colors.background,
     borderWidth: 1,
-    borderColor: "#D1D5DB",
+    borderColor: theme.colors.border,
   },
   roleBadgeBtnActive: {
     backgroundColor: theme.colors.primary,
@@ -711,8 +857,9 @@ const styles = StyleSheet.create({
   },
   roleBadgeText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "700",
     color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   roleBadgeTextActive: {
     color: theme.colors.background2,
@@ -723,13 +870,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 8,
     borderTopWidth: 1,
-    borderTopColor: "#F3F4F6",
+    borderTopColor: theme.colors.border,
     marginBottom: 10,
   },
   switchLabel: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
     color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   switchSub: {
     fontSize: theme.fontSizes.xs,
@@ -738,14 +886,14 @@ const styles = StyleSheet.create({
   errorBanner: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FEE2E2",
+    backgroundColor: `${theme.colors.error}18`,
     borderRadius: theme.borderRadius.md,
     padding: 10,
     marginBottom: 12,
     marginHorizontal: 15,
     marginTop: 10,
     borderWidth: 1,
-    borderColor: "#FCA5A5",
+    borderColor: `${theme.colors.error}40`,
   },
   errorBannerText: {
     marginLeft: 6,
@@ -768,8 +916,10 @@ const styles = StyleSheet.create({
   },
   resetPasswordTitle: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   passwordInputContainer: {
     flexDirection: "row",
@@ -800,7 +950,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     borderRadius: theme.borderRadius.md,
-    backgroundColor: "#F3F4F6",
+    backgroundColor: theme.colors.background,
     alignItems: "center",
   },
   cancelBtnText: {

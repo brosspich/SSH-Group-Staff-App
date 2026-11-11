@@ -1,15 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const SESSION_KEY = "pos_device_session_id";
+const SESSION_KEY = "device_session_id";
 
 /**
  * Retrieves the persisted device session ID or generates a unique one if not present.
  */
 export async function getSessionId(): Promise<string> {
   let id = await AsyncStorage.getItem(SESSION_KEY);
-  if (!id) {
-    id = `session_${Math.random().toString(36).substring(2, 11)}_${Date.now()}`;
-    await AsyncStorage.setItem(SESSION_KEY, id);
+  if (!id || id.startsWith("session_")) {
+    return "";
   }
   return id;
 }

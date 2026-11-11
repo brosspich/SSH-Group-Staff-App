@@ -1,5 +1,6 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
-import { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component, ErrorInfo, ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button } from "../ui/Button";
 
@@ -12,6 +13,27 @@ interface State {
   hasError: boolean;
   error: Error | null;
 }
+
+const DefaultErrorFallback: React.FC<{
+  error: Error | null;
+  onReset: () => void;
+}> = ({ error, onReset }) => {
+  const { t } = useLanguage();
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{t("common.somethingWentWrong")}</Text>
+      <Text style={styles.message}>
+        {error?.message || t("common.unexpectedError")}
+      </Text>
+      <Button
+        label={t("common.tryAgain")}
+        onPress={onReset}
+        style={styles.button}
+      />
+    </View>
+  );
+};
 
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
@@ -38,17 +60,10 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <View style={styles.container}>
-          <Text style={styles.title}>Something went wrong</Text>
-          <Text style={styles.message}>
-            {this.state.error?.message || "An unexpected error occurred."}
-          </Text>
-          <Button
-            label="Try Again"
-            onPress={this.handleReset}
-            style={styles.button}
-          />
-        </View>
+        <DefaultErrorFallback
+          error={this.state.error}
+          onReset={this.handleReset}
+        />
       );
     }
 
@@ -62,19 +77,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 24,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.background,
   },
   title: {
     fontSize: theme.fontSizes.xl,
-    fontWeight: "700",
-    color: "#1C1C1E",
+    // fontWeight: "700",
+    color: theme.colors.textPrimary,
     marginBottom: 8,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   message: {
     fontSize: theme.fontSizes.sm,
-    color: "#8E8E93",
+    color: theme.colors.textSecondary,
     textAlign: "center",
     marginBottom: 20,
+    fontFamily: theme.fonts.regular,
+    includeFontPadding: false,
   },
   button: {
     minWidth: 140,

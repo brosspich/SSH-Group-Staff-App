@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { keyApi } from '../api/keyApi';
-import { queryKeys } from '@/shared/services/api/queryKeys';
-import { UploadKeyDTO } from '../types/key.types';
+import { queryKeys } from "@/shared/services/api/queryKeys";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keyApi } from "../api/keyApi";
+import { UploadKeyDTO } from "../types/key.types";
 
 /**
  * TanStack Query Hook: Server data caching for SSH Keys

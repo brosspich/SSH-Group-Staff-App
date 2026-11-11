@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,6 +22,8 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
   onRequestPress,
   verifyingSecurity,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <>
       {/* ── Main Action: Scan Attendance Button ── */}
@@ -38,7 +41,10 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
         >
           <View style={styles.scanBtnIconCircle}>
             {verifyingSecurity ? (
-              <ActivityIndicator size="small" color={theme.colors.background2} />
+              <ActivityIndicator
+                size="small"
+                color={theme.colors.background2}
+              />
             ) : (
               <Ionicons
                 name="qr-code-outline"
@@ -50,13 +56,13 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
           <View style={styles.scanBtnTextCol}>
             <Text style={styles.scanBtnTitle}>
               {verifyingSecurity
-                ? "Verifying Location & Security..."
-                : "Scan Attendance QR Code"}
+                ? t("home.verifyingSecurity")
+                : t("home.scanAttendanceQr")}
             </Text>
             <Text style={styles.scanBtnSub}>
               {verifyingSecurity
-                ? "Checking GPS location & VPN status"
-                : "Tap to open camera scanner"}
+                ? t("home.verifyingSecuritySub")
+                : t("home.scanSubtitle")}
             </Text>
           </View>
           <Ionicons
@@ -87,9 +93,11 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
             />
           </View>
           <View style={styles.requestBtnTextCol}>
-            <Text style={styles.requestBtnTitle}>Request Attendance Rules</Text>
+            <Text style={styles.requestBtnTitle}>
+              {t("home.requestAttendanceRules")}
+            </Text>
             <Text style={styles.requestBtnSub}>
-              Tap to open for request rules
+              {t("home.requestSubtitle")}
             </Text>
           </View>
           <Ionicons

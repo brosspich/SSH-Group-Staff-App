@@ -1,5 +1,7 @@
+import { useLanguage } from "@/features/language";
 import { ModalFooterButtons } from "@/shared/components/button/ModalFooterButtons";
 import { theme } from "@/shared/styles/theme";
+import React from "react";
 import { Modal, StyleSheet, Text, View } from "react-native";
 
 export interface AlertDeleteModalProps {
@@ -14,7 +16,7 @@ export interface AlertDeleteModalProps {
   deleteText?: string;
 }
 
-export const renderAlertDeleteModal = ({
+export const AlertDeleteModal: React.FC<AlertDeleteModalProps> = ({
   alertModalVisible,
   setAlertModalVisible,
   title,
@@ -22,48 +24,59 @@ export const renderAlertDeleteModal = ({
   deleteAction,
   isDeleting = false,
   isMobile = false,
-  cancelText = "Cancel",
-  deleteText = "Delete",
-}: AlertDeleteModalProps) => (
-  <Modal
-    visible={alertModalVisible}
-    animationType="fade"
-    transparent
-    onRequestClose={() => {
-      if (!isDeleting) setAlertModalVisible(false);
-    }}
-    statusBarTranslucent
-  >
-    <View style={styles.conModalLogout}>
-      <View
-        style={[
-          styles.conModal,
-          {
-            maxWidth: !isMobile ? 400 : "94%",
-            width: !isMobile ? 400 : "94%",
-          },
-        ]}
-      >
-        <Text style={[styles.txt, { fontSize: theme.fontSizes.xl }]}>
-          {title}
-        </Text>
-        <Text style={styles.txt}>{bodyTxt}</Text>
+  cancelText,
+  deleteText,
+}) => {
+  const { t } = useLanguage();
+  const resolvedCancelText = cancelText ?? t("common.cancel");
+  const resolvedDeleteText = deleteText ?? t("common.delete");
+  const resolvedDeletingText = t("common.deleting");
 
-        <ModalFooterButtons
-          onClose={() => setAlertModalVisible(false)}
-          onSubmit={async () => {
-            await deleteAction();
-          }}
-          closeText={cancelText}
-          submitText={isDeleting ? "Deleting..." : deleteText}
-          submitting={isDeleting}
-          variant="danger"
-          iconName="trash-outline"
-          noBorderTop
-        />
+  return (
+    <Modal
+      visible={alertModalVisible}
+      animationType="fade"
+      transparent
+      onRequestClose={() => {
+        if (!isDeleting) setAlertModalVisible(false);
+      }}
+      statusBarTranslucent
+    >
+      <View style={styles.conModalLogout}>
+        <View
+          style={[
+            styles.conModal,
+            {
+              maxWidth: !isMobile ? 400 : "94%",
+              width: !isMobile ? 400 : "94%",
+            },
+          ]}
+        >
+          <Text style={[styles.txt, { fontSize: theme.fontSizes.xl }]}>
+            {title}
+          </Text>
+          <Text style={styles.txt}>{bodyTxt}</Text>
+
+          <ModalFooterButtons
+            onClose={() => setAlertModalVisible(false)}
+            onSubmit={async () => {
+              await deleteAction();
+            }}
+            closeText={resolvedCancelText}
+            submitText={isDeleting ? resolvedDeletingText : resolvedDeleteText}
+            submitting={isDeleting}
+            variant="danger"
+            iconName="trash-outline"
+            noBorderTop
+          />
+        </View>
       </View>
-    </View>
-  </Modal>
+    </Modal>
+  );
+};
+
+export const renderAlertDeleteModal = (props: AlertDeleteModalProps) => (
+  <AlertDeleteModal {...props} />
 );
 
 const styles = StyleSheet.create({
@@ -85,7 +98,6 @@ const styles = StyleSheet.create({
   },
   txt: {
     color: theme.colors.textPrimary,
-    fontWeight: "bold",
     fontSize: theme.fontSizes.md,
     textAlign: "center",
     fontFamily: theme.fonts.bold,

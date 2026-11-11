@@ -1,5 +1,6 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import type { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { getTwoInitials } from "@/utils/formatters";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -12,6 +13,8 @@ interface AccountProfileHeaderProps {
 export const AccountProfileHeader: React.FC<AccountProfileHeaderProps> = ({
   user,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.avatarSection}>
       <View style={styles.conAvatarTxt}>
@@ -26,9 +29,11 @@ export const AccountProfileHeader: React.FC<AccountProfileHeaderProps> = ({
         </LinearGradient>
 
         <View style={styles.conName}>
-          <Text style={styles.userName}>{user?.name ?? "Name"}</Text>
+          <Text style={styles.userName}>
+            {user?.name ?? t("account.name", "Name")}
+          </Text>
           <Text style={styles.txtUserName}>
-            @{user?.username ?? "username"}
+            @{user?.username ?? t("account.username", "username")}
           </Text>
         </View>
       </View>
@@ -53,11 +58,7 @@ const styles = StyleSheet.create({
         boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.12)",
       },
       default: {
-        shadowOffset: { width: 0, height: 2 },
-        shadowColor: "#000",
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 2,
+        ...theme.shadows.sm,
       },
     }),
   },
@@ -88,17 +89,14 @@ const styles = StyleSheet.create({
   },
   avatarInitial: {
     fontSize: theme.fontSizes.xxl,
-    fontWeight: "700",
     color: theme.colors.background2,
-    fontFamily: theme.fonts.regular,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   conName: {},
   userName: {
     fontSize: theme.fontSizes.xl,
-    fontWeight: "bold",
     color: theme.colors.textPrimary,
-    letterSpacing: -0.3,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

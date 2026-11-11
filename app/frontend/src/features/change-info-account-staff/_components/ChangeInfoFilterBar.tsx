@@ -1,7 +1,14 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import type { DynamicSystemItem } from "@/shared/constants/attendanceConfig";
+import { theme } from "@/shared/styles/theme";
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import type { StaffStatusFilter } from "../_types/changeInfoStaff.types";
 
 interface ChangeInfoFilterBarProps {
@@ -21,6 +28,8 @@ export const ChangeInfoFilterBar: React.FC<ChangeInfoFilterBarProps> = ({
   statusFilter,
   setStatusFilter,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.container}>
       {/* System Filter for Owner */}
@@ -32,7 +41,10 @@ export const ChangeInfoFilterBar: React.FC<ChangeInfoFilterBarProps> = ({
           contentContainerStyle={{ paddingHorizontal: 16 }}
         >
           {[
-            { label: "All Systems", value: "all" },
+            {
+              label: t("changeInfoStaff.allSystems", "All Systems"),
+              value: "all",
+            },
             ...availableSystems.map((s) => ({
               label: s.companyName
                 ? `${s.id.toUpperCase()} • ${s.companyName}`
@@ -69,10 +81,16 @@ export const ChangeInfoFilterBar: React.FC<ChangeInfoFilterBarProps> = ({
         contentContainerStyle={{ paddingHorizontal: 16 }}
       >
         {[
-          { label: "All Staff", value: "all" },
-          { label: "Active", value: "active" },
-          { label: "Inactive", value: "inactive" },
-          { label: "Admins / Owners", value: "admin" },
+          { label: t("changeInfoStaff.allStaff", "All Staff"), value: "all" },
+          { label: t("changeInfoStaff.active", "Active"), value: "active" },
+          {
+            label: t("changeInfoStaff.inactive", "Inactive"),
+            value: "inactive",
+          },
+          {
+            label: t("changeInfoStaff.adminsOwners", "Admins / Owners"),
+            value: "admin",
+          },
         ].map((item) => {
           const active = statusFilter === item.value;
           return (
@@ -120,12 +138,16 @@ const styles = StyleSheet.create({
   },
   filterChipText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   filterChipTextActive: {
     color: theme.colors.primary,
-    fontWeight: "700",
+    // fontWeight: "700",
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   statusChip: {
     paddingVertical: 5,
@@ -142,10 +164,12 @@ const styles = StyleSheet.create({
   },
   statusChipText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   statusChipTextActive: {
-    color: "#fff",
+    color: theme.colors.background2,
   },
 });

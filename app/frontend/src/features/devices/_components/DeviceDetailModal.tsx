@@ -1,5 +1,6 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   Modal,
@@ -32,6 +33,7 @@ export default function DeviceDetailModal({
   onClose,
   onTerminate,
 }: DeviceDetailModalProps) {
+  const { t } = useLanguage();
   const { isMobile } = useResponsive();
   const insets = useSafeAreaInsets();
 
@@ -44,7 +46,7 @@ export default function DeviceDetailModal({
     <Modal
       visible={visible}
       transparent
-      animationType="fade"
+      animationType={isMobile ? "slide" : "fade"}
       onRequestClose={onClose}
       statusBarTranslucent
     >
@@ -54,6 +56,7 @@ export default function DeviceDetailModal({
           {
             justifyContent: !isMobile ? "center" : "flex-end",
             alignItems: !isMobile ? "center" : "stretch",
+            // maxHeight: !isMobile ? "100%" : "80%",
           },
         ]}
       >
@@ -78,6 +81,8 @@ export default function DeviceDetailModal({
             <View style={styles.modalHeaderContainer}>
               <DeviceOSIcon
                 os={selectedSession.os}
+                deviceName={selectedSession.device_name}
+                modelName={selectedSession.model_name}
                 isLarge={true}
                 deviceType={selectedSession.device_type}
               />
@@ -114,7 +119,7 @@ export default function DeviceDetailModal({
                   <Text style={styles.modalRowSub}>
                     {selectedSession.browser_name
                       ? "Web Browser"
-                      : "Application / Model Name"}
+                      : t("devices.modelName")}
                   </Text>
                 </View>
               </View>
@@ -133,7 +138,9 @@ export default function DeviceDetailModal({
                   <Text style={styles.modalRowTitle}>
                     {`${selectedSession.os} ${selectedSession.os_version} ${selectedSession.model_number ? "• " + selectedSession.model_number : ""}`}
                   </Text>
-                  <Text style={styles.modalRowSub}>System & Model Number</Text>
+                  <Text style={styles.modalRowSub}>
+                    {t("devices.systemModel")}
+                  </Text>
                 </View>
               </View>
               <View style={styles.modalRowDivider} />
@@ -158,7 +165,37 @@ export default function DeviceDetailModal({
               </View>
               <View style={styles.modalRowDivider} />
 
-              {/* Row 4: Last Login */}
+              {/* Row 4: Initial Login Time (loginTimed) */}
+              {(selectedSession.login_timed ||
+                selectedSession.loginTimed ||
+                (selectedSession as any).first_login) && (
+                <>
+                  <View style={styles.modalRow}>
+                    <View style={styles.modalIconBox}>
+                      <Ionicons
+                        name="calendar-outline"
+                        size={22}
+                        color={theme.colors.textSecondary}
+                      />
+                    </View>
+                    <View style={styles.modalRowText}>
+                      <Text style={styles.modalRowTitle}>
+                        {formatDateTimeWithAgo(
+                          selectedSession.login_timed ||
+                            selectedSession.loginTimed ||
+                            (selectedSession as any).first_login,
+                        )}
+                      </Text>
+                      <Text style={styles.modalRowSub}>
+                        {t("devices.firstLogin")}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.modalRowDivider} />
+                </>
+              )}
+
+              {/* Row 5: Last Login */}
               {selectedSession.last_login && (
                 <>
                   <View style={styles.modalRow}>
@@ -173,14 +210,16 @@ export default function DeviceDetailModal({
                       <Text style={styles.modalRowTitle}>
                         {formatDateTimeWithAgo(selectedSession.last_login)}
                       </Text>
-                      <Text style={styles.modalRowSub}>Last Login Time</Text>
+                      <Text style={styles.modalRowSub}>
+                        {t("devices.lastLogin")}
+                      </Text>
                     </View>
                   </View>
                   <View style={styles.modalRowDivider} />
                 </>
               )}
 
-              {/* Row 5: Last Use Time */}
+              {/* Row 6: Last Use Time */}
               {(selectedSession.last_use_time ||
                 selectedSession.last_active) && (
                 <>
@@ -207,13 +246,17 @@ export default function DeviceDetailModal({
                             diffMs < 120 * 1000 && diffMs > -120 * 1000;
                           if (isOnline) {
                             return (
-                              <Text style={styles.onlineColor}>online</Text>
+                              <Text style={styles.onlineColor}>
+                                {t("common.online")}
+                              </Text>
                             );
                           }
                           return formatDateTimeWithAgo(raw);
                         })()}
                       </Text>
-                      <Text style={styles.modalRowSub}>Last Use Time</Text>
+                      <Text style={styles.modalRowSub}>
+                        {t("devices.lastActive")}
+                      </Text>
                     </View>
                   </View>
                   <View style={styles.modalRowDivider} />
@@ -241,7 +284,7 @@ export default function DeviceDetailModal({
                     { color: theme.colors.secondary },
                   ]}
                 >
-                  Close
+                  {t("common.close")}
                 </Text>
               </TouchableOpacity>
             ) : (
@@ -263,7 +306,7 @@ export default function DeviceDetailModal({
                       { color: theme.colors.secondary },
                     ]}
                   >
-                    Cancel
+                    {t("common.cancel")}
                   </Text>
                 </TouchableOpacity>
 
@@ -272,7 +315,9 @@ export default function DeviceDetailModal({
                   onPress={() => onTerminate(selectedSession.id)}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.terminateBtnText}>Terminate Session</Text>
+                  <Text style={styles.terminateBtnText}>
+                    {t("devices.terminateSession")}
+                  </Text>
                 </TouchableOpacity>
               </>
             )}
@@ -314,8 +359,9 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   onlineColor: {
-    color: "#00c853",
-    fontWeight: "600",
+    color: theme.colors.success,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   modalList: {
     backgroundColor: theme.colors.background,
@@ -343,6 +389,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
+    lineHeight: 20,
   },
   modalRowSub: {
     fontSize: theme.fontSizes.xs,

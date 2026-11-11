@@ -1,5 +1,6 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -15,8 +16,10 @@ function ppMidnightUTC(y: number, mo: number, d: number): Date {
   return new Date(Date.UTC(y, mo, d) - PP_OFFSET_MS);
 }
 
-const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-const MONTHS = [
+const WEEKDAYS_EN = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const WEEKDAYS_KM = ["អា", "ច", "អ", "ព", "ព្រ", "សុ", "ស"];
+
+const MONTHS_EN = [
   "January",
   "February",
   "March",
@@ -29,6 +32,20 @@ const MONTHS = [
   "October",
   "November",
   "December",
+];
+const MONTHS_KM = [
+  "មករា",
+  "កុម្ភៈ",
+  "មីនា",
+  "មេសា",
+  "ឧសភា",
+  "មិថុនា",
+  "កក្កដា",
+  "សីហា",
+  "កញ្ញា",
+  "តុលា",
+  "វិច្ឆិកា",
+  "ធ្នូ",
 ];
 
 interface Props {
@@ -46,6 +63,10 @@ export default function DatePickerModal({
   onChange,
   allowFuture = false,
 }: Props) {
+  const { t, isKhmer } = useLanguage();
+  const weekdays = isKhmer ? WEEKDAYS_KM : WEEKDAYS_EN;
+  const months = isKhmer ? MONTHS_KM : MONTHS_EN;
+
   const pp = getPPNow();
   const todayY = pp.getUTCFullYear();
   const todayMo = pp.getUTCMonth();
@@ -149,7 +170,7 @@ export default function DatePickerModal({
         >
           {/* Top Header */}
           <View style={s.topHeader}>
-            <Text style={s.topHeaderTitle}>Select date</Text>
+            <Text style={s.topHeaderTitle}>{t("common.selectDate")}</Text>
             <TouchableOpacity
               onPress={onClose}
               style={s.closeBtn}
@@ -178,7 +199,7 @@ export default function DatePickerModal({
               />
             </TouchableOpacity>
             <Text style={s.monthLabel}>
-              {MONTHS[viewMonth]} {viewYear}
+              {months[viewMonth]} {viewYear}
             </Text>
             <TouchableOpacity
               onPress={nextMonth}
@@ -197,7 +218,7 @@ export default function DatePickerModal({
 
           {/* Weekday headers */}
           <View style={s.weekRow}>
-            {WEEKDAYS.map((w) => (
+            {weekdays.map((w) => (
               <Text key={w} style={s.weekDay}>
                 {w}
               </Text>
@@ -240,7 +261,7 @@ export default function DatePickerModal({
             onPress={onClose}
             activeOpacity={0.8}
           >
-            <Text style={s.confirmText}>Done</Text>
+            <Text style={s.confirmText}>{t("common.done")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -279,7 +300,7 @@ const s = StyleSheet.create({
   },
   topHeaderTitle: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -308,7 +329,7 @@ const s = StyleSheet.create({
   },
   monthLabel: {
     fontSize: theme.fontSizes.lg,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: "#111827",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -322,7 +343,7 @@ const s = StyleSheet.create({
     textAlign: "center",
     fontSize: theme.fontSizes.sm,
     color: "#6b7280",
-    fontWeight: "700",
+    // fontWeight: "700",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -345,19 +366,19 @@ const s = StyleSheet.create({
   dayText: {
     fontSize: theme.fontSizes.md,
     color: "#1f2937",
-    fontWeight: "500",
+    // fontWeight: "500",
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   todayText: {
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.secondary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   selectedText: {
-    color: "#ffffff",
-    fontWeight: "700",
+    color: theme.colors.background2,
+    // fontWeight: "700",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -373,8 +394,8 @@ const s = StyleSheet.create({
   },
   confirmText: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "600",
-    color: "#ffffff",
+    // fontWeight: "600",
+    color: theme.colors.background2,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

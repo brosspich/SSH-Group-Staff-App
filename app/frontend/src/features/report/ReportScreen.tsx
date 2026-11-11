@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import Appbar from "@/shared/components/appbar/appbar";
 import { useUser } from "@/shared/contexts/UserContext";
 import { theme } from "@/shared/styles/theme";
@@ -118,8 +119,19 @@ const requestIndividualStaffReports: ReportItemConfig[] = [
 ];
 
 export default function ReportScreen() {
+  const { t } = useLanguage();
   const { user } = useUser();
   const isAdmin = hasAdminRole(user?.role);
+
+  const translateItems = (items: ReportItemConfig[]) =>
+    items.map((item) => {
+      let trTitle = item.title;
+      if (item.title === "Daily Report") trTitle = t("report.daily");
+      else if (item.title === "Weekly Report") trTitle = t("report.weekly");
+      else if (item.title === "Monthly Report") trTitle = t("report.monthly");
+      else if (item.title === "Annual Report") trTitle = t("report.annual");
+      return { ...item, title: trTitle };
+    });
 
   return (
     <View style={styles.safe}>
@@ -136,27 +148,27 @@ export default function ReportScreen() {
         <View style={styles.container}>
           {/* ── Report Current Staff ── */}
           <ReportSectionCard
-            title="REPORT CURRENT STAFF"
-            items={currentStaffReports}
+            title={t("report.myReports").toUpperCase()}
+            items={translateItems(currentStaffReports)}
             style={{ marginTop: 0 }}
           />
 
           {/* ── Report Request Current Staff ── */}
           <ReportSectionCard
-            title="REPORT REQUEST CURRENT STAFF"
-            items={requestCurrentStaffReports}
+            title={t("report.requestReports").toUpperCase()}
+            items={translateItems(requestCurrentStaffReports)}
           />
 
           {/* ── Admin Only: Report Individual Staff & Request Individual Staff ── */}
           {isAdmin && (
             <>
               <ReportSectionCard
-                title="REPORT INDIVIDUAL STAFF"
-                items={individualStaffReports}
+                title={t("report.individualStaffReports").toUpperCase()}
+                items={translateItems(individualStaffReports)}
               />
               <ReportSectionCard
-                title="REPORT REQUEST INDIVIDUAL STAFF"
-                items={requestIndividualStaffReports}
+                title={t("report.individualRequestReports").toUpperCase()}
+                items={translateItems(requestIndividualStaffReports)}
               />
             </>
           )}

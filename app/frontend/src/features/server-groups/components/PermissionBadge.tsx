@@ -1,5 +1,5 @@
-import { theme } from "@/shared/styles/theme";
 import { Typography } from "@/shared/components/ui/Typography";
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { SshPermissionLevel } from "../types/sshGroup.types";
@@ -14,12 +14,12 @@ export const PermissionBadge: React.FC<PermissionBadgeProps> = ({
   const getColor = () => {
     switch (permission) {
       case "admin":
-        return { bg: "#FFEBEA", text: "#FF3B30" };
+        return { bg: `${theme.colors.error}18`, text: theme.colors.error };
       case "write":
-        return { bg: "#EBF3FF", text: "#007AFF" };
+        return { bg: `${theme.colors.info}18`, text: theme.colors.info };
       case "read":
       default:
-        return { bg: "#E8F5E9", text: "#34C759" };
+        return { bg: `${theme.colors.success}18`, text: theme.colors.success };
     }
   };
 
@@ -36,8 +36,8 @@ export const PermissionBadge: React.FC<PermissionBadgeProps> = ({
 
 const styles = StyleSheet.create({
   badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
     borderRadius: theme.borderRadius.xs,
     alignSelf: "flex-start",
   },

@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -13,15 +14,22 @@ interface CreateAccountStaffContactProps {
 export const CreateAccountStaffContact: React.FC<
   CreateAccountStaffContactProps
 > = ({ phone, setPhone, email, setEmail }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.card}>
       <Text style={styles.cardSectionTitle}>
-        Contact Information (Optional)
+        {t(
+          "createAccountStaff.contactInfoOptional",
+          "Contact Information (Optional)",
+        )}
       </Text>
 
       {/* Phone */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Phone Number</Text>
+        <Text style={styles.label}>
+          {t("createAccountStaff.phone", "Phone Number")}
+        </Text>
         <View style={styles.inputContainer}>
           <Ionicons
             name="call-outline"
@@ -33,7 +41,10 @@ export const CreateAccountStaffContact: React.FC<
             style={styles.textInput}
             value={phone}
             onChangeText={setPhone}
-            placeholder="e.g. +855 12 345 678"
+            placeholder={t(
+              "createAccountStaff.phonePlaceholder",
+              "e.g. +855 12 345 678",
+            )}
             placeholderTextColor={theme.colors.grey}
             keyboardType="phone-pad"
           />
@@ -42,7 +53,9 @@ export const CreateAccountStaffContact: React.FC<
 
       {/* Email */}
       <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Email Address</Text>
+        <Text style={styles.label}>
+          {t("createAccountStaff.email", "Email Address")}
+        </Text>
         <View style={styles.inputContainer}>
           <Ionicons
             name="mail-outline"
@@ -54,7 +67,10 @@ export const CreateAccountStaffContact: React.FC<
             style={styles.textInput}
             value={email}
             onChangeText={setEmail}
-            placeholder="staff@company.com"
+            placeholder={t(
+              "createAccountStaff.emailPlaceholder",
+              "staff@company.com",
+            )}
             placeholderTextColor={theme.colors.grey}
             keyboardType="email-address"
             autoCapitalize="none"
@@ -76,18 +92,22 @@ const styles = StyleSheet.create({
   },
   cardSectionTitle: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.textPrimary,
     marginBottom: 14,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   fieldGroup: {
     marginBottom: 14,
   },
   label: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textPrimary,
     marginBottom: 6,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   inputContainer: {
     flexDirection: "row",

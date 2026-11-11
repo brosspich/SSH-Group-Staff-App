@@ -1,6 +1,6 @@
-import { theme } from "@/shared/styles/theme";
 import Loading from "@/shared/components/loading/loading";
 import { useUser } from "@/shared/contexts/UserContext";
+import { theme } from "@/shared/styles/theme";
 import { Redirect } from "expo-router";
 import { StatusBar, View } from "react-native";
 

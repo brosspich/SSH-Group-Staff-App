@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import type { InactivePeriod } from "../_types/devices.types";
@@ -11,10 +12,15 @@ export default function AutoTerminateSection({
   inactivePeriod,
   onOpenSelector,
 }: AutoTerminateSectionProps) {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.card}>
       <Text style={styles.sectionHeader}>
-        Automatically terminate old sessions
+        {t(
+          "devices.autoTerminateTitle",
+          "Automatically terminate old sessions",
+        )}
       </Text>
       <View style={styles.divider} />
       <Pressable
@@ -30,7 +36,9 @@ export default function AutoTerminateSection({
         onPress={onOpenSelector}
       >
         <View style={styles.sessionDetails}>
-          <Text style={styles.optionTitleText}>If inactive for</Text>
+          <Text style={styles.optionTitleText}>
+            {t("devices.ifInactiveFor", "If inactive for")}
+          </Text>
         </View>
         <Text style={styles.optionValueText}>{inactivePeriod}</Text>
       </Pressable>

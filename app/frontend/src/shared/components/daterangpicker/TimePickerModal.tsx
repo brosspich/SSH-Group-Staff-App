@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -73,6 +74,7 @@ export default function TimePickerModal({
   onClose,
   onChange,
 }: TimePickerModalProps) {
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const { isMobile } = useResponsive();
 
@@ -171,7 +173,7 @@ export default function TimePickerModal({
                   color={theme.colors.primary}
                 />
               </View>
-              <Text style={s.headerTitle}>Select Time</Text>
+              <Text style={s.headerTitle}>{t("common.selectTime")}</Text>
             </View>
             <TouchableOpacity
               onPress={onClose}
@@ -240,13 +242,21 @@ export default function TimePickerModal({
 
             {/* Quick Preset Buttons */}
             <View style={s.presetSection}>
-              <Text style={s.sectionTitle}>Presets</Text>
+              <Text style={s.sectionTitle}>{t("common.presets")}</Text>
               <View style={s.presetRow}>
                 {PRESET_TIMES.map((preset) => {
                   const isCurrent =
                     selectedHour === preset.h &&
                     selectedMinute === preset.m &&
                     selectedPeriod === preset.p;
+                  const presetSubLabel =
+                    preset.sub === "Time-In"
+                      ? t("attendance.timeInShort")
+                      : preset.sub === "Noon"
+                        ? t("common.noon")
+                        : preset.sub === "Afternoon"
+                          ? t("common.afternoon")
+                          : t("attendance.timeOutShort");
                   return (
                     <TouchableOpacity
                       key={preset.label}
@@ -272,7 +282,7 @@ export default function TimePickerModal({
                           isCurrent && s.presetChipSubActive,
                         ]}
                       >
-                        {preset.sub}
+                        {presetSubLabel}
                       </Text>
                     </TouchableOpacity>
                   );
@@ -287,14 +297,14 @@ export default function TimePickerModal({
                     size={14}
                     color={theme.colors.primary}
                   />
-                  <Text style={s.presetChipNowText}>Now</Text>
+                  <Text style={s.presetChipNowText}>{t("common.now")}</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
             {/* Hours Selector */}
             <View style={s.section}>
-              <Text style={s.sectionTitle}>Hour</Text>
+              <Text style={s.sectionTitle}>{t("common.hour")}</Text>
               <View style={s.gridContainer}>
                 {HOUR_ROWS.map((row, rowIdx) => (
                   <View key={`h-row-${rowIdx}`} style={s.gridRow}>
@@ -326,7 +336,7 @@ export default function TimePickerModal({
             {/* Minutes Selector & Steppers */}
             <View style={s.section}>
               <View style={s.sectionHeaderRow}>
-                <Text style={s.sectionTitle}>Minute</Text>
+                <Text style={s.sectionTitle}>{t("common.minute")}</Text>
                 <View style={s.stepperRow}>
                   <TouchableOpacity
                     style={s.stepperBtn}
@@ -392,7 +402,7 @@ export default function TimePickerModal({
               onPress={onClose}
               activeOpacity={0.8}
             >
-              <Text style={s.cancelBtnText}>Cancel</Text>
+              <Text style={s.cancelBtnText}>{t("common.cancel")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -406,7 +416,7 @@ export default function TimePickerModal({
                 color={theme.colors.background2}
                 style={{ marginRight: 6 }}
               />
-              <Text style={s.confirmBtnText}>Set Time</Text>
+              <Text style={s.confirmBtnText}>{t("common.setTime")}</Text>
             </TouchableOpacity>
           </View>
         </View>

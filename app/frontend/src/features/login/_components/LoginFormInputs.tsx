@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import {
@@ -27,6 +28,8 @@ export default function LoginFormInputs({
   onToggleShowPassword,
   error,
 }: LoginFormInputsProps) {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.conInput}>
       <View style={styles.inputContainer}>
@@ -34,7 +37,7 @@ export default function LoginFormInputs({
           style={styles.printInput}
           value={username}
           onChangeText={onChangeUsername}
-          placeholder="username"
+          placeholder={t("auth.username")}
           placeholderTextColor={theme.colors.grey}
           autoCapitalize="none"
           autoCorrect={false}
@@ -52,7 +55,7 @@ export default function LoginFormInputs({
           style={styles.printInput}
           value={password}
           onChangeText={onChangePassword}
-          placeholder="password"
+          placeholder={t("auth.password")}
           placeholderTextColor={theme.colors.grey}
           secureTextEntry={!showPassword}
           autoComplete="password"

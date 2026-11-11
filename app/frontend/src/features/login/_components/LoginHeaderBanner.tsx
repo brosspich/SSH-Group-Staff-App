@@ -1,8 +1,11 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { AppImages } from "@/shared/constants/appImages";
+import { theme } from "@/shared/styles/theme";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function LoginHeaderBanner() {
+  const { t } = useLanguage();
+
   return (
     <>
       <View style={styles.conLogo}>
@@ -10,10 +13,8 @@ export default function LoginHeaderBanner() {
       </View>
 
       <View style={styles.conTxt}>
-        <Text style={styles.txtApp}>SSH Group Staff</Text>
-        <Text style={styles.subTxt}>
-          Please enter your username and password SSH-Group Account to login.
-        </Text>
+        <Text style={styles.txtApp}>{t("auth.loginTitle")}</Text>
+        <Text style={styles.subTxt}>{t("auth.loginSubtitle")}</Text>
       </View>
     </>
   );
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
   },
   txtApp: {
     fontSize: theme.fontSizes.lg,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     textAlign: "center",
     color: theme.colors.secondary,
     fontFamily: theme.fonts.bold,

@@ -28,7 +28,11 @@ export function getTodayFormattedDate(): string {
 
 export function validateCreateStaffInput(
   data: CreateStaffFormData,
+  t?: any,
 ): string | null {
+  const tr = (k: string, def: string) =>
+    typeof t === "function" ? String(t(k, def)) : def;
+
   const cleanName = data.name.trim();
   const cleanUsername = data.username.trim().toLowerCase();
   const cleanPassword = data.password.trim();
@@ -38,26 +42,57 @@ export function validateCreateStaffInput(
   const cleanEmail = data.email.trim();
   const cleanPhone = data.phone.trim();
 
-  if (!cleanName) return "Full Name is required.";
-  if (!cleanUsername) return "Username is required.";
+  if (!cleanName)
+    return tr("createAccountStaff.errNameRequired", "Full Name is required.");
+  if (!cleanUsername)
+    return tr(
+      "createAccountStaff.errUsernameRequired",
+      "Username is required.",
+    );
   if (!USERNAME_REGEX.test(cleanUsername)) {
-    return "Username must be 3-20 alphanumeric characters (letters, numbers, _, -).";
+    return tr(
+      "createAccountStaff.errUsernameFormat",
+      "Username must be 3-20 alphanumeric characters (letters, numbers, _, -).",
+    );
   }
   if (!cleanPassword || cleanPassword.length < 6) {
-    return "Password must be at least 6 characters.";
+    return tr(
+      "createAccountStaff.errPasswordLength",
+      "Password must be at least 6 characters.",
+    );
   }
-  if (!cleanId) return "Staff ID is required (e.g. ID-0010).";
+  if (!cleanId)
+    return tr(
+      "createAccountStaff.errIdRequired",
+      "Staff ID is required (e.g. ID-0010).",
+    );
   if (!cleanSystemId)
-    return "System ID could not be generated. Please try again.";
-  if (!cleanPosition) return "Position is required.";
+    return tr(
+      "createAccountStaff.errSystemIdFailed",
+      "System ID could not be generated. Please try again.",
+    );
+  if (!cleanPosition)
+    return tr(
+      "createAccountStaff.errPositionRequired",
+      "Position is required.",
+    );
   if (cleanEmail && !EMAIL_REGEX.test(cleanEmail)) {
-    return "Please enter a valid email address.";
+    return tr(
+      "createAccountStaff.errValidEmail",
+      "Please enter a valid email address.",
+    );
   }
   if (cleanPhone && !PHONE_REGEX.test(cleanPhone)) {
-    return "Please enter a valid phone number.";
+    return tr(
+      "createAccountStaff.errValidPhone",
+      "Please enter a valid phone number.",
+    );
   }
   if (data.selectedRoles.length === 0) {
-    return "At least one role must be selected.";
+    return tr(
+      "createAccountStaff.errRoleRequired",
+      "At least one role must be selected.",
+    );
   }
 
   return null;

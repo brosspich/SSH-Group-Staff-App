@@ -1,9 +1,12 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { AppImages } from "@/shared/constants/appImages";
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 export const AboutBrandHeader: React.FC = () => {
+  const { t } = useLanguage();
+
   return (
     <>
       {/* Logo and Brand Section */}
@@ -16,15 +19,10 @@ export const AboutBrandHeader: React.FC = () => {
       {/* Description Card */}
       <View style={styles.card}>
         <Text style={styles.txt}>
-          At SSH GROUP, we specialize in providing high-quality plastic products
-          and barcode solutions to help businesses streamline their operations.
-          With a diverse range of offerings, including Plastic Pallets, Wood
-          Pallets, Basket Pallets, various types of shrink films (POF, PE, PVC),
-          and top-of-the-line Barcode Printers and Scanners, we’re committed to
-          meeting the needs of industries in Cambodia. Whether you're looking
-          for durable packaging solutions or advanced labeling technology, we
-          are your trusted partner in ensuring your products are delivered
-          efficiently and securely.
+          {t(
+            "about.aboutDesc",
+            "At SSH GROUP, we specialize in providing high-quality plastic products and barcode solutions to help businesses streamline their operations. With a diverse range of offerings, including Plastic Pallets, Wood Pallets, Basket Pallets, various types of shrink films (POF, PE, PVC), and top-of-the-line Barcode Printers and Scanners, we’re committed to meeting the needs of industries in Cambodia. Whether you're looking for durable packaging solutions or advanced labeling technology, we are your trusted partner in ensuring your products are delivered efficiently and securely.",
+          )}
         </Text>
       </View>
     </>
@@ -55,12 +53,8 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
     marginBottom: theme.spacing.md,
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.05)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    borderColor: `${theme.colors.textPrimary}0D`,
+    ...theme.shadows.sm,
   },
   txt: {
     fontSize: theme.fontSizes.sm,

@@ -1,6 +1,8 @@
+import { useLanguage } from "@/features/language";
 import { ModalFooterButtons } from "@/shared/components/button/ModalFooterButtons";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
+import React from "react";
 import { Modal, StyleSheet, Text, View } from "react-native";
 
 export interface AlertModalProps {
@@ -15,55 +17,65 @@ export interface AlertModalProps {
   iconName?: keyof typeof Ionicons.glyphMap | null;
 }
 
-export const renderAlertModal = ({
+export const AlertModal: React.FC<AlertModalProps> = ({
   alertModalVisible,
   setAlertModalVisible,
   title,
   bodyTxt,
   onPress,
   isMobile = false,
-  cancelText = "Cancel",
-  okText = "Ok",
+  cancelText,
+  okText,
   iconName = "checkmark-circle-outline",
-}: AlertModalProps) => (
-  <Modal
-    visible={alertModalVisible}
-    animationType="fade"
-    transparent
-    onRequestClose={() => setAlertModalVisible(false)}
-    statusBarTranslucent
-  >
-    <View style={styles.conModalLogout}>
-      <View
-        style={[
-          styles.conModal,
-          {
-            maxWidth: !isMobile ? 400 : "94%",
-            width: !isMobile ? 400 : "90%",
-          },
-        ]}
-      >
-        <Text
-          style={[styles.txt, { fontSize: theme.fontSizes.xl, marginTop: 0 }]}
-        >
-          {title}
-        </Text>
-        <Text style={styles.txt}>{bodyTxt}</Text>
+}) => {
+  const { t } = useLanguage();
+  const resolvedCancelText = cancelText ?? t("common.cancel");
+  const resolvedOkText = okText ?? t("common.ok");
 
-        <ModalFooterButtons
-          onClose={() => setAlertModalVisible(false)}
-          onSubmit={() => {
-            setAlertModalVisible(false);
-            if (onPress) onPress();
-          }}
-          closeText={cancelText}
-          submitText={okText}
-          iconName={iconName}
-          noBorderTop
-        />
+  return (
+    <Modal
+      visible={alertModalVisible}
+      animationType="fade"
+      transparent
+      onRequestClose={() => setAlertModalVisible(false)}
+      statusBarTranslucent
+    >
+      <View style={styles.conModalLogout}>
+        <View
+          style={[
+            styles.conModal,
+            {
+              maxWidth: !isMobile ? 400 : "94%",
+              width: !isMobile ? 400 : "90%",
+            },
+          ]}
+        >
+          <Text
+            style={[styles.txt, { fontSize: theme.fontSizes.xl, marginTop: 0 }]}
+          >
+            {title}
+          </Text>
+          <Text style={styles.txt}>{bodyTxt}</Text>
+
+          <ModalFooterButtons
+            onClose={() => setAlertModalVisible(false)}
+            onSubmit={() => {
+              setAlertModalVisible(false);
+              if (onPress) onPress();
+            }}
+            closeText={resolvedCancelText}
+            submitText={resolvedOkText}
+            iconName={iconName}
+            noBorderTop
+          />
+        </View>
       </View>
-    </View>
-  </Modal>
+    </Modal>
+  );
+};
+
+export const renderAlertModal = (props: AlertModalProps) => (
+  <AlertModal {...props} />
 );
 
 const styles = StyleSheet.create({
@@ -84,7 +96,6 @@ const styles = StyleSheet.create({
   },
   txt: {
     color: theme.colors.textPrimary,
-    fontWeight: "bold",
     fontSize: theme.fontSizes.md,
     textAlign: "center",
     fontFamily: theme.fonts.bold,

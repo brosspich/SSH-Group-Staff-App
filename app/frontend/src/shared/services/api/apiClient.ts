@@ -217,8 +217,13 @@ export class ApiClient {
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
+          const errorMessage =
+            data?.error?.message ||
+            data?.message ||
+            (typeof data?.error === "string" ? data.error : null) ||
+            `Request failed with status ${response.status}`;
           throw new ApiError(
-            data?.message || `Request failed with status ${response.status}`,
+            errorMessage,
             response.status,
             data,
           );

@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -28,6 +29,8 @@ export const AttendanceFilterSearch: React.FC<AttendanceFilterSearchProps> = ({
   todayCount,
   allCount,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <>
       {/* ── Search Bar ── */}
@@ -35,7 +38,7 @@ export const AttendanceFilterSearch: React.FC<AttendanceFilterSearchProps> = ({
         <Ionicons name="search" size={18} color={theme.colors.grey} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by date, time, status, or ID..."
+          placeholder={t("attendance.searchPlaceholder")}
           placeholderTextColor={theme.colors.grey}
           value={searchQuery}
           onChangeText={onSearchChange}
@@ -62,7 +65,7 @@ export const AttendanceFilterSearch: React.FC<AttendanceFilterSearchProps> = ({
               historyFilter === "today" && styles.filterChipTextActive,
             ]}
           >
-            Today ({todayCount})
+            {`${t("attendance.filterToday")} (${todayCount})`}
           </Text>
         </TouchableOpacity>
 
@@ -79,7 +82,7 @@ export const AttendanceFilterSearch: React.FC<AttendanceFilterSearchProps> = ({
               historyFilter === "month" && styles.filterChipTextActive,
             ]}
           >
-            This Month
+            {t("report.monthly")}
           </Text>
         </TouchableOpacity>
 
@@ -96,7 +99,7 @@ export const AttendanceFilterSearch: React.FC<AttendanceFilterSearchProps> = ({
               historyFilter === "all" && styles.filterChipTextActive,
             ]}
           >
-            All ({allCount})
+            {`${t("attendance.filterAll")} (${allCount})`}
           </Text>
         </TouchableOpacity>
       </View>

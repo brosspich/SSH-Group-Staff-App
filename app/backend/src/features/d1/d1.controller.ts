@@ -3,8 +3,8 @@ import {
   buildQueryCacheKey,
   serverCacheStore,
 } from "../../infrastructure/cache/serverCacheStore.js";
-import { prisma } from "../../infrastructure/database/prisma.js";
 import { d1Client } from "../../infrastructure/database/d1Client.js";
+import { prisma } from "../../infrastructure/database/prisma.js";
 
 function getPrismaDelegate(table: string): any {
   switch (table) {
@@ -38,15 +38,19 @@ function getPrismaDelegate(table: string): any {
     case "device_session":
     case "device_sessions":
       return prisma.deviceSession;
+    case "ServerGroup":
+    case "server_groups":
     case "SshGroup":
     case "ssh_groups":
-      return prisma.sshGroup;
+      return (prisma as any).serverGroup;
     case "GroupMember":
     case "group_members":
       return prisma.groupMember;
+    case "ServerKey":
+    case "server_keys":
     case "SshKey":
     case "ssh_keys":
-      return prisma.sshKey;
+      return (prisma as any).serverKey;
     case "AuditLog":
     case "audit_logs":
       return prisma.auditLog;
@@ -306,11 +310,17 @@ export const handleD1Query = async (req: Request, res: Response) => {
             const cols = keys.join(", ");
             const placeholders = keys.map(() => "?").join(", ");
             const vals = keys.map((k) => row[k]);
-            await d1Client.execute(`INSERT OR REPLACE INTO ${table} (${cols}) VALUES (${placeholders})`, vals);
+            await d1Client.execute(
+              `INSERT OR REPLACE INTO ${table} (${cols}) VALUES (${placeholders})`,
+              vals,
+            );
           }
         }
       } catch (d1Err: any) {
-        console.warn(`[Cloudflare D1] Error syncing insert to ${table}:`, d1Err?.message);
+        console.warn(
+          `[Cloudflare D1] Error syncing insert to ${table}:`,
+          d1Err?.message,
+        );
       }
 
       if (isCompanyTable && result) {
@@ -341,10 +351,16 @@ export const handleD1Query = async (req: Request, res: Response) => {
             const setClauses = keys.map((k) => `${k} = ?`).join(", ");
             const vals = keys.map((k) => payload[k]);
             vals.push(mappedWhere.id);
-            await d1Client.execute(`UPDATE ${table} SET ${setClauses} WHERE id = ?`, vals);
+            await d1Client.execute(
+              `UPDATE ${table} SET ${setClauses} WHERE id = ?`,
+              vals,
+            );
           }
         } catch (d1Err: any) {
-          console.warn(`[Cloudflare D1] Error syncing update to ${table}:`, d1Err?.message);
+          console.warn(
+            `[Cloudflare D1] Error syncing update to ${table}:`,
+            d1Err?.message,
+          );
         }
       } else {
         result = await delegate.updateMany({
@@ -365,9 +381,14 @@ export const handleD1Query = async (req: Request, res: Response) => {
         result = await delegate.delete({ where: { id: mappedWhere.id } });
         // Sync delete directly to Remote Cloudflare D1
         try {
-          await d1Client.execute(`DELETE FROM ${table} WHERE id = ?`, [mappedWhere.id]);
+          await d1Client.execute(`DELETE FROM ${table} WHERE id = ?`, [
+            mappedWhere.id,
+          ]);
         } catch (d1Err: any) {
-          console.warn(`[Cloudflare D1] Error syncing delete to ${table}:`, d1Err?.message);
+          console.warn(
+            `[Cloudflare D1] Error syncing delete to ${table}:`,
+            d1Err?.message,
+          );
         }
       } else {
         result = await delegate.deleteMany({ where: mappedWhere });

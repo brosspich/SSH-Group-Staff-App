@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/features/auth";
+import { useLanguage } from "@/features/language";
 import { useLoginStore } from "@/features/login/_store/useLoginStore";
 import { ModalFooterButtons } from "@/shared/components/button/ModalFooterButtons";
 import { useUserStore } from "@/shared/contexts/UserContext";
@@ -37,6 +38,7 @@ const LogoutModalContent: React.FC<LogoutModalProps> = ({
   setLogoutModalVisible,
   isMobile = false,
 }) => {
+  const { t } = useLanguage();
   const [loggingOut, setLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -86,15 +88,15 @@ const LogoutModalContent: React.FC<LogoutModalProps> = ({
             />
           </View>
           <Text style={[styles.txt, { fontSize: theme.fontSizes.xl }]}>
-            Logout
+            {t("setting.logoutConfirmTitle")}
           </Text>
-          <Text style={styles.txt}>Are you sure you want to logout?</Text>
+          <Text style={styles.txt}>{t("setting.logoutConfirmMessage")}</Text>
 
           <ModalFooterButtons
             onClose={() => setLogoutModalVisible(false)}
             onSubmit={handleLogout}
-            closeText="Cancel"
-            submitText={loggingOut ? "Logging out..." : "Logout"}
+            closeText={t("common.cancel")}
+            submitText={loggingOut ? t("common.loading") : t("setting.logout")}
             submitting={loggingOut}
             variant="danger"
             iconName="log-out-outline"
@@ -136,7 +138,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.md,
     textAlign: "center",
     fontFamily: theme.fonts.bold,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     includeFontPadding: false,
   },
 });

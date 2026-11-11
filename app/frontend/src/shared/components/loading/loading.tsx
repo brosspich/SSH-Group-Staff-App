@@ -1,9 +1,12 @@
+import { useLanguage } from "@/features/language";
 import { AppImages } from "@/shared/constants/appImages";
 import { theme } from "@/shared/styles/theme";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { Bounce } from "react-native-animated-spinkit";
 
 export default function Loading() {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.centered}>
       {/* <ActivityIndicator size="large" color={theme.colors.secondary} /> */}
@@ -31,7 +34,7 @@ export default function Loading() {
           includeFontPadding: false,
         }}
       >
-        Loading...
+        {t("common.loading")}
       </Text>
     </View>
   );

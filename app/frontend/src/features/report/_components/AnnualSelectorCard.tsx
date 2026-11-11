@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -15,11 +16,14 @@ export function AnnualSelectorCard({
   onPrevYear,
   onNextYear,
 }: AnnualSelectorCardProps) {
+  const { t } = useLanguage();
   const isLatestYear = year >= currentYear;
 
   return (
     <View style={styles.card}>
-      <Text style={styles.sectionLabel}>Select Year</Text>
+      <Text style={styles.sectionLabel}>
+        {t("report.selectYear", "Select Year")}
+      </Text>
       <View style={styles.stepperRow}>
         <TouchableOpacity style={styles.arrowBtn} onPress={onPrevYear}>
           <MaterialIcons
@@ -80,7 +84,6 @@ const styles = StyleSheet.create({
   periodLabel: {
     fontSize: theme.fontSizes.sm,
     color: theme.colors.textPrimary,
-    fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
@@ -19,14 +20,21 @@ export const TodayAttendanceSummary: React.FC<TodayAttendanceSummaryProps> = ({
   todayTimeOut,
   todayOtherCount,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.conSummary}>
       <View style={styles.bgConSummary} />
       <View style={styles.summaryRow}>
         {/* Time-In */}
         <View style={styles.summaryCard}>
-          <View style={[styles.summaryIconBox, { backgroundColor: "#dce0fc" }]}>
-            <Feather name="log-in" size={20} color="#0022ff" />
+          <View
+            style={[
+              styles.summaryIconBox,
+              { backgroundColor: theme.colors.timeInBg },
+            ]}
+          >
+            <Feather name="log-in" size={20} color={theme.colors.timeIn} />
           </View>
           <View>
             <Text style={styles.summaryLabel}>
@@ -35,18 +43,25 @@ export const TodayAttendanceSummary: React.FC<TodayAttendanceSummaryProps> = ({
             <Text
               style={[
                 styles.summaryValue,
-                { color: todayTimeIn ? "#0022ff" : theme.colors.grey },
+                {
+                  color: todayTimeIn ? theme.colors.timeIn : theme.colors.grey,
+                },
               ]}
             >
-              {todayTimeIn ? todayTimeIn.time : "None"}
+              {todayTimeIn ? todayTimeIn.time : t("common.none")}
             </Text>
           </View>
         </View>
 
         {/* Time-Out */}
         <View style={styles.summaryCard}>
-          <View style={[styles.summaryIconBox, { backgroundColor: "#fedbdb" }]}>
-            <Feather name="log-out" size={20} color={theme.colors.error} />
+          <View
+            style={[
+              styles.summaryIconBox,
+              { backgroundColor: theme.colors.timeOutBg },
+            ]}
+          >
+            <Feather name="log-out" size={20} color={theme.colors.timeOut} />
           </View>
           <View>
             <Text style={styles.summaryLabel}>
@@ -56,22 +71,29 @@ export const TodayAttendanceSummary: React.FC<TodayAttendanceSummaryProps> = ({
               style={[
                 styles.summaryValue,
                 {
-                  color: todayTimeOut ? theme.colors.error : theme.colors.grey,
+                  color: todayTimeOut
+                    ? theme.colors.timeOut
+                    : theme.colors.grey,
                 },
               ]}
             >
-              {todayTimeOut ? todayTimeOut.time : "None"}
+              {todayTimeOut ? todayTimeOut.time : t("common.none")}
             </Text>
           </View>
         </View>
 
         {/* Time-Other */}
         <View style={styles.summaryCard}>
-          <View style={[styles.summaryIconBox, { backgroundColor: "#f3e8ff" }]}>
+          <View
+            style={[
+              styles.summaryIconBox,
+              { backgroundColor: theme.colors.timeOtherBg },
+            ]}
+          >
             <MaterialCommunityIcons
               name="clock-time-four-outline"
               size={20}
-              color="#7e22ce"
+              color={theme.colors.timeOther}
             />
           </View>
           <View>
@@ -80,11 +102,16 @@ export const TodayAttendanceSummary: React.FC<TodayAttendanceSummaryProps> = ({
               style={[
                 styles.summaryValue,
                 {
-                  color: todayOtherCount > 0 ? "#7e22ce" : theme.colors.grey,
+                  color:
+                    todayOtherCount > 0
+                      ? theme.colors.timeOther
+                      : theme.colors.grey,
                 },
               ]}
             >
-              {todayOtherCount > 0 ? `${todayOtherCount} Record(s)` : "None"}
+              {todayOtherCount > 0
+                ? `${todayOtherCount} ${t("home.records")}`
+                : t("common.none")}
             </Text>
           </View>
         </View>

@@ -102,12 +102,14 @@ const styles = StyleSheet.create({
 
   // Typography
   textBase: {
-    fontWeight: "600",
+    // fontWeight: "600",
     letterSpacing: -0.3,
     ...Platform.select({
       ios: { fontFamily: "System" },
       android: { fontFamily: "sans-serif-medium" },
     }),
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   regularText: {
     fontSize: theme.fontSizes.md,
@@ -116,12 +118,16 @@ const styles = StyleSheet.create({
   largeText: {
     fontSize: theme.fontSizes.lg,
     lineHeight: 22,
-    fontWeight: "600",
+    // fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   capsuleText: {
     fontSize: theme.fontSizes.md,
     lineHeight: 20,
-    fontWeight: "600",
+    // fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
 
   // Text colors per variant

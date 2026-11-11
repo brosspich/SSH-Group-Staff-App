@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import { theme } from "@/shared/styles/theme";
 import { useState } from "react";
@@ -11,9 +12,12 @@ import type {
 import { POLICY_TITLE_MAP } from "./_utils/privacyPolicyConstants";
 
 export default function PrivacyPolicyScreen({
-  initialLang = "en",
+  initialLang,
 }: PrivacyPolicyProps) {
-  const [lang, setLang] = useState<PolicyLang>(initialLang);
+  const { currentLang } = useLanguage();
+  const [lang, setLang] = useState<PolicyLang>(
+    initialLang ?? (currentLang === "km" ? "km" : "en"),
+  );
 
   return (
     <View style={styles.container}>

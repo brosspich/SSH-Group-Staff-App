@@ -6,6 +6,7 @@ import type {
   AttendanceRecord,
   EditAttendanceSubmitPayload,
 } from "@/features/home/_types/home.types";
+import { useLanguage } from "@/features/language";
 import { renderAlertModal } from "@/shared/components/alert";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
@@ -38,6 +39,7 @@ export default function EditAttendanceModal({
   onClose,
 }: EditAttendanceModalProps) {
   const { isMobile } = useResponsive();
+  const { t } = useLanguage();
 
   const {
     selectedType,
@@ -85,7 +87,9 @@ export default function EditAttendanceModal({
                       color={theme.colors.primary}
                     />
                   </View>
-                  <Text style={styles.headerTitle}>Edit Attendance</Text>
+                  <Text style={styles.headerTitle}>
+                    {t("home.editModalTitle", "Edit Attendance")}
+                  </Text>
                 </View>
 
                 <TouchableOpacity
@@ -109,28 +113,38 @@ export default function EditAttendanceModal({
                 {/* Staff Details Card */}
                 <View style={styles.infoBox}>
                   <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Staff Name</Text>
+                    <Text style={styles.infoLabel}>
+                      {t("home.staffName", "Staff Name")}
+                    </Text>
                     <Text style={styles.infoValue}>{record.name}</Text>
                   </View>
 
                   <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Staff ID</Text>
+                    <Text style={styles.infoLabel}>
+                      {t("home.staffId", "Staff ID")}
+                    </Text>
                     <Text style={styles.infoValue}>{record.staff_id}</Text>
                   </View>
 
                   <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Date</Text>
+                    <Text style={styles.infoLabel}>
+                      {t("home.date", "Date")}
+                    </Text>
                     <Text style={styles.infoValue}>{record.date}</Text>
                   </View>
 
                   <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Time Logged</Text>
+                    <Text style={styles.infoLabel}>
+                      {t("home.timeLogged", "Time Logged")}
+                    </Text>
                     <Text style={styles.infoValue}>{record.time}</Text>
                   </View>
                 </View>
 
                 {/* Attendance Type Selector (Time-In or Time-Out) */}
-                <Text style={styles.fieldLabel}>Select Attendance Type *</Text>
+                <Text style={styles.fieldLabel}>
+                  {t("home.selectAttendanceType", "Select Attendance Type")} *
+                </Text>
                 <View style={styles.typeSelectorRow}>
                   <TouchableOpacity
                     style={[
@@ -158,7 +172,7 @@ export default function EditAttendanceModal({
                           styles.typeOptionTextActiveIn,
                       ]}
                     >
-                      Time-In
+                      {t("attendance.timeInShort", "Time-In")}
                     </Text>
                   </TouchableOpacity>
 
@@ -188,20 +202,25 @@ export default function EditAttendanceModal({
                           styles.typeOptionTextActiveOut,
                       ]}
                     >
-                      Time-Out
+                      {t("attendance.timeOutShort", "Time-Out")}
                     </Text>
                   </TouchableOpacity>
                 </View>
 
                 {/* Remark Input */}
                 <View style={styles.fieldSection}>
-                  <Text style={styles.fieldLabel}>Remark *</Text>
+                  <Text style={styles.fieldLabel}>
+                    {t("home.remark", "Remark")} *
+                  </Text>
                   <TextInput
                     style={[
                       styles.textInput,
                       remarkError ? styles.inputErrorBorder : null,
                     ]}
-                    placeholder="Enter reason for attendance adjustment..."
+                    placeholder={t(
+                      "home.remarkEditPlaceholder",
+                      "Enter reason for attendance adjustment...",
+                    )}
                     placeholderTextColor={theme.colors.grey}
                     value={remark}
                     onChangeText={(text) => {
@@ -224,7 +243,7 @@ export default function EditAttendanceModal({
                   onRemoveImage={handleRemoveImage}
                   disabled={submitting}
                   error={imageError}
-                  label="Proof Image"
+                  label={t("home.proofPhoto", "Proof Photo")}
                   required
                 />
               </ScrollView>
@@ -234,8 +253,8 @@ export default function EditAttendanceModal({
                 <ModalFooterButtons
                   onClose={onClose}
                   onSubmit={handleSubmit}
-                  closeText="Close"
-                  submitText="Submit"
+                  closeText={t("common.close", "Close")}
+                  submitText={t("common.submit", "Submit")}
                   submitting={submitting}
                   disabled={submitting}
                   iconName="checkmark-circle-outline"
@@ -317,7 +336,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: theme.fontSizes.lg,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -356,7 +375,7 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -366,9 +385,9 @@ const styles = StyleSheet.create({
   },
   fieldLabel: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textPrimary,
-    fontFamily: theme.fonts.bold,
+    fontFamily: theme.fonts.semibold,
     includeFontPadding: false,
     marginBottom: theme.spacing.sm,
   },
@@ -389,10 +408,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   typeOptionBtnActiveIn: {
-    // backgroundColor: theme.colors.primary,
-    // borderColor: theme.colors.primary,
-    backgroundColor: "#0022ff",
-    borderColor: "#0022ff",
+    backgroundColor: theme.colors.timeIn,
+    borderColor: theme.colors.timeIn,
   },
   typeOptionBtnActiveOut: {
     backgroundColor: theme.colors.error,
@@ -400,7 +417,7 @@ const styles = StyleSheet.create({
   },
   typeOptionText: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -452,9 +469,10 @@ const styles = StyleSheet.create({
   },
   uploadPromptTitle: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.primary,
     fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   uploadPromptSub: {
     fontSize: theme.fontSizes.xs,
@@ -492,9 +510,10 @@ const styles = StyleSheet.create({
   },
   changeImageText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.primary,
     fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   removeImageBtn: {
     flexDirection: "row",
@@ -506,9 +525,10 @@ const styles = StyleSheet.create({
   },
   removeImageText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.error,
     fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   footerContainer: {
     paddingHorizontal: theme.spacing.md,
@@ -534,8 +554,9 @@ const styles = StyleSheet.create({
   submitBtnText: {
     color: theme.colors.background2,
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   closeBtn: {
     backgroundColor: `${theme.colors.grey}15`,
@@ -549,7 +570,8 @@ const styles = StyleSheet.create({
   closeBtnText: {
     color: theme.colors.textPrimary,
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
 });

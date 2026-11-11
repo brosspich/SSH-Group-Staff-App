@@ -1,5 +1,6 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Modal,
@@ -20,6 +21,7 @@ export default function ConfirmActionModal({
   config,
   onClose,
 }: ConfirmActionModalProps) {
+  const { t } = useLanguage();
   const { isMobile } = useResponsive();
 
   return (
@@ -37,7 +39,9 @@ export default function ConfirmActionModal({
               styles.alertIconCircle,
               {
                 backgroundColor:
-                  config.type === "destructive" ? "#ffebee" : "#e3f2fd",
+                  config.type === "destructive"
+                    ? `${theme.colors.error}18`
+                    : `${theme.colors.info}18`,
               },
             ]}
           >
@@ -49,7 +53,9 @@ export default function ConfirmActionModal({
               }
               size={28}
               color={
-                config.type === "destructive" ? "#e53935" : theme.colors.secondary
+                config.type === "destructive"
+                  ? theme.colors.error
+                  : theme.colors.secondary
               }
             />
           </View>
@@ -63,7 +69,7 @@ export default function ConfirmActionModal({
               onPress={onClose}
               activeOpacity={0.7}
             >
-              <Text style={styles.alertCancelText}>Cancel</Text>
+              <Text style={styles.alertCancelText}>{t("common.cancel")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -72,7 +78,7 @@ export default function ConfirmActionModal({
                 {
                   backgroundColor:
                     config.type === "destructive"
-                      ? "#e53935"
+                      ? theme.colors.error
                       : theme.colors.secondary,
                 },
               ]}
@@ -164,6 +170,6 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.md,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: "#ffffff",
+    color: theme.colors.background2,
   },
 });

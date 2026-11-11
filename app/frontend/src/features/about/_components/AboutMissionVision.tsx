@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -10,6 +11,8 @@ interface AboutMissionVisionProps {
 export const AboutMissionVision: React.FC<AboutMissionVisionProps> = ({
   isMobile,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={isMobile ? styles.rowMobile : styles.rowTablet}>
       {/* Mission Card */}
@@ -27,15 +30,13 @@ export const AboutMissionVision: React.FC<AboutMissionVisionProps> = ({
               color={theme.colors.secondary}
             />
           </View>
-          <Text style={styles.title}>Mission</Text>
+          <Text style={styles.title}>{t("about.mission", "Mission")}</Text>
         </View>
         <Text style={styles.cardTxt}>
-          Our mission is to provide businesses with innovative, reliable, and
-          cost-effective plastic products and barcode solutions that improve
-          logistics, packaging, and inventory management. We aim to be a key
-          enabler of efficiency and productivity for our clients by offering
-          high-quality products and outstanding customer service, ensuring
-          businesses can operate seamlessly and effectively.
+          {t(
+            "about.missionDesc",
+            "Our mission is to provide businesses with innovative, reliable, and cost-effective plastic products and barcode solutions that improve logistics, packaging, and inventory management. We aim to be a key enabler of efficiency and productivity for our clients by offering high-quality products and outstanding customer service, ensuring businesses can operate seamlessly and effectively.",
+          )}
         </Text>
       </View>
 
@@ -54,15 +55,13 @@ export const AboutMissionVision: React.FC<AboutMissionVisionProps> = ({
               color={theme.colors.secondary}
             />
           </View>
-          <Text style={styles.title}>Vision</Text>
+          <Text style={styles.title}>{t("about.vision", "Vision")}</Text>
         </View>
         <Text style={styles.cardTxt}>
-          Our vision is to become a leading provider of high-quality plastic
-          products and barcode solutions in the global market. We aim to
-          continuously innovate and expand our product offerings, enabling our
-          customers to maximize operational efficiency and stay ahead of
-          industry trends. We strive to be recognized for our commitment to
-          excellence, reliability, and sustainable business practices.
+          {t(
+            "about.visionDesc",
+            "Our vision is to become a leading provider of high-quality plastic products and barcode solutions in the global market. We aim to continuously innovate and expand our product offerings, enabling our customers to maximize operational efficiency and stay ahead of industry trends. We strive to be recognized for our commitment to excellence, reliability, and sustainable business practices.",
+          )}
         </Text>
       </View>
     </View>
@@ -76,12 +75,8 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
     marginBottom: theme.spacing.md,
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.05)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    borderColor: `${theme.colors.textPrimary}0D`,
+    ...theme.shadows.sm,
   },
   cardHeader: {
     flexDirection: "row",
@@ -115,10 +110,8 @@ const styles = StyleSheet.create({
   rowTablet: {
     flexDirection: "row",
     gap: theme.spacing.md,
-    marginBottom: theme.spacing.md,
   },
   cardHalf: {
     flex: 1,
-    marginBottom: 0,
   },
 });

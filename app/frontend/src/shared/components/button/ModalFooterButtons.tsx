@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -35,8 +36,8 @@ export interface ModalFooterButtonsProps {
 export const ModalFooterButtons: React.FC<ModalFooterButtonsProps> = ({
   onClose,
   onSubmit,
-  closeText = "Close",
-  submitText = "Submit",
+  closeText,
+  submitText,
   submitting = false,
   disabled = false,
   iconName,
@@ -45,6 +46,11 @@ export const ModalFooterButtons: React.FC<ModalFooterButtonsProps> = ({
   style,
   noBorderTop = false,
 }) => {
+  const { t } = useLanguage();
+  const resolvedCloseText = closeText ?? t("common.close");
+  const resolvedSubmitText =
+    submitText ??
+    (variant === "danger" ? t("common.delete") : t("common.submit"));
   // Determine effective icon if not explicitly provided or suppressed
   const resolvedIcon: keyof typeof Ionicons.glyphMap | null =
     iconName === null
@@ -65,7 +71,7 @@ export const ModalFooterButtons: React.FC<ModalFooterButtonsProps> = ({
         disabled={submitting}
         activeOpacity={0.8}
       >
-        <Text style={styles.closeBtnText}>{closeText}</Text>
+        <Text style={styles.closeBtnText}>{resolvedCloseText}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -90,7 +96,7 @@ export const ModalFooterButtons: React.FC<ModalFooterButtonsProps> = ({
                 style={{ marginRight: 6 }}
               />
             )}
-            <Text style={styles.submitBtnText}>{submitText}</Text>
+            <Text style={styles.submitBtnText}>{resolvedSubmitText}</Text>
           </>
         )}
       </TouchableOpacity>
@@ -129,7 +135,7 @@ const styles = StyleSheet.create({
   closeBtnText: {
     color: theme.colors.textPrimary,
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -147,7 +153,7 @@ const styles = StyleSheet.create({
   submitBtnText: {
     color: theme.colors.background2,
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

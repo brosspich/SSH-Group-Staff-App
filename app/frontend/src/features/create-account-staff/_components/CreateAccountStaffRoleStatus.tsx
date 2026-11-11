@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -30,12 +31,18 @@ export const CreateAccountStaffRoleStatus: React.FC<
   joinedDate,
   setJoinedDate,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.card}>
-      <Text style={styles.cardSectionTitle}>Role & Account Status</Text>
+      <Text style={styles.cardSectionTitle}>
+        {t("createAccountStaff.roleAccountStatus", "Role & Account Status")}
+      </Text>
 
       {/* Roles */}
-      <Text style={styles.label}>Assigned Roles</Text>
+      <Text style={styles.label}>
+        {t("createAccountStaff.assignedRoles", "Assigned Roles")}
+      </Text>
       <View style={styles.rolesRow}>
         {AVAILABLE_ROLES.map((role) => {
           const isSelected = selectedRoles.includes(role);
@@ -51,7 +58,9 @@ export const CreateAccountStaffRoleStatus: React.FC<
               <Ionicons
                 name={isSelected ? "checkbox" : "square-outline"}
                 size={18}
-                color={isSelected ? "#fff" : theme.colors.grey}
+                color={
+                  isSelected ? theme.colors.background2 : theme.colors.grey
+                }
                 style={{ marginRight: 6 }}
               />
               <Text
@@ -70,22 +79,32 @@ export const CreateAccountStaffRoleStatus: React.FC<
       {/* Active Switch */}
       <View style={styles.switchRow}>
         <View>
-          <Text style={styles.switchLabel}>Active Account</Text>
+          <Text style={styles.switchLabel}>
+            {t("createAccountStaff.activeAccount", "Active Account")}
+          </Text>
           <Text style={styles.switchSub}>
-            Staff can log in and record attendance
+            {t(
+              "createAccountStaff.activeAccountDesc",
+              "Staff can log in and record attendance",
+            )}
           </Text>
         </View>
         <Switch
           value={isActive}
           onValueChange={setIsActive}
-          trackColor={{ false: "#D1D5DB", true: theme.colors.primary }}
-          thumbColor="#fff"
+          trackColor={{
+            false: theme.colors.border,
+            true: theme.colors.primary,
+          }}
+          thumbColor={theme.colors.background2}
         />
       </View>
 
       {/* Joined Date */}
       <View style={[styles.fieldGroup, { marginTop: 14 }]}>
-        <Text style={styles.label}>Joined Date (YYYY/MM/DD)</Text>
+        <Text style={styles.label}>
+          {t("createAccountStaff.joinedDate", "Joined Date (YYYY/MM/DD)")}
+        </Text>
         <View style={styles.inputContainer}>
           <Ionicons
             name="calendar-outline"
@@ -117,18 +136,22 @@ const styles = StyleSheet.create({
   },
   cardSectionTitle: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.textPrimary,
     marginBottom: 14,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   fieldGroup: {
     marginBottom: 14,
   },
   label: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textPrimary,
     marginBottom: 6,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   rolesRow: {
     flexDirection: "row",
@@ -151,11 +174,13 @@ const styles = StyleSheet.create({
   },
   roleBadgeText: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   roleBadgeTextActive: {
-    color: "#fff",
+    color: theme.colors.background2,
   },
   switchRow: {
     flexDirection: "row",
@@ -168,8 +193,10 @@ const styles = StyleSheet.create({
   },
   switchLabel: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   switchSub: {
     fontSize: theme.fontSizes.xs,

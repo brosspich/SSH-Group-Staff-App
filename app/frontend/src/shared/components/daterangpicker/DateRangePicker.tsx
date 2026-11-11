@@ -1,5 +1,6 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
@@ -39,8 +40,10 @@ function ppMidnightUTC(y: number, mo: number, d: number): Date {
   return new Date(Date.UTC(y, mo, d) - PP_OFFSET_MS);
 }
 
-const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-const MONTHS = [
+const WEEKDAYS_EN = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const WEEKDAYS_KM = ["អា", "ច", "អ", "ព", "ព្រ", "សុ", "ស"];
+
+const MONTHS_EN = [
   "January",
   "February",
   "March",
@@ -53,6 +56,20 @@ const MONTHS = [
   "October",
   "November",
   "December",
+];
+const MONTHS_KM = [
+  "មករា",
+  "កុម្ភៈ",
+  "មីនា",
+  "មេសា",
+  "ឧសភា",
+  "មិថុនា",
+  "កក្កដា",
+  "សីហា",
+  "កញ្ញា",
+  "តុលា",
+  "វិច្ឆិកា",
+  "ធ្នូ",
 ];
 
 // ─── Quick presets ────────────────────────────────────────────────────────────
@@ -100,6 +117,10 @@ function MiniCalendar({
   onNextMonth,
   showNav = true,
 }: CalProps) {
+  const { isKhmer } = useLanguage();
+  const weekdays = isKhmer ? WEEKDAYS_KM : WEEKDAYS_EN;
+  const months = isKhmer ? MONTHS_KM : MONTHS_EN;
+
   const firstDow = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const pp = getPPNow();
@@ -124,7 +145,7 @@ function MiniCalendar({
             />
           </TouchableOpacity>
           <Text style={cal.monthLabel}>
-            {MONTHS[month]} {year}
+            {months[month]} {year}
           </Text>
           <TouchableOpacity onPress={onNextMonth} style={cal.navBtn}>
             <Ionicons
@@ -139,13 +160,13 @@ function MiniCalendar({
         <Text
           style={[cal.monthLabel, { marginBottom: 8, textAlign: "center" }]}
         >
-          {MONTHS[month]} {year}
+          {months[month]} {year}
         </Text>
       )}
 
       {/* Weekday headers */}
       <View style={cal.weekRow}>
-        {WEEKDAYS.map((w) => (
+        {weekdays.map((w) => (
           <Text key={w} style={cal.weekDay}>
             {w}
           </Text>
@@ -223,7 +244,7 @@ const cal = StyleSheet.create({
   },
   monthLabel: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -234,7 +255,7 @@ const cal = StyleSheet.create({
     textAlign: "center",
     fontSize: theme.fontSizes.xs,
     color: theme.colors.textSecondary,
-    fontWeight: "600",
+    // fontWeight: "600",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -245,9 +266,13 @@ const cal = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  dayText: { fontSize: theme.fontSizes.sm, fontFamily: theme.fonts.regular, includeFontPadding: false },
+  dayText: {
+    fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.regular,
+    includeFontPadding: false,
+  },
   todayText: {
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.secondary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -264,7 +289,14 @@ export default function DateRangePicker({
   onApply,
   initialRange,
 }: Props) {
+  const { t, isKhmer } = useLanguage();
   const pp = getPPNow();
+
+  const PRESET_OPTIONS = [
+    { id: "7 days", label: t("common.sevenDays") },
+    { id: "30 days", label: t("common.thirtyDays") },
+    { id: "This month", label: t("common.thisMonth") },
+  ];
 
   const [startDate, setStartDate] = useState<Date | null>(
     initialRange?.start ?? null,
@@ -352,19 +384,25 @@ export default function DateRangePicker({
   };
 
   const fromLabel = startDate
-    ? new Date(startDate.getTime() + PP_OFFSET_MS).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : "Select start";
+    ? new Date(startDate.getTime() + PP_OFFSET_MS).toLocaleDateString(
+        isKhmer ? "km-KH" : "en-US",
+        {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        },
+      )
+    : t("common.selectStart");
   const toLabel = endDate
-    ? new Date(endDate.getTime() + PP_OFFSET_MS).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : "Select end";
+    ? new Date(endDate.getTime() + PP_OFFSET_MS).toLocaleDateString(
+        isKhmer ? "km-KH" : "en-US",
+        {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        },
+      )
+    : t("common.selectEnd");
 
   return (
     <Modal
@@ -401,7 +439,7 @@ export default function DateRangePicker({
         >
           {/* Header */}
           <View style={s.header}>
-            <Text style={s.headerTitle}>Custom date range</Text>
+            <Text style={s.headerTitle}>{t("common.customDateRange")}</Text>
             <TouchableOpacity onPress={onClose} style={s.closeBtn}>
               <MaterialIcons
                 name="close"
@@ -414,22 +452,22 @@ export default function DateRangePicker({
           <ScrollView showsVerticalScrollIndicator={false}>
             {/* Presets */}
             <View style={s.presetRow}>
-              {PRESETS.map((p) => (
+              {PRESET_OPTIONS.map((p) => (
                 <TouchableOpacity
-                  key={p}
-                  onPress={() => handlePreset(p)}
+                  key={p.id}
+                  onPress={() => handlePreset(p.id)}
                   style={[
                     s.presetChip,
-                    activePreset === p && s.presetChipActive,
+                    activePreset === p.id && s.presetChipActive,
                   ]}
                 >
                   <Text
                     style={[
                       s.presetText,
-                      activePreset === p && s.presetTextActive,
+                      activePreset === p.id && s.presetTextActive,
                     ]}
                   >
-                    {p}
+                    {p.label}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -443,7 +481,7 @@ export default function DateRangePicker({
                 style={[s.rangeBox, selecting === "start" && s.rangeBoxActive]}
                 onPress={() => setSelecting("start")}
               >
-                <Text style={s.rangeBoxLabel}>From</Text>
+                <Text style={s.rangeBoxLabel}>{t("common.from")}</Text>
                 <Text
                   style={[s.rangeBoxValue, !startDate && s.rangeBoxPlaceholder]}
                 >
@@ -459,7 +497,7 @@ export default function DateRangePicker({
                 style={[s.rangeBox, selecting === "end" && s.rangeBoxActive]}
                 onPress={() => setSelecting("end")}
               >
-                <Text style={s.rangeBoxLabel}>To</Text>
+                <Text style={s.rangeBoxLabel}>{t("common.to")}</Text>
                 <Text
                   style={[s.rangeBoxValue, !endDate && s.rangeBoxPlaceholder]}
                 >
@@ -472,7 +510,9 @@ export default function DateRangePicker({
 
             {/* From calendar */}
             <Text style={s.calSectionLabel}>
-              {selecting === "start" ? "Pick start date" : "From"}
+              {selecting === "start"
+                ? t("common.pickStartDate")
+                : t("common.from")}
             </Text>
             <MiniCalendar
               year={fromYear}
@@ -509,14 +549,14 @@ export default function DateRangePicker({
           {/* Footer */}
           <View style={[s.footer, { paddingBottom: insets.bottom }]}>
             <TouchableOpacity style={s.btnCancel} onPress={onClose}>
-              <Text style={s.btnCancelText}>Cancel</Text>
+              <Text style={s.btnCancelText}>{t("common.cancel")}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[s.btnApply, !canApply && s.btnApplyDisabled]}
               onPress={handleApply}
               disabled={!canApply}
             >
-              <Text style={s.btnApplyText}>Apply</Text>
+              <Text style={s.btnApplyText}>{t("common.apply")}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -550,7 +590,7 @@ const s = StyleSheet.create({
   },
   headerTitle: {
     fontSize: theme.fontSizes.lg,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -581,7 +621,7 @@ const s = StyleSheet.create({
   },
   presetText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -605,7 +645,7 @@ const s = StyleSheet.create({
   rangeBoxActive: { borderColor: theme.colors.secondary },
   rangeBoxLabel: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textSecondary,
     marginBottom: 2,
     fontFamily: theme.fonts.bold,
@@ -613,7 +653,7 @@ const s = StyleSheet.create({
   },
   rangeBoxValue: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -621,7 +661,7 @@ const s = StyleSheet.create({
   rangeBoxPlaceholder: { color: theme.colors.textSecondary },
   calSectionLabel: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textSecondary,
     paddingHorizontal: 16,
     paddingTop: 14,
@@ -649,7 +689,7 @@ const s = StyleSheet.create({
   },
   btnCancelText: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.secondary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -664,8 +704,8 @@ const s = StyleSheet.create({
   btnApplyDisabled: { opacity: 0.4 },
   btnApplyText: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "600",
-    color: "#fff",
+    // fontWeight: "600",
+    color: theme.colors.background2,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

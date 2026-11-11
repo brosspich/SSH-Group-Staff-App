@@ -71,12 +71,14 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.sm,
     textAlign: "center",
     fontSize: theme.fontSizes.xxl,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: "#000000",
     backgroundColor: "#FAFAFA",
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   boxFilled: {
     borderColor: "#007AFF",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.background2,
   },
 });

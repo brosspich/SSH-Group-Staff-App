@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -21,6 +22,8 @@ export const ChangeInfoSearchBar: React.FC<ChangeInfoSearchBarProps> = ({
   setSearchQuery,
   staffCount,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.container}>
       <View style={styles.searchBar}>
@@ -32,7 +35,10 @@ export const ChangeInfoSearchBar: React.FC<ChangeInfoSearchBarProps> = ({
         />
         <TextInput
           style={styles.searchInput}
-          placeholder="Search staff name, ID, username..."
+          placeholder={t(
+            "changeInfoStaff.searchPlaceholder",
+            "Search staff name, ID, username...",
+          )}
           placeholderTextColor={theme.colors.grey}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -50,16 +56,19 @@ export const ChangeInfoSearchBar: React.FC<ChangeInfoSearchBarProps> = ({
 
       <View style={styles.countRow}>
         <Text style={styles.countText}>
-          Showing <Text style={{ fontWeight: "700" }}>{staffCount}</Text> staff
-          member
-          {staffCount === 1 ? "" : "s"}
+          {t("changeInfoStaff.showingCount", {
+            count: staffCount,
+            defaultValue: `Showing ${staffCount} staff member${staffCount === 1 ? "" : "s"}`,
+          })}
         </Text>
         <TouchableOpacity
           style={styles.createShortcutBtn}
           onPress={() => router.push("/account-staff/CreateAccountStaff")}
         >
           <Ionicons name="person-add" size={14} color={theme.colors.primary} />
-          <Text style={styles.createShortcutText}>Add New</Text>
+          <Text style={styles.createShortcutText}>
+            {t("changeInfoStaff.addNew", "Add New")}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -108,7 +117,9 @@ const styles = StyleSheet.create({
   },
   createShortcutText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.primary,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
 });

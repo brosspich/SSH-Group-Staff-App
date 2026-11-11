@@ -199,6 +199,119 @@ export class UsersController {
     try {
       const { id, username, email, systemId, companyId, search } = req.query;
 
+      // ── 1. Attempt to fetch LIVE directly from Cloudflare D1 first ──
+      try {
+        let sql = `
+          SELECT 
+            u.system_id,
+            u.id,
+            u.username,
+            u.passwordHash,
+            u.role,
+            u.isActive,
+            u.createdAt,
+            u.updatedAt,
+            d.company_id,
+            d.name,
+            d.email,
+            d.phone,
+            d.position,
+            d.dob,
+            d.joined
+          FROM User u
+          LEFT JOIN UserDetails d ON u.system_id = d.system_id
+        `;
+        const params: any[] = [];
+        const whereClauses: string[] = [];
+
+        if (search) {
+          whereClauses.push(
+            "(u.username LIKE ? OR u.id LIKE ? OR u.system_id LIKE ? OR d.name LIKE ? OR d.email LIKE ?)",
+          );
+          const s = `%${search}%`;
+          params.push(s, s, s, s, s);
+        } else {
+          if (id) {
+            whereClauses.push("(u.id = ? OR u.system_id = ?)");
+            params.push(String(id), String(id));
+          }
+          if (username) {
+            whereClauses.push("LOWER(u.username) = ?");
+            params.push(String(username).trim().toLowerCase());
+          }
+          if (email) {
+            whereClauses.push("LOWER(d.email) = ?");
+            params.push(String(email).trim().toLowerCase());
+          }
+          const rawComp = companyId || systemId || (req.query as any).system;
+          if (rawComp) {
+            const match = String(rawComp).match(/^(system-\d+)/i);
+            const compKey = match ? match[1].toLowerCase() : String(rawComp);
+            whereClauses.push("(u.system_id LIKE ? OR d.company_id = ?)");
+            params.push(`${compKey}%`, compKey);
+          }
+        }
+
+        if (whereClauses.length > 0) {
+          sql += " WHERE " + whereClauses.join(" AND ");
+        }
+        sql += " ORDER BY u.id ASC";
+
+        const d1Rows = await d1Client.query(sql, params);
+        if (Array.isArray(d1Rows) && d1Rows.length > 0) {
+          // Sync any updated rows from D1 to local Prisma
+          for (const r of d1Rows) {
+            try {
+              await prisma.user.upsert({
+                where: { systemId: r.system_id },
+                create: {
+                  systemId: r.system_id,
+                  id: String(r.id),
+                  username: r.username,
+                  passwordHash:
+                    r.passwordHash || "$2a$10$defaultHashPlaceholder",
+                  role: r.role || "member",
+                  isActive: Boolean(r.isActive),
+                },
+                update: {
+                  id: String(r.id),
+                  username: r.username,
+                  role: r.role || "member",
+                  isActive: Boolean(r.isActive),
+                },
+              });
+              await prisma.userDetails.upsert({
+                where: { systemId: r.system_id },
+                create: {
+                  systemId: r.system_id,
+                  companyId: r.company_id || null,
+                  name: r.name || null,
+                  email: r.email || null,
+                  phone: r.phone || null,
+                  position: r.position || null,
+                  dob: r.dob || null,
+                  joined: r.joined || null,
+                },
+                update: {
+                  companyId: r.company_id || null,
+                  name: r.name || null,
+                  email: r.email || null,
+                  phone: r.phone || null,
+                  position: r.position || null,
+                  dob: r.dob || null,
+                  joined: r.joined || null,
+                },
+              });
+            } catch {}
+          }
+        }
+      } catch (d1Err: any) {
+        console.warn(
+          "[Cloudflare D1] Live query fallback to Prisma:",
+          d1Err?.message,
+        );
+      }
+
       const whereUser: any = {};
       const whereDetails: any = {};
 
@@ -214,10 +327,24 @@ export class UsersController {
         if (id) {
           whereUser.OR = [{ id: String(id) }, { systemId: String(id) }];
         }
-        if (username) whereUser.username = String(username);
+        if (username) {
+          whereUser.username = String(username).trim().toLowerCase();
+        }
         if (email) whereDetails.email = String(email);
-        const compId = companyId || systemId;
-        if (compId) whereDetails.companyId = String(compId);
+        const rawComp = companyId || systemId || (req.query as any).system;
+        if (rawComp) {
+          const match = String(rawComp).match(/^(system-\d+)/i);
+          const compKey = match ? match[1].toLowerCase() : String(rawComp);
+          whereUser.AND = [
+            ...(whereUser.AND || []),
+            {
+              OR: [
+                { systemId: { startsWith: compKey } },
+                { details: { companyId: compKey } },
+              ],
+            },
+          ];
+        }
       }
 
       if (Object.keys(whereDetails).length > 0) {
@@ -250,6 +377,30 @@ export class UsersController {
   async getUserById(req: Request, res: Response) {
     try {
       const { id } = req.params;
+
+      // 1. Sync live user updates from D1 if changed in D1 Studio
+      try {
+        const d1Rows = await d1Client.query(
+          "SELECT * FROM User WHERE system_id = ? OR id = ? LIMIT 1;",
+          [String(id), String(id)],
+        );
+        if (d1Rows && d1Rows.length > 0) {
+          const r = d1Rows[0];
+          await prisma.user
+            .update({
+              where: { systemId: r.system_id },
+              data: {
+                id: String(r.id),
+                username: r.username,
+                role: r.role || "member",
+                isActive: Boolean(r.isActive),
+              },
+            })
+            .catch(() => {});
+        }
+      } catch {}
+
+      // 2. Fetch full user object with attendanceLogs, deviceSessions, and attendanceRequests
       const user = await prisma.user.findFirst({
         where: {
           OR: [{ systemId: String(id) }, { id: String(id) }],
@@ -267,22 +418,6 @@ export class UsersController {
           success: false,
           error: { message: "User not found" },
         });
-      }
-
-      // Fetch fresh live attendance logs directly from Cloudflare D1
-      try {
-        const d1Logs = await d1Client.query(
-          "SELECT * FROM AttendanceLog WHERE userId = ? OR userId = ? ORDER BY createdAt DESC LIMIT 50;",
-          [user.systemId, user.id],
-        );
-        if (d1Logs && d1Logs.length > 0) {
-          (user as any).attendanceLogs = d1Logs;
-        }
-      } catch (d1Err: any) {
-        console.warn(
-          "[Cloudflare D1] Could not fetch live attendance logs in getUserById:",
-          d1Err?.message,
-        );
       }
 
       return res.status(200).json({
@@ -357,9 +492,32 @@ export class UsersController {
         });
       }
 
-      // Backend Condition: Username must be unique
-      const existingUser = await prisma.user.findUnique({
-        where: { username: cleanUsername },
+      const rawCompany =
+        payload.companyId ||
+        payload.company_id ||
+        payload.systemKey ||
+        payload.systemId ||
+        payload.system_id ||
+        "system-0001";
+      const companyMatch = String(rawCompany).match(/^(system-\d+)/i);
+      const companyId = companyMatch
+        ? companyMatch[1].toLowerCase()
+        : "system-0001";
+
+      const companyExists = await prisma.company.findUnique({
+        where: { id: companyId },
+      });
+      const validCompanyId = companyExists ? companyId : null;
+
+      // Backend Condition: Username must be unique within the same system/company
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          username: cleanUsername,
+          OR: [
+            { systemId: { startsWith: companyId } },
+            { details: { companyId: companyId } },
+          ],
+        },
       });
       if (existingUser) {
         return res.status(400).json({
@@ -369,13 +527,6 @@ export class UsersController {
           },
         });
       }
-
-      const companyId =
-        payload.companyId ||
-        payload.company_id ||
-        payload.systemId ||
-        payload.system_id ||
-        "system-0001";
 
       const cleanId = payload.id
         ? String(payload.id).trim()
@@ -431,7 +582,7 @@ export class UsersController {
           isActive,
           details: {
             create: {
-              companyId,
+              companyId: validCompanyId,
               name: payload.name ? String(payload.name).trim() : null,
               email: payload.email ? String(payload.email).trim() : null,
               phone: payload.phone ? String(payload.phone).trim() : null,
@@ -454,7 +605,7 @@ export class UsersController {
       // Direct sync to Cloudflare D1
       try {
         await d1Client.execute(
-          `INSERT OR REPLACE INTO User (system_id, id, username, password_hash, role, is_active)
+          `INSERT OR REPLACE INTO User (system_id, id, username, passwordHash, role, isActive)
            VALUES (?, ?, ?, ?, ?, ?)`,
           [
             systemId,
@@ -466,6 +617,7 @@ export class UsersController {
           ],
         );
         if (
+          validCompanyId ||
           companyId ||
           payload.name ||
           payload.email ||
@@ -477,7 +629,7 @@ export class UsersController {
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               systemId,
-              companyId || null,
+              validCompanyId || companyId || null,
               payload.name ? String(payload.name).trim() : null,
               payload.email ? String(payload.email).trim() : null,
               payload.phone ? String(payload.phone).trim() : null,
@@ -517,6 +669,7 @@ export class UsersController {
         where: {
           OR: [{ systemId: String(id) }, { id: String(id) }],
         },
+        include: { details: true },
       });
 
       if (!existing) {
@@ -563,6 +716,36 @@ export class UsersController {
               lastActive: d.lastActive ? new Date(d.lastActive) : new Date(),
             },
           });
+
+          try {
+            await d1Client.execute(
+              `INSERT INTO DeviceSession (id, userId, deviceName, modelName, os, osVersion, appVersion, ipAddress, location, isTerminated, lastActive, lastLogin)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+               ON CONFLICT(id) DO UPDATE SET
+                 isTerminated = excluded.isTerminated,
+                 lastActive = excluded.lastActive;`,
+              [
+                String(d.id),
+                existing.systemId,
+                d.deviceName || d.modelName || "Device",
+                d.modelName || null,
+                d.os || null,
+                d.osVersion || null,
+                d.appVersion || null,
+                d.ip || d.ipAddress || null,
+                typeof d.location === "object"
+                  ? JSON.stringify(d.location)
+                  : d.location || null,
+                isTerm,
+                d.lastActive
+                  ? new Date(d.lastActive).toISOString()
+                  : new Date().toISOString(),
+                d.lastLogin
+                  ? new Date(d.lastLogin).toISOString()
+                  : new Date().toISOString(),
+              ],
+            );
+          } catch {}
         }
       }
 
@@ -663,6 +846,42 @@ export class UsersController {
       const userUpdateData: any = {};
       const detailsUpdateData: any = {};
 
+      if (payload.username !== undefined) {
+        const cleanUsername = String(payload.username).trim().toLowerCase();
+        if (
+          cleanUsername &&
+          cleanUsername !== (existing.username || "").toLowerCase().trim()
+        ) {
+          // Determine the user's company/system
+          const companyPrefix =
+            existing.systemId.match(/^(system-\d+)/i)?.[1]?.toLowerCase() ||
+            existing.details?.companyId ||
+            "system-0001";
+
+          const duplicate = await prisma.user.findFirst({
+            where: {
+              username: cleanUsername,
+              systemId: { not: existing.systemId },
+              OR: [
+                { systemId: { startsWith: companyPrefix } },
+                { details: { companyId: companyPrefix } },
+              ],
+            },
+          });
+
+          if (duplicate) {
+            return res.status(400).json({
+              success: false,
+              error: {
+                message: "This username is already taken by another account.",
+              },
+            });
+          }
+
+          userUpdateData.username = cleanUsername;
+        }
+      }
+
       if (payload.role !== undefined) {
         userUpdateData.role =
           typeof payload.role === "string"
@@ -696,12 +915,23 @@ export class UsersController {
       if (payload.joined !== undefined)
         detailsUpdateData.joined = payload.joined;
 
-      const compId =
+      const rawComp =
         payload.companyId ||
         payload.company_id ||
+        payload.systemKey ||
         payload.systemId ||
         payload.system_id;
-      if (compId !== undefined) detailsUpdateData.companyId = compId;
+      if (rawComp !== undefined) {
+        const compMatch = String(rawComp).match(/^(system-\d+)/i);
+        const resolvedCompanyId = compMatch
+          ? compMatch[1].toLowerCase()
+          : String(rawComp).toLowerCase();
+
+        const compExists = await prisma.company.findUnique({
+          where: { id: resolvedCompanyId },
+        });
+        detailsUpdateData.companyId = compExists ? resolvedCompanyId : null;
+      }
 
       if (Object.keys(detailsUpdateData).length > 0) {
         await prisma.userDetails.upsert({
@@ -736,6 +966,44 @@ export class UsersController {
             attendanceRequests: true,
           },
         });
+      }
+
+      // Direct sync update to Cloudflare D1
+      try {
+        if (Object.keys(userUpdateData).length > 0) {
+          const uCols = Object.keys(userUpdateData);
+          const uSet = uCols.map((c) => `${c} = ?`).join(", ");
+          const uVals = uCols.map((c) => {
+            if (c === "isActive") {
+              return userUpdateData[c] ? 1 : 0;
+            }
+            return userUpdateData[c];
+          });
+          uVals.push(existing.systemId);
+          await d1Client.execute(
+            `UPDATE User SET ${uSet} WHERE system_id = ?`,
+            uVals,
+          );
+        }
+        if (Object.keys(detailsUpdateData).length > 0) {
+          const dCols = Object.keys(detailsUpdateData).map((c) =>
+            c === "companyId" ? "company_id" : c,
+          );
+          const dSet = dCols.map((c) => `${c} = ?`).join(", ");
+          const dVals = Object.keys(detailsUpdateData).map(
+            (c) => detailsUpdateData[c],
+          );
+          dVals.push(existing.systemId);
+          await d1Client.execute(
+            `UPDATE UserDetails SET ${dSet} WHERE system_id = ?`,
+            dVals,
+          );
+        }
+      } catch (d1Err: any) {
+        console.warn(
+          "[Cloudflare D1] Error syncing user update to D1:",
+          d1Err?.message,
+        );
       }
 
       return res.status(200).json({

@@ -18,6 +18,7 @@ export interface CreateStaffFormData {
 export interface CreateStaffPayload {
   id: string;
   system_id: string;
+  company_id?: string;
   name: string;
   username: string;
   password: string;

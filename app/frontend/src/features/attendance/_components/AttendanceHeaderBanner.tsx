@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
@@ -18,6 +19,8 @@ export const AttendanceHeaderBanner: React.FC<AttendanceHeaderBannerProps> = ({
   timeOtherCount,
   topInset,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <LinearGradient
       colors={[theme.colors.secondary, theme.colors.primary]}
@@ -27,11 +30,15 @@ export const AttendanceHeaderBanner: React.FC<AttendanceHeaderBannerProps> = ({
     >
       <View style={[styles.headerTop, { paddingTop: 70 + topInset }]}>
         <View>
-          <Text style={styles.headerSubTitle}>Staff Attendance History</Text>
-          <Text style={styles.headerTitle}>Attendance Logs</Text>
+          <Text style={styles.headerSubTitle}>
+            {t("attendance.historySubtitle")}
+          </Text>
+          <Text style={styles.headerTitle}>{t("attendance.logsTitle")}</Text>
         </View>
         <View style={styles.headerCountBadge}>
-          <Text style={styles.headerCountText}>{totalCount} Total</Text>
+          <Text style={styles.headerCountText}>
+            {`${totalCount} ${t("common.total")}`}
+          </Text>
         </View>
       </View>
 
@@ -41,17 +48,17 @@ export const AttendanceHeaderBanner: React.FC<AttendanceHeaderBannerProps> = ({
         <View style={styles.statBar}>
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{timeInCount}</Text>
-            <Text style={styles.statLabel}>Time-In</Text>
+            <Text style={styles.statLabel}>{t("attendance.timeInShort")}</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{timeOutCount}</Text>
-            <Text style={styles.statLabel}>Time-Out</Text>
+            <Text style={styles.statLabel}>{t("attendance.timeOutShort")}</Text>
           </View>
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Text style={styles.statValue}>{timeOtherCount}</Text>
-            <Text style={styles.statLabel}>Other</Text>
+            <Text style={styles.statLabel}>{t("attendance.otherShort")}</Text>
           </View>
         </View>
       </View>

@@ -1,7 +1,8 @@
-import { theme } from "@/shared/styles/theme";
 import EditStaffModal from "@/features/change-info-account-staff/_components/EditStaffModal";
+import { useLanguage } from "@/features/language";
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
@@ -22,6 +23,7 @@ import { useChangeInfoStaff } from "./_hooks/useChangeInfoStaff";
 
 export default function ChangeInfoAccountStaffScr() {
   const insets = useSafeAreaInsets();
+  const { t } = useLanguage();
 
   const {
     currentUser,
@@ -56,7 +58,7 @@ export default function ChangeInfoAccountStaffScr() {
   return (
     <View style={styles.safe}>
       <AppbarBack
-        Title="Change Info Account Staff"
+        Title={t("changeInfoStaff.title", "Change Info Account Staff")}
         fallbackRoute="/(tabs)/setting"
       />
 
@@ -90,11 +92,19 @@ export default function ChangeInfoAccountStaffScr() {
       ) : filteredStaff.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Ionicons name="people-outline" size={54} color={theme.colors.grey} />
-          <Text style={styles.noStaffTitle}>No Staff Accounts Found</Text>
+          <Text style={styles.noStaffTitle}>
+            {t("changeInfoStaff.noStaffFound", "No Staff Accounts Found")}
+          </Text>
           <Text style={styles.noStaffSub}>
             {searchQuery
-              ? `No accounts matching "${searchQuery}"`
-              : "No staff registered in this system."}
+              ? t("changeInfoStaff.noStaffMatching", {
+                  query: searchQuery,
+                  defaultValue: `No accounts matching "${searchQuery}"`,
+                })
+              : t(
+                  "changeInfoStaff.noStaffInSystem",
+                  "No staff registered in this system.",
+                )}
           </Text>
           <TouchableOpacity
             style={styles.createBtnSecondary}
@@ -107,7 +117,9 @@ export default function ChangeInfoAccountStaffScr() {
               color={theme.colors.background2}
               style={{ marginRight: 6 }}
             />
-            <Text style={styles.createBtnSecondaryText}>Create New Staff</Text>
+            <Text style={styles.createBtnSecondaryText}>
+              {t("changeInfoStaff.createNewStaff", "Create New Staff")}
+            </Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -171,9 +183,11 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   toastText: {
-    color: "#fff",
+    color: theme.colors.background2,
     fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
+    // fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   listContainer: {
     paddingHorizontal: 16,
@@ -187,9 +201,11 @@ const styles = StyleSheet.create({
   },
   noStaffTitle: {
     fontSize: theme.fontSizes.lg,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.textPrimary,
     marginTop: 14,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   noStaffSub: {
     fontSize: theme.fontSizes.sm,
@@ -207,8 +223,10 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
   },
   createBtnSecondaryText: {
-    color: "#fff",
-    fontWeight: "700",
+    color: theme.colors.background2,
+    // fontWeight: "700",
     fontSize: theme.fontSizes.sm,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
 });

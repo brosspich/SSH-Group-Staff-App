@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -27,6 +28,8 @@ export default function SuccessConfirmationModal({
   onClose,
   onEdit,
 }: SuccessConfirmationModalProps) {
+  const { t, isKhmer } = useLanguage();
+
   return (
     <Modal
       visible={visible}
@@ -50,19 +53,27 @@ export default function SuccessConfirmationModal({
 
           <Text style={styles.successTitle}>
             {savingAttendance
-              ? "Recording Attendance..."
-              : "Confirm Attendance"}
+              ? isKhmer
+                ? "កំពុងកត់ត្រាវត្តមាន..."
+                : "Recording Attendance..."
+              : isKhmer
+                ? "បញ្ជាក់ការកត់ត្រាវត្តមាន"
+                : "Confirm Attendance"}
           </Text>
 
           {lastRecord && (
             <View style={styles.successDetails}>
               <View style={styles.successDetailRow}>
-                <Text style={styles.successDetailLabel}>Staff Name:</Text>
+                <Text style={styles.successDetailLabel}>
+                  {isKhmer ? "ឈ្មោះបុគ្គលិក:" : "Staff Name:"}
+                </Text>
                 <Text style={styles.successDetailValue}>{lastRecord.name}</Text>
               </View>
 
               <View style={styles.successDetailRow}>
-                <Text style={styles.successDetailLabel}>Staff ID:</Text>
+                <Text style={styles.successDetailLabel}>
+                  {isKhmer ? "អត្តលេខបុគ្គលិក:" : "Staff ID:"}
+                </Text>
                 <Text style={styles.successDetailValue}>
                   {lastRecord.staff_id}
                 </Text>
@@ -76,10 +87,10 @@ export default function SuccessConfirmationModal({
                     {
                       backgroundColor:
                         lastRecord.type === "time-in"
-                          ? "#dce0fc"
+                          ? theme.colors.timeInBg
                           : lastRecord.type === "time-out"
-                            ? "#fedbdb"
-                            : "#f3e8ff",
+                            ? theme.colors.timeOutBg
+                            : theme.colors.timeOtherBg,
                     },
                   ]}
                 >
@@ -89,10 +100,10 @@ export default function SuccessConfirmationModal({
                       {
                         color:
                           lastRecord.type === "time-in"
-                            ? "#0022ff"
+                            ? theme.colors.timeIn
                             : lastRecord.type === "time-out"
-                              ? theme.colors.error
-                              : "#7e22ce",
+                              ? theme.colors.timeOut
+                              : theme.colors.timeOther,
                       },
                     ]}
                   >
@@ -152,7 +163,9 @@ export default function SuccessConfirmationModal({
                     color={theme.colors.background2}
                     style={{ marginRight: 6 }}
                   />
-                  <Text style={styles.successCloseText}>Submit</Text>
+                  <Text style={styles.successCloseText}>
+                    {t("common.confirm")}
+                  </Text>
                 </>
               )}
             </TouchableOpacity>
@@ -169,7 +182,7 @@ export default function SuccessConfirmationModal({
                     { color: theme.colors.textPrimary },
                   ]}
                 >
-                  Cancel
+                  {t("common.cancel")}
                 </Text>
               </TouchableOpacity>
             )}
@@ -204,7 +217,7 @@ const styles = StyleSheet.create({
   },
   successTitle: {
     fontSize: theme.fontSizes.xl,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -230,7 +243,7 @@ const styles = StyleSheet.create({
   },
   successDetailValue: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -242,7 +255,7 @@ const styles = StyleSheet.create({
   },
   historyBadgeText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -281,7 +294,7 @@ const styles = StyleSheet.create({
   },
   successCloseText: {
     color: theme.colors.background2,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontSize: theme.fontSizes.sm,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,

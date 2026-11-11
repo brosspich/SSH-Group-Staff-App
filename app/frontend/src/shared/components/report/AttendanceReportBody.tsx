@@ -1,4 +1,5 @@
 import { AttendanceRecord } from "@/features/attendance/_types/attendance.types";
+import { useLanguage } from "@/features/language";
 import Loading from "@/shared/components/loading/loading";
 import { StaffPickerModal } from "@/shared/components/report/StaffPickerModal";
 import { extractSystemKey } from "@/shared/constants/attendanceConfig";
@@ -40,6 +41,7 @@ export function AttendanceReportBody({
   activeStaffId,
   onSelectStaff,
 }: AttendanceReportBodyProps) {
+  const { t } = useLanguage();
   const { user: loggedInUser } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [showStaffModal, setShowStaffModal] = useState(false);
@@ -79,7 +81,7 @@ export function AttendanceReportBody({
       {reportMode === "current" && (
         <View style={s.card}>
           <View style={s.staffSelectHeader}>
-            <Text style={s.sectionLabel}>Current Staff Member</Text>
+            <Text style={s.sectionLabel}>{t("report.currentStaff")}</Text>
           </View>
           <View style={s.selectedStaffBox}>
             <View style={s.avatarBgIcon}>
@@ -87,7 +89,7 @@ export function AttendanceReportBody({
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.selectedStaffName}>
-                {selectedStaff?.name || "Current Staff"}
+                {selectedStaff?.name || t("report.currentStaff")}
               </Text>
               <Text style={s.selectedStaffSub}>
                 ID: {selectedStaff?.id || "-"} • Position:{" "}
@@ -102,10 +104,10 @@ export function AttendanceReportBody({
       {reportMode === "individual" && staffList.length > 0 && (
         <View style={s.card}>
           <View style={s.staffSelectHeader}>
-            <Text style={s.sectionLabel}>Select Staff Member</Text>
+            <Text style={s.sectionLabel}>{t("report.selectStaff")}</Text>
             {staffList.length > 1 && (
               <TouchableOpacity onPress={() => setShowStaffModal(true)}>
-                <Text style={s.changeStaffText}>Change Staff</Text>
+                <Text style={s.changeStaffText}>{t("report.changeStaff")}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -124,7 +126,7 @@ export function AttendanceReportBody({
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.selectedStaffName}>
-                {selectedStaff?.name || "Staff Member"}
+                {selectedStaff?.name || t("common.staffMember")}
               </Text>
               <Text style={s.selectedStaffSub}>
                 ID: {selectedStaff?.id || "-"} • Position:{" "}
@@ -160,13 +162,13 @@ export function AttendanceReportBody({
       <View style={s.summaryGrid}>
         <View style={s.summaryCard}>
           <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
-            Total Logs
+            {t("report.totalLogs")}
           </Text>
           <Text style={s.summaryValue}>{summary.totalLogs} </Text>
         </View>
         <View style={s.summaryCard}>
           <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
-            Time-In
+            {t("attendance.timeInShort")}
           </Text>
           <Text style={[s.summaryValue, { color: "#0022ff" }]}>
             {summary.timeInCount}
@@ -174,7 +176,7 @@ export function AttendanceReportBody({
         </View>
         <View style={s.summaryCard}>
           <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
-            Time-Out
+            {t("attendance.timeOutShort")}
           </Text>
           <Text style={[s.summaryValue, { color: "#ff0000" }]}>
             {summary.timeOutCount}
@@ -182,7 +184,7 @@ export function AttendanceReportBody({
         </View>
         <View style={s.summaryCard}>
           <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
-            Other
+            {t("attendance.otherShort")}
           </Text>
           <Text style={[s.summaryValue, { color: "#7e22ce" }]}>
             {summary.timeOtherCount}
@@ -195,7 +197,7 @@ export function AttendanceReportBody({
         <Ionicons name="search-outline" size={18} color={theme.colors.grey} />
         <TextInput
           style={s.searchInput}
-          placeholder="Search by name, ID, date, status..."
+          placeholder={t("report.searchReportPlaceholder")}
           placeholderTextColor={theme.colors.grey}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -210,7 +212,7 @@ export function AttendanceReportBody({
       {/* Logs List */}
       <View style={s.recordsCard}>
         <Text style={s.recordsTitle}>
-          Attendance Records ({filteredRecords.length})
+          {t("attendance.logsTitle")} ({filteredRecords.length})
         </Text>
 
         {filteredRecords.length === 0 ? (
@@ -220,11 +222,11 @@ export function AttendanceReportBody({
               size={40}
               color={theme.colors.grey}
             />
-            <Text style={s.emptyTitle}>No Attendance Records</Text>
+            <Text style={s.emptyTitle}>{t("home.noRecords")}</Text>
             <Text style={s.emptySub}>
               {searchQuery
                 ? `No records matching "${searchQuery}".`
-                : "No attendance logs recorded for this period."}
+                : t("attendance.noLogsDesc")}
             </Text>
           </View>
         ) : (
@@ -347,7 +349,7 @@ const s = StyleSheet.create({
   },
   selectedStaffName: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -379,7 +381,7 @@ const s = StyleSheet.create({
   },
   staffChipTextActive: {
     color: theme.colors.background2,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -407,7 +409,7 @@ const s = StyleSheet.create({
   },
   summaryValue: {
     fontSize: theme.fontSizes.lg,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     marginTop: 4,
@@ -445,7 +447,7 @@ const s = StyleSheet.create({
   },
   recordsTitle: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -458,7 +460,7 @@ const s = StyleSheet.create({
   },
   recordTime: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -473,7 +475,7 @@ const s = StyleSheet.create({
   },
   staffName: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -515,7 +517,7 @@ const s = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     marginTop: 8,
     fontFamily: theme.fonts.bold,

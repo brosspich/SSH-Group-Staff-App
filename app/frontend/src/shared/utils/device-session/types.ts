@@ -23,9 +23,13 @@ export interface DeviceSession {
   ip_address: string;
 
   // Timestamps & Soft Terminate Flag
+  loginTimed?: string;
+  login_timed?: string;
   last_login?: string;
+  lastLogin?: string;
   last_use_time?: string;
   last_active: string;
+  lastActive?: string;
   terminate?: boolean | string;
 }
 

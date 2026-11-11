@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -11,6 +12,7 @@ interface SettingAdminStaffSectionProps {
 export const SettingAdminStaffSection: React.FC<
   SettingAdminStaffSectionProps
 > = ({ isAdminOrOwner }) => {
+  const { t } = useLanguage();
   if (!isAdminOrOwner) return null;
 
   function BtnItem({
@@ -59,17 +61,17 @@ export const SettingAdminStaffSection: React.FC<
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Account Staff</Text>
+      <Text style={styles.sectionTitle}>{t("setting.adminStaff")}</Text>
       <View style={styles.card}>
         <BtnItem
           onPress={() => router.push("/account-staff/CreateAccountStaff")}
-          title="Create Account Staff"
+          title={t("setting.createStaff")}
           iconName="person-outline"
         />
         <Border />
         <BtnItem
           onPress={() => router.push("/account-staff/ChangeInfoAccountStaff")}
-          title="Change Info Account Staff"
+          title={t("setting.editStaff")}
           iconName="create-outline"
         />
       </View>

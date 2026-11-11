@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
@@ -9,13 +10,19 @@ interface AttendanceListFooterProps {
   pageSize: number;
 }
 
-export const AttendanceListFooter: React.FC<AttendanceListFooterProps> = React.memo(
-  ({ loadingMore, hasMore, totalFilteredCount, pageSize }) => {
+export const AttendanceListFooter: React.FC<AttendanceListFooterProps> =
+  React.memo(({ loadingMore, hasMore, totalFilteredCount, pageSize }) => {
+    const { t } = useLanguage();
+
     if (loadingMore) {
       return (
         <View style={styles.loadingMoreBox}>
           <ActivityIndicator size="small" color={theme.colors.primary} />
-          <Text style={styles.loadingMoreText}>Loading 10 more records...</Text>
+          <Text style={styles.loadingMoreText}>
+            {t("attendance.loadingMore", "Loading {{count}} more records...", {
+              count: 10,
+            })}
+          </Text>
         </View>
       );
     }
@@ -24,15 +31,16 @@ export const AttendanceListFooter: React.FC<AttendanceListFooterProps> = React.m
       return (
         <View style={styles.allLoadedBox}>
           <Text style={styles.allLoadedText}>
-            All {totalFilteredCount} records loaded
+            {t("attendance.allRecordsLoaded", "All {{count}} records loaded", {
+              count: totalFilteredCount,
+            })}
           </Text>
         </View>
       );
     }
 
     return <View style={{ height: theme.spacing.lg }} />;
-  },
-);
+  });
 
 const styles = StyleSheet.create({
   loadingMoreBox: {

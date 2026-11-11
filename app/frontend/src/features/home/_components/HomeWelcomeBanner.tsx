@@ -1,5 +1,6 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AttendanceType } from "../_types/home.types";
@@ -16,10 +17,12 @@ export const HomeWelcomeBanner: React.FC<HomeWelcomeBannerProps> = ({
   currentTime,
   currentType,
 }) => {
+  const { t, isKhmer } = useLanguage();
+
   return (
     <View style={styles.bannerTop}>
       <View style={styles.bannerUserInfo}>
-        <Text style={styles.bannerGreeting}>Welcome back!</Text>
+        <Text style={styles.bannerGreeting}>{t("home.welcomeBack")}</Text>
         <Text style={styles.bannerName} numberOfLines={1}>
           {user?.name ?? "Staff Member"}
         </Text>
@@ -41,7 +44,7 @@ export const HomeWelcomeBanner: React.FC<HomeWelcomeBannerProps> = ({
           <View style={styles.clockBox}>
             <Text style={styles.clockTime}>{formatTime12h(currentTime)}</Text>
             <Text style={styles.clockDate}>
-              {currentTime.toLocaleDateString("en-GB", {
+              {currentTime.toLocaleDateString(isKhmer ? "km-KH" : "en-GB", {
                 weekday: "short",
                 day: "2-digit",
                 month: "short",
@@ -60,7 +63,7 @@ export const HomeWelcomeBanner: React.FC<HomeWelcomeBannerProps> = ({
                 ]}
               />
               <Text style={styles.shiftBadgeText}>
-                Current: {currentType.toUpperCase()}
+                {`${t("home.currentStatus")}: ${currentType.toUpperCase()}`}
               </Text>
             </View>
           </View>

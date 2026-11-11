@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -12,14 +13,18 @@ interface RecentAttendanceHistoryProps {
 export const RecentAttendanceHistory: React.FC<
   RecentAttendanceHistoryProps
 > = ({ attendanceList, onViewAll }) => {
+  const { t } = useLanguage();
+
   return (
     <>
       {/* ── Recent History Section ── */}
       <View style={styles.historyHeaderRow}>
-        <Text style={styles.sectionTitle}>Recent Attendance Logs</Text>
+        <Text style={styles.sectionTitle}>
+          {t("home.recentAttendanceLogs")}
+        </Text>
         <TouchableOpacity onPress={onViewAll} style={styles.viewAllBtn}>
           <Text style={styles.viewAllText}>
-            View All ({attendanceList.length})
+            {`${t("home.viewAll")} (${attendanceList.length})`}
           </Text>
           <Ionicons
             name="chevron-forward"
@@ -37,10 +42,8 @@ export const RecentAttendanceHistory: React.FC<
             size={42}
             color={theme.colors.grey}
           />
-          <Text style={styles.emptyTitle}>No Attendance Records</Text>
-          <Text style={styles.emptySub}>
-            Scan a QR code to record your time-in, time-out, or time-other.
-          </Text>
+          <Text style={styles.emptyTitle}>{t("home.noRecords")}</Text>
+          <Text style={styles.emptySub}>{t("home.noRecordsDesc")}</Text>
         </View>
       ) : (
         <View style={styles.historyList}>

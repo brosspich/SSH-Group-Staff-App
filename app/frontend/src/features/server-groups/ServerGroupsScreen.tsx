@@ -1,15 +1,10 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
-import {
-  GroupCard,
-  MemberList,
-  SshGroup,
-  useSshGroupsQuery,
-} from "@/features/ssh-groups";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   FlatList,
   Modal,
@@ -20,8 +15,13 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { GroupCard } from "./components/GroupCard";
+import { MemberList } from "./components/MemberList";
+import { useSshGroupsQuery } from "./hooks/useSshGroupsQuery";
+import type { SshGroup } from "./types/sshGroup.types";
 
-export default function SshGroupsScreen() {
+export default function ServerGroupsScreen() {
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const { isMobile } = useResponsive();
   const [selectedGroup, setSelectedGroup] = useState<SshGroup | null>(null);
@@ -37,7 +37,7 @@ export default function SshGroupsScreen() {
 
   return (
     <View style={styles.container}>
-      <AppbarBack Title="SSH Server Groups" />
+      <AppbarBack Title={t("setting.serverGroups")} />
 
       {isLoading ? (
         <Loading />
@@ -53,6 +53,7 @@ export default function SshGroupsScreen() {
           <FlatList
             data={groups}
             keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -61,18 +62,17 @@ export default function SshGroupsScreen() {
               />
             }
             renderItem={({ item }) => (
-              <GroupCard
-                group={item}
-                onPress={() => setSelectedGroup(item)}
-              />
+              <GroupCard group={item} onPress={() => setSelectedGroup(item)} />
             )}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Ionicons
-                  name="server-outline"
-                  size={48}
-                  color={theme.colors.grey}
-                />
+                <View style={styles.emptyIconCircle}>
+                  <Ionicons
+                    name="server-outline"
+                    size={36}
+                    color={theme.colors.grey}
+                  />
+                </View>
                 <Text style={styles.emptyText}>No Server Groups Found</Text>
                 <Text style={styles.emptySubtext}>
                   Server groups will appear here once provisioned
@@ -94,7 +94,7 @@ export default function SshGroupsScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalCard, !isMobile && styles.modalWebCard]}>
             <View style={styles.modalHeader}>
-              <View>
+              <View style={{ flex: 1, paddingRight: theme.spacing.sm }}>
                 <Text style={styles.modalTitle}>{selectedGroup?.name}</Text>
                 <Text style={styles.modalSubtitle}>
                   {selectedGroup?.description}
@@ -104,14 +104,16 @@ export default function SshGroupsScreen() {
                 onPress={() => setSelectedGroup(null)}
                 style={styles.closeBtn}
               >
-                <Ionicons name="close" size={22} color={theme.colors.textPrimary} />
+                <Ionicons
+                  name="close"
+                  size={22}
+                  color={theme.colors.textPrimary}
+                />
               </TouchableOpacity>
             </View>
 
             <View style={styles.modalBody}>
-              <MemberList
-                members={selectedGroup?.members || []}
-              />
+              <MemberList members={selectedGroup?.members || []} />
             </View>
           </View>
         </View>
@@ -127,8 +129,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingHorizontal: theme.spacing.base,
+    paddingTop: theme.spacing.base,
+    backgroundColor: theme.colors.background,
   },
   webContainer: {
     maxWidth: 800,
@@ -136,39 +139,49 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   header: {
-    marginBottom: 16,
+    marginBottom: theme.spacing.base,
   },
   title: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.lg,
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     color: theme.colors.grey,
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    marginTop: 2,
+    marginTop: theme.spacing.xs,
+    lineHeight: 16,
   },
   listContent: {
-    paddingBottom: 40,
-    gap: 12,
+    paddingBottom: theme.spacing.xxl,
+    gap: theme.spacing.md,
   },
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 60,
-    gap: 10,
+    paddingVertical: theme.spacing.xxxl,
+    gap: theme.spacing.md,
+  },
+  emptyIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: theme.borderRadius.full,
+    backgroundColor: `${theme.colors.grey}15`,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: theme.spacing.xs,
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: theme.fontSizes.md,
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   emptySubtext: {
-    fontSize: 13,
+    fontSize: theme.fontSizes.sm,
     color: theme.colors.grey,
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
@@ -181,44 +194,44 @@ const styles = StyleSheet.create({
   },
   modalCard: {
     backgroundColor: theme.colors.background2,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
+    borderTopLeftRadius: theme.borderRadius.xl,
+    borderTopRightRadius: theme.borderRadius.xl,
+    padding: theme.spacing.lg,
     maxHeight: "80%",
   },
   modalWebCard: {
     maxWidth: 600,
     width: "100%",
     alignSelf: "center",
-    borderRadius: 20,
-    marginBottom: 40,
+    borderRadius: theme.borderRadius.xl,
+    marginBottom: theme.spacing.xxl,
   },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: 16,
+    marginBottom: theme.spacing.base,
     borderBottomWidth: 0.5,
     borderBottomColor: `${theme.colors.grey}30`,
-    paddingBottom: 12,
+    paddingBottom: theme.spacing.md,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: theme.fontSizes.lg,
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   modalSubtitle: {
-    fontSize: 12,
+    fontSize: theme.fontSizes.xs,
     color: theme.colors.grey,
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    marginTop: 2,
+    marginTop: theme.spacing.xs,
   },
   closeBtn: {
-    padding: 4,
+    padding: theme.spacing.xs,
   },
   modalBody: {
-    paddingBottom: 20,
+    paddingBottom: theme.spacing.lg,
   },
 });

@@ -2,40 +2,40 @@ import { NotFoundError } from "../../core/errors/AppError.js";
 import { IAuditLogger } from "../../core/interfaces/audit.interface.js";
 import { IRepository } from "../../core/interfaces/repository.interface.js";
 import { auditLogger } from "../../infrastructure/events/eventEmitter.js";
-import { sshGroupRepository } from "./ssh-group.repository.js";
+import { serverGroupRepository } from "./server-group.repository.js";
 import {
-  CreateSshGroupDTO,
-  SshGroupModel,
-  UpdateSshGroupDTO,
-} from "./ssh-group.types.js";
+  CreateServerGroupDTO,
+  ServerGroupModel,
+  UpdateServerGroupDTO,
+} from "./server-group.types.js";
 
-export class SshGroupService {
+export class ServerGroupService {
   constructor(
     private readonly repo: IRepository<
-      SshGroupModel,
-      CreateSshGroupDTO,
-      UpdateSshGroupDTO
-    > = sshGroupRepository,
+      ServerGroupModel,
+      CreateServerGroupDTO,
+      UpdateServerGroupDTO
+    > = serverGroupRepository,
     private readonly audit: IAuditLogger = auditLogger,
   ) {}
 
-  async getAll(): Promise<SshGroupModel[]> {
+  async getAll(): Promise<ServerGroupModel[]> {
     return await this.repo.findAll();
   }
 
-  async getById(id: string): Promise<SshGroupModel> {
+  async getById(id: string): Promise<ServerGroupModel> {
     const group = await this.repo.findById(id);
     if (!group) {
-      throw new NotFoundError(`SSH Group with ID ${id} was not found`);
+      throw new NotFoundError(`Server Group with ID ${id} was not found`);
     }
     return group;
   }
 
   async create(
-    data: CreateSshGroupDTO,
+    data: CreateServerGroupDTO,
     actorId: string,
     actorName: string,
-  ): Promise<SshGroupModel> {
+  ): Promise<ServerGroupModel> {
     const group = await this.repo.create(data);
     await this.audit.log({
       action: "SSH_GROUP_CREATED",
@@ -49,10 +49,10 @@ export class SshGroupService {
 
   async update(
     id: string,
-    data: UpdateSshGroupDTO,
+    data: UpdateServerGroupDTO,
     actorId: string,
     actorName: string,
-  ): Promise<SshGroupModel> {
+  ): Promise<ServerGroupModel> {
     await this.getById(id);
     const updated = await this.repo.update(id, data);
     await this.audit.log({
@@ -60,21 +60,26 @@ export class SshGroupService {
       actorId,
       actorName,
       targetId: id,
-      details: data,
+      details: { changes: data },
     });
     return updated;
   }
 
   async delete(id: string, actorId: string, actorName: string): Promise<void> {
-    await this.getById(id);
+    const group = await this.getById(id);
     await this.repo.delete(id);
     await this.audit.log({
       action: "SSH_GROUP_DELETED",
       actorId,
       actorName,
       targetId: id,
+      details: { name: group.name },
     });
   }
 }
 
-export const sshGroupService = new SshGroupService();
+export const serverGroupService = new ServerGroupService();
+
+// Backwards-compatible aliases
+export const SshGroupService = ServerGroupService;
+export const sshGroupService = serverGroupService;

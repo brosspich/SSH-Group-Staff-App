@@ -11,10 +11,22 @@ export class AuditController {
     next: NextFunction,
   ) => {
     try {
-      const { action, actorId, limit, offset } = req.query;
+      const { action, actorId, limit, offset, companyId } = req.query;
+      const userSystemId = req.user?.userId || "";
+      let resolvedCompanyId =
+        (companyId as string) || (req.headers["x-company-id"] as string) || "";
+
+      if (!resolvedCompanyId && userSystemId) {
+        const match = userSystemId.match(/^(system-\d+)/i);
+        if (match) {
+          resolvedCompanyId = match[1].toLowerCase();
+        }
+      }
+
       const logs = await this.service.getLogs({
         action: action ? String(action) : undefined,
         actorId: actorId ? String(actorId) : undefined,
+        companyId: resolvedCompanyId || undefined,
         limit: limit ? parseInt(String(limit), 10) : undefined,
         offset: offset ? parseInt(String(offset), 10) : undefined,
       });

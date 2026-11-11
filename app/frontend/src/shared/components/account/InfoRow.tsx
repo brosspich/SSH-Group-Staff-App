@@ -1,12 +1,7 @@
 import { theme } from "@/shared/styles/theme";
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { ComponentType, createElement } from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ComponentType, createElement } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export interface InfoRowProps {
   iconName: string;

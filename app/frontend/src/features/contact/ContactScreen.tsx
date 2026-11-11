@@ -1,16 +1,18 @@
+import { useLanguage } from "@/features/language";
 import AppbarBack from "@/shared/components/appbar/appbarback";
-import { theme } from "@/shared/styles/theme";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { StyleSheet, Text, View } from "react-native";
 import { ContactItemButton } from "./_components/ContactItemButton";
 import { openSocialLink, SOCIAL_PLATFORMS } from "./_utils/contactConstants";
 
 export default function ContactScreen() {
+  const { t } = useLanguage();
   const { isMobile } = useResponsive();
 
   return (
     <View style={styles.container}>
-      <AppbarBack Title="Contact" />
+      <AppbarBack Title={t("contact.title")} />
       <View style={styles.content}>
         <Text style={styles.txtHeader}>
           Welcome to the official platform of SSH GROUP:

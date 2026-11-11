@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -10,11 +11,20 @@ interface AttendanceLogCardProps {
 export const AttendanceLogCard: React.FC<AttendanceLogCardProps> = ({
   record,
 }) => {
+  const { t } = useLanguage();
   const isTimeIn = record.type === "time-in";
   const isTimeOut = record.type === "time-out";
 
-  const badgeBg = isTimeIn ? "#dce0fc" : isTimeOut ? "#fedbdb" : "#f3e8ff";
-  const badgeColor = isTimeIn ? "#0022ff" : isTimeOut ? theme.colors.error : "#7e22ce";
+  const badgeBg = isTimeIn
+    ? theme.colors.timeInBg
+    : isTimeOut
+      ? theme.colors.timeOutBg
+      : theme.colors.timeOtherBg;
+  const badgeColor = isTimeIn
+    ? theme.colors.timeIn
+    : isTimeOut
+      ? theme.colors.timeOut
+      : theme.colors.timeOther;
 
   const displayTime =
     record.time ||
@@ -39,7 +49,9 @@ export const AttendanceLogCard: React.FC<AttendanceLogCardProps> = ({
 
         <View style={styles.historyRightCol}>
           <Text style={styles.historyStaffName}>{displayName}</Text>
-          <Text style={styles.historyStaffId}>Staff ID: {displayStaffId}</Text>
+          <Text style={styles.historyStaffId}>
+            {t("attendance.staffId", "Staff ID")}: {displayStaffId}
+          </Text>
         </View>
       </View>
 
@@ -51,7 +63,7 @@ export const AttendanceLogCard: React.FC<AttendanceLogCardProps> = ({
             numberOfLines={1}
             ellipsizeMode="middle"
           >
-            Status :{" "}
+            {t("attendance.statusLabel", "Status")} :{" "}
             {record.type != null ? String(record.type).toUpperCase() : ""}
           </Text>
           <Text
@@ -59,6 +71,7 @@ export const AttendanceLogCard: React.FC<AttendanceLogCardProps> = ({
             numberOfLines={1}
             ellipsizeMode="middle"
           >
+            {t("attendance.id", "ID Record")} :{" "}
             {record.id != null ? String(record.id).toUpperCase() : ""}
           </Text>
         </View>
@@ -114,17 +127,16 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   historyFooter: {
-    borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.04)",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    // flexDirection: "row",
+    // justifyContent: "space-between",
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
   },
   historyQrText: {
+    flex: 1,
     fontSize: theme.fontSizes.xs,
-    fontFamily: theme.fonts.regular,
+    fontFamily: theme.fonts.bold,
     includeFontPadding: false,
+    flexShrink: 1,
   },
 });

@@ -25,19 +25,21 @@ model Company {
 model User {
   systemId            String              @id @map("system_id")
   id                  String              // Staff ID e.g. "0001", "0022"
-  username            String              @unique
+  username            String
   passwordHash        String
-  role                String              @default("member")
+  role                String              @default("staff")
   isActive            Boolean             @default(true)
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
   details             UserDetails?
   memberships         GroupMember[]
-  sshKeys             SshKey[]
+  serverKeys          ServerKey[]
   attendanceLogs      AttendanceLog[]
   attendanceRequests  AttendanceRequest[]
   deviceSessions      DeviceSession[]
+
+  @@index([username])
 }
 
 model UserDetails {
@@ -90,18 +92,20 @@ model DeviceSession {
   userId       String
   deviceName   String?
   modelName    String?
+  modelNumber  String?
   os           String?
   osVersion    String?
   appVersion   String?
   ipAddress    String?
   location     String?
   isTerminated Int      @default(0)
+  loginTimed   DateTime @default(now())
   lastActive   DateTime @default(now())
   lastLogin    DateTime @default(now())
   user         User     @relation(fields: [userId], references: [systemId], onDelete: Cascade)
 }
 
-model SshGroup {
+model ServerGroup {
   id          String        @id @default(uuid())
   name        String        @unique
   description String?
@@ -112,18 +116,18 @@ model SshGroup {
 }
 
 model GroupMember {
-  id         String   @id @default(uuid())
+  id         String      @id @default(uuid())
   userId     String
   groupId    String
-  permission String   @default("read") // admin, write, read
-  joinedAt   DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [systemId], onDelete: Cascade)
-  group      SshGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  permission String      @default("read") // admin, write, read
+  joinedAt   DateTime    @default(now())
+  user       User        @relation(fields: [userId], references: [systemId], onDelete: Cascade)
+  group      ServerGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
   @@unique([userId, groupId])
 }
 
-model SshKey {
+model ServerKey {
   id          String    @id @default(uuid())
   userId      String
   name        String

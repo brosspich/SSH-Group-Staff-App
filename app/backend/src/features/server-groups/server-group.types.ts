@@ -1,4 +1,4 @@
-export interface SshGroupModel {
+export interface ServerGroupModel {
   id: string;
   name: string;
   description: string | null;
@@ -7,13 +7,13 @@ export interface SshGroupModel {
   updatedAt: Date;
 }
 
-export interface CreateSshGroupDTO {
+export interface CreateServerGroupDTO {
   name: string;
   description?: string;
   serverCount?: number;
 }
 
-export interface UpdateSshGroupDTO {
+export interface UpdateServerGroupDTO {
   name?: string;
   description?: string;
   serverCount?: number;

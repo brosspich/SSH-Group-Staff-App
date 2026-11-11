@@ -1,6 +1,7 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { StaffUser, userService } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { hashPassword } from "@/utils/passwordUtils";
 import { MaterialIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
@@ -35,6 +36,7 @@ export const EditFieldModal: React.FC<EditFieldModalProps> = ({
   onClose,
   onSaved,
 }) => {
+  const { t } = useLanguage();
   const [value, setValue] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +71,9 @@ export const EditFieldModal: React.FC<EditFieldModalProps> = ({
       if (fieldKey === "username" && trimmed !== user.username) {
         const isConflict = await checkUsernameConflictApi(trimmed, user.id);
         if (isConflict) {
-          setError("This username is already taken");
+          setError(
+            t("account.usernameTaken", "This username is already taken"),
+          );
           setSaving(false);
           return;
         }
@@ -84,7 +88,10 @@ export const EditFieldModal: React.FC<EditFieldModalProps> = ({
       onSaved(updated);
       onClose();
     } catch (err: any) {
-      setError(err?.message ?? "Failed to update. Please try again.");
+      setError(
+        err?.message ??
+          t("account.updateFailed", "Failed to update. Please try again."),
+      );
     } finally {
       setSaving(false);
     }
@@ -160,7 +167,9 @@ export const EditFieldModal: React.FC<EditFieldModalProps> = ({
               onPress={onClose}
               disabled={saving}
             >
-              <Text style={styles.cancelText}>Cancel</Text>
+              <Text style={styles.cancelText}>
+                {t("common.cancel", "Cancel")}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.btn, styles.saveBtn]}
@@ -168,9 +177,12 @@ export const EditFieldModal: React.FC<EditFieldModalProps> = ({
               disabled={saving}
             >
               {saving ? (
-                <ActivityIndicator color="#fff" size="small" />
+                <ActivityIndicator
+                  color={theme.colors.background2}
+                  size="small"
+                />
               ) : (
-                <Text style={styles.saveText}>Save</Text>
+                <Text style={styles.saveText}>{t("common.save", "Save")}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -195,7 +207,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: theme.fontSizes.lg,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.textPrimary,
     marginBottom: theme.spacing.md,
     textAlign: "center",
@@ -251,7 +263,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     color: theme.colors.secondary,
-    fontWeight: "600",
+    // fontWeight: "600",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -259,8 +271,8 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.secondary,
   },
   saveText: {
-    color: "#fff",
-    fontWeight: "700",
+    color: theme.colors.background2,
+    // fontWeight: "700",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

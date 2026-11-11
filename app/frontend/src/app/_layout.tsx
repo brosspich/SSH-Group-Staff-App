@@ -1,3 +1,4 @@
+import "@/features/language/i18n/i18n";
 import { UserProvider } from "@/shared/contexts/UserContext";
 import { queryClient } from "@/shared/services/api/queryClient";
 import { theme } from "@/shared/styles/theme";
@@ -171,6 +172,12 @@ export default function RootLayout() {
               <Stack.Screen name="report-request-individual-staff/daily-report" />
               <Stack.Screen name="report-request-individual-staff/monthly-report" />
               <Stack.Screen name="report-request-individual-staff/weekly-report" />
+
+              <Stack.Screen name="server-groups/index" />
+              <Stack.Screen name="audit-logs/index" />
+              <Stack.Screen name="keys/index" />
+
+              <Stack.Screen name="language/index" />
             </Stack>
           </UserProvider>
         </QueryClientProvider>

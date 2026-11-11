@@ -1,14 +1,16 @@
+import { useLanguage } from "@/features/language";
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
 import { renderLogoutModal } from "@/shared/components/logout/logoutModal";
-import { theme } from "@/shared/styles/theme";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { EditFieldModal } from "./_components/EditFieldModal";
 import { InformationCard } from "./_components/InformationCard";
 import { useInformation } from "./_hooks/useInformation";
 
 export default function InformationScreen() {
+  const { t } = useLanguage();
   const { isMobile } = useResponsive();
 
   const {
@@ -35,7 +37,7 @@ export default function InformationScreen() {
 
   return (
     <View style={styles.safe}>
-      <AppbarBack Title="Information" />
+      <AppbarBack Title={t("account.title")} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={

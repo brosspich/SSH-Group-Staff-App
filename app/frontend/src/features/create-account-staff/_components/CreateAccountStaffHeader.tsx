@@ -1,5 +1,6 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import type { DynamicSystemItem } from "@/shared/constants/attendanceConfig";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -14,17 +15,31 @@ interface CreateAccountStaffHeaderProps {
 export const CreateAccountStaffHeader: React.FC<
   CreateAccountStaffHeaderProps
 > = ({ isOwner, systemKey, availableSystems, onSelectSystem }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.systemHeaderCard}>
       <View style={styles.systemHeaderLeft}>
-        <Ionicons name="shield-checkmark" size={24} color={theme.colors.primary} />
+        <Ionicons
+          name="shield-checkmark"
+          size={24}
+          color={theme.colors.primary}
+        />
         <View style={{ marginLeft: 10 }}>
           <Text style={styles.systemHeaderTitle}>
-            {isOwner ? "Owner Administrator" : "Branch Admin"}
+            {isOwner
+              ? t("createAccountStaff.ownerAdmin", "Owner Administrator")
+              : t("createAccountStaff.branchAdmin", "Branch Admin")}
           </Text>
           <Text style={styles.systemHeaderSub}>
-            Managing System:{" "}
-            <Text style={{ fontWeight: "700", color: theme.colors.primary }}>
+            {t("createAccountStaff.managingSystem", "Managing System:")}{" "}
+            <Text
+              style={{
+                fontFamily: theme.fonts.bold,
+                includeFontPadding: false,
+                color: theme.colors.primary,
+              }}
+            >
               {systemKey.toUpperCase()}
             </Text>
           </Text>
@@ -81,8 +96,10 @@ const styles = StyleSheet.create({
   },
   systemHeaderTitle: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.textPrimary,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   systemHeaderSub: {
     fontSize: theme.fontSizes.sm,
@@ -108,8 +125,10 @@ const styles = StyleSheet.create({
   },
   sysChipText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   sysChipTextSelected: {
     color: theme.colors.primary,

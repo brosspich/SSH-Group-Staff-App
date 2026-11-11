@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   txt: {
     color: theme.colors.background2,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

@@ -1,9 +1,10 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
-import { Platform, StyleSheet, Text, View } from "react-native";
-// import DeviceInfo from "react-native-device-info";
 import Constants from "expo-constants";
+import { Platform, StyleSheet, Text, View } from "react-native";
 
 export default function Copyright() {
+  const { t } = useLanguage();
   const appVersion = Constants.expoConfig?.version || "1.0.0";
   const appVersionCode =
     Platform.OS === "ios"
@@ -13,13 +14,15 @@ export default function Copyright() {
   return (
     <View>
       <Text style={styles.txtVersion}>
-        Version : {appVersion}
+        {t("about.version")} : {appVersion}
         {appVersionCode ? `.${appVersionCode}` : ""}
       </Text>
       <Text style={[styles.footer, { paddingBottom: 0 }]}>
         WWW.SSHGROUPS.COM
       </Text>
-      <Text style={styles.footer}>© 2026 SSH Group | All Rights Reserved</Text>
+      <Text style={styles.footer}>
+        © 2026 SSH Group | {t("common.allRightsReserved")}
+      </Text>
     </View>
   );
 }
@@ -29,7 +32,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: theme.colors.grey,
     fontSize: theme.fontSizes.xs,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -39,7 +42,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.xs,
     marginTop: "auto",
     paddingBottom: 16,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

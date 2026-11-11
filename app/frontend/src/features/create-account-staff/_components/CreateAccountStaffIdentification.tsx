@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
@@ -35,22 +36,30 @@ export const CreateAccountStaffIdentification: React.FC<
   position,
   setPosition,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.card}>
-      <Text style={styles.cardSectionTitle}>Staff Identification</Text>
+      <Text style={styles.cardSectionTitle}>
+        {t("createAccountStaff.staffIdentification", "Staff Identification")}
+      </Text>
 
       {/* Staff ID & System ID */}
       <View style={styles.rowFields}>
         <View style={{ flex: 1.2, marginRight: 6 }}>
           <Text style={styles.label}>
-            Staff ID <Text style={styles.requiredStar}>*</Text>
+            {t("createAccountStaff.staffId", "Staff ID")}{" "}
+            <Text style={styles.requiredStar}>*</Text>
           </Text>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.textInput}
               value={staffId}
               onChangeText={setStaffId}
-              placeholder="e.g. ID-0010"
+              placeholder={t(
+                "createAccountStaff.staffIdPlaceholder",
+                "e.g. ID-0010",
+              )}
               placeholderTextColor={theme.colors.grey}
               autoCapitalize="characters"
             />
@@ -65,7 +74,9 @@ export const CreateAccountStaffIdentification: React.FC<
               alignItems: "center",
             }}
           >
-            <Text style={styles.label}>System ID (Auto)</Text>
+            <Text style={styles.label} numberOfLines={1} ellipsizeMode="middle">
+              {t("createAccountStaff.systemIdAuto", "System ID (Auto)")}
+            </Text>
             {suggestedIdLoading && (
               <ActivityIndicator
                 size="small"
@@ -86,7 +97,8 @@ export const CreateAccountStaffIdentification: React.FC<
                 {
                   color: theme.colors.textPrimary,
                   fontSize: theme.fontSizes.sm,
-                  fontWeight: "600",
+                  fontFamily: theme.fonts.semibold,
+                  includeFontPadding: false,
                 },
               ]}
               value={systemId}
@@ -101,7 +113,8 @@ export const CreateAccountStaffIdentification: React.FC<
       {/* Full Name */}
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>
-          Full Name <Text style={styles.requiredStar}>*</Text>
+          {t("createAccountStaff.fullName", "Full Name")}{" "}
+          <Text style={styles.requiredStar}>*</Text>
         </Text>
         <View style={styles.inputContainer}>
           <Ionicons
@@ -114,7 +127,10 @@ export const CreateAccountStaffIdentification: React.FC<
             style={styles.textInput}
             value={name}
             onChangeText={setName}
-            placeholder="Enter full name"
+            placeholder={t(
+              "createAccountStaff.namePlaceholder",
+              "Enter full name",
+            )}
             placeholderTextColor={theme.colors.grey}
             autoCapitalize="words"
           />
@@ -124,7 +140,8 @@ export const CreateAccountStaffIdentification: React.FC<
       {/* Position */}
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>
-          Position <Text style={styles.requiredStar}>*</Text>
+          {t("createAccountStaff.position", "Position")}{" "}
+          <Text style={styles.requiredStar}>*</Text>
         </Text>
         <View style={styles.inputContainer}>
           <MaterialIcons
@@ -137,7 +154,10 @@ export const CreateAccountStaffIdentification: React.FC<
             style={styles.textInput}
             value={position}
             onChangeText={setPosition}
-            placeholder="e.g. Barista, Manager, Staff"
+            placeholder={t(
+              "createAccountStaff.positionPlaceholder",
+              "e.g. Barista, Manager, Staff",
+            )}
             placeholderTextColor={theme.colors.grey}
             autoCapitalize="words"
           />
@@ -187,9 +207,11 @@ const styles = StyleSheet.create({
   },
   cardSectionTitle: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.textPrimary,
     marginBottom: 14,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   rowFields: {
     flexDirection: "row",
@@ -201,9 +223,12 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textPrimary,
     marginBottom: 6,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
+    flexShrink: 1, // Allow label to shrink if needed
   },
   requiredStar: {
     color: theme.colors.red,
@@ -245,10 +270,14 @@ const styles = StyleSheet.create({
   quickChipText: {
     fontSize: theme.fontSizes.xs,
     color: theme.colors.textSecondary,
-    fontWeight: "500",
+    // fontWeight: "500",
+    fontFamily: theme.fonts.medium,
+    includeFontPadding: false,
   },
   quickChipTextSelected: {
     color: theme.colors.primary,
-    fontWeight: "700",
+    // fontWeight: "700",
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
 });

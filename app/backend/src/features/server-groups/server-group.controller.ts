@@ -1,9 +1,14 @@
 import { NextFunction, Response } from "express";
 import { AuthenticatedRequest } from "../../core/middlewares/authGuard.js";
-import { SshGroupService, sshGroupService } from "./ssh-group.service.js";
+import {
+  ServerGroupService,
+  serverGroupService,
+} from "./server-group.service.js";
 
-export class SshGroupController {
-  constructor(private readonly service: SshGroupService = sshGroupService) {}
+export class ServerGroupController {
+  constructor(
+    private readonly service: ServerGroupService = serverGroupService,
+  ) {}
 
   getAll = async (
     _req: AuthenticatedRequest,
@@ -80,11 +85,15 @@ export class SshGroupController {
       await this.service.delete(id, actorId, actorName);
       return res
         .status(200)
-        .json({ success: true, message: "SSH Group deleted successfully" });
+        .json({ success: true, message: "Server Group deleted successfully" });
     } catch (err) {
       next(err);
     }
   };
 }
 
-export const sshGroupController = new SshGroupController();
+export const serverGroupController = new ServerGroupController();
+
+// Backwards-compatible aliases
+export const SshGroupController = ServerGroupController;
+export const sshGroupController = serverGroupController;

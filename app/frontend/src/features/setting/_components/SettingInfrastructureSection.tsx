@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -11,6 +12,7 @@ interface SettingInfrastructureSectionProps {
 export const SettingInfrastructureSection: React.FC<
   SettingInfrastructureSectionProps
 > = ({ isAdminOrOwner }) => {
+  const { t } = useLanguage();
   if (!isAdminOrOwner) return null;
 
   function BtnItem({
@@ -59,23 +61,23 @@ export const SettingInfrastructureSection: React.FC<
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Infrastructure & Security</Text>
+      <Text style={styles.sectionTitle}>{t("setting.infrastructure")}</Text>
       <View style={styles.card}>
         <BtnItem
-          onPress={() => router.push("/ssh-groups" as any)}
-          title="SSH Server Groups"
+          onPress={() => router.push("/server-groups" as any)}
+          title={t("setting.serverGroups")}
           iconName="server-outline"
         />
         <Border />
         <BtnItem
           onPress={() => router.push("/keys" as any)}
-          title="SSH Key Management"
+          title={t("setting.keys")}
           iconName="key-outline"
         />
         <Border />
         <BtnItem
           onPress={() => router.push("/audit-logs" as any)}
-          title="Security Audit Logs"
+          title={t("setting.auditLogs")}
           iconName="shield-checkmark-outline"
         />
       </View>

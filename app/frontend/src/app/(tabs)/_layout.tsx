@@ -1,7 +1,8 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import Appbar from "@/shared/components/appbar/appbar";
 import Loading from "@/shared/components/loading/loading";
 import { useUser } from "@/shared/contexts/UserContext";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import BlurView from "@nguyenduy1412/react-native-blur";
 import * as Haptics from "expo-haptics";
@@ -30,6 +31,7 @@ const TABS = [
   {
     name: "index",
     label: "Home",
+    translationKey: "navigation.home",
     icon: (color: string, size: number) => (
       <Home size={size} weight="Filled" color={color} />
     ),
@@ -41,6 +43,7 @@ const TABS = [
   {
     name: "attendance",
     label: "Attendance",
+    translationKey: "navigation.attendance",
     icon: (color: string, size: number) => (
       <Ionicons name="calendar" size={size} color={color} />
     ),
@@ -52,6 +55,7 @@ const TABS = [
   {
     name: "report",
     label: "Report",
+    translationKey: "navigation.report",
     icon: (color: string, size: number) => (
       <Receipt2 size={size} weight="Filled" color={color} />
     ),
@@ -63,6 +67,7 @@ const TABS = [
   {
     name: "setting",
     label: "Setting",
+    translationKey: "navigation.setting",
     icon: (color: string, size: number) => (
       <Settings2 size={size} weight="Filled" color={color} />
     ),
@@ -101,6 +106,7 @@ function CustomTabBarButton({ children, onPress, accessibilityState }: any) {
 
 // ─── Mobile: Liquid Glass Tab Bar ────────────────────────────────────────────
 function GlassTabBar({ state, descriptors, navigation }: any) {
+  const { t } = useLanguage();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
@@ -208,7 +214,7 @@ function GlassTabBar({ state, descriptors, navigation }: any) {
                 ]}
                 numberOfLines={1}
               >
-                {tab.label}
+                {t((tab as any).translationKey || tab.label)}
               </Text>
             </Pressable>
           );
@@ -220,6 +226,7 @@ function GlassTabBar({ state, descriptors, navigation }: any) {
 
 // ─── Tablet: left sidebar ─────────────────────────────────────────────────────
 function SideRail() {
+  const { t } = useLanguage();
   const pathname = usePathname();
 
   return (
@@ -246,7 +253,7 @@ function SideRail() {
               <Text
                 style={[styles.sideLabel, active && styles.sideLabelActive]}
               >
-                {tab.label}
+                {t((tab as any).translationKey || tab.label)}
               </Text>
             </TouchableOpacity>
           );
@@ -258,6 +265,7 @@ function SideRail() {
 
 // ─── Main layout ──────────────────────────────────────────────────────────────
 export default function TabLayout() {
+  const { t } = useLanguage();
   const { user, loading } = useUser();
   const { width } = useWindowDimensions();
   const isTablet = width >= 768;
@@ -290,7 +298,7 @@ export default function TabLayout() {
         <Tabs.Screen
           key={tab.name}
           name={tab.name}
-          options={{ title: tab.label }}
+          options={{ title: t((tab as any).translationKey || tab.label) }}
         />
       ))}
     </Tabs>
@@ -298,7 +306,9 @@ export default function TabLayout() {
 
   if (isTablet) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background2 }}>
+      <SafeAreaView
+        style={{ flex: 1, backgroundColor: theme.colors.background2 }}
+      >
         <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
           <Appbar />
           <View style={{ flex: 1, flexDirection: "row" }}>
@@ -397,7 +407,7 @@ const styles = StyleSheet.create({
   },
   glassLabelActive: {
     fontFamily: theme.fonts.bold,
-    fontWeight: "bold",
+    // fontWeight: "bold",
   },
 
   // ── Tablet / Web sidebar ──
@@ -423,13 +433,13 @@ const styles = StyleSheet.create({
   sideLabel: {
     fontSize: 14,
     color: theme.colors.secondary,
-    fontWeight: "500",
+    // fontWeight: "500",
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
   },
   sideLabelActive: {
     color: theme.colors.background2,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

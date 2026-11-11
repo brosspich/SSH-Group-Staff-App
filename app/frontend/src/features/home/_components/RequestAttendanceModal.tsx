@@ -4,6 +4,7 @@ import { ProofImageUpload } from "@/features/home/_components/ProofImageUpload";
 import { RequestConfirmModal } from "@/features/home/_components/RequestConfirmModal";
 import { useRequestAttendanceForm } from "@/features/home/_hooks/useRequestAttendanceForm";
 import { formatDateDisplay } from "@/features/home/_utils/homeUtils";
+import { useLanguage } from "@/features/language";
 import { renderAlertModal } from "@/shared/components/alert/alert";
 import DatePickerModal from "@/shared/components/daterangpicker/DatePickerModal";
 import TimePickerModal from "@/shared/components/daterangpicker/TimePickerModal";
@@ -61,6 +62,7 @@ export function RequestAttendanceModal({
   user,
   onSubmit,
 }: RequestAttendanceModalProps) {
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
   const { isMobile } = useResponsive();
   const { height: windowHeight } = useWindowDimensions();
@@ -188,7 +190,9 @@ export function RequestAttendanceModal({
                     color={theme.colors.primary}
                   />
                 </View>
-                <Text style={s.headerTitle}>Request Attendance</Text>
+                <Text style={s.headerTitle}>
+                  {t("home.requestModalTitle", "Request Attendance")}
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={handleClose}
@@ -222,19 +226,25 @@ export function RequestAttendanceModal({
                 </View>
                 <View style={s.staffDetails}>
                   <Text style={s.staffName} numberOfLines={1}>
-                    {currentUser?.name || user?.name || "Staff Member"}
+                    {currentUser?.name ||
+                      user?.name ||
+                      t("common.staffMember", "Staff Member")}
                   </Text>
                   <View style={s.staffMetaRow}>
                     <Text style={s.staffMetaText}>
-                      ID:{" "}
+                      {t("attendance.staffId", "Staff ID")}:{" "}
                       <Text style={s.staffMetaBold}>
                         {currentUser?.id || user?.id || "—"}
                       </Text>
                     </Text>
-                    <Text style={s.staffMetaDot}>•</Text>
+                    {/* <Text style={s.staffMetaDot}>•</Text> */}
                     <Text style={s.staffMetaText} numberOfLines={1}>
-                      Position:{" "}
-                      <Text style={s.staffMetaBold}>
+                      {t("account.position", "Position")}:{" "}
+                      <Text
+                        style={s.staffMetaBold}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
                         {currentUser?.position || user?.position || "Staff"}
                       </Text>
                     </Text>
@@ -248,7 +258,7 @@ export function RequestAttendanceModal({
                   <MaterialIcons
                     name="error-outline"
                     size={16}
-                    color="#dc2626"
+                    color={theme.colors.error}
                   />
                   <Text style={s.errorText}>{errorMessage}</Text>
                 </View>
@@ -258,7 +268,8 @@ export function RequestAttendanceModal({
               <View style={s.dateTimeRow}>
                 <View style={s.dateTimeCol}>
                   <Text style={s.inputLabel}>
-                    From Date <Text style={s.requiredStar}>*</Text>
+                    {t("home.fromDate", "From Date")}{" "}
+                    <Text style={s.requiredStar}>*</Text>
                   </Text>
                   <TouchableOpacity
                     style={s.pickerBtn}
@@ -278,7 +289,9 @@ export function RequestAttendanceModal({
                       <Text style={s.pickerMainText} numberOfLines={1}>
                         {formatDateDisplay(fromDate)}
                       </Text>
-                      <Text style={s.pickerSubText}>Selected</Text>
+                      <Text style={s.pickerSubText}>
+                        {t("home.selected", "Selected")}
+                      </Text>
                     </View>
                     <MaterialIcons
                       name="arrow-drop-down"
@@ -290,7 +303,8 @@ export function RequestAttendanceModal({
 
                 <View style={s.dateTimeCol}>
                   <Text style={s.inputLabel}>
-                    From Time <Text style={s.requiredStar}>*</Text>
+                    {t("home.fromTime", "From Time")}{" "}
+                    <Text style={s.requiredStar}>*</Text>
                   </Text>
                   <TouchableOpacity
                     style={s.pickerBtn}
@@ -310,7 +324,9 @@ export function RequestAttendanceModal({
                       <Text style={s.pickerMainText} numberOfLines={1}>
                         {fromTime}
                       </Text>
-                      <Text style={s.pickerSubText}>Selected</Text>
+                      <Text style={s.pickerSubText}>
+                        {t("home.selected", "Selected")}
+                      </Text>
                     </View>
                     <MaterialIcons
                       name="arrow-drop-down"
@@ -325,7 +341,8 @@ export function RequestAttendanceModal({
               <View style={s.dateTimeRow}>
                 <View style={s.dateTimeCol}>
                   <Text style={s.inputLabel}>
-                    To Date <Text style={s.requiredStar}>*</Text>
+                    {t("home.toDate", "To Date")}{" "}
+                    <Text style={s.requiredStar}>*</Text>
                   </Text>
                   <TouchableOpacity
                     style={s.pickerBtn}
@@ -345,7 +362,9 @@ export function RequestAttendanceModal({
                       <Text style={s.pickerMainText} numberOfLines={1}>
                         {formatDateDisplay(toDate)}
                       </Text>
-                      <Text style={s.pickerSubText}>Selected</Text>
+                      <Text style={s.pickerSubText}>
+                        {t("home.selected", "Selected")}
+                      </Text>
                     </View>
                     <MaterialIcons
                       name="arrow-drop-down"
@@ -357,7 +376,8 @@ export function RequestAttendanceModal({
 
                 <View style={s.dateTimeCol}>
                   <Text style={s.inputLabel}>
-                    To Time <Text style={s.requiredStar}>*</Text>
+                    {t("home.toTime", "To Time")}{" "}
+                    <Text style={s.requiredStar}>*</Text>
                   </Text>
                   <TouchableOpacity
                     style={s.pickerBtn}
@@ -377,7 +397,9 @@ export function RequestAttendanceModal({
                       <Text style={s.pickerMainText} numberOfLines={1}>
                         {toTime}
                       </Text>
-                      <Text style={s.pickerSubText}>Selected</Text>
+                      <Text style={s.pickerSubText}>
+                        {t("home.selected", "Selected")}
+                      </Text>
                     </View>
                     <MaterialIcons
                       name="arrow-drop-down"
@@ -392,7 +414,8 @@ export function RequestAttendanceModal({
               <View style={s.inputGroup}>
                 <View style={s.labelWithQuickRow}>
                   <Text style={s.inputLabel}>
-                    Subject <Text style={s.requiredStar}>*</Text>
+                    {t("home.subject", "Subject")}{" "}
+                    <Text style={s.requiredStar}>*</Text>
                   </Text>
                 </View>
 
@@ -405,7 +428,10 @@ export function RequestAttendanceModal({
                   />
                   <TextInput
                     style={s.textInput}
-                    placeholder="Enter request subject..."
+                    placeholder={t(
+                      "home.subjectPlaceholder",
+                      "Enter request subject...",
+                    )}
                     placeholderTextColor={theme.colors.grey}
                     value={subject}
                     onChangeText={(val) => {
@@ -428,6 +454,18 @@ export function RequestAttendanceModal({
                 >
                   {QUICK_SUBJECTS.map((item) => {
                     const isSelected = subject === item;
+                    const translatedItem =
+                      item === "Forgot Check-In"
+                        ? t("home.quickSubjects.forgotCheckIn", item)
+                        : item === "Forgot Check-Out"
+                          ? t("home.quickSubjects.forgotCheckOut", item)
+                          : item === "Late Check-In"
+                            ? t("home.quickSubjects.lateCheckIn", item)
+                            : item === "Work Outside"
+                              ? t("home.quickSubjects.workOutside", item)
+                              : item === "Leave Request"
+                                ? t("home.quickSubjects.leaveRequest", item)
+                                : item;
                     return (
                       <TouchableOpacity
                         key={item}
@@ -444,7 +482,7 @@ export function RequestAttendanceModal({
                             isSelected && s.quickChipTextSelected,
                           ]}
                         >
-                          {item}
+                          {translatedItem}
                         </Text>
                       </TouchableOpacity>
                     );
@@ -455,12 +493,16 @@ export function RequestAttendanceModal({
               {/* Remark Input */}
               <View style={s.inputGroup}>
                 <Text style={s.inputLabel}>
-                  Remark <Text style={s.requiredStar}>*</Text>
+                  {t("home.remark", "Remark")}{" "}
+                  <Text style={s.requiredStar}>*</Text>
                 </Text>
                 <View style={[s.inputBox, s.textAreaBox]}>
                   <TextInput
                     style={[s.textInput, s.textAreaInput]}
-                    placeholder="Enter reason or details for this request..."
+                    placeholder={t(
+                      "home.remarkRequestPlaceholder",
+                      "Enter reason or details for this request...",
+                    )}
                     placeholderTextColor={theme.colors.grey}
                     value={remark}
                     onChangeText={(val) => {
@@ -486,7 +528,7 @@ export function RequestAttendanceModal({
                 onRemoveImage={handleRemoveImage}
                 disabled={submitting}
                 error={imageError}
-                label="Proof Photo (Optional)"
+                label={t("home.proofPhotoOptional", "Proof Photo (Optional)")}
               />
             </ScrollView>
 
@@ -495,8 +537,8 @@ export function RequestAttendanceModal({
               <ModalFooterButtons
                 onClose={handleClose}
                 onSubmit={handleOpenConfirm}
-                closeText="Cancel"
-                submitText="Submit"
+                closeText={t("common.cancel", "Cancel")}
+                submitText={t("common.submit", "Submit")}
                 submitting={submitting}
                 disabled={!subject.trim() || !remark.trim() || submitting}
                 iconName="send-outline"

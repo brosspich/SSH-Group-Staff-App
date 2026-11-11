@@ -72,9 +72,11 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "500",
+    // fontWeight: "500",
     marginBottom: 6,
     color: "#333333",
+    fontFamily: theme.fonts.medium,
+    includeFontPadding: false,
   },
   inputWrapper: {
     flexDirection: "row",

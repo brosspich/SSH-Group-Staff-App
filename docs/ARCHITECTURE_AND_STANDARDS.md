@@ -37,6 +37,9 @@ app/
 │           ├── attendance-requests/ # Sequential ID, R2 uploads, Telegram
 │           ├── reports/        # Server-side aggregations, summary math
 │           ├── devices/        # Hardware session management
+│           ├── server-groups/  # Server cluster & member management
+│           ├── keys/           # Server SSH/Access keys management
+│           ├── users/          # Staff CRUD, systemId auto-generation
 │           └── audit-logs/     # Audit repository & querying
 └── frontend/
     └── src/
@@ -50,7 +53,12 @@ app/
             ├── report-all-staff/        # Company-wide reports
             ├── devices/        # Device session manager
             ├── setting/        # Profile, settings
-            └── login/          # Auth login form & mutations
+            ├── login/          # Auth login form & mutations
+            ├── language/       # i18n store, useLanguage hook, Khmer/English locales
+            ├── create-account-staff/    # Admin staff creation with Auto System ID
+            ├── change-info-account-staff/ # Admin staff info editor & role switcher
+            ├── server-groups/  # Server cluster management UI
+            └── keys/           # Access key upload & list UI
 ```
 
 Each feature folder is self-contained with:
@@ -108,3 +116,30 @@ WARN  Exception while fetching attendance config from Backend API: [ApiError: Ca
      cd app/frontend
      npm run start -- -c
      ```
+
+---
+
+## 5. Internationalization & Multi-Language (i18n)
+
+The mobile application features a comprehensive bilingual localization architecture supporting **Khmer (`km`)** and **English (`en`)**:
+
+- **Custom Hook**: `useLanguage()` from [app/frontend/src/features/language/hooks/useLanguage.ts](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/features/language/hooks/useLanguage.ts) provides `{ language, t, setLanguage }`.
+- **Translations Dictionary**:
+  - [km.ts](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/features/language/i18n/locales/km.ts): Complete Khmer translation with native typography (`KohSantepheap`, `KantumruyPro`, `Hanuman`).
+  - [en.ts](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/features/language/i18n/locales/en.ts): English translation dictionary.
+- **Persistence**: User language preference is automatically saved to device storage via `@app_language` key in `AsyncStorage`.
+- **Usage Rule**: Hardcoded text in user-facing components must be replaced with `t("section.key")` to ensure full localization across screens and modals.
+
+---
+
+## 6. System ID & Username Scoping Conventions
+
+1. **System ID Format**:
+   - Every staff member is uniquely identified by `system_id`:
+     `{companyId}-{staffId}` (e.g., `system-0001-0022`, `system-0002-0001`).
+   - The admin UI auto-generates this format dynamically based on the current branch and entered staff ID.
+
+2. **Per-System Username Uniqueness**:
+   - Usernames are unique **per system/branch**, not globally.
+   - For example, `system-0001` can have username `manager`, and `system-0002` can also have username `manager`.
+   - The backend checks `prisma.user.findFirst({ where: { username, details: { companyId } } })` before creating or updating any user.

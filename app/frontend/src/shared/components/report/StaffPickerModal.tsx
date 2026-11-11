@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { extractSystemKey } from "@/shared/constants/attendanceConfig";
 import { useUser } from "@/shared/contexts/UserContext";
 import { useResponsive } from "@/shared/hooks/useResponsive";
@@ -107,6 +108,7 @@ export function StaffPickerModal({
   onSelect,
   systemId,
 }: StaffPickerModalProps) {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const insets = useSafeAreaInsets();
   const { isMobile } = useResponsive();
@@ -187,7 +189,7 @@ export function StaffPickerModal({
         >
           {/* Header */}
           <View style={s.header}>
-            <Text style={s.headerTitle}>Select Staff Member</Text>
+            <Text style={s.headerTitle}>{t("report.selectStaff")}</Text>
             <TouchableOpacity onPress={onClose} style={s.closeBtn}>
               <MaterialIcons
                 name="close"
@@ -202,7 +204,7 @@ export function StaffPickerModal({
             <Ionicons name="search" size={18} color={theme.colors.grey} />
             <TextInput
               style={s.searchInput}
-              placeholder="Search staff name, ID, or position..."
+              placeholder={t("report.searchStaffPlaceholder")}
               placeholderTextColor={theme.colors.grey}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -231,7 +233,7 @@ export function StaffPickerModal({
                   size={36}
                   color={theme.colors.grey}
                 />
-                <Text style={s.emptyText}>No staff members found</Text>
+                <Text style={s.emptyText}>{t("report.noStaffFound")}</Text>
               </View>
             ) : (
               filteredStaff.map((item) => {
@@ -384,7 +386,7 @@ const s = StyleSheet.create({
   },
   staffName: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,

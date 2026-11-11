@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import {
   DynamicSystemItem,
   extractSystemKey,
@@ -7,6 +8,7 @@ import { StaffUser, userService } from "@/shared/services/userService";
 import { hasAdminOrOwnerRole, isOwnerRole } from "@/utils/roleUtils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  checkUsernameAvailability,
   createStaffAccountApi,
   fetchNextSystemIdApi,
 } from "../_api/createAccountStaffApi";
@@ -17,6 +19,7 @@ import {
 } from "../_utils/createAccountStaffUtils";
 
 export function useCreateAccountStaff() {
+  const { t } = useLanguage();
   // Authentication & Access Check
   const [currentUser, setCurrentUser] = useState<StaffUser | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -154,7 +157,7 @@ export function useCreateAccountStaff() {
       joinedDate,
     };
 
-    const validationError = validateCreateStaffInput(formData);
+    const validationError = validateCreateStaffInput(formData, t);
     if (validationError) {
       setErrorMessage(validationError);
       return;
@@ -162,10 +165,29 @@ export function useCreateAccountStaff() {
 
     setSaving(true);
     try {
-      // Backend (70%) validates unique username, unique staff ID, and hashes password
+      // 1. Check username availability upfront for the selected system
+      const targetSystem =
+        systemKey.trim().toLowerCase() || systemId.trim().toLowerCase();
+      const isAvailable = await checkUsernameAvailability(
+        username,
+        targetSystem,
+      );
+      if (!isAvailable) {
+        setErrorMessage(
+          t(
+            "createAccountStaff.errUsernameTaken",
+            "This username is already taken. Please choose another.",
+          ),
+        );
+        setSaving(false);
+        return;
+      }
+
+      // 2. Submit account creation payload to backend
       await createStaffAccountApi({
         id: staffId.trim(),
         system_id: systemId.trim(),
+        company_id: systemKey.trim().toLowerCase(),
         name: name.trim(),
         username: username.trim().toLowerCase(),
         password: password.trim(),
@@ -183,11 +205,37 @@ export function useCreateAccountStaff() {
       setSuccessModalVisible(true);
     } catch (err: any) {
       console.warn("Failed creating staff account:", err);
-      setErrorMessage(
-        err?.message ||
-          err?.response?.data?.error?.message ||
-          "Failed to create staff account. Please try again.",
-      );
+      const rawMsg = String(err?.message || err?.details?.error?.message || "");
+
+      if (
+        rawMsg.toLowerCase().includes("username") &&
+        rawMsg.toLowerCase().includes("already")
+      ) {
+        setErrorMessage(
+          t(
+            "createAccountStaff.errUsernameTaken",
+            "This username is already taken. Please choose another.",
+          ),
+        );
+      } else if (
+        rawMsg.toLowerCase().includes("system id") &&
+        rawMsg.toLowerCase().includes("already")
+      ) {
+        setErrorMessage(
+          t(
+            "createAccountStaff.errSystemIdFailed",
+            "System ID could not be generated. Please try again.",
+          ),
+        );
+      } else {
+        setErrorMessage(
+          rawMsg ||
+            t(
+              "createAccountStaff.errCreateFailed",
+              "Failed to create staff account. Please try again.",
+            ),
+        );
+      }
     } finally {
       setSaving(false);
     }

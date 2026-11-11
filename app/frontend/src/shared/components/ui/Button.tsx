@@ -165,16 +165,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   textBase: {
-    fontWeight: "600",
+    // fontWeight: "600",
     fontSize: theme.fontSizes.md,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   textLight: {
-    color: "#FFFFFF",
+    color: theme.colors.background2,
   },
   textDark: {
     color: theme.colors.primary || "#007AFF",
   },
   textSecondary: {
-    color: "#FFFFFF",
+    color: theme.colors.background2,
   },
 });

@@ -1,5 +1,6 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import {
   Modal,
@@ -20,6 +21,7 @@ export default function AddDeviceModal({
   onClose,
 }: AddDeviceModalProps) {
   const { isMobile } = useResponsive();
+  const { t } = useLanguage();
 
   return (
     <Modal
@@ -42,18 +44,26 @@ export default function AddDeviceModal({
         >
           <View style={styles.modalHeaderContainer}>
             <View style={styles.iconCircle}>
-              <Ionicons name="rocket-outline" size={32} color="#ff9800" />
+              <Ionicons
+                name="rocket-outline"
+                size={32}
+                color={theme.colors.warning}
+              />
             </View>
-            <Text style={styles.modalDeviceName}>Coming Soon</Text>
+            <Text style={styles.modalDeviceName}>
+              {t("devices.comingSoon", "Coming Soon")}
+            </Text>
             <Text style={styles.modalStatusTime}>
-              Feature Under Development
+              {t("devices.featureUnderDev", "Feature Under Development")}
             </Text>
           </View>
 
           <View style={styles.bodyContainer}>
             <Text style={styles.bodyText}>
-              The option to add devices via QR Code scanning is coming soon! You
-              will be able to link new devices instantly in a future update.
+              {t(
+                "devices.addDeviceDesc",
+                "The option to add devices via QR Code scanning is coming soon! You will be able to link new devices instantly in a future update.",
+              )}
             </Text>
           </View>
 
@@ -62,7 +72,7 @@ export default function AddDeviceModal({
             onPress={onClose}
             activeOpacity={0.8}
           >
-            <Text style={styles.gotItText}>Got It</Text>
+            <Text style={styles.gotItText}>{t("devices.gotIt", "Got It")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -91,41 +101,39 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: "#fff3e0",
+    backgroundColor: `${theme.colors.warning}18`,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
   },
   modalDeviceName: {
     fontSize: theme.fontSizes.lg,
+    color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: theme.colors.textPrimary,
+    marginBottom: 4,
   },
   modalStatusTime: {
     fontSize: theme.fontSizes.sm,
     color: theme.colors.textSecondary,
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    marginTop: 4,
   },
   bodyContainer: {
     marginBottom: 24,
-    alignItems: "center",
   },
   bodyText: {
+    fontSize: theme.fontSizes.sm,
+    color: theme.colors.textSecondary,
+    textAlign: "center",
+    lineHeight: 22,
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    color: theme.colors.textPrimary,
-    fontSize: theme.fontSizes.sm,
-    lineHeight: 20,
-    textAlign: "center",
-    paddingHorizontal: 8,
   },
   gotItBtn: {
-    backgroundColor: theme.colors.secondary,
-    height: 48,
+    backgroundColor: theme.colors.primary,
     borderRadius: theme.borderRadius.md,
+    paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
   },

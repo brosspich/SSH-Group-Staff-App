@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import DatePickerModal from "@/shared/components/daterangpicker/DatePickerModal";
 import { theme } from "@/shared/styles/theme";
 import { useState } from "react";
@@ -14,12 +15,15 @@ export function DailyDatePickerCard({
   periodLabel,
   onSelectDate,
 }: DailyDatePickerCardProps) {
+  const { t } = useLanguage();
   const [showPicker, setShowPicker] = useState(false);
 
   return (
     <>
       <View style={styles.card}>
-        <Text style={styles.sectionLabel}>Select Date</Text>
+        <Text style={styles.sectionLabel}>
+          {t("report.selectDate", "Select Date")}
+        </Text>
         <Pressable style={styles.dateField} onPress={() => setShowPicker(true)}>
           <Text style={styles.dateFieldText}>{periodLabel}</Text>
         </Pressable>
@@ -63,7 +67,6 @@ const styles = StyleSheet.create({
   dateFieldText: {
     fontSize: theme.fontSizes.sm,
     color: theme.colors.textPrimary,
-    fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

@@ -68,7 +68,9 @@ SSH-Group-Staff-App/
 │   │   │   │   ├── auth/               # Multi-role authentication & JWT token generation
 │   │   │   │   ├── company/            # Branch profiles, geofence coords, work hours & bot tokens
 │   │   │   │   ├── devices/            # Hardware binding, session termination & anti-sharing
+│   │   │   │   ├── keys/               # Server SSH/Access keys management
 │   │   │   │   ├── reports/            # Daily, Weekly, Monthly & Annual attendance aggregations
+│   │   │   │   ├── server-groups/      # Server clusters, members & permissions
 │   │   │   │   └── users/              # Staff directory, role-based access & system ID generation
 │   │   │   ├── infrastructure/
 │   │   │   │   ├── database/
@@ -94,7 +96,10 @@ SSH-Group-Staff-App/
 │       │   │   ├── change-info-.../    # Admin staff management & profile editing modal
 │       │   │   ├── create-account-.../ # Admin create staff screen with Auto System ID
 │       │   │   ├── home/               # 0ms QR scanner, optimistic modals, live clock
+│       │   │   ├── keys/               # Access key upload & list UI
+│       │   │   ├── language/           # i18n store, useLanguage hook, Khmer & English locales
 │       │   │   ├── report-.../         # Daily, Weekly, Monthly & Annual report screens
+│       │   │   ├── server-groups/      # Server cluster management UI
 │       │   │   └── setting/            # Account details, branch information, logout
 │       │   └── shared/
 │       │       ├── components/         # AppbarBack, Modals, Loading, Report paper templates
@@ -161,6 +166,23 @@ ssh-storage/
 
 - **TanStack Query (v5)**: Server-state caching (`staleTime: 5m`, `gcTime: 15m`), query deduplication, and automatic invalidation on mutations.
 - **Zustand**: Fast client-side persistent storage using AsyncStorage with re-entrancy and race condition guards.
+
+### 6. Bilingual Localization (Khmer & English)
+
+- **Comprehensive i18n Architecture**: Native support for Khmer (`km`) and English (`en`) powered by `useLanguage` hook.
+- **Khmer Typography Support**: Integrated premium Khmer fonts (`KohSantepheap`, `KantumruyPro`, `Hanuman`) for clear, polished typography.
+- **Persistent Locale**: Remembers user choice across app restarts via device storage.
+
+### 7. Branch-Scoped System ID & Per-Branch Username Uniqueness
+
+- **Structured System ID**: Formatted as `{companyId}-{staffId}` (e.g., `system-0001-0022`, `system-0002-0001`) with automatic preview in admin forms.
+- **Per-Branch Username Scoping**: Allows different branches/systems to utilize common usernames (e.g., `cashier`, `staff`) without collisions across branches.
+
+### 8. Edge Data Routing & Dual-Database Persistence
+
+- **Cloudflare D1**: Serverless SQL database running globally at the edge for staff records, attendance logs, and requests.
+- **Cloudflare R2**: High-throughput object storage for attendance proof photos and avatars.
+- **Local SQLite Fallback**: Synchronized via Prisma Client for local speed and offline resilience.
 
 ---
 

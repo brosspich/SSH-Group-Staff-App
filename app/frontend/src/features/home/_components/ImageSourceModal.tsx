@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,10 +19,16 @@ export const ImageSourceModal: React.FC<ImageSourceModalProps> = ({
   onClose,
   onSelectCamera,
   onSelectGallery,
-  title = "Upload Proof Image",
-  subtitle = "Select image source:",
+  title,
+  subtitle,
 }) => {
   const { isMobile } = useResponsive();
+  const { t } = useLanguage();
+
+  const displayTitle =
+    title ?? t("home.uploadProofImage", "Upload Proof Image");
+  const displaySubtitle =
+    subtitle ?? t("home.selectImageSource", "Select image source:");
 
   return (
     <Modal
@@ -33,8 +40,8 @@ export const ImageSourceModal: React.FC<ImageSourceModalProps> = ({
     >
       <View style={styles.overlay}>
         <View style={[styles.card, { maxWidth: isMobile ? "100%" : 380 }]}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.subtitle}>{subtitle}</Text>
+          <Text style={styles.title}>{displayTitle}</Text>
+          <Text style={styles.subtitle}>{displaySubtitle}</Text>
 
           <View style={styles.gridRow}>
             {/* Gallery Option */}
@@ -55,7 +62,9 @@ export const ImageSourceModal: React.FC<ImageSourceModalProps> = ({
                   color={theme.colors.primary}
                 />
               </View>
-              <Text style={styles.sourceText}>Gallery</Text>
+              <Text style={styles.sourceText}>
+                {t("home.gallery", "Gallery")}
+              </Text>
             </TouchableOpacity>
 
             {/* Take Photo Option */}
@@ -76,7 +85,9 @@ export const ImageSourceModal: React.FC<ImageSourceModalProps> = ({
                   color={theme.colors.secondary}
                 />
               </View>
-              <Text style={styles.sourceText}>Take Photo</Text>
+              <Text style={styles.sourceText}>
+                {t("home.takePhoto", "Take Photo")}
+              </Text>
             </TouchableOpacity>
           </View>
 
@@ -86,7 +97,9 @@ export const ImageSourceModal: React.FC<ImageSourceModalProps> = ({
             onPress={onClose}
             activeOpacity={0.8}
           >
-            <Text style={styles.cancelText}>Cancel</Text>
+            <Text style={styles.cancelText}>
+              {t("common.cancel", "Cancel")}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -99,87 +112,77 @@ export default ImageSourceModal;
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.55)",
     justifyContent: "center",
+    alignItems: "center",
     padding: theme.spacing.lg,
   },
   card: {
+    width: "100%",
     backgroundColor: theme.colors.background2,
     borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    width: "100%",
+    padding: theme.spacing.xl,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 10,
+    ...theme.shadows.lg,
   },
   title: {
     fontSize: theme.fontSizes.lg,
-    fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
-    textAlign: "center",
-    marginBottom: theme.spacing.xs,
     includeFontPadding: false,
+    marginBottom: theme.spacing.xs,
+    textAlign: "center",
   },
   subtitle: {
     fontSize: theme.fontSizes.xs,
     color: theme.colors.grey,
     fontFamily: theme.fonts.regular,
-    textAlign: "center",
-    marginBottom: theme.spacing.lg,
     includeFontPadding: false,
+    marginBottom: theme.spacing.xl,
+    textAlign: "center",
   },
   gridRow: {
     flexDirection: "row",
     gap: theme.spacing.md,
     width: "100%",
-    marginBottom: theme.spacing.lg,
+    justifyContent: "center",
+    marginBottom: theme.spacing.xl,
   },
   sourceCard: {
     flex: 1,
+    backgroundColor: theme.colors.background,
+    borderRadius: theme.borderRadius.lg,
+    paddingVertical: theme.spacing.lg,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: theme.spacing.lg,
-    paddingHorizontal: theme.spacing.sm,
-    borderRadius: theme.borderRadius.lg,
-    borderWidth: 1.5,
-    borderColor: "rgba(0,0,0,0.08)",
-    backgroundColor: theme.colors.background,
+    borderWidth: 1,
+    borderColor: "rgba(0, 0, 0, 0.05)",
   },
   iconCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: theme.spacing.sm,
   },
   sourceText: {
-    fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
-    color: theme.colors.textPrimary,
+    fontSize: theme.fontSizes.xs,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
+    color: theme.colors.textPrimary,
   },
   cancelBtn: {
     width: "100%",
     paddingVertical: theme.spacing.md,
     borderRadius: theme.borderRadius.md,
-    backgroundColor: `${theme.colors.grey}15`,
-    borderWidth: 1,
-    borderColor: `${theme.colors.grey}30`,
     alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: theme.colors.background,
   },
   cancelText: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
-    color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
+    color: theme.colors.textSecondary,
   },
 });

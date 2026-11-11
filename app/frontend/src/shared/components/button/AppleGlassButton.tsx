@@ -45,8 +45,10 @@ const styles = StyleSheet.create({
   },
   glassText: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "600",
-    color: "#FFFFFF",
+    // fontWeight: "600",
+    color: theme.colors.background2,
     letterSpacing: -0.2,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
 });

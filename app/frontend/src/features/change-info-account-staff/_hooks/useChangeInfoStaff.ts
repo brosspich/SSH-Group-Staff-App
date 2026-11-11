@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import {
   DynamicSystemItem,
   extractSystemKey,
@@ -11,6 +12,7 @@ import type { StaffStatusFilter } from "../_types/changeInfoStaff.types";
 import { filterStaffDirectory } from "../_utils/changeInfoStaffUtils";
 
 export function useChangeInfoStaff() {
+  const { t } = useLanguage();
   const [currentUser, setCurrentUser] = useState<StaffUser | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -123,7 +125,12 @@ export function useChangeInfoStaff() {
       ),
     );
     setEditingStaff(null);
-    showToast(`Updated account for ${updatedStaff.name}`);
+    showToast(
+      t("changeInfoStaff.updatedAccountToast", {
+        name: updatedStaff.name,
+        defaultValue: `Updated account for ${updatedStaff.name}`,
+      }),
+    );
   };
 
   const isOwner = isOwnerRole(currentUser?.role);

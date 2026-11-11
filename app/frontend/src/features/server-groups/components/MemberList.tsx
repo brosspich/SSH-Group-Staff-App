@@ -1,4 +1,5 @@
 import { Typography } from "@/shared/components/ui/Typography";
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { SshGroupMember } from "../types/sshGroup.types";
@@ -24,7 +25,7 @@ export const MemberList: React.FC<MemberListProps> = ({ members }) => {
               </Typography>
               <Typography variant="caption">{item.role}</Typography>
             </View>
-            <Typography variant="caption" color="#8E8E93">
+            <Typography variant="caption" color={theme.colors.grey}>
               Joined {new Date(item.joinedAt).toLocaleDateString()}
             </Typography>
           </View>
@@ -36,17 +37,17 @@ export const MemberList: React.FC<MemberListProps> = ({ members }) => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 12,
+    marginVertical: theme.spacing.md,
   },
   title: {
-    marginBottom: 8,
+    marginBottom: theme.spacing.sm,
   },
   memberRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 10,
+    paddingVertical: theme.spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: "#F2F2F7",
+    borderBottomColor: theme.colors.border,
   },
 });

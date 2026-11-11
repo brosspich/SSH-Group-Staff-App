@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -11,6 +12,8 @@ interface AboutCoreValuesProps {
 export const AboutCoreValues: React.FC<AboutCoreValuesProps> = ({
   coreValues,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.card}>
       <View style={[styles.cardHeader, { marginBottom: theme.spacing.md }]}>
@@ -23,9 +26,13 @@ export const AboutCoreValues: React.FC<AboutCoreValuesProps> = ({
             },
           ]}
         >
-          <Ionicons name="star-outline" size={24} color={theme.colors.secondary} />
+          <Ionicons
+            name="star-outline"
+            size={24}
+            color={theme.colors.secondary}
+          />
         </View>
-        <Text style={styles.title}>Core Values</Text>
+        <Text style={styles.title}>{t("about.coreValues", "Core Values")}</Text>
       </View>
 
       <View style={styles.valuesGrid}>
@@ -57,12 +64,8 @@ const styles = StyleSheet.create({
     padding: theme.spacing.lg,
     marginBottom: theme.spacing.md,
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.05)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    elevation: 2,
+    borderColor: `${theme.colors.textPrimary}0D`,
+    ...theme.shadows.sm,
   },
   cardHeader: {
     flexDirection: "row",
@@ -102,17 +105,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   valueTitle: {
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
     fontSize: theme.fontSizes.sm,
     color: theme.colors.textPrimary,
-    marginBottom: theme.spacing.xs,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
+    marginBottom: 2,
   },
   valueDesc: {
+    fontSize: theme.fontSizes.xs,
+    color: theme.colors.grey,
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
-    fontSize: theme.fontSizes.xs,
-    color: theme.colors.textSecondary,
     lineHeight: 18,
   },
 });

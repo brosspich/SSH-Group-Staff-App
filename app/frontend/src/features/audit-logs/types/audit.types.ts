@@ -1,7 +1,4 @@
 export type AuditActionType =
-  | "SSH_GROUP_CREATED"
-  | "SSH_GROUP_UPDATED"
-  | "SSH_GROUP_DELETED"
   | "KEY_UPLOADED"
   | "KEY_REVOKED"
   | "USER_LOGIN"
@@ -23,6 +20,7 @@ export interface AuditLog {
 export interface AuditFilterParams {
   action?: AuditActionType;
   actorId?: string;
+  companyId?: string;
   fromDate?: string;
   toDate?: string;
   limit?: number;

@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language/hooks/useLanguage";
 import Appbar from "@/shared/components/appbar/appbar";
 import Copyright from "@/shared/components/copyright/copyright";
 import Loading from "@/shared/components/loading/loading";
@@ -15,6 +16,7 @@ import { SettingInfrastructureSection } from "./_components/SettingInfrastructur
 import { SettingProfileCard } from "./_components/SettingProfileCard";
 
 export default function SettingScreen() {
+  useLanguage();
   const { user: contextUser } = useUser();
   const [user, setUser] = useState<StaffUser | null>(contextUser);
   const [loading, setLoading] = useState(!contextUser);

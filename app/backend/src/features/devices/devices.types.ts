@@ -30,6 +30,8 @@ export interface DeviceSessionDto {
   location?: string | null;
   isTerminated: boolean;
   terminate: boolean | string;
+  loginTimed: string;
+  login_timed: string;
   lastActive: string;
   last_active: string;
   lastLogin: string;

@@ -18,6 +18,12 @@ export const theme = {
     warning: "#FF9500",
     info: "#5AC8FA",
     transparent: "transparent",
+    timeIn: "#0022ff",
+    timeInBg: "#dce0fc",
+    timeOut: "#e53935",
+    timeOutBg: "#fedbdb",
+    timeOther: "#7e22ce",
+    timeOtherBg: "#f3e8ff",
   },
   spacing: {
     none: 0,
@@ -64,14 +70,14 @@ export const theme = {
   fonts: {
     regular: "GoogleSans-Regular",
     medium: "GoogleSans-Medium",
-    semibold: "GoogleSans-Semibold",
+    semibold: "GoogleSans-SemiBold",
     bold: "GoogleSans-Bold",
   },
   typography: {
     fontFamily: {
       regular: "GoogleSans-Regular",
       medium: "GoogleSans-Medium",
-      semibold: "GoogleSans-Semibold",
+      semibold: "GoogleSans-SemiBold",
       bold: "GoogleSans-Bold",
     },
     fontSizes: {

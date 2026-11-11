@@ -1,9 +1,109 @@
+import { d1Client } from "../../infrastructure/database/d1Client.js";
 import { prisma } from "../../infrastructure/database/prisma.js";
 import {
   DeviceSessionDto,
   InactivePeriod,
   SyncDevicePayload,
 } from "./devices.types.js";
+
+async function generateNextSessionId(): Promise<string> {
+  let maxSeq = 0;
+
+  try {
+    const sessions = await prisma.deviceSession.findMany({
+      select: { id: true },
+    });
+    for (const s of sessions) {
+      if (!s.id) continue;
+      const match = s.id.match(/session-(\d{4})-(\d{4})-(\d{4})/i);
+      if (match) {
+        const num = parseInt(match[1] + match[2] + match[3], 10);
+        if (!isNaN(num) && num > maxSeq) {
+          maxSeq = num;
+        }
+      }
+    }
+  } catch {}
+
+  try {
+    const d1Sessions = await d1Client.query<{ id: string }>(
+      "SELECT id FROM DeviceSession WHERE id LIKE 'session-%';",
+    );
+    for (const s of d1Sessions) {
+      if (!s.id) continue;
+      const match = s.id.match(/session-(\d{4})-(\d{4})-(\d{4})/i);
+      if (match) {
+        const num = parseInt(match[1] + match[2] + match[3], 10);
+        if (!isNaN(num) && num > maxSeq) {
+          maxSeq = num;
+        }
+      }
+    }
+  } catch {}
+
+  const nextSeq = maxSeq + 1;
+  const seqStr = String(nextSeq).padStart(12, "0");
+  const b1 = seqStr.substring(0, 4);
+  const b2 = seqStr.substring(4, 8);
+  const b3 = seqStr.substring(8, 12);
+
+  return `session-${b1}-${b2}-${b3}`;
+}
+
+async function syncSessionToD1(session: any, userId: string): Promise<void> {
+  try {
+    const lastActiveIso =
+      session.lastActive instanceof Date
+        ? session.lastActive.toISOString()
+        : new Date(session.lastActive || Date.now()).toISOString();
+    const lastLoginIso =
+      session.lastLogin instanceof Date
+        ? session.lastLogin.toISOString()
+        : new Date(session.lastLogin || Date.now()).toISOString();
+    const loginTimedIso =
+      session.loginTimed instanceof Date
+        ? session.loginTimed.toISOString()
+        : new Date(
+            session.loginTimed || session.lastLogin || Date.now(),
+          ).toISOString();
+
+    await d1Client.execute(
+      `INSERT INTO DeviceSession (id, userId, deviceName, modelName, modelNumber, os, osVersion, appVersion, ipAddress, location, isTerminated, loginTimed, lastActive, lastLogin)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET
+         userId = excluded.userId,
+         deviceName = excluded.deviceName,
+         modelName = excluded.modelName,
+         modelNumber = excluded.modelNumber,
+         os = excluded.os,
+         osVersion = excluded.osVersion,
+         appVersion = excluded.appVersion,
+         ipAddress = excluded.ipAddress,
+         location = excluded.location,
+         isTerminated = excluded.isTerminated,
+         lastActive = excluded.lastActive,
+         lastLogin = excluded.lastLogin;`,
+      [
+        session.id,
+        userId,
+        session.deviceName || "Mobile Device",
+        session.modelName || session.deviceName || "Unknown",
+        session.modelNumber || undefined,
+        session.os || "Mobile",
+        session.osVersion || "1.0",
+        session.appVersion || "1.0.1.10311",
+        session.ipAddress || "127.0.0.1",
+        session.location || "Phnom Penh, Cambodia",
+        session.isTerminated ? 1 : 0,
+        loginTimedIso,
+        lastActiveIso,
+        lastLoginIso,
+      ],
+    );
+  } catch (err: any) {
+    console.warn("[Cloudflare D1] DeviceSession sync error:", err?.message);
+  }
+}
 
 function parseJsonField(val: any): any[] {
   if (!val) return [];
@@ -65,6 +165,14 @@ function mapSessionToDto(s: any): DeviceSessionDto {
     location: s.location || "Phnom Penh, Cambodia",
     isTerminated: isTerm,
     terminate: isTerm ? "true" : "false",
+    loginTimed:
+      s.loginTimed instanceof Date
+        ? s.loginTimed.toISOString()
+        : String(s.loginTimed || s.lastLogin || s.lastActive),
+    login_timed:
+      s.loginTimed instanceof Date
+        ? s.loginTimed.toISOString()
+        : String(s.loginTimed || s.lastLogin || s.lastActive),
     lastActive:
       s.lastActive instanceof Date
         ? s.lastActive.toISOString()
@@ -107,6 +215,22 @@ export class DevicesService {
 
     if (sessions.length > 0) {
       return sessions.map(mapSessionToDto);
+    }
+
+    // Remote Cloudflare D1 fallback
+    try {
+      const d1Sessions = await d1Client.query<any>(
+        "SELECT * FROM DeviceSession WHERE userId = ? OR userId = ? ORDER BY lastActive DESC",
+        [effectiveUserId, userId],
+      );
+      if (d1Sessions && d1Sessions.length > 0) {
+        return d1Sessions.map(mapSessionToDto);
+      }
+    } catch (d1Err: any) {
+      console.warn(
+        "[Cloudflare D1] getUserSessions fallback error:",
+        d1Err?.message,
+      );
     }
 
     // Legacy fallback: check user.devices JSON column
@@ -157,15 +281,15 @@ export class DevicesService {
     }
 
     if (!matchedSession) {
-      // Find existing active session by physical device signature to avoid duplicate dead sessions
-      const existingActiveSessions = await prisma.deviceSession.findMany({
+      // Find existing session by physical device signature to avoid duplicate sessions for the same device
+      const existingSessions = await prisma.deviceSession.findMany({
         where: {
           userId: effectiveUserId,
-          isTerminated: 0,
         },
+        orderBy: { lastActive: "desc" },
       });
 
-      matchedSession = existingActiveSessions.find((s) => {
+      matchedSession = existingSessions.find((s) => {
         const sOs = (s.os || "").trim().toLowerCase();
         const sName = (s.deviceName || s.modelName || "").trim().toLowerCase();
         return (
@@ -177,10 +301,19 @@ export class DevicesService {
       });
     }
 
-    const sessionId =
-      matchedSession?.id ||
-      payload.sessionId ||
-      `session_${Math.random().toString(36).substring(2, 9)}_${Date.now()}`;
+    const isSessionIdFormatted = (id?: string | null) =>
+      Boolean(id && /^session-\d{4}-\d{4}-\d{4}$/i.test(id));
+
+    let sessionId: string;
+    if (matchedSession && isSessionIdFormatted(matchedSession.id)) {
+      // Reuse existing session for this physical device
+      sessionId = matchedSession.id;
+    } else if (isSessionIdFormatted(payload.sessionId)) {
+      sessionId = payload.sessionId!;
+    } else {
+      // New physical device: generate next sequential session ID
+      sessionId = await generateNextSessionId();
+    }
 
     // 2. Create or update session in DeviceSession table
     const session = await prisma.deviceSession.upsert({
@@ -190,12 +323,14 @@ export class DevicesService {
         userId: effectiveUserId,
         deviceName: deviceName || "Mobile Device",
         modelName: payload.modelName || deviceName || "Unknown Device",
+        modelNumber: payload.modelNumber || undefined,
         os: payload.os || "Mobile",
         osVersion: payload.osVersion || "1.0",
         appVersion: payload.appVersion || "1.0.1.10311",
         ipAddress: effectiveIp,
         location: payload.location || "Phnom Penh, Cambodia",
         isTerminated: 0,
+        loginTimed: now,
         lastActive: now,
         lastLogin: now,
       },
@@ -203,13 +338,16 @@ export class DevicesService {
         userId: effectiveUserId,
         deviceName: deviceName || undefined,
         modelName: payload.modelName || undefined,
+        modelNumber: payload.modelNumber || undefined,
+        os: payload.os || undefined,
+        osVersion: payload.osVersion || undefined,
         ipAddress: effectiveIp,
         location: payload.location || undefined,
         appVersion: payload.appVersion || "1.0.1.10311",
-        osVersion: payload.osVersion || undefined,
         lastActive: now,
         lastLogin: payload.isExplicitLogin ? now : undefined,
         isTerminated: 0,
+        // loginTimed is intentionally preserved and never overwritten on update
       },
     });
 
@@ -243,6 +381,18 @@ export class DevicesService {
         where: { id: { in: duplicatesToTerminate } },
         data: { isTerminated: 1 },
       });
+      try {
+        const placeholders = duplicatesToTerminate.map(() => "?").join(",");
+        await d1Client.execute(
+          `UPDATE DeviceSession SET isTerminated = 1 WHERE id IN (${placeholders});`,
+          duplicatesToTerminate,
+        );
+      } catch (err: any) {
+        console.warn(
+          "[Cloudflare D1] Terminate duplicates error:",
+          err?.message,
+        );
+      }
     }
 
     // 4. Condition: Limit total active sessions per user (keep max 5)
@@ -256,11 +406,24 @@ export class DevicesService {
 
     if (totalActiveSessions.length > 5) {
       const oldestToTerminate = totalActiveSessions.slice(5);
+      const ids = oldestToTerminate.map((s) => s.id);
       await prisma.deviceSession.updateMany({
-        where: { id: { in: oldestToTerminate.map((s) => s.id) } },
+        where: { id: { in: ids } },
         data: { isTerminated: 1 },
       });
+      try {
+        const placeholders = ids.map(() => "?").join(",");
+        await d1Client.execute(
+          `UPDATE DeviceSession SET isTerminated = 1 WHERE id IN (${placeholders});`,
+          ids,
+        );
+      } catch (err: any) {
+        console.warn("[Cloudflare D1] Terminate oldest error:", err?.message);
+      }
     }
+
+    // 5. Sync newly created or updated session to Cloudflare D1
+    await syncSessionToD1(session, effectiveUserId);
 
     return mapSessionToDto(session);
   }
@@ -274,6 +437,14 @@ export class DevicesService {
         where: { id: sessionId },
         data: { isTerminated: 1 },
       });
+      try {
+        await d1Client.execute(
+          "UPDATE DeviceSession SET isTerminated = 1 WHERE id = ?;",
+          [sessionId],
+        );
+      } catch (err: any) {
+        console.warn("[Cloudflare D1] terminateSession error:", err?.message);
+      }
       return true;
     } catch {
       return false;
@@ -301,6 +472,25 @@ export class DevicesService {
       },
       data: { isTerminated: 1 },
     });
+
+    try {
+      if (currentSessionId) {
+        await d1Client.execute(
+          "UPDATE DeviceSession SET isTerminated = 1 WHERE (userId = ? OR userId = ?) AND id != ?;",
+          [effectiveUserId, userId, currentSessionId],
+        );
+      } else {
+        await d1Client.execute(
+          "UPDATE DeviceSession SET isTerminated = 1 WHERE (userId = ? OR userId = ?);",
+          [effectiveUserId, userId],
+        );
+      }
+    } catch (err: any) {
+      console.warn(
+        "[Cloudflare D1] terminateOtherSessions error:",
+        err?.message,
+      );
+    }
 
     return res.count;
   }
@@ -331,6 +521,26 @@ export class DevicesService {
       },
       data: { isTerminated: 1 },
     });
+
+    try {
+      const cutoffIso = cutoffDate.toISOString();
+      if (currentSessionId) {
+        await d1Client.execute(
+          "UPDATE DeviceSession SET isTerminated = 1 WHERE (userId = ? OR userId = ?) AND isTerminated = 0 AND id != ? AND lastActive < ?;",
+          [effectiveUserId, userId, currentSessionId, cutoffIso],
+        );
+      } else {
+        await d1Client.execute(
+          "UPDATE DeviceSession SET isTerminated = 1 WHERE (userId = ? OR userId = ?) AND isTerminated = 0 AND lastActive < ?;",
+          [effectiveUserId, userId, cutoffIso],
+        );
+      }
+    } catch (err: any) {
+      console.warn(
+        "[Cloudflare D1] autoTerminateInactiveSessions error:",
+        err?.message,
+      );
+    }
 
     return res.count;
   }

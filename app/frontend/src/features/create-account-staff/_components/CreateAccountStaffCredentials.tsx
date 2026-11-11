@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -28,14 +29,19 @@ export const CreateAccountStaffCredentials: React.FC<
   showPassword,
   setShowPassword,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.card}>
-      <Text style={styles.cardSectionTitle}>Account Credentials</Text>
+      <Text style={styles.cardSectionTitle}>
+        {t("createAccountStaff.accountCredentials", "Account Credentials")}
+      </Text>
 
       {/* Username */}
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>
-          Username <Text style={styles.requiredStar}>*</Text>
+          {t("createAccountStaff.username", "Username")}{" "}
+          <Text style={styles.requiredStar}>*</Text>
         </Text>
         <View style={styles.inputContainer}>
           <Ionicons
@@ -50,7 +56,10 @@ export const CreateAccountStaffCredentials: React.FC<
             onChangeText={(val) =>
               setUsername(val.toLowerCase().replace(/\s/g, ""))
             }
-            placeholder="lowercase username, no spaces"
+            placeholder={t(
+              "createAccountStaff.usernamePlaceholder",
+              "lowercase username, no spaces",
+            )}
             placeholderTextColor={theme.colors.grey}
             autoCapitalize="none"
             autoCorrect={false}
@@ -61,7 +70,8 @@ export const CreateAccountStaffCredentials: React.FC<
       {/* Password */}
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>
-          Password <Text style={styles.requiredStar}>*</Text>
+          {t("createAccountStaff.password", "Password")}{" "}
+          <Text style={styles.requiredStar}>*</Text>
         </Text>
         <View style={styles.inputContainer}>
           <Ionicons
@@ -74,7 +84,10 @@ export const CreateAccountStaffCredentials: React.FC<
             style={styles.textInput}
             value={password}
             onChangeText={setPassword}
-            placeholder="Minimum 6 characters"
+            placeholder={t(
+              "createAccountStaff.passwordPlaceholder",
+              "Minimum 6 characters",
+            )}
             placeholderTextColor={theme.colors.grey}
             secureTextEntry={!showPassword}
             autoCapitalize="none"
@@ -107,18 +120,22 @@ const styles = StyleSheet.create({
   },
   cardSectionTitle: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.textPrimary,
     marginBottom: 14,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   fieldGroup: {
     marginBottom: 14,
   },
   label: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: theme.colors.textPrimary,
     marginBottom: 6,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   requiredStar: {
     color: theme.colors.red,

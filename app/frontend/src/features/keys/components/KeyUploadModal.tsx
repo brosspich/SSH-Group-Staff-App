@@ -1,7 +1,9 @@
+import { useLanguage } from "@/features/language";
 import { Button } from "@/shared/components/ui/Button";
 import { Input } from "@/shared/components/ui/Input";
 import { Modal } from "@/shared/components/ui/Modal";
 import { Typography } from "@/shared/components/ui/Typography";
+import { theme } from "@/shared/styles/theme";
 import { isValidSshPublicKey } from "@/utils/validators";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -18,6 +20,7 @@ export const KeyUploadModal: React.FC<KeyUploadModalProps> = ({
   onClose,
   onUpload,
 }) => {
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [publicKey, setPublicKey] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,12 +28,15 @@ export const KeyUploadModal: React.FC<KeyUploadModalProps> = ({
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      setError("Key name is required");
+      setError(t("keys.keyNameRequired", "Key name is required"));
       return;
     }
     if (!isValidSshPublicKey(publicKey)) {
       setError(
-        "Invalid SSH Public Key format. Must start with ssh-rsa, ssh-ed25519, or ecdsa.",
+        t(
+          "keys.invalidKeyFormat",
+          "Invalid SSH Public Key format. Must start with ssh-rsa, ssh-ed25519, or ecdsa.",
+        ),
       );
       return;
     }
@@ -43,7 +49,9 @@ export const KeyUploadModal: React.FC<KeyUploadModalProps> = ({
       setPublicKey("");
       onClose();
     } catch (err: any) {
-      setError(err?.message || "Failed to upload key");
+      setError(
+        err?.message || t("keys.uploadKeyFailed", "Failed to upload key"),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -52,25 +60,32 @@ export const KeyUploadModal: React.FC<KeyUploadModalProps> = ({
   return (
     <Modal isVisible={isVisible} onClose={onClose}>
       <Typography variant="h3" style={styles.title}>
-        Add SSH Public Key
+        {t("keys.addSshKey", "Add SSH Public Key")}
       </Typography>
 
       {error && (
-        <Typography variant="bodySmall" color="#FF3B30" style={styles.error}>
+        <Typography
+          variant="bodySmall"
+          color={theme.colors.error}
+          style={styles.error}
+        >
           {error}
         </Typography>
       )}
 
       <Input
-        label="Key Name / Identifier"
-        placeholder="e.g. MacBook Pro - Work"
+        label={t("keys.keyName", "Key Name / Identifier")}
+        placeholder={t("keys.keyNamePlaceholder", "e.g. MacBook Pro - Work")}
         value={name}
         onChangeText={setName}
       />
 
       <Input
-        label="Public Key String"
-        placeholder="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5..."
+        label={t("keys.publicKeyString", "Public Key String")}
+        placeholder={t(
+          "keys.publicKeyPlaceholder",
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5...",
+        )}
         value={publicKey}
         onChangeText={setPublicKey}
         multiline
@@ -80,13 +95,13 @@ export const KeyUploadModal: React.FC<KeyUploadModalProps> = ({
 
       <View style={styles.actions}>
         <Button
-          label="Cancel"
+          label={t("common.cancel", "Cancel")}
           variant="outline"
           onPress={onClose}
           style={styles.actionBtn}
         />
         <Button
-          label="Upload Key"
+          label={t("keys.uploadKey", "Upload Key")}
           onPress={handleSubmit}
           isLoading={isSubmitting}
           style={styles.actionBtn}
@@ -98,21 +113,23 @@ export const KeyUploadModal: React.FC<KeyUploadModalProps> = ({
 
 const styles = StyleSheet.create({
   title: {
-    marginBottom: 16,
+    marginBottom: theme.spacing.md,
   },
   error: {
-    marginBottom: 8,
+    marginBottom: theme.spacing.sm,
   },
   keyInput: {
-    minHeight: 80,
+    height: 100,
     textAlignVertical: "top",
+    fontFamily: "Courier",
   },
   actions: {
     flexDirection: "row",
-    gap: 12,
-    marginTop: 16,
+    justifyContent: "flex-end",
+    marginTop: theme.spacing.lg,
+    gap: theme.spacing.sm,
   },
   actionBtn: {
-    flex: 1,
+    minWidth: 100,
   },
 });

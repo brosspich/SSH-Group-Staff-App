@@ -1,6 +1,7 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { extractSystemKey } from "@/shared/constants/attendanceConfig";
 import type { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { getTwoInitials } from "@/utils/formatters";
 import { formatRolesList, isLeaveRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,6 +18,7 @@ export const ChangeInfoStaffCard: React.FC<ChangeInfoStaffCardProps> = ({
   item,
   onEdit,
 }) => {
+  const { t } = useLanguage();
   const roles = formatRolesList(item.role);
   const isActive = item.is_active !== false;
   const isLeave = isLeaveRole(item.role);
@@ -29,7 +31,7 @@ export const ChangeInfoStaffCard: React.FC<ChangeInfoStaffCardProps> = ({
           colors={
             isActive
               ? [theme.colors.primary, theme.colors.secondary]
-              : ["#9CA3AF", "#6B7280"]
+              : [theme.colors.grey, theme.colors.textSecondary]
           }
           style={styles.avatarCircle}
         >
@@ -40,19 +42,26 @@ export const ChangeInfoStaffCard: React.FC<ChangeInfoStaffCardProps> = ({
         <View style={styles.staffDetails}>
           <View style={styles.nameRow}>
             <Text style={styles.staffName} numberOfLines={1}>
-              {item.name || "Staff Member"}
+              {item.name ||
+                t("changeInfoStaff.defaultStaffMember", "Staff Member")}
             </Text>
             {/* Active Status Badge */}
             <View
               style={[
                 styles.statusBadge,
-                isActive ? styles.statusBadgeActive : styles.statusBadgeInactive,
+                isActive
+                  ? styles.statusBadgeActive
+                  : styles.statusBadgeInactive,
               ]}
             >
               <View
                 style={[
                   styles.statusDot,
-                  { backgroundColor: isActive ? "#22c55e" : "#ef4444" },
+                  {
+                    backgroundColor: isActive
+                      ? theme.colors.success
+                      : theme.colors.error,
+                  },
                 ]}
               />
               <Text
@@ -63,7 +72,11 @@ export const ChangeInfoStaffCard: React.FC<ChangeInfoStaffCardProps> = ({
                     : styles.statusBadgeTextInactive,
                 ]}
               >
-                {isLeave ? "LEAVE" : isActive ? "ACTIVE" : "INACTIVE"}
+                {isLeave
+                  ? t("changeInfoStaff.statusLeave", "LEAVE")
+                  : isActive
+                    ? t("changeInfoStaff.statusActive", "ACTIVE")
+                    : t("changeInfoStaff.statusInactive", "INACTIVE")}
               </Text>
             </View>
           </View>
@@ -73,10 +86,17 @@ export const ChangeInfoStaffCard: React.FC<ChangeInfoStaffCardProps> = ({
           {/* Metadata tags */}
           <View style={styles.metaRow}>
             <View style={styles.metaBadge}>
-              <Text style={styles.metaBadgeText}>ID: {item.id}</Text>
+              <Text style={styles.metaBadgeText}>
+                {t("changeInfoStaff.idLabel", {
+                  id: item.id,
+                  defaultValue: `ID: ${item.id}`,
+                })}
+              </Text>
             </View>
             <View style={styles.metaBadge}>
-              <Text style={styles.metaBadgeText}>{item.position || "Staff"}</Text>
+              <Text style={styles.metaBadgeText}>
+                {item.position || t("changeInfoStaff.defaultPosition", "Staff")}
+              </Text>
             </View>
             {item.system_id && (
               <View style={styles.systemBadge}>
@@ -131,7 +151,9 @@ export const ChangeInfoStaffCard: React.FC<ChangeInfoStaffCardProps> = ({
             color={theme.colors.primary}
             style={{ marginRight: 4 }}
           />
-          <Text style={styles.editBtnText}>Edit Info</Text>
+          <Text style={styles.editBtnText}>
+            {t("changeInfoStaff.editInfo", "Edit Info")}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -161,8 +183,10 @@ const styles = StyleSheet.create({
   },
   avatarInitials: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "700",
-    color: "#fff",
+    // fontWeight: "700",
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   staffDetails: {
     flex: 1,
@@ -174,10 +198,12 @@ const styles = StyleSheet.create({
   },
   staffName: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.textPrimary,
     flex: 1,
     marginRight: 8,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   staffUsername: {
     fontSize: theme.fontSizes.sm,
@@ -192,10 +218,10 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
   },
   statusBadgeActive: {
-    backgroundColor: "#dcfce7",
+    backgroundColor: `${theme.colors.success}20`,
   },
   statusBadgeInactive: {
-    backgroundColor: "#fee2e2",
+    backgroundColor: `${theme.colors.error}20`,
   },
   statusDot: {
     width: 6,
@@ -205,13 +231,14 @@ const styles = StyleSheet.create({
   },
   statusBadgeText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   statusBadgeTextActive: {
-    color: "#166534",
+    color: theme.colors.success,
   },
   statusBadgeTextInactive: {
-    color: "#991b1b",
+    color: theme.colors.error,
   },
   metaRow: {
     flexDirection: "row",
@@ -228,7 +255,9 @@ const styles = StyleSheet.create({
   metaBadgeText: {
     fontSize: theme.fontSizes.xs,
     color: theme.colors.textSecondary,
-    fontWeight: "600",
+    // fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   systemBadge: {
     backgroundColor: `${theme.colors.primary}18`,
@@ -239,7 +268,9 @@ const styles = StyleSheet.create({
   systemBadgeText: {
     fontSize: theme.fontSizes.xs,
     color: theme.colors.primary,
-    fontWeight: "700",
+    // fontWeight: "700",
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   cardFooter: {
     flexDirection: "row",
@@ -265,23 +296,24 @@ const styles = StyleSheet.create({
     backgroundColor: `${theme.colors.grey}20`,
   },
   roleTagAdmin: {
-    backgroundColor: "#dbeafe",
+    backgroundColor: `${theme.colors.info}20`,
   },
   roleTagOwner: {
-    backgroundColor: "#fef3c7",
+    backgroundColor: `${theme.colors.warning}20`,
   },
   roleTagText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "700",
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   roleTagTextStaff: {
     color: theme.colors.textSecondary,
   },
   roleTagTextAdmin: {
-    color: "#1d4ed8",
+    color: theme.colors.info,
   },
   roleTagTextOwner: {
-    color: "#b45309",
+    color: theme.colors.warning,
   },
   editBtn: {
     flexDirection: "row",
@@ -293,7 +325,9 @@ const styles = StyleSheet.create({
   },
   editBtnText: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "700",
+    // fontWeight: "700",
     color: theme.colors.primary,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
 });

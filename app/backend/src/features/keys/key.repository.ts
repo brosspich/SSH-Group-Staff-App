@@ -1,18 +1,18 @@
-import { SshKey } from "@prisma/client";
+import { ServerKey } from "@prisma/client";
 import { prisma } from "../../infrastructure/database/prisma.js";
 
 export class KeyRepository {
   constructor(private readonly db = prisma) {}
 
-  async findByUserId(userId: string): Promise<SshKey[]> {
-    return await this.db.sshKey.findMany({
+  async findByUserId(userId: string): Promise<ServerKey[]> {
+    return await this.db.serverKey.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
     });
   }
 
-  async findById(id: string): Promise<SshKey | null> {
-    return await this.db.sshKey.findUnique({
+  async findById(id: string): Promise<ServerKey | null> {
+    return await this.db.serverKey.findUnique({
       where: { id },
     });
   }
@@ -24,14 +24,14 @@ export class KeyRepository {
     fingerprint: string;
     keyType: string;
     expiresAt?: Date;
-  }): Promise<SshKey> {
-    return await this.db.sshKey.create({
+  }): Promise<ServerKey> {
+    return await this.db.serverKey.create({
       data,
     });
   }
 
   async delete(id: string): Promise<void> {
-    await this.db.sshKey.delete({
+    await this.db.serverKey.delete({
       where: { id },
     });
   }

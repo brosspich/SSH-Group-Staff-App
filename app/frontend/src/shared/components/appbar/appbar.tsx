@@ -1,7 +1,6 @@
-import { theme } from "@/shared/styles/theme";
 import { AppImages } from "@/shared/constants/appImages";
-import { useUser } from "@/shared/contexts/UserContext";
 import { StaffUser, userService } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { getTwoInitials } from "@/utils/formatters";
 import { BlurView } from "@nguyenduy1412/react-native-blur";
 import { LinearGradient } from "expo-linear-gradient";
@@ -22,8 +21,6 @@ export default function Appbar() {
       setLoading(false);
     });
   }, []);
-
-  
 
   return (
     <>
@@ -64,7 +61,14 @@ export default function Appbar() {
               height: 37,
             }}
           />
-          <Text style={{ color: theme.colors.background2, fontSize: theme.fontSizes.xl }}>|</Text>
+          <Text
+            style={{
+              color: theme.colors.background2,
+              fontSize: theme.fontSizes.xl,
+            }}
+          >
+            |
+          </Text>
           <Image
             source={AppImages.logoStaffW}
             style={{
@@ -121,7 +125,7 @@ const styles = StyleSheet.create({
   },
   appBarTitle: {
     fontSize: theme.fontSizes.xl,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#333",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -143,7 +147,7 @@ const styles = StyleSheet.create({
   },
   txtName: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.background2,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,

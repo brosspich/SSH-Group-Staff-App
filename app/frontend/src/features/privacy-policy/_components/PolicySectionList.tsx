@@ -1,5 +1,5 @@
-import { theme } from "@/shared/styles/theme";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { PolicyLang } from "../_types/privacyPolicy.types";
@@ -81,12 +81,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.lg,
     borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 0.05)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.03,
-    shadowRadius: 8,
-    elevation: 1,
+    borderColor: `${theme.colors.textPrimary}0D`,
+    ...theme.shadows.sm,
   },
   section: {
     marginBottom: theme.spacing.lg,
@@ -108,7 +104,7 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     color: theme.colors.primary,
-    fontWeight: "bold",
+    // fontWeight: "bold",
   },
   sectionBody: {
     fontSize: theme.fontSizes.xs,

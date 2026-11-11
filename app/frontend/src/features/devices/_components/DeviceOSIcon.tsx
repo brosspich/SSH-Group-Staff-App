@@ -1,61 +1,239 @@
-import { theme } from "@/shared/styles/theme";
-import { FontAwesome6, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React from "react";
 import { StyleSheet, View } from "react-native";
+import Svg, { Path } from "react-native-svg";
 
 interface DeviceOSIconProps {
-  os: string;
+  os?: string;
+  deviceName?: string;
+  modelName?: string;
   isLarge?: boolean;
   deviceType?: string;
 }
 
+// 1. Official Huawei 8-Petals Logo
+const HuaweiLogo = ({
+  size = 24,
+  color = "#FFFFFF",
+}: {
+  size?: number;
+  color?: string;
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      fill={color}
+      d="M3.67 6.14S1.82 7.91 1.72 9.78v.35c.08 1.51 1.22 2.4 1.22 2.4 1.83 1.79 6.26 4.04 7.3 4.55 0 0 .06.03.1-.01l.02-.04v-.04C7.52 10.8 3.67 6.14 3.67 6.14zM9.65 18.6c-.02-.08-.1-.08-.1-.08l-7.38.26c.8 1.43 2.15 2.53 3.56 2.2.96-.25 3.16-1.78 3.88-2.3.06-.05.04-.09.04-.09zm.08-.78C6.49 15.63.21 12.28.21 12.28c-.15.46-.2.9-.21 1.3v.07c0 1.07.4 1.82.4 1.82.8 1.69 2.34 2.2 2.34 2.2.7.3 1.4.31 1.4.31.12.02 4.4 0 5.54 0 .05 0 .08-.05.08-.05v-.06c0-.03-.03-.05-.03-.05zM9.06 3.19a3.42 3.42 0 00-2.57 3.15v.41c.03.6.16 1.05.16 1.05.66 2.9 3.86 7.65 4.55 8.65.05.05.1.03.1.03a.1.1 0 00.06-.1c1.06-10.6-1.11-13.42-1.11-13.42-.32.02-1.19.23-1.19.23zm8.299 2.27s-.49-1.8-2.44-2.28c0 0-.57-.14-1.17-.22 0 0-2.18 2.81-1.12 13.43.01.07.06.08.06.08.07.03.1-.03.1-.03.72-1.03 3.9-5.76 4.55-8.64 0 0 .36-1.4.02-2.34zm-2.92 13.07s-.07 0-.09.05c0 0-.01.07.03.1.7.51 2.85 2 3.88 2.3 0 0 .16.05.43.06h.14c.69-.02 1.9-.37 3-2.26l-7.4-.25zm7.83-8.41c.14-2.06-1.94-3.97-1.94-3.98 0 0-3.85 4.66-6.67 10.8 0 0-.03.08.02.13l.04.01h.06c1.06-.53 5.46-2.77 7.28-4.54 0 0 1.15-.93 1.21-2.42zm1.52 2.14s-6.28 3.37-9.52 5.55c0 0-.05.04-.03.11 0 0 .03.06.07.06 1.16 0 5.56 0 5.67-.02 0 0 .57-.02 1.27-.29 0 0 1.56-.5 2.37-2.27 0 0 .73-1.45.17-3.14z"
+    />
+  </Svg>
+);
+
+// 2. Official Samsung Wordmark Logo
+const SamsungLogo = ({
+  size = 24,
+  color = "#FFFFFF",
+}: {
+  size?: number;
+  color?: string;
+}) => (
+  <Svg width={size * 1.3} height={size * 0.7} viewBox="0 0 24 24">
+    <Path
+      fill={color}
+      d="M19.8166 10.2808l.0459 2.6934h-.023l-.7793-2.6934h-1.2837v3.3925h.8481l-.0458-2.785h.023l.8366 2.785h1.2264v-3.3925zm-16.149 0l-.6418 3.427h.9284l.4699-3.1175h.0229l.4585 3.1174h.9169l-.6304-3.4269zm5.1805 0l-.424 2.6132h-.023l-.424-2.6132H6.5788l-.0688 3.427h.8596l.023-3.0832h.0114l.573 3.0831h.8711l.5731-3.083h.023l.0228 3.083h.8596l-.0802-3.4269zm-7.2664 2.4527c.0343.0802.0229.1949.0114.2522-.0229.1146-.1031.2292-.3324.2292-.2177 0-.3438-.126-.3438-.3095v-.3323H0v.2636c0 .7679.6074.9971 1.2493.9971.6189 0 1.1346-.2178 1.2149-.7794.0458-.298.0114-.4928 0-.5616-.1605-.722-1.467-.9283-1.5588-1.3295-.0114-.0688-.0114-.1375 0-.1834.023-.1146.1032-.2292.3095-.2292.2063 0 .321.126.321.3095v.2063h.8595v-.2407c0-.745-.6762-.8596-1.1576-.8596-.6074 0-1.1117.2063-1.2034.7564-.023.149-.0344.2866.0114.4585.1376.7106 1.364.9169 1.5358 1.3524m11.152 0c.0343.0803.0228.1834.0114.2522-.023.1146-.1032.2292-.3324.2292-.2178 0-.3438-.126-.3438-.3095v-.3323h-.917v.2636c0 .7564.596.9857 1.2379.9857.6189 0 1.1232-.2063 1.2034-.7794.0459-.298.0115-.4814 0-.5616-.1375-.7106-1.4327-.9284-1.5243-1.318-.0115-.0688-.0115-.1376 0-.1835.0229-.1146.1031-.2292.3094-.2292.1948 0 .321.126.321.3095v.2063h.848v-.2407c0-.745-.6647-.8596-1.146-.8596-.6075 0-1.1004.1948-1.192.7564-.023.149-.023.2866.0114.4585.1376.7106 1.341.9054 1.513 1.3524m2.8882.4585c.2407 0 .3094-.1605.3323-.2522.0115-.0343.0115-.0917.0115-.126v-2.533h.871v2.4642c0 .0688 0 .1948-.0114.2292-.0573.6419-.5616.8482-1.192.8482-.6303 0-1.1346-.2063-1.192-.8482 0-.0344-.0114-.1604-.0114-.2292v-2.4642h.871v2.533c0 .0458 0 .0916.0115.126 0 .0917.0688.2522.3095.2522m7.1518-.0344c.2522 0 .3324-.1605.3553-.2522.0115-.0343.0115-.0917.0115-.126v-.4929h-.3553v-.5043H24v.917c0 .0687 0 .1145-.0115.2292-.0573.6303-.596.8481-1.2034.8481-.6075 0-1.1461-.2178-1.2034-.8481-.0115-.1147-.0115-.1605-.0115-.2293v-1.444c0-.0574.0115-.172.0115-.2293.0802-.6419.596-.8482 1.2034-.8482s1.1347.2063 1.2034.8482c.0115.1031.0115.2292.0115.2292v.1146h-.8596v-.1948s0-.0803-.0115-.1261c-.0114-.0802-.0802-.2521-.3438-.2521-.2521 0-.321.1604-.3438.2521-.0115.0458-.0115.1032-.0115.1605v1.5702c0 .0458 0 .0916.0115.126 0 .0917.0917.2522.3323.2522"
+    />
+  </Svg>
+);
+
+// 3. Official Apple Bitten Logo
+const AppleLogo = ({
+  size = 24,
+  color = "#FFFFFF",
+}: {
+  size?: number;
+  color?: string;
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      fill={color}
+      d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"
+    />
+  </Svg>
+);
+
+// 4. Official Xiaomi MI Squircle Logo
+const XiaomiLogo = ({
+  size = 24,
+  color = "#FFFFFF",
+}: {
+  size?: number;
+  color?: string;
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      fill={color}
+      d="M12 0C8.016 0 4.756.255 2.493 2.516.23 4.776 0 8.033 0 12.012c0 3.98.23 7.235 2.494 9.497C4.757 23.77 8.017 24 12 24c3.983 0 7.243-.23 9.506-2.491C23.77 19.247 24 15.99 24 12.012c0-3.984-.233-7.243-2.502-9.504C19.234.252 15.978 0 12 0zM4.906 7.405h5.624c1.47 0 3.007.068 3.764.827.746.746.827 2.233.83 3.676v4.54a.15.15 0 0 1-.152.147h-1.947a.15.15 0 0 1-.152-.148V11.83c-.002-.806-.048-1.634-.464-2.051-.358-.36-1.026-.441-1.72-.458H7.158a.15.15 0 0 0-.151.147v6.98a.15.15 0 0 1-.152.148H4.906a.15.15 0 0 1-.15-.148V7.554a.15.15 0 0 1 .15-.149zm12.131 0h1.949a.15.15 0 0 1 .15.15v8.892a.15.15 0 0 1-.15.148h-1.949a.15.15 0 0 1-.151-.148V7.554a.15.15 0 0 1 .151-.149zM8.92 10.948h2.046c.083 0 .15.066.15.147v5.352a.15.15 0 0 1-.15.148H8.92a.15.15 0 0 1-.152-.148v-5.352a.15.15 0 0 1 .152-.147Z"
+    />
+  </Svg>
+);
+
+// 5. Official OPPO Logo
+const OppoLogo = ({
+  size = 24,
+  color = "#FFFFFF",
+}: {
+  size?: number;
+  color?: string;
+}) => (
+  <Svg width={size * 1.3} height={size * 0.7} viewBox="0 0 24 24">
+    <Path
+      fill={color}
+      d="M2.85 12.786h-.001C1.639 12.774.858 12.2.858 11.321s.781-1.452 1.99-1.465c1.21.013 1.992.588 1.992 1.465s-.782 1.453-1.99 1.465zm.034-3.638h-.073C1.156 9.175 0 10.068 0 11.32s1.156 2.147 2.811 2.174h.073c1.655-.027 2.811-.921 2.811-2.174S4.54 9.175 2.885 9.148zm18.27 3.638c-1.21-.012-1.992-.587-1.992-1.465s.782-1.452 1.991-1.465c1.21.013 1.991.588 1.991 1.465s-.781 1.453-1.99 1.465zm.035-3.638h-.073c-1.655.027-2.811.92-2.811 2.173s1.156 2.147 2.81 2.174h.074C22.844 13.468 24 12.574 24 11.32s-1.156-2.146-2.811-2.173zm-6.126 3.638c-1.21-.012-1.99-.587-1.99-1.465s.78-1.452 1.99-1.465c1.21.013 1.991.588 1.991 1.465s-.781 1.453-1.99 1.465zm.036-3.638h-.073c-.789.013-1.464.222-1.955.574v-.37h-.857v5.5h.857v-1.931c.49.351 1.166.56 1.954.574h.074c1.655-.027 2.81-.921 2.81-2.174s-1.155-2.146-2.81-2.173zm-6.144 3.638c-1.21-.012-1.99-.587-1.99-1.465s.78-1.452 1.99-1.465c1.21.013 1.991.588 1.991 1.465s-.781 1.453-1.99 1.465zm.037-3.638H8.92c-.789.013-1.464.222-1.955.574v-.37h-.856v5.5h.856v-1.931c.491.351 1.166.56 1.955.574a3.728 3.728 0 0 0 .073 0c1.655-.027 2.811-.921 2.811-2.174s-1.156-2.146-2.81-2.173z"
+    />
+  </Svg>
+);
+
+// 6. Official Vivo Logo
+const VivoLogo = ({
+  size = 24,
+  color = "#FFFFFF",
+}: {
+  size?: number;
+  color?: string;
+}) => (
+  <Svg width={size * 1.3} height={size * 0.7} viewBox="0 0 24 24">
+    <Path
+      fill={color}
+      d="M19.604 14.101c-1.159 0-1.262-.95-1.262-1.24 0-.29.103-1.242 1.262-1.242h2.062c1.16 0 1.263.951 1.263 1.242 0 .29-.104 1.24-1.263 1.24m-2.062-3.527c-2.142 0-2.333 1.752-2.333 2.287 0 .535.19 2.286 2.333 2.286h2.062c2.143 0 2.334-1.751 2.334-2.286 0-.535-.19-2.287-2.334-2.287m-5.477.107c-.286 0-.345.05-.456.213-.11.164-2.022 3.082-2.022 3.082-.06.09-.126.126-.206.126-.08 0-.145-.036-.206-.126 0 0-1.912-2.918-2.022-3.082-.11-.164-.17-.213-.456-.213h-.668c-.154 0-.224.12-.127.267l2.283 3.467c.354.521.614.732 1.196.732s.842-.21 1.196-.732l2.284-3.467c.096-.146.026-.267-.128-.267m-8.876.284c0-.203.08-.284.283-.284h.505c.203 0 .283.08.283.283v3.9c0 .202-.08.283-.283.283h-.505c-.203 0-.283-.08-.283-.283zm-1.769-.285c-.287 0-.346.05-.456.213-.11.164-2.022 3.082-2.022 3.082-.061.09-.126.126-.206.126-.08 0-.145-.036-.206-.126 0 0-1.912-2.918-2.023-3.082-.11-.164-.169-.213-.455-.213H.175c-.171 0-.224.12-.127.267l2.283 3.467c.355.521.615.732 1.197.732.582 0 .842-.21 1.196-.732l2.283-3.467c.097-.146.044-.267-.127-.267m1.055-.893c-.165-.164-.165-.295 0-.46l.351-.351c.165-.165.296-.165.46 0l.352.351c.165.165.165.296 0 .46l-.352.352c-.164.165-.295.165-.46 0z"
+    />
+  </Svg>
+);
+
+// 7. Official Android Bugdroid Logo
+const AndroidLogo = ({
+  size = 24,
+  color = "#FFFFFF",
+}: {
+  size?: number;
+  color?: string;
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      fill={color}
+      d="M18.4395 5.5586c-.675 1.1664-1.352 2.3318-2.0274 3.498-.0366-.0155-.0742-.0286-.1113-.043-1.8249-.6957-3.484-.8-4.42-.787-1.8551.0185-3.3544.4643-4.2597.8203-.084-.1494-1.7526-3.021-2.0215-3.4864a1.1451 1.1451 0 0 0-.1406-.1914c-.3312-.364-.9054-.4859-1.379-.203-.475.282-.7136.9361-.3886 1.5019 1.9466 3.3696-.0966-.2158 1.9473 3.3593.0172.031-.4946.2642-1.3926 1.0177C2.8987 12.176.452 14.772 0 18.9902h24c-.119-1.1108-.3686-2.099-.7461-3.0683-.7438-1.9118-1.8435-3.2928-2.7402-4.1836a12.1048 12.1048 0 0 0-2.1309-1.6875c.6594-1.122 1.312-2.2559 1.9649-3.3848.2077-.3615.1886-.7956-.0079-1.1191a1.1001 1.1001 0 0 0-.8515-.5332c-.5225-.0536-.9392.3128-1.0488.5449zm-.0391 8.461c.3944.5926.324 1.3306-.1563 1.6503-.4799.3197-1.188.0985-1.582-.4941-.3944-.5927-.324-1.3307.1563-1.6504.4727-.315 1.1812-.1086 1.582.4941zM7.207 13.5273c.4803.3197.5506 1.0577.1563 1.6504-.394.5926-1.1038.8138-1.584.4941-.48-.3197-.5503-1.0577-.1563-1.6504.4008-.6021 1.1087-.8106 1.584-.4941z"
+    />
+  </Svg>
+);
+
+// 8. Official Windows 4-Square Logo
+const WindowsLogo = ({
+  size = 24,
+  color = "#FFFFFF",
+}: {
+  size?: number;
+  color?: string;
+}) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      fill={color}
+      d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.949-1.801"
+    />
+  </Svg>
+);
+
 export default function DeviceOSIcon({
-  os,
+  os = "",
+  deviceName = "",
+  modelName = "",
   isLarge = false,
   deviceType,
 }: DeviceOSIconProps) {
-  const osLower = (os || "").toLowerCase();
+  const combined = `${os} ${deviceName} ${modelName}`.toLowerCase();
   const circleSize = isLarge ? 72 : 44;
-  const iconSize = isLarge ? 36 : 22;
+  const iconSize = isLarge ? 38 : 24;
 
-  let bg = "#0088cc";
-  let iconName = "web";
-  let IconComponent: any = MaterialCommunityIcons;
+  let bg = "#007DFF";
+  let content: React.ReactNode = null;
 
-  if (deviceType === "web" || osLower.includes("web")) {
-    bg = "#0088cc";
-    iconName = "web";
-    IconComponent = MaterialCommunityIcons;
-  } else if (
-    osLower.includes("android") ||
-    osLower.includes("harmony") ||
-    osLower.includes("huawei") ||
-    osLower.includes("hios") ||
-    osLower.includes("hyperos") ||
-    osLower.includes("one ui") ||
-    osLower.includes("coloros") ||
-    osLower.includes("oxygenos") ||
-    osLower.includes("emui") ||
-    osLower.includes("magicos")
+  // 1. Web Browser
+  if (
+    deviceType === "web" ||
+    combined.includes("web") ||
+    combined.includes("browser")
   ) {
-    bg = "#5cbf47";
-    iconName = "android";
-    IconComponent = FontAwesome6;
-  } else if (
-    osLower.includes("ios") ||
-    osLower.includes("mac") ||
-    osLower.includes("apple") ||
-    osLower.includes("iphone") ||
-    osLower.includes("ipad") ||
-    osLower.includes("ipod") ||
-    osLower.includes("macos")
+    bg = "#0088CC";
+    content = (
+      <MaterialCommunityIcons name="web" size={iconSize} color="#FFFFFF" />
+    );
+  }
+  // 2. Huawei / HarmonyOS / EMUI
+  else if (
+    combined.includes("harmony") ||
+    combined.includes("huawei") ||
+    combined.includes("emui") ||
+    combined.includes("jad-al00") ||
+    combined.includes("p50 pro") ||
+    combined.includes("hwjad")
   ) {
-    bg = "#29b6f6";
-    iconName = "apple";
-    IconComponent = FontAwesome6;
-  } else if (osLower.includes("windows")) {
-    bg = "#0288d1";
-    iconName = "windows";
-    IconComponent = FontAwesome6;
+    bg = "#CF0A2C"; // Official Huawei Brand Red
+    content = <HuaweiLogo size={iconSize} color="#FFFFFF" />;
+  }
+  // 3. Apple / iOS / iPadOS / macOS / iPhone
+  else if (
+    combined.includes("ios") ||
+    combined.includes("ipados") ||
+    combined.includes("apple") ||
+    combined.includes("iphone") ||
+    combined.includes("ipad") ||
+    combined.includes("macos")
+  ) {
+    bg = "#007AFF"; // Apple iOS Blue
+    content = <AppleLogo size={iconSize} color="#FFFFFF" />;
+  }
+  // 4. Samsung / One UI / Galaxy
+  else if (
+    combined.includes("one ui") ||
+    combined.includes("samsung") ||
+    combined.includes("galaxy") ||
+    combined.includes("sm-s") ||
+    combined.includes("sm-a")
+  ) {
+    bg = "#1428A0"; // Official Samsung Deep Blue
+    content = <SamsungLogo size={iconSize} color="#FFFFFF" />;
+  }
+  // 5. Xiaomi / HyperOS / MIUI / Redmi / POCO
+  else if (
+    combined.includes("hyperos") ||
+    combined.includes("miui") ||
+    combined.includes("xiaomi") ||
+    combined.includes("redmi") ||
+    combined.includes("poco")
+  ) {
+    bg = "#FF6900"; // Official Xiaomi Orange
+    content = <XiaomiLogo size={iconSize} color="#FFFFFF" />;
+  }
+  // 6. OPPO / ColorOS
+  else if (combined.includes("coloros") || combined.includes("oppo")) {
+    bg = "#00875A"; // Official OPPO Green
+    content = <OppoLogo size={iconSize} color="#FFFFFF" />;
+  }
+  // 7. Vivo / OriginOS / Funtouch OS / iQOO
+  else if (
+    combined.includes("funtouch") ||
+    combined.includes("originos") ||
+    combined.includes("vivo") ||
+    combined.includes("iqoo")
+  ) {
+    bg = "#0081FF"; // Official Vivo Blue
+    content = <VivoLogo size={iconSize} color="#FFFFFF" />;
+  }
+  // 8. Windows
+  else if (combined.includes("windows")) {
+    bg = "#0078D4"; // Microsoft Windows Blue
+    content = <WindowsLogo size={iconSize} color="#FFFFFF" />;
+  }
+  // 9. Standard Android
+  else {
+    bg = "#3DDC84"; // Android Green
+    content = <AndroidLogo size={iconSize} color="#FFFFFF" />;
   }
 
   return (
@@ -65,20 +243,20 @@ export default function DeviceOSIcon({
         {
           width: circleSize,
           height: circleSize,
+          borderRadius: circleSize / 2,
           backgroundColor: bg,
           marginRight: isLarge ? 0 : 14,
         },
       ]}
     >
-      <IconComponent name={iconName} size={iconSize} color="#ffffff" />
+      {content}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   iconContainer: {
-    borderRadius: theme.borderRadius.md,
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
   },
 });

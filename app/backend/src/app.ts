@@ -16,7 +16,7 @@ import { d1Routes } from "./features/d1/index.js";
 import { devicesRoutes } from "./features/devices/index.js";
 import { keyRoutes } from "./features/keys/index.js";
 import { reportsRoutes } from "./features/reports/index.js";
-import { sshGroupRoutes } from "./features/ssh-groups/index.js";
+import { serverGroupRoutes } from "./features/server-groups/index.js";
 import { usersRoutes } from "./features/users/index.js";
 
 export const createApp = (): Application => {
@@ -65,7 +65,7 @@ export const createApp = (): Application => {
   app.use("/api/v1/companies", companyRoutes);
   app.use("/api/v1/users-query", usersRoutes);
   app.use("/api/v1/d1", d1Routes);
-  app.use("/api/v1/ssh-groups", sshGroupRoutes);
+  app.use("/api/v1/server-groups", serverGroupRoutes);
   app.use("/api/v1/keys", keyRoutes);
   app.use("/api/v1/audit-logs", auditRoutes);
   app.use("/api/v1/reports", reportsRoutes);
@@ -79,7 +79,7 @@ export const createApp = (): Application => {
   app.use("/companies", companyRoutes);
   app.use("/users-query", usersRoutes);
   app.use("/d1", d1Routes);
-  app.use("/ssh-groups", sshGroupRoutes);
+  app.use("/server-groups", serverGroupRoutes);
   app.use("/keys", keyRoutes);
   app.use("/audit-logs", auditRoutes);
   app.use("/reports", reportsRoutes);

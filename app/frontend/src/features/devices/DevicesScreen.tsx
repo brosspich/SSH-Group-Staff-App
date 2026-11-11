@@ -1,7 +1,8 @@
+import { useLanguage } from "@/features/language";
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
-import { theme } from "@/shared/styles/theme";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import ActiveSessionsSection from "./_components/ActiveSessionsSection";
 import AddDeviceModal from "./_components/AddDeviceModal";
@@ -14,6 +15,7 @@ import ThisDeviceSection from "./_components/ThisDeviceSection";
 import { useDevicesData } from "./_hooks/useDevicesData";
 
 export default function DevicesScreen() {
+  const { t } = useLanguage();
   const { pick } = useResponsive();
   const {
     loading,
@@ -41,7 +43,7 @@ export default function DevicesScreen() {
   if (loading) {
     return (
       <>
-        <AppbarBack Title="Devices" />
+        <AppbarBack Title={t("devices.title")} />
         <Loading />
       </>
     );
@@ -57,7 +59,7 @@ export default function DevicesScreen() {
 
   return (
     <View style={styles.container}>
-      <AppbarBack Title="Devices" />
+      <AppbarBack Title={t("devices.title")} />
 
       <ScrollView
         contentContainerStyle={[

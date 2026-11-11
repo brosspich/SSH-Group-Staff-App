@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -15,11 +16,14 @@ export function WeeklyRangeSelectorCard({
   onPrevWeek,
   onNextWeek,
 }: WeeklyRangeSelectorCardProps) {
+  const { t } = useLanguage();
   const isLatestWeek = weekOffset >= 0;
 
   return (
     <View style={styles.card}>
-      <Text style={styles.sectionLabel}>This week</Text>
+      <Text style={styles.sectionLabel}>
+        {t("report.thisWeek", "This week")}
+      </Text>
       <View style={styles.stepperRow}>
         <TouchableOpacity style={styles.arrowBtn} onPress={onPrevWeek}>
           <MaterialIcons
@@ -80,7 +84,6 @@ const styles = StyleSheet.create({
   periodLabel: {
     fontSize: theme.fontSizes.sm,
     color: theme.colors.textPrimary,
-    fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

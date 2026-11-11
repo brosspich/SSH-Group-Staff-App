@@ -76,7 +76,7 @@ export class AuthService {
     const cleanLower = cleanUsername.toLowerCase();
 
     // 1. Find user by systemId, id (staff id), username, or email
-    const user = await this.db.user.findFirst({
+    const candidates = await this.db.user.findMany({
       where: {
         OR: [
           { systemId: cleanUsername },
@@ -97,8 +97,35 @@ export class AuthService {
       },
     });
 
-    if (!user) {
+    if (!candidates || candidates.length === 0) {
       throw new UnauthorizedError("Invalid username or password.");
+    }
+
+    const rawInput = (input.password || "").trim();
+    let user = candidates[0];
+
+    // If multiple users match the username across different systems, pick the one matching the password
+    if (candidates.length > 1) {
+      for (const cand of candidates) {
+        const stored = cand.passwordHash || "";
+        if (stored.trim() === rawInput) {
+          user = cand;
+          break;
+        }
+        if (stored.startsWith("$2")) {
+          const normalizedHash = stored.replace(/^\$2y\$/, "$2a$");
+          try {
+            const match = await PasswordHasher.compare(
+              rawInput,
+              normalizedHash,
+            );
+            if (match) {
+              user = cand;
+              break;
+            }
+          } catch {}
+        }
+      }
     }
 
     // Backend Condition: Inactive account
@@ -117,7 +144,6 @@ export class AuthService {
 
     // 2. Validate password (Plaintext or Bcrypt Hash)
     const rawStored = user.passwordHash || "";
-    const rawInput = (input.password || "").trim();
     let isValid = false;
 
     if (rawStored.trim() === rawInput) {
@@ -142,11 +168,18 @@ export class AuthService {
     });
 
     try {
+      let companyId = user.details?.companyId;
+      if (!companyId) {
+        const match = user.systemId.match(/^(system-\d+)/i);
+        companyId = match ? match[1].toLowerCase() : undefined;
+      }
+
       await this.audit.log({
         action: "USER_LOGIN",
         actorId: user.systemId,
         actorName: user.username,
         targetId: user.systemId,
+        details: { companyId, systemId: user.systemId },
         ipAddress,
       });
     } catch {}

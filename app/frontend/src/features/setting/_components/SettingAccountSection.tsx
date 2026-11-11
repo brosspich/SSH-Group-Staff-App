@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language/hooks/useLanguage";
 import { theme } from "@/shared/styles/theme";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -11,11 +12,13 @@ interface SettingAccountSectionProps {
 export const SettingAccountSection: React.FC<SettingAccountSectionProps> = ({
   onLogoutPress,
 }) => {
+  const { t, currentLang, isKhmer } = useLanguage();
+
   return (
     <>
       {/* ── Account Info Section ── */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Account Info</Text>
+        <Text style={styles.sectionTitle}>{t("setting.accountInfo")}</Text>
         <View style={styles.card}>
           <Pressable
             onPress={() => router.push("/account/information")}
@@ -36,7 +39,7 @@ export const SettingAccountSection: React.FC<SettingAccountSectionProps> = ({
                   color={theme.colors.textPrimary}
                 />
               </View>
-              <Text style={styles.txtTitle}>Information</Text>
+              <Text style={styles.txtTitle}>{t("setting.information")}</Text>
             </View>
             <Ionicons
               name="chevron-forward-outline"
@@ -66,7 +69,7 @@ export const SettingAccountSection: React.FC<SettingAccountSectionProps> = ({
                   color={theme.colors.textPrimary}
                 />
               </View>
-              <Text style={styles.txtTitle}>Logout</Text>
+              <Text style={styles.txtTitle}>{t("setting.logout")}</Text>
             </View>
             <Ionicons
               name="chevron-forward-outline"
@@ -77,9 +80,60 @@ export const SettingAccountSection: React.FC<SettingAccountSectionProps> = ({
         </View>
       </View>
 
+      {/* ── Preferences Section ── */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t("setting.preferences")}</Text>
+        <View style={styles.card}>
+          <Pressable
+            onPress={() => router.push("/language" as any)}
+            style={({ pressed }) => [
+              styles.conBtn,
+              {
+                backgroundColor: pressed
+                  ? `${theme.colors.grey}33`
+                  : theme.colors.transparent,
+              },
+            ]}
+          >
+            <View style={styles.iconTxt}>
+              <View style={styles.conIcon}>
+                <Ionicons
+                  name="language-outline"
+                  size={20}
+                  color={theme.colors.textPrimary}
+                />
+              </View>
+              <Text style={styles.txtTitle}>{t("setting.language")}</Text>
+            </View>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: theme.colors.textSecondary,
+                  fontFamily: theme.fonts.medium,
+                }}
+              >
+                {currentLang === "en" ? "English 🇬🇧" : "ភាសាខ្មែរ 🇰🇭"}
+              </Text>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={20}
+                color={theme.colors.textPrimary}
+              />
+            </View>
+          </Pressable>
+        </View>
+      </View>
+
       {/* ── Privacy & Security Section ── */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Privacy & Security</Text>
+        <Text style={styles.sectionTitle}>{t("setting.privacySecurity")}</Text>
         <View style={styles.card}>
           <Pressable
             onPress={() =>
@@ -102,7 +156,7 @@ export const SettingAccountSection: React.FC<SettingAccountSectionProps> = ({
                   color={theme.colors.textPrimary}
                 />
               </View>
-              <Text style={styles.txtTitle}>Privacy & Policy</Text>
+              <Text style={styles.txtTitle}>{t("setting.privacyPolicy")}</Text>
             </View>
             <Ionicons
               name="chevron-forward-outline"
@@ -132,7 +186,7 @@ export const SettingAccountSection: React.FC<SettingAccountSectionProps> = ({
                   color={theme.colors.textPrimary}
                 />
               </View>
-              <Text style={styles.txtTitle}>Devices</Text>
+              <Text style={styles.txtTitle}>{t("setting.devices")}</Text>
             </View>
             <Ionicons
               name="chevron-forward-outline"
@@ -145,7 +199,7 @@ export const SettingAccountSection: React.FC<SettingAccountSectionProps> = ({
 
       {/* ── About Us Section ── */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>About Us</Text>
+        <Text style={styles.sectionTitle}>{t("setting.aboutUs")}</Text>
         <View style={styles.card}>
           <Pressable
             onPress={() => router.push("/about/about")}
@@ -166,7 +220,7 @@ export const SettingAccountSection: React.FC<SettingAccountSectionProps> = ({
                   color={theme.colors.textPrimary}
                 />
               </View>
-              <Text style={styles.txtTitle}>About</Text>
+              <Text style={styles.txtTitle}>{t("setting.about")}</Text>
             </View>
             <Ionicons
               name="chevron-forward-outline"
@@ -196,7 +250,7 @@ export const SettingAccountSection: React.FC<SettingAccountSectionProps> = ({
                   color={theme.colors.textPrimary}
                 />
               </View>
-              <Text style={styles.txtTitle}>Contact</Text>
+              <Text style={styles.txtTitle}>{t("setting.contact")}</Text>
             </View>
             <Ionicons
               name="chevron-forward-outline"

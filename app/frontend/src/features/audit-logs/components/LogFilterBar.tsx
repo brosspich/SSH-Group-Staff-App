@@ -1,5 +1,6 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { Typography } from "@/shared/components/ui/Typography";
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { AuditActionType } from "../types/audit.types";
@@ -9,18 +10,22 @@ export interface LogFilterBarProps {
   onSelectAction: (action?: AuditActionType) => void;
 }
 
-const ACTIONS: Array<{ label: string; value?: AuditActionType }> = [
-  { label: "All" },
-  { label: "SSH Groups", value: "SSH_GROUP_CREATED" },
-  { label: "Keys", value: "KEY_UPLOADED" },
-  { label: "Logins", value: "USER_LOGIN" },
-  { label: "Attendance", value: "ATTENDANCE_CHECKIN" },
-];
-
 export const LogFilterBar: React.FC<LogFilterBarProps> = ({
   selectedAction,
   onSelectAction,
 }) => {
+  const { t } = useLanguage();
+
+  const actions: Array<{ label: string; value?: AuditActionType }> = [
+    { label: t("auditLogs.allActions", "All") },
+    { label: t("auditLogs.keysFilter", "Keys"), value: "KEY_UPLOADED" },
+    { label: t("auditLogs.loginsFilter", "Logins"), value: "USER_LOGIN" },
+    {
+      label: t("auditLogs.attendanceFilter", "Attendance"),
+      value: "ATTENDANCE_CHECKIN",
+    },
+  ];
+
   return (
     <ScrollView
       horizontal
@@ -28,7 +33,7 @@ export const LogFilterBar: React.FC<LogFilterBarProps> = ({
       style={styles.scroll}
     >
       <View style={styles.container}>
-        {ACTIONS.map((item) => {
+        {actions.map((item) => {
           const isSelected = selectedAction === item.value;
           return (
             <TouchableOpacity
@@ -38,7 +43,11 @@ export const LogFilterBar: React.FC<LogFilterBarProps> = ({
             >
               <Typography
                 variant="caption"
-                color={isSelected ? "#FFFFFF" : "#333333"}
+                color={
+                  isSelected
+                    ? theme.colors.background2
+                    : theme.colors.textPrimary
+                }
                 weight="medium"
               >
                 {item.label}
@@ -53,19 +62,19 @@ export const LogFilterBar: React.FC<LogFilterBarProps> = ({
 
 const styles = StyleSheet.create({
   scroll: {
-    marginVertical: 8,
+    marginVertical: theme.spacing.sm,
   },
   container: {
     flexDirection: "row",
-    gap: 8,
+    gap: theme.spacing.sm,
   },
   chip: {
-    paddingHorizontal: 12,
+    paddingHorizontal: theme.spacing.md,
     paddingVertical: 6,
     borderRadius: theme.borderRadius.lg,
-    backgroundColor: "#E5E5EA",
+    backgroundColor: theme.colors.border,
   },
   chipActive: {
-    backgroundColor: "#007AFF",
+    backgroundColor: theme.colors.primary,
   },
 });

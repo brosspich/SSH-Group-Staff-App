@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -34,6 +35,7 @@ export function MonthlySelectorCard({
   onPrevMonth,
   onNextMonth,
 }: MonthlySelectorCardProps) {
+  const { t } = useLanguage();
   const isLatestMonth =
     viewYear > currentYear ||
     (viewYear === currentYear && viewMonth >= currentMonth);
@@ -42,7 +44,9 @@ export function MonthlySelectorCard({
 
   return (
     <View style={styles.card}>
-      <Text style={styles.sectionLabel}>Select Month</Text>
+      <Text style={styles.sectionLabel}>
+        {t("report.selectMonth", "Select Month")}
+      </Text>
       <View style={styles.stepperRow}>
         <TouchableOpacity style={styles.arrowBtn} onPress={onPrevMonth}>
           <MaterialIcons
@@ -103,7 +107,6 @@ const styles = StyleSheet.create({
   periodLabel: {
     fontSize: theme.fontSizes.sm,
     color: theme.colors.textPrimary,
-    fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

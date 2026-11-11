@@ -1,10 +1,11 @@
+import { useLanguage } from "@/features/language";
 import { InfoRow } from "@/shared/components/account/InfoRow";
-import { theme } from "@/shared/styles/theme";
 import type { StaffUser } from "@/shared/services/userService";
+import { theme } from "@/shared/styles/theme";
 import { formatJoinedDisplay } from "@/utils/formatters";
 import { FontAwesome6, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import type { FieldKey } from "../_types/information.types";
 
 interface InformationCardProps {
@@ -16,8 +17,10 @@ export const InformationCard: React.FC<InformationCardProps> = ({
   user,
   onEditField,
 }) => {
+  const { t } = useLanguage();
   const rawJoinedDate = user?.joined || user?.created_at;
   const joinedDate = formatJoinedDisplay(rawJoinedDate);
+  const noneText = t("common.none", "None");
 
   return (
     <View style={styles.section}>
@@ -25,61 +28,61 @@ export const InformationCard: React.FC<InformationCardProps> = ({
         <InfoRow
           icon={FontAwesome6}
           iconName="contact-card"
-          label="System ID"
-          value={user?.system_id ?? "None"}
+          label={t("account.systemId", "System ID")}
+          value={user?.system_id ?? noneText}
         />
         <InfoRow
           icon={FontAwesome6}
           iconName="contact-card"
-          label="Staff ID"
-          value={user?.id ?? "None"}
+          label={t("account.id", "Staff ID")}
+          value={user?.id ?? noneText}
         />
         <InfoRow
           icon={MaterialIcons}
           iconName="badge"
-          label="Full Name"
-          value={user?.name ?? "None"}
+          label={t("account.name", "Full Name")}
+          value={user?.name ?? noneText}
           edit={() => onEditField("name")}
         />
         <InfoRow
           icon={MaterialIcons}
           iconName="person"
-          label="Username"
-          value={user?.username ?? "None"}
+          label={t("account.username", "Username")}
+          value={user?.username ?? noneText}
           edit={() => onEditField("username")}
         />
         <InfoRow
           icon={MaterialIcons}
           iconName="work"
-          label="Position"
-          value={user?.position ?? "None"}
+          label={t("account.position", "Position")}
+          value={user?.position ?? noneText}
           edit={() => onEditField("position")}
         />
         <InfoRow
           icon={MaterialIcons}
           iconName="email"
-          label="Email"
-          value={user?.email ?? "None"}
+          label={t("account.email", "Email")}
+          value={user?.email ?? noneText}
           edit={() => onEditField("email")}
         />
         <InfoRow
           icon={MaterialIcons}
           iconName="phone"
-          label="Phone"
-          value={user?.phone ?? "None"}
+          label={t("account.phone", "Phone")}
+          value={user?.phone ?? noneText}
           edit={() => onEditField("phone")}
         />
         <InfoRow
           icon={MaterialIcons}
           iconName="lock"
-          label="Password"
+          label={t("common.password", "Password")}
           value="........................"
           edit={() => onEditField("password")}
         />
         <InfoRow
           icon={MaterialIcons}
           iconName="event"
-          label="Joined"
+          label={t("account.joined", "Joined")}
           value={joinedDate}
           edit={() => onEditField("joined")}
         />
@@ -99,17 +102,6 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.lg,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs,
-    ...Platform.select({
-      web: {
-        boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.12)",
-      },
-      default: {
-        shadowOffset: { width: 0, height: 2 },
-        shadowColor: "#000",
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 2,
-      },
-    }),
+    ...theme.shadows.sm,
   },
 });

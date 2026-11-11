@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import Loading from "@/shared/components/loading/loading";
 import { StaffPickerModal } from "@/shared/components/report/StaffPickerModal";
 import { extractSystemKey } from "@/shared/constants/attendanceConfig";
@@ -40,6 +41,7 @@ export function RequestReportBody({
   activeStaffId,
   onSelectStaff,
 }: RequestReportBodyProps) {
+  const { t } = useLanguage();
   const { user: loggedInUser } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [showStaffModal, setShowStaffModal] = useState(false);
@@ -82,7 +84,7 @@ export function RequestReportBody({
       {reportMode === "current" && (
         <View style={s.card}>
           <View style={s.staffSelectHeader}>
-            <Text style={s.sectionLabel}>Current Staff Member</Text>
+            <Text style={s.sectionLabel}>{t("report.currentStaff")}</Text>
           </View>
           <View style={s.selectedStaffBox}>
             <View style={s.avatarBgIcon}>
@@ -90,7 +92,7 @@ export function RequestReportBody({
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.selectedStaffName}>
-                {selectedStaff?.name || "Current Staff"}
+                {selectedStaff?.name || t("report.currentStaff")}
               </Text>
               <Text style={s.selectedStaffSub}>
                 ID: {selectedStaff?.id || selectedStaff?.staff_id || "-"} •
@@ -105,10 +107,10 @@ export function RequestReportBody({
       {reportMode === "individual" && staffList && staffList.length > 0 && (
         <View style={s.card}>
           <View style={s.staffSelectHeader}>
-            <Text style={s.sectionLabel}>Select Staff Member</Text>
+            <Text style={s.sectionLabel}>{t("report.selectStaff")}</Text>
             {staffList.length > 1 && (
               <TouchableOpacity onPress={() => setShowStaffModal(true)}>
-                <Text style={s.changeStaffText}>Change Staff</Text>
+                <Text style={s.changeStaffText}>{t("report.changeStaff")}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -127,7 +129,7 @@ export function RequestReportBody({
             </View>
             <View style={{ flex: 1 }}>
               <Text style={s.selectedStaffName}>
-                {selectedStaff?.name || "Staff Member"}
+                {selectedStaff?.name || t("common.staffMember")}
               </Text>
               <Text style={s.selectedStaffSub}>
                 ID: {selectedStaff?.id || selectedStaff?.staff_id || "-"} •
@@ -166,13 +168,13 @@ export function RequestReportBody({
       <View style={s.summaryGrid}>
         <View style={s.summaryCard}>
           <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
-            Total Requests
+            {t("report.totalRequests")}
           </Text>
           <Text style={s.summaryValue}>{summary.totalRequests}</Text>
         </View>
         <View style={s.summaryCard}>
           <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
-            Pending
+            {t("report.pending")}
           </Text>
           <Text style={[s.summaryValue, { color: "#d97706" }]}>
             {summary.pendingCount}
@@ -180,7 +182,7 @@ export function RequestReportBody({
         </View>
         <View style={s.summaryCard}>
           <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
-            Approved
+            {t("report.approved")}
           </Text>
           <Text style={[s.summaryValue, { color: "#16a34a" }]}>
             {summary.approvedCount}
@@ -188,7 +190,7 @@ export function RequestReportBody({
         </View>
         <View style={s.summaryCard}>
           <Text style={s.summaryLabel} numberOfLines={1} ellipsizeMode="tail">
-            Rejected
+            {t("report.rejected")}
           </Text>
           <Text style={[s.summaryValue, { color: "#ff0000" }]}>
             {summary.rejectedCount}
@@ -201,7 +203,7 @@ export function RequestReportBody({
         <Ionicons name="search-outline" size={18} color={theme.colors.grey} />
         <TextInput
           style={s.searchInput}
-          placeholder="Search by name, ID, date, status..."
+          placeholder={t("report.searchReportPlaceholder")}
           placeholderTextColor={theme.colors.grey}
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -216,7 +218,7 @@ export function RequestReportBody({
       {/* Requests List */}
       <View style={s.recordsCard}>
         <Text style={s.recordsTitle}>
-          Attendance Requests ({filteredRecords.length})
+          {t("report.requestReports")} ({filteredRecords.length})
         </Text>
 
         {filteredRecords.length === 0 ? (
@@ -226,11 +228,11 @@ export function RequestReportBody({
               size={40}
               color={theme.colors.grey}
             />
-            <Text style={s.emptyTitle}>No Attendance Requests</Text>
+            <Text style={s.emptyTitle}>{t("report.noRequests")}</Text>
             <Text style={s.emptySub}>
               {searchQuery
                 ? `No requests matching "${searchQuery}".`
-                : "No attendance requests submitted for this period."}
+                : t("report.noRequests")}
             </Text>
           </View>
         ) : (
@@ -333,7 +335,7 @@ export function RequestReportBody({
                         color: badgeColor,
                         fontFamily: theme.fonts.bold,
                         includeFontPadding: false,
-                        fontWeight: "bold",
+                        // fontWeight: "bold",
                       },
                     ]}
                     numberOfLines={1}
@@ -402,7 +404,7 @@ const s = StyleSheet.create({
   },
   selectedStaffName: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -438,7 +440,7 @@ const s = StyleSheet.create({
   },
   summaryValue: {
     fontSize: theme.fontSizes.lg,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     marginTop: 4,
@@ -476,7 +478,7 @@ const s = StyleSheet.create({
   },
   recordsTitle: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -497,7 +499,7 @@ const s = StyleSheet.create({
   },
   staffName: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -511,7 +513,7 @@ const s = StyleSheet.create({
   },
   recordTime: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -580,7 +582,7 @@ const s = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     marginTop: 8,
     fontFamily: theme.fonts.bold,

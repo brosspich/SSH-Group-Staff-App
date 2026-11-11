@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "center",
     fontSize: theme.fontSizes.xl,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.background2,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,

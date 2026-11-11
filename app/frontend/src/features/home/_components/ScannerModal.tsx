@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
@@ -38,6 +39,7 @@ function ScannerModal({
   scanned,
   onBarcodeScanned,
 }: ScannerModalProps) {
+  const { t } = useLanguage();
   const insets = useSafeAreaInsets();
 
   // Smooth breathing in-and-out pulse animation for scanFrame
@@ -121,7 +123,11 @@ function ScannerModal({
         {/* ── 1. Full-screen Camera Preview (Rendered FIRST as the background) ── */}
         {Platform.OS === "web" ? (
           <View style={styles.webFallbackContainer}>
-            <Ionicons name="camera-outline" size={60} color={theme.colors.grey} />
+            <Ionicons
+              name="camera-outline"
+              size={60}
+              color={theme.colors.grey}
+            />
             <Text style={styles.webFallbackTitle}>Web Camera Preview</Text>
             <Text style={styles.webFallbackSub}>
               Camera QR scanning requires an iOS or Android device.
@@ -167,7 +173,7 @@ function ScannerModal({
           /> */}
           </Animated.View>
           <Text style={styles.scanInstruction}>
-            Align Attendance QR Code inside the frame
+            {t("home.scannerSubtitle")}
           </Text>
         </View>
 
@@ -187,7 +193,7 @@ function ScannerModal({
             <Ionicons name="close" size={24} color={theme.colors.background2} />
           </TouchableOpacity>
 
-          <Text style={styles.modalHeaderTitle}>Scan Attendance</Text>
+          <Text style={styles.modalHeaderTitle}>{t("home.scannerTitle")}</Text>
 
           <TouchableOpacity
             style={styles.torchBtn}
@@ -197,7 +203,7 @@ function ScannerModal({
             <Ionicons
               name={torchOn ? "flash" : "flash-outline"}
               size={22}
-              color={torchOn ? "#FACC15" : theme.colors.background2}
+              color={torchOn ? theme.colors.warning : theme.colors.background2}
             />
           </TouchableOpacity>
         </BlurView>
@@ -211,7 +217,7 @@ export default memo(ScannerModal);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000",
+    backgroundColor: theme.colors.textPrimary,
   },
   modalHeader: {
     position: "absolute",
@@ -321,12 +327,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: theme.spacing.xl,
-    backgroundColor: "#111827",
+    backgroundColor: theme.colors.textPrimary,
   },
   webFallbackTitle: {
     color: theme.colors.background2,
     fontSize: theme.fontSizes.lg,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     marginTop: theme.spacing.md,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,

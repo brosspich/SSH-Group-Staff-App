@@ -1,5 +1,6 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import type { InactivePeriod } from "../_types/devices.types";
 import { INACTIVE_PERIODS } from "../_utils/devicesConstants";
@@ -17,6 +18,7 @@ export default function SelfDestructModal({
   onSelectPeriod,
   onClose,
 }: SelfDestructModalProps) {
+  const { isKhmer } = useLanguage();
   const { isMobile } = useResponsive();
 
   return (
@@ -29,7 +31,11 @@ export default function SelfDestructModal({
       <View style={styles.alertOverlay}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View style={[styles.selfDestructCard, !isMobile && { maxWidth: 400 }]}>
-          <Text style={styles.selfDestructTitle}>Sessions self-destruct</Text>
+          <Text style={styles.selfDestructTitle}>
+            {isKhmer
+              ? "បិទសម័យប្រជុំដោយស្វ័យប្រវត្តិ"
+              : "Sessions self-destruct"}
+          </Text>
 
           {INACTIVE_PERIODS.map((period) => {
             const isSelected = currentPeriod === period;

@@ -64,23 +64,19 @@ const styles = StyleSheet.create({
   },
   langBtnActive: {
     backgroundColor: theme.colors.primary,
-    shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 2,
+    ...theme.shadows.sm,
   },
   langText: {
     fontSize: theme.fontSizes.xs,
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     color: theme.colors.textSecondary,
-    fontWeight: "500",
+    // fontWeight: "500",
   },
   langTextActive: {
-    color: "#ffffff",
+    color: theme.colors.background2,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    fontWeight: "bold",
+    // fontWeight: "bold",
   },
 });

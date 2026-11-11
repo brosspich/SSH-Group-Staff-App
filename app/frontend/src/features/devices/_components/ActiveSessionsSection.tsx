@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -14,9 +15,11 @@ export default function ActiveSessionsSection({
   activeSessions,
   onSelectDevice,
 }: ActiveSessionsSectionProps) {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.card}>
-      <Text style={styles.sectionHeader}>Active sessions</Text>
+      <Text style={styles.sectionHeader}>{t("devices.activeSessions")}</Text>
       <View style={styles.divider} />
       {activeSessions.length > 0 ? (
         activeSessions.map((session, index) => {
@@ -37,6 +40,8 @@ export default function ActiveSessionsSection({
               >
                 <DeviceOSIcon
                   os={session.os}
+                  deviceName={session.device_name}
+                  modelName={session.model_name}
                   isLarge={false}
                   deviceType={session.device_type}
                 />
@@ -107,7 +112,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
   },
   sessionSubtext: {
-    fontSize: theme.fontSizes.sm,
+    fontSize: theme.fontSizes.xs,
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
@@ -121,8 +126,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   onlineColor: {
-    color: "#00c853",
-    fontWeight: "600",
+    color: theme.colors.success,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   emptySession: {
     padding: 16,

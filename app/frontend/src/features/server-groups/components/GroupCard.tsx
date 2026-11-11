@@ -1,5 +1,7 @@
+import { useLanguage } from "@/features/language";
 import { Card } from "@/shared/components/ui/Card";
 import { Typography } from "@/shared/components/ui/Typography";
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { SshGroup } from "../types/sshGroup.types";
@@ -11,6 +13,8 @@ export interface GroupCardProps {
 }
 
 export const GroupCard: React.FC<GroupCardProps> = ({ group, onPress }) => {
+  const { t } = useLanguage();
+
   return (
     <TouchableOpacity activeOpacity={0.8} onPress={onPress} disabled={!onPress}>
       <Card style={styles.card}>
@@ -24,17 +28,21 @@ export const GroupCard: React.FC<GroupCardProps> = ({ group, onPress }) => {
         </View>
 
         {group.description ? (
-          <Typography variant="bodySmall" color="#666666" style={styles.desc}>
+          <Typography
+            variant="bodySmall"
+            color={theme.colors.textSecondary}
+            style={styles.desc}
+          >
             {group.description}
           </Typography>
         ) : null}
 
         <View style={styles.footer}>
-          <Typography variant="caption" color="#8E8E93">
-            {group.serverCount || 0} Servers
+          <Typography variant="caption" color={theme.colors.grey}>
+            {group.serverCount || 0} {t("serverGroups.servers", "Servers")}
           </Typography>
-          <Typography variant="caption" color="#8E8E93">
-            {group.members?.length || 0} Members
+          <Typography variant="caption" color={theme.colors.grey}>
+            {group.members?.length || 0} {t("serverGroups.members", "Members")}
           </Typography>
         </View>
       </Card>
@@ -44,26 +52,26 @@ export const GroupCard: React.FC<GroupCardProps> = ({ group, onPress }) => {
 
 const styles = StyleSheet.create({
   card: {
-    marginVertical: 6,
+    marginVertical: theme.spacing.xs,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 6,
+    marginBottom: theme.spacing.xs,
   },
   permissions: {
     flexDirection: "row",
-    gap: 4,
+    gap: theme.spacing.xs,
   },
   desc: {
-    marginBottom: 12,
+    marginBottom: theme.spacing.md,
   },
   footer: {
     flexDirection: "row",
     justifyContent: "space-between",
     borderTopWidth: 1,
-    borderTopColor: "#F2F2F7",
-    paddingTop: 8,
+    borderTopColor: theme.colors.border,
+    paddingTop: theme.spacing.sm,
   },
 });

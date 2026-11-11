@@ -40,10 +40,14 @@ export function parseDevices(raw: unknown): DeviceSession[] {
         ? JSON.stringify(d.location)
         : d.location || "Phnom Penh, Cambodia",
     ip_address: d.ip_address || d.ipAddress || d.ip || "124.248.173.5",
+    loginTimed: d.loginTimed || d.login_timed || d.last_login || d.lastLogin,
+    login_timed: d.login_timed || d.loginTimed || d.last_login || d.lastLogin,
     last_login: d.last_login || d.lastLogin,
+    lastLogin: d.lastLogin || d.last_login,
     last_use_time:
       d.last_use_time || d.lastUseTime || d.last_active || d.lastActive,
     last_active: d.last_active || d.lastActive || new Date().toISOString(),
+    lastActive: d.lastActive || d.last_active || new Date().toISOString(),
     terminate:
       d.terminate === true ||
       d.terminate === "true" ||

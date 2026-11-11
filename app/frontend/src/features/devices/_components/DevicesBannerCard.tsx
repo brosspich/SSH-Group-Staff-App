@@ -1,15 +1,20 @@
-import { theme } from "@/shared/styles/theme";
 import LaptopGraphic from "@/features/devices/_components/LaptopGraphic";
+import { useLanguage } from "@/features/language";
+import { theme } from "@/shared/styles/theme";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function DevicesBannerCard() {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.card}>
       <View style={styles.graphicContainer}>
         <LaptopGraphic />
         <Text style={styles.graphicTitle}>
-          The official <Text style={styles.highlightText}>SSH Group POS</Text>{" "}
-          app is available for Android, iPhone, Tablet and Website.
+          {t(
+            "devices.bannerDesc",
+            "The official SSH Group Staff app is available for Android, iPhone, Tablet and Website.",
+          )}
         </Text>
       </View>
     </View>

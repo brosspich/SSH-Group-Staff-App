@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -46,6 +47,8 @@ export const RequestConfirmModal: React.FC<RequestConfirmModalProps> = ({
   toTime,
   imageUri,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <Modal
       visible={visible}
@@ -66,18 +69,24 @@ export const RequestConfirmModal: React.FC<RequestConfirmModalProps> = ({
             />
           </View>
 
-          <Text style={styles.confirmTitle}>Confirm Request</Text>
+          <Text style={styles.confirmTitle}>
+            {t("home.confirmRequest", "Confirm Request")}
+          </Text>
 
           <View style={styles.confirmDetails}>
             <View style={styles.confirmDetailRow}>
-              <Text style={styles.confirmDetailLabel}>Staff:</Text>
+              <Text style={styles.confirmDetailLabel}>
+                {t("home.staff", "Staff")}:
+              </Text>
               <Text style={styles.confirmDetailValue}>
                 {userName} ({userId})
               </Text>
             </View>
 
             <View style={styles.confirmDetailRow}>
-              <Text style={styles.confirmDetailLabel}>Subject:</Text>
+              <Text style={styles.confirmDetailLabel}>
+                {t("home.subject", "Subject")}:
+              </Text>
               <Text
                 style={[
                   styles.confirmDetailValue,
@@ -90,7 +99,9 @@ export const RequestConfirmModal: React.FC<RequestConfirmModalProps> = ({
             </View>
 
             <View style={styles.confirmDetailRow}>
-              <Text style={styles.confirmDetailLabel}>Remark:</Text>
+              <Text style={styles.confirmDetailLabel}>
+                {t("home.remark", "Remark")}:
+              </Text>
               <Text
                 style={[
                   styles.confirmDetailValue,
@@ -103,7 +114,9 @@ export const RequestConfirmModal: React.FC<RequestConfirmModalProps> = ({
             </View>
 
             <View style={styles.confirmDetailRow}>
-              <Text style={styles.confirmDetailLabel}>Date:</Text>
+              <Text style={styles.confirmDetailLabel}>
+                {t("home.date", "Date")}:
+              </Text>
               <Text style={styles.confirmDetailValue}>
                 {isSameDay(fromDate, toDate)
                   ? formatDateYMD(fromDate)
@@ -112,7 +125,9 @@ export const RequestConfirmModal: React.FC<RequestConfirmModalProps> = ({
             </View>
 
             <View style={styles.confirmDetailRow}>
-              <Text style={styles.confirmDetailLabel}>Time:</Text>
+              <Text style={styles.confirmDetailLabel}>
+                {t("home.time", "Time")}:
+              </Text>
               <Text style={styles.confirmDetailValue}>
                 {`${fromTime} - ${toTime}`}
               </Text>
@@ -120,7 +135,9 @@ export const RequestConfirmModal: React.FC<RequestConfirmModalProps> = ({
 
             {imageUri && (
               <View style={styles.confirmDetailRow}>
-                <Text style={styles.confirmDetailLabel}>Proof Photo:</Text>
+                <Text style={styles.confirmDetailLabel}>
+                  {t("home.proofPhoto", "Proof Photo")}:
+                </Text>
                 <Image
                   source={{ uri: imageUri }}
                   style={{
@@ -154,7 +171,9 @@ export const RequestConfirmModal: React.FC<RequestConfirmModalProps> = ({
                     color={theme.colors.background2}
                     style={{ marginRight: 6 }}
                   />
-                  <Text style={styles.confirmBtnText}>Submit</Text>
+                  <Text style={styles.confirmBtnText}>
+                    {t("common.submit", "Submit")}
+                  </Text>
                 </>
               )}
             </TouchableOpacity>
@@ -171,7 +190,7 @@ export const RequestConfirmModal: React.FC<RequestConfirmModalProps> = ({
                     { color: theme.colors.textPrimary },
                   ]}
                 >
-                  Cancel
+                  {t("common.cancel", "Cancel")}
                 </Text>
               </TouchableOpacity>
             )}
@@ -199,68 +218,69 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 380,
     alignItems: "center",
+    ...theme.shadows.lg,
   },
   confirmIconCircle: {
-    marginBottom: 10,
-    padding: 10,
-    borderRadius: theme.borderRadius.lg,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: `${theme.colors.primary}15`,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
   },
   confirmTitle: {
-    fontSize: theme.fontSizes.xl,
-    fontWeight: "bold",
+    fontSize: theme.fontSizes.lg,
     color: theme.colors.textPrimary,
+    marginBottom: 16,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
+    textAlign: "center",
   },
   confirmDetails: {
     width: "100%",
     backgroundColor: theme.colors.background,
     borderRadius: theme.borderRadius.md,
-    padding: 16,
-    marginVertical: 16,
+    padding: 14,
+    marginBottom: 20,
     gap: 10,
   },
   confirmDetailRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    gap: 12,
   },
   confirmDetailLabel: {
     fontSize: theme.fontSizes.xs,
     color: theme.colors.grey,
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
+    width: 90,
   },
   confirmDetailValue: {
-    fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    fontSize: theme.fontSizes.xs,
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   confirmSubmitBtn: {
-    borderRadius: theme.borderRadius.md,
-    paddingVertical: 12,
     backgroundColor: theme.colors.primary,
-    flexDirection: "row",
+    paddingVertical: 14,
+    borderRadius: theme.borderRadius.md,
     alignItems: "center",
     justifyContent: "center",
+    flexDirection: "row",
   },
   confirmCancelBtn: {
-    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background,
     paddingVertical: 12,
-    backgroundColor: `${theme.colors.grey}15`,
+    borderRadius: theme.borderRadius.md,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: `${theme.colors.grey}30`,
   },
   confirmBtnText: {
     color: theme.colors.background2,
-    fontWeight: "bold",
-    fontSize: theme.fontSizes.md,
+    fontSize: theme.fontSizes.sm,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

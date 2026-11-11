@@ -1,4 +1,5 @@
 import { AttendanceRecord } from "@/features/attendance/_types/attendance.types";
+import { useLanguage } from "@/features/language";
 import { getCompanyName } from "@/shared/constants/attendanceConfig";
 import {
   AttendanceSummary,
@@ -96,6 +97,7 @@ export default function CustomAttendancePaper({
   records,
   targetStaff,
 }: CustomAttendancePaperProps) {
+  const { t } = useLanguage();
   const generatedTimeStr = new Date().toLocaleString();
 
   // Group records by staffId and date
@@ -266,31 +268,31 @@ export default function CustomAttendancePaper({
                 style={[styles.th, { width: 92, textAlign: "center" }]}
                 numberOfLines={1}
               >
-                Date
+                {t("report.date")}
               </Text>
               <Text
                 style={[styles.th, { width: 92, textAlign: "center" }]}
                 numberOfLines={1}
               >
-                Time In
+                {t("report.timeIn")}
               </Text>
               <Text
                 style={[styles.th, { width: 92, textAlign: "center" }]}
                 numberOfLines={1}
               >
-                Time Out
+                {t("report.timeOut")}
               </Text>
               <Text
                 style={[styles.th, { width: 96, textAlign: "center" }]}
                 numberOfLines={1}
               >
-                Total Time
+                {t("common.total")}
               </Text>
               <Text
                 style={[styles.th, { width: 136, textAlign: "center" }]}
                 numberOfLines={1}
               >
-                Remark
+                {t("report.remark")}
               </Text>
             </View>
 
@@ -312,7 +314,12 @@ export default function CustomAttendancePaper({
                     <Text
                       style={[
                         styles.td,
-                        { width: 32, textAlign: "center", fontWeight: "600" },
+                        {
+                          width: 32,
+                          textAlign: "center",
+                          // fontWeight: "600" ,
+                          fontFamily: theme.fonts.semibold,
+                        },
                       ]}
                       numberOfLines={1}
                     >
@@ -330,8 +337,9 @@ export default function CustomAttendancePaper({
                         {
                           width: 92,
                           textAlign: "center",
-                          fontWeight: "600",
+                          // fontWeight: "600",
                           color: "#0022ff",
+                          fontFamily: theme.fonts.semibold,
                         },
                       ]}
                       numberOfLines={1}
@@ -344,8 +352,9 @@ export default function CustomAttendancePaper({
                         {
                           width: 92,
                           textAlign: "center",
-                          fontWeight: "600",
+                          // fontWeight: "600",
                           color: "#ff0000",
+                          fontFamily: theme.fonts.semibold,
                         },
                       ]}
                       numberOfLines={1}
@@ -355,7 +364,12 @@ export default function CustomAttendancePaper({
                     <Text
                       style={[
                         styles.td,
-                        { width: 96, textAlign: "center", fontWeight: "700" },
+                        {
+                          width: 96,
+                          textAlign: "center",
+                          // fontWeight: "700",
+                          fontFamily: theme.fonts.bold,
+                        },
                       ]}
                       numberOfLines={1}
                     >
@@ -374,7 +388,9 @@ export default function CustomAttendancePaper({
 
             {/* Table Footer */}
             <View style={styles.tableFooter}>
-              <Text style={styles.tfLabel}>Total Time Work Attendance</Text>
+              <Text style={styles.tfLabel}>
+                {t("common.total")} ({t("navigation.attendance")})
+              </Text>
               <Text style={styles.tfValue}>{grandTotalFormatted}</Text>
             </View>
           </View>
@@ -395,40 +411,40 @@ export default function CustomAttendancePaper({
                 style={[styles.th, { width: 72, textAlign: "center" }]}
                 numberOfLines={1}
               >
-                Staff ID
+                {t("account.id")}
               </Text>
               <Text style={[styles.th, { width: 110 }]} numberOfLines={1}>
-                Staff Name
+                {t("account.name")}
               </Text>
               <Text
                 style={[styles.th, { width: 85, textAlign: "center" }]}
                 numberOfLines={1}
               >
-                Date
+                {t("report.date")}
               </Text>
               <Text
                 style={[styles.th, { width: 98, textAlign: "center" }]}
                 numberOfLines={1}
               >
-                Time In
+                {t("report.timeIn")}
               </Text>
               <Text
                 style={[styles.th, { width: 98, textAlign: "center" }]}
                 numberOfLines={1}
               >
-                Time Out
+                {t("report.timeOut")}
               </Text>
               <Text
                 style={[styles.th, { width: 85, textAlign: "center" }]}
                 numberOfLines={1}
               >
-                Total Time
+                {t("common.total")}
               </Text>
               <Text
                 style={[styles.th, { width: 78, textAlign: "center" }]}
                 numberOfLines={1}
               >
-                Remark
+                {t("report.remark")}
               </Text>
             </View>
 
@@ -450,7 +466,12 @@ export default function CustomAttendancePaper({
                     <Text
                       style={[
                         styles.td,
-                        { width: 32, textAlign: "center", fontWeight: "600" },
+                        {
+                          width: 32,
+                          textAlign: "center",
+                          // fontWeight: "600",
+                          fontFamily: theme.fonts.semibold,
+                        },
                       ]}
                       numberOfLines={1}
                     >
@@ -459,14 +480,26 @@ export default function CustomAttendancePaper({
                     <Text
                       style={[
                         styles.td,
-                        { width: 72, textAlign: "center", fontWeight: "600" },
+                        {
+                          width: 72,
+                          textAlign: "center",
+                          // fontWeight: "600",
+                          fontFamily: theme.fonts.semibold,
+                        },
                       ]}
                       numberOfLines={1}
                     >
                       {item.staffId}
                     </Text>
                     <Text
-                      style={[styles.td, { width: 110, fontWeight: "700" }]}
+                      style={[
+                        styles.td,
+                        {
+                          width: 110,
+                          // fontWeight: "700",
+                          fontFamily: theme.fonts.bold,
+                        },
+                      ]}
                       numberOfLines={1}
                     >
                       {item.staffName}
@@ -483,8 +516,9 @@ export default function CustomAttendancePaper({
                         {
                           width: 98,
                           textAlign: "center",
-                          fontWeight: "600",
+                          // fontWeight: "600",
                           color: "#0022ff",
+                          fontFamily: theme.fonts.semibold,
                         },
                       ]}
                       numberOfLines={1}
@@ -497,8 +531,9 @@ export default function CustomAttendancePaper({
                         {
                           width: 98,
                           textAlign: "center",
-                          fontWeight: "600",
+                          // fontWeight: "600",
                           color: "#ff0000",
+                          fontFamily: theme.fonts.semibold,
                         },
                       ]}
                       numberOfLines={1}
@@ -508,7 +543,12 @@ export default function CustomAttendancePaper({
                     <Text
                       style={[
                         styles.td,
-                        { width: 85, textAlign: "center", fontWeight: "700" },
+                        {
+                          width: 85,
+                          textAlign: "center",
+                          // fontWeight: "700",
+                          fontFamily: theme.fonts.semibold,
+                        },
                       ]}
                       numberOfLines={1}
                     >
@@ -556,7 +596,7 @@ const styles = StyleSheet.create({
   },
   companyTitle: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#0f172a",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -602,7 +642,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   staffInfoLabel: {
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -623,7 +663,7 @@ const styles = StyleSheet.create({
   },
   th: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#334155",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -666,14 +706,14 @@ const styles = StyleSheet.create({
   },
   tfLabel: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#0f172a",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
   tfValue: {
     fontSize: theme.fontSizes.xs,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#0f172a",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,

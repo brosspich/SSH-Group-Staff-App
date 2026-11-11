@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import CustomRequestPaper from "@/shared/components/report-request/CustomRequestPaper";
 import {
   ReportMode,
@@ -53,6 +54,7 @@ export function RequestReportPrintModal({
   onClose,
   isMobile = false,
 }: RequestReportPrintModalProps) {
+  const { t } = useLanguage();
   const [isPrinting, setIsPrinting] = useState(false);
   const [isSavingPdf, setIsSavingPdf] = useState(false);
   const isProcessingRef = useRef(false);
@@ -283,7 +285,7 @@ export function RequestReportPrintModal({
                 />
               )}
               <Text style={s.pdfBtnText}>
-                {isSavingPdf ? "Saving…" : "Save PDF"}
+                {isSavingPdf ? t("report.saving") : t("report.savePdf")}
               </Text>
             </TouchableOpacity>
 
@@ -305,7 +307,7 @@ export function RequestReportPrintModal({
                 />
               )}
               <Text style={s.printBtnText}>
-                {isPrinting ? "Printing…" : "Print"}
+                {isPrinting ? t("report.printing") : t("report.print")}
               </Text>
             </TouchableOpacity>
           </View>
@@ -336,7 +338,7 @@ const s = StyleSheet.create({
     flex: 1,
     marginRight: 10,
     fontSize: theme.fontSizes.md,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
@@ -379,7 +381,7 @@ const s = StyleSheet.create({
   pdfBtnText: {
     fontSize: theme.fontSizes.sm,
     color: theme.colors.secondary,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
@@ -400,7 +402,7 @@ const s = StyleSheet.create({
   },
   printBtnText: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: theme.colors.background2,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,

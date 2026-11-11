@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
@@ -7,21 +8,33 @@ interface AttendanceEmptyStateProps {
   searchQuery: string;
 }
 
-export const AttendanceEmptyState: React.FC<AttendanceEmptyStateProps> = React.memo(
-  ({ searchQuery }) => {
+export const AttendanceEmptyState: React.FC<AttendanceEmptyStateProps> =
+  React.memo(({ searchQuery }) => {
+    const { t } = useLanguage();
+
     return (
       <View style={styles.emptyCard}>
         <Ionicons name="calendar-outline" size={44} color={theme.colors.grey} />
-        <Text style={styles.emptyTitle}>No Logs Found</Text>
+        <Text style={styles.emptyTitle}>
+          {t("attendance.noLogsFound", "No Logs Found")}
+        </Text>
         <Text style={styles.emptySub}>
           {searchQuery
-            ? `No attendance records matching "${searchQuery}".`
-            : "Scan an official QR code to record attendance."}
+            ? t(
+                "attendance.noLogsMatch",
+                'No attendance records matching "{{query}}".',
+                {
+                  query: searchQuery,
+                },
+              )
+            : t(
+                "attendance.noLogsFoundDesc",
+                "Scan an official QR code to record attendance.",
+              )}
         </Text>
       </View>
     );
-  },
-);
+  });
 
 const styles = StyleSheet.create({
   emptyCard: {

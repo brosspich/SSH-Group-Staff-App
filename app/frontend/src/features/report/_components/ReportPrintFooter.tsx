@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -13,6 +14,7 @@ export function ReportPrintFooter({
   disabled = false,
 }: ReportPrintFooterProps) {
   const { isMobile } = useResponsive();
+  const { t } = useLanguage();
 
   return (
     <>
@@ -29,7 +31,9 @@ export function ReportPrintFooter({
             disabled={disabled}
             activeOpacity={0.8}
           >
-            <Text style={styles.printBtnText}>Print Report / Save PDF</Text>
+            <Text style={styles.printBtnText}>
+              {t("report.printReportOrPdf", "Print Report / Save PDF")}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -66,7 +70,6 @@ const styles = StyleSheet.create({
   },
   printBtnText: {
     fontSize: theme.fontSizes.sm,
-    fontWeight: "bold",
     color: theme.colors.background2,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,

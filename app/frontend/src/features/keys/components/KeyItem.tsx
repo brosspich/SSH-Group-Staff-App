@@ -1,6 +1,7 @@
-import { theme } from "@/shared/styles/theme";
+import { useLanguage } from "@/features/language";
 import { Card } from "@/shared/components/ui/Card";
 import { Typography } from "@/shared/components/ui/Typography";
+import { theme } from "@/shared/styles/theme";
 import { formatDate } from "@/utils/formatters";
 import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
@@ -12,6 +13,8 @@ export interface KeyItemProps {
 }
 
 export const KeyItem: React.FC<KeyItemProps> = ({ sshKey, onDelete }) => {
+  const { t } = useLanguage();
+
   return (
     <Card style={styles.card}>
       <View style={styles.header}>
@@ -19,20 +22,29 @@ export const KeyItem: React.FC<KeyItemProps> = ({ sshKey, onDelete }) => {
           <Typography variant="body" weight="semibold">
             {sshKey.name}
           </Typography>
-          <Typography variant="caption" color="#8E8E93">
-            {sshKey.type} • Created {formatDate(sshKey.createdAt)}
+          <Typography variant="caption" color={theme.colors.textSecondary}>
+            {sshKey.type} • {t("keys.created", "Created")}{" "}
+            {formatDate(sshKey.createdAt)}
           </Typography>
         </View>
         {onDelete && (
           <TouchableOpacity onPress={() => onDelete(sshKey.id)}>
-            <Typography variant="bodySmall" color="#FF3B30" weight="semibold">
-              Revoke
+            <Typography
+              variant="bodySmall"
+              color={theme.colors.error}
+              weight="semibold"
+            >
+              {t("keys.revoke", "Revoke")}
             </Typography>
           </TouchableOpacity>
         )}
       </View>
       <View style={styles.fingerprintBox}>
-        <Typography variant="caption" color="#555555" numberOfLines={1}>
+        <Typography
+          variant="caption"
+          color={theme.colors.textSecondary}
+          numberOfLines={1}
+        >
           {sshKey.fingerprint}
         </Typography>
       </View>
@@ -42,17 +54,17 @@ export const KeyItem: React.FC<KeyItemProps> = ({ sshKey, onDelete }) => {
 
 const styles = StyleSheet.create({
   card: {
-    marginVertical: 6,
+    marginVertical: theme.spacing.xs,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: theme.spacing.sm,
   },
   fingerprintBox: {
-    backgroundColor: "#F2F2F7",
-    padding: 8,
-    borderRadius: theme.borderRadius.xs,
+    backgroundColor: theme.colors.background,
+    padding: theme.spacing.sm,
+    borderRadius: theme.borderRadius.sm,
   },
 });

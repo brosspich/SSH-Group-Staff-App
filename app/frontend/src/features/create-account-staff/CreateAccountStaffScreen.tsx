@@ -1,7 +1,8 @@
+import { useLanguage } from "@/features/language";
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
-import { theme } from "@/shared/styles/theme";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { isOwnerRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -27,6 +28,7 @@ import { useCreateAccountStaff } from "./_hooks/useCreateAccountStaff";
 export default function CreateAccountStaffScreen() {
   const insets = useSafeAreaInsets();
   const { isMobile } = useResponsive();
+  const { t } = useLanguage();
 
   const {
     currentUser,
@@ -80,7 +82,7 @@ export default function CreateAccountStaffScreen() {
   return (
     <View style={styles.safe}>
       <AppbarBack
-        Title="Create Account Staff"
+        Title={t("createAccountStaff.title", "Create Account Staff")}
         fallbackRoute="/(tabs)/setting"
       />
 
@@ -113,7 +115,11 @@ export default function CreateAccountStaffScreen() {
           {/* Error Banner */}
           {errorMessage && (
             <View style={styles.errorBanner}>
-              <Ionicons name="alert-circle" size={20} color={theme.colors.red} />
+              <Ionicons
+                name="alert-circle"
+                size={20}
+                color={theme.colors.red}
+              />
               <Text style={styles.errorBannerText}>{errorMessage}</Text>
             </View>
           )}
@@ -168,7 +174,9 @@ export default function CreateAccountStaffScreen() {
             {saving ? (
               <View style={styles.btnLoadingRow}>
                 <ActivityIndicator size="small" color="#fff" />
-                <Text style={styles.createBtnText}>Creating Staff...</Text>
+                <Text style={styles.createBtnText}>
+                  {t("createAccountStaff.creatingStaff", "Creating Staff...")}
+                </Text>
               </View>
             ) : (
               <View style={styles.btnLoadingRow}>
@@ -178,7 +186,9 @@ export default function CreateAccountStaffScreen() {
                   color="#fff"
                   style={{ marginRight: 8 }}
                 />
-                <Text style={styles.createBtnText}>Create Staff Account</Text>
+                <Text style={styles.createBtnText}>
+                  {t("createAccountStaff.createButton", "Create Staff Account")}
+                </Text>
               </View>
             )}
           </TouchableOpacity>
@@ -227,7 +237,9 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: theme.fontSizes.sm,
     color: theme.colors.red,
-    fontWeight: "600",
+    // fontWeight: "600",
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   createBtn: {
     backgroundColor: theme.colors.primary,
@@ -248,7 +260,9 @@ const styles = StyleSheet.create({
   },
   createBtnText: {
     fontSize: theme.fontSizes.md,
-    fontWeight: "700",
-    color: "#fff",
+    // fontWeight: "700",
+    color: theme.colors.background2,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
 });

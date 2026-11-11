@@ -1,7 +1,6 @@
 import { useUser } from "@/shared/contexts/UserContext";
 import { secureStorage } from "@/shared/services/storage/secureStore.service";
 import { userService } from "@/shared/services/userService";
-import { clearSessionId } from "@/shared/utils/device-session/sessionStorage";
 import { syncDeviceSession } from "@/utils/deviceSession";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
@@ -41,13 +40,10 @@ export function useLoginMutation() {
       await userService.save(data.user);
       setUser(data.user);
 
-      // 2. Clear any stale terminated session ID so this login starts fresh
-      await clearSessionId().catch(() => null);
-
-      // 3. Fast navigation: Instantly enter the app without blocking on background network calls!
+      // 2. Fast navigation: Instantly enter the app without blocking on background network calls!
       router.replace("/(tabs)/" as any);
 
-      // 4. Background Sync: sync device session & hydrate fresh config asynchronously
+      // 3. Background Sync: sync device session & hydrate fresh config asynchronously
       syncDeviceSession(data.user.system_id || data.user.id, true, true)
         .then(() => refresh(false))
         .catch((err) => {

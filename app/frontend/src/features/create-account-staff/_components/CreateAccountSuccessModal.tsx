@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -15,6 +16,8 @@ interface CreateAccountSuccessModalProps {
 export const CreateAccountSuccessModal: React.FC<
   CreateAccountSuccessModalProps
 > = ({ visible, onClose, staffName, staffId, systemId }) => {
+  const { t } = useLanguage();
+
   return (
     <Modal
       visible={visible}
@@ -25,26 +28,33 @@ export const CreateAccountSuccessModal: React.FC<
       <View style={styles.modalOverlay}>
         <View style={styles.modalCard}>
           <View style={styles.successIconCircle}>
-            <Ionicons name="checkmark-sharp" size={42} color="#fff" />
+            <Ionicons
+              name="checkmark-sharp"
+              size={42}
+              color={theme.colors.background2}
+            />
           </View>
-          <Text style={styles.modalTitle}>Account Created!</Text>
+          <Text style={styles.modalTitle}>
+            {t("createAccountStaff.accountCreated", "Account Created!")}
+          </Text>
           <Text style={styles.modalMessage}>
-            Staff account for{" "}
-            <Text
-              style={{ fontFamily: theme.fonts.bold, color: theme.colors.primary }}
-            >
-              {staffName || "Staff"}
-            </Text>{" "}
-            has been successfully created.
+            {t("createAccountStaff.accountCreatedDesc", {
+              name: staffName || "Staff",
+              defaultValue: `Staff account for ${staffName || "Staff"} has been successfully created.`,
+            })}
           </Text>
 
           <View style={styles.summaryBox}>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>Staff ID:</Text>
+              <Text style={styles.summaryLabel}>
+                {t("createAccountStaff.staffId", "Staff ID")}:
+              </Text>
               <Text style={styles.summaryVal}>{staffId}</Text>
             </View>
             <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>System ID:</Text>
+              <Text style={styles.summaryLabel}>
+                {t("account.systemId", "System ID")}:
+              </Text>
               <Text style={styles.summaryVal}>{systemId}</Text>
             </View>
           </View>
@@ -55,7 +65,9 @@ export const CreateAccountSuccessModal: React.FC<
               onPress={onClose}
               activeOpacity={0.8}
             >
-              <Text style={styles.modalBtnSecText}>Add Another</Text>
+              <Text style={styles.modalBtnSecText}>
+                {t("createAccountStaff.addAnother", "Add Another")}
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -66,7 +78,9 @@ export const CreateAccountSuccessModal: React.FC<
               }}
               activeOpacity={0.8}
             >
-              <Text style={styles.modalBtnPriText}>View Staff List</Text>
+              <Text style={styles.modalBtnPriText}>
+                {t("createAccountStaff.viewStaffList", "View Staff List")}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -171,7 +185,7 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary,
   },
   modalBtnPriText: {
-    color: "#fff",
+    color: theme.colors.background2,
     fontFamily: theme.fonts.bold,
     fontSize: theme.fontSizes.sm,
     includeFontPadding: false,

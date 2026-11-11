@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -17,10 +18,12 @@ export default function ThisDeviceSection({
   onSelectDevice,
   onTerminateOtherSessions,
 }: ThisDeviceSectionProps) {
+  const { t } = useLanguage();
+
   return (
     <>
       <View style={styles.card}>
-        <Text style={styles.sectionHeader}>This device</Text>
+        <Text style={styles.sectionHeader}>{t("devices.thisDevice")}</Text>
         {thisDevice ? (
           <>
             <View style={styles.divider} />
@@ -37,6 +40,8 @@ export default function ThisDeviceSection({
             >
               <DeviceOSIcon
                 os={thisDevice.os}
+                deviceName={thisDevice.device_name}
+                modelName={thisDevice.model_name}
                 isLarge={false}
                 deviceType={thisDevice.device_type}
               />
@@ -82,7 +87,7 @@ export default function ThisDeviceSection({
                 color={theme.colors.red}
               />
               <Text style={styles.terminateOtherText}>
-                Terminate All Other Sessions
+                {t("devices.terminateOtherSessions")}
               </Text>
             </Pressable>
           </>
@@ -133,7 +138,7 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
   },
   sessionSubtext: {
-    fontSize: theme.fontSizes.sm,
+    fontSize: theme.fontSizes.xs,
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
@@ -147,8 +152,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   onlineColor: {
-    color: "#00c853",
-    fontWeight: "600",
+    color: theme.colors.success,
+    fontFamily: theme.fonts.semibold,
+    includeFontPadding: false,
   },
   emptySession: {
     padding: 16,

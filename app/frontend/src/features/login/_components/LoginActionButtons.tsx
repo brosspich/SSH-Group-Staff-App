@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { theme } from "@/shared/styles/theme";
 import { AntDesign } from "@expo/vector-icons";
 import {
@@ -19,6 +20,8 @@ export default function LoginActionButtons({
   onSubmit,
   isLoading,
 }: LoginActionButtonsProps) {
+  const { t } = useLanguage();
+
   return (
     <>
       <TouchableOpacity
@@ -26,7 +29,7 @@ export default function LoginActionButtons({
         style={styles.privacyLink}
         activeOpacity={0.7}
       >
-        <Text style={styles.privacyLinkText}>Privacy & Policy</Text>
+        <Text style={styles.privacyLinkText}>{t("auth.privacyPolicy")}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -39,7 +42,7 @@ export default function LoginActionButtons({
           {isLoading ? (
             <>
               <ActivityIndicator size={24} color={theme.colors.background2} />
-              <Text style={styles.txtBtn}>Login...</Text>
+              <Text style={styles.txtBtn}>{t("auth.loggingIn")}</Text>
             </>
           ) : (
             <>
@@ -48,7 +51,7 @@ export default function LoginActionButtons({
                 size={18}
                 color={theme.colors.background2}
               />
-              <Text style={styles.txtBtn}>Login</Text>
+              <Text style={styles.txtBtn}>{t("auth.loginButton")}</Text>
             </>
           )}
         </View>
@@ -86,8 +89,7 @@ const styles = StyleSheet.create({
   },
   txtBtn: {
     color: theme.colors.background2,
-    fontWeight: "bold",
-    marginLeft: 5,
+    marginLeft: theme.spacing.xs,
     fontSize: theme.fontSizes.md,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,

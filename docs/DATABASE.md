@@ -28,16 +28,20 @@ flowchart LR
 ## 2. Entity Relational Schema (Prisma)
 
 ### `User` & `UserDetails` (Staff Profiles)
+
 Separates authentication credentials from mutable staff personal information.
+
+> [!NOTE]
+> **Per-System Username Uniqueness**: Usernames are scoped per branch/system (`companyId`). Multiple systems can have the same username (e.g., `test` in `system-0001` and `test` in `system-0002`), but within the same system, usernames must be unique. The global `@unique` constraint was removed in Migration 14 for both Cloudflare D1 and local SQLite.
 
 ```prisma
 model User {
-  systemId            String              @id @map("system_id") // e.g. "system-0001-0022"
+  systemId            String              @id @map("system_id") // e.g. "system-0001-0022", "system-0002-0001"
   id                  String              // Staff ID e.g. "0022", "bpak-0001"
-  username            String              @unique
+  username            String              // Scoped unique per system
   passwordHash        String
   role                String              @default("member")
-  isActive            Boolean             @default(true)
+  isActive            Boolean             @default(true) // Stored as INTEGER (1 or 0) in Cloudflare D1
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
 
@@ -49,7 +53,7 @@ model User {
 
 model UserDetails {
   systemId    String    @id @map("system_id")
-  companyId   String?   @map("company_id")
+  companyId   String?   @map("company_id") // Foreign key to Company(id)
   name        String?
   email       String?
   phone       String?
@@ -65,6 +69,7 @@ model UserDetails {
 ```
 
 ### `Company` (Branch & Geofence Coordinates)
+
 Stores branch configuration, official work hours, and geofence locations.
 
 ```prisma
@@ -85,6 +90,7 @@ model Company {
 ```
 
 ### `AttendanceLog` (Clock In / Out Records)
+
 Immutable record of an attendance event scanned by staff.
 
 ```prisma
@@ -105,6 +111,7 @@ model AttendanceLog {
 ```
 
 ### `AttendanceRequest` (Leave / Missing Scan Requests)
+
 Stores attendance requests created by staff for review and approval.
 
 ```prisma
@@ -124,6 +131,7 @@ model AttendanceRequest {
 ```
 
 ### `DeviceSession` (Hardware & Security Binding)
+
 Tracks devices logged into staff accounts to prevent multi-device credential sharing.
 
 ```prisma
@@ -144,7 +152,44 @@ model DeviceSession {
 }
 ```
 
+### `ServerGroup`, `ServerKey` & `GroupMember` (Infrastructure & Key Management)
+
+Replaced the legacy `SSHGroup` model to support server cluster organization, access keys, and role-based server access.
+
+```prisma
+model ServerGroup {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  color       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  members     GroupMember[]
+}
+
+model GroupMember {
+  id          String      @id @default(uuid())
+  groupId     String
+  userId      String
+  role        String      @default("MEMBER")
+  createdAt   DateTime    @default(now())
+  group       ServerGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model ServerKey {
+  id          String    @id @default(uuid())
+  title       String
+  keyContent  String
+  type        String    @default("RSA")
+  fingerprint String?
+  userId      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+```
+
 ### `AuditLog` (System & Security Audit Trail)
+
 Append-only log for all compliance and administrative events.
 
 ```prisma
@@ -164,9 +209,10 @@ model AuditLog {
 
 ## 3. Cloudflare R2 Object Storage Integration
 
-Proof photos submitted during attendance scans and attendance requests are stored in Cloudflare R2 bucket `ssh-storage`.
+Proof photos submitted during attendance scans, attendance requests, and staff avatars are stored in Cloudflare R2 bucket `ssh-storage`.
 
 ### Configuration ([.env](file:///d:/Code/SSH-Group-Staff-App/app/backend/.env))
+
 ```ini
 R2_ACCOUNT_ID="9a061f4a584c2e1727526b1006284098"
 R2_ACCESS_KEY_ID="3d63b20e53c7b64517d1e92217dba458"
@@ -175,6 +221,7 @@ R2_BUCKET_NAME="ssh-storage"
 ```
 
 ### Storage Directory Structure
+
 All objects are systematically namespaced to guarantee 0 collisions:
 
 ```
@@ -183,27 +230,30 @@ ssh-storage/
 │   └── {system_id_or_userId}/
 │       └── {YYYY-MM-DD}/
 │           └── {timestamp}_proof.jpg
-└── staff-attendance-request/
+├── staff-attendance-request/
+│   └── {system_id_or_userId}/
+│       └── {YYYY-MM-DD}/
+│           └── {timestamp}_proof.jpg
+└── staff-avatars/
     └── {system_id_or_userId}/
-        └── {YYYY-MM-DD}/
-            └── {timestamp}_proof.jpg
-```
-
-### Upload Code Convention ([attendance-requests.service.ts](file:///d:/Code/SSH-Group-Staff-App/app/backend/src/features/attendance-requests/attendance-requests.service.ts#L134-L144))
-```ts
-const dateStr = fromDate || new Date().toISOString().split("T")[0];
-const userFolder = user.systemId || user.id;
-const fileName = `${Date.now()}_proof.${ext}`;
-const r2Key = `staff-attendance-request/${userFolder}/${dateStr}/${fileName}`;
-
-storedImageUrl = await r2Storage.uploadFile(r2Key, buffer, mimeType);
+        └── avatar_{timestamp}.jpg
 ```
 
 ---
 
-## 4. Database Sync Mechanisms
+## 4. Live Data Routing & Dual-Database Sync
 
-When a record is inserted or updated (such as an attendance log or attendance request):
-1. The record is persisted locally into SQLite via Prisma.
-2. In parallel, an SQL `INSERT ... ON CONFLICT DO UPDATE` query is executed against Cloudflare D1 via [d1Client.ts](file:///d:/Code/SSH-Group-Staff-App/app/backend/src/infrastructure/database/d1Client.ts).
-3. If D1 encounters network latency or transient downtime, the local Prisma database acts as a fallback buffer to avoid blocking the user.
+The application operates an active-active sync model between **Cloudflare D1**, **Cloudflare R2**, and local **SQLite (`dev.db`)**:
+
+| Action                 | Cloudflare D1 (Cloud DB) | Cloudflare R2 (Files/Photos)              | Local DB (`dev.db`)   | Notifications  |
+| :--------------------- | :----------------------- | :---------------------------------------- | :-------------------- | :------------- |
+| **Create User**        | `User`, `UserDetails`    | Avatar photo (if uploaded)                | `User`, `UserDetails` | Audit Log      |
+| **Edit User**          | `User`, `UserDetails`    | Updated avatar photo                      | `User`, `UserDetails` | Audit Log      |
+| **Scan Attendance**    | `AttendanceLog`          | Proof photo (`staff-attendance/`)         | `AttendanceLog`       | Telegram Alert |
+| **Request Attendance** | `AttendanceRequest`      | Proof photo (`staff-attendance-request/`) | `AttendanceRequest`   | Telegram Alert |
+
+### Synchronization Flow:
+
+1. **Primary Cloud Write**: User, Attendance, and Request actions write directly to **Cloudflare D1** via [d1Client.ts](file:///d:/Code/SSH-Group-Staff-App/app/backend/src/infrastructure/database/d1Client.ts).
+2. **Object Upload**: Base64/binary photos are uploaded to **Cloudflare R2** via [r2.service.ts](file:///d:/Code/SSH-Group-Staff-App/app/backend/src/infrastructure/storage/r2.service.ts) and the generated public URL is attached to the record.
+3. **Local Cache / Fallback**: The backend simultaneously syncs records into local SQLite (`dev.db`) via Prisma Client. If network or remote latency occurs, local data provides immediate continuity.

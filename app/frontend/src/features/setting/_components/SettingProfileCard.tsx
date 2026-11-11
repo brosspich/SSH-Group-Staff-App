@@ -1,3 +1,4 @@
+import { useLanguage } from "@/features/language";
 import { StaffUser } from "@/shared/services/userService";
 import { theme } from "@/shared/styles/theme";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,6 +22,8 @@ export const getTwoInitials = (name?: string | null) => {
 export const SettingProfileCard: React.FC<SettingProfileCardProps> = ({
   user,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <View style={styles.avatarSection}>
       <View style={styles.conAvatarTxt}>
@@ -35,9 +38,11 @@ export const SettingProfileCard: React.FC<SettingProfileCardProps> = ({
         </LinearGradient>
 
         <View style={styles.conName}>
-          <Text style={styles.userName}>{user?.name ?? "Name"}</Text>
+          <Text style={styles.userName}>
+            {user?.name ?? t("account.name", "Name")}
+          </Text>
           <Text style={styles.txtUserName}>
-            @{user?.username ?? "username"}
+            @{user?.username ?? t("account.username", "username")}
           </Text>
         </View>
       </View>
@@ -71,10 +76,7 @@ const styles = StyleSheet.create({
         boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.12)",
       },
       default: {
-        shadowOffset: { width: 0, height: 4 },
-        shadowColor: theme.colors.secondary,
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
+        ...theme.shadows.md,
       },
     }),
   },

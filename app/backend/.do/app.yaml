@@ -39,4 +39,15 @@ services:
         scope: RUN_TIME
         type: SECRET
       - key: R2_BUCKET_NAME
-        value: ssh-group-assets
+        value: ssh-storage
+      - key: D1_ACCOUNT_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: D1_DATABASE_ID
+        scope: RUN_TIME
+        type: SECRET
+      - key: D1_DATABASE_NAME
+        value: ssh-database
+      - key: CLOUDFLARE_API_TOKEN
+        scope: RUN_TIME
+        type: SECRET
