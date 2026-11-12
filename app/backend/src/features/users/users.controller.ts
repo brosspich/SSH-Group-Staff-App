@@ -574,11 +574,11 @@ export class UsersController {
           username: cleanUsername,
           passwordHash: finalHash,
           role:
-            typeof payload.role === "string"
-              ? payload.role
-              : Array.isArray(payload.role)
-                ? payload.role[0]
-                : "member",
+            typeof payload.role === "string" && payload.role.trim()
+              ? payload.role.toLowerCase().trim()
+              : Array.isArray(payload.role) && payload.role.length > 0
+                ? String(payload.role[0]).toLowerCase().trim()
+                : "staff",
           isActive,
           details: {
             create: {
@@ -883,12 +883,13 @@ export class UsersController {
       }
 
       if (payload.role !== undefined) {
-        userUpdateData.role =
-          typeof payload.role === "string"
-            ? payload.role
-            : Array.isArray(payload.role)
-              ? payload.role[0]
-              : "member";
+        let chosenRole = "staff";
+        if (typeof payload.role === "string" && payload.role.trim()) {
+          chosenRole = payload.role.toLowerCase().trim();
+        } else if (Array.isArray(payload.role) && payload.role.length > 0) {
+          chosenRole = String(payload.role[0]).toLowerCase().trim();
+        }
+        userUpdateData.role = chosenRole;
       }
       if (payload.isActive !== undefined)
         userUpdateData.isActive = Boolean(payload.isActive);

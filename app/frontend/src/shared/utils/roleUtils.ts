@@ -104,18 +104,29 @@ export function formatRole(role: any): string {
 
 /**
  * Normalizes a role value into a clean lowercase string array (e.g. ["staff", "admin"]).
+ * Preserves the exact role stored in the database without hardcoded overrides.
  */
 export function formatRolesList(role: any): string[] {
-  if (!role) return ["staff"];
-  if (Array.isArray(role))
-    return role.map((r) => String(r).toLowerCase().trim());
-  if (typeof role === "string") {
+  if (!role) return [];
+  let rawList: string[] = [];
+  if (Array.isArray(role)) {
+    rawList = role.map((r) => String(r).toLowerCase().trim());
+  } else if (typeof role === "string") {
     try {
       const parsed = JSON.parse(role);
-      if (Array.isArray(parsed))
-        return parsed.map((r) => String(r).toLowerCase().trim());
-    } catch (e) {}
-    return [role.toLowerCase().trim()];
+      if (Array.isArray(parsed)) {
+        rawList = parsed.map((r) => String(r).toLowerCase().trim());
+      } else {
+        rawList = [role.toLowerCase().trim()];
+      }
+    } catch (e) {
+      rawList = [role.toLowerCase().trim()];
+    }
+  } else {
+    rawList = [String(role).toLowerCase().trim()];
   }
-  return ["staff"];
+
+  // Preserve exact role string (user, staff, admin, member, owner, etc.)
+  const cleanList = Array.from(new Set(rawList.filter(Boolean)));
+  return cleanList.length > 0 ? cleanList : ["staff"];
 }

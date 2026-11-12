@@ -41,7 +41,7 @@ const COMMON_POSITIONS = [
   "Security",
 ];
 
-const AVAILABLE_ROLES = ["staff", "admin", "leave"] as const;
+const AVAILABLE_ROLES = ["staff", "admin", "user", "member", "leave"] as const;
 
 interface EditStaffModalProps {
   visible: boolean;
@@ -116,7 +116,8 @@ export default function EditStaffModal({
       setEditEmail(staff.email || "");
       setEditPhone(staff.phone || "");
       setEditJoined(staff.joined || "");
-      setEditRoles(formatRolesList(staff.role));
+      const initialRoles = formatRolesList(staff.role);
+      setEditRoles(initialRoles);
       setEditIsActive(staff.is_active !== false);
 
       setWantResetPassword(false);
@@ -128,11 +129,12 @@ export default function EditStaffModal({
   }, [staff, visible]);
 
   const toggleEditRole = (role: string) => {
-    if (editRoles.includes(role)) {
+    const cleanRole = role.toLowerCase().trim();
+    if (editRoles.includes(cleanRole)) {
       if (editRoles.length === 1) return; // Keep at least one role
-      setEditRoles(editRoles.filter((r) => r !== role));
+      setEditRoles(editRoles.filter((r) => r !== cleanRole));
     } else {
-      setEditRoles([...editRoles, role]);
+      setEditRoles([cleanRole]);
     }
   };
 
@@ -269,12 +271,15 @@ export default function EditStaffModal({
       }
 
       // 2. Prepare payload
+      const cleanRoles = Array.from(
+        new Set(editRoles.map((r) => r.toLowerCase().trim()).filter(Boolean)),
+      );
       const updatePayload: Record<string, any> = {
         name: cleanName,
         username: cleanUsername,
         position: cleanPosition,
         system_id: cleanSystemId || staff.system_id,
-        role: editRoles,
+        role: cleanRoles.length > 0 ? cleanRoles[0] : "staff",
         is_active: editIsActive,
         phone: cleanPhone || null,
         email: cleanEmail || null,
@@ -517,7 +522,12 @@ export default function EditStaffModal({
               <Text style={styles.fieldLabel}>
                 {t("changeInfoStaff.assignedRoles", "Assigned Roles")}
               </Text>
-              <View style={styles.rolesRow}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.rolesRow}
+                style={styles.rolesScrollView}
+              >
                 {AVAILABLE_ROLES.map((r) => {
                   const isSelected = editRoles.includes(r);
                   return (
@@ -550,7 +560,7 @@ export default function EditStaffModal({
                     </TouchableOpacity>
                   );
                 })}
-              </View>
+              </ScrollView>
             </View>
 
             {/* Active Account Switch */}
@@ -836,10 +846,14 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.semibold,
     includeFontPadding: false,
   },
+  rolesScrollView: {
+    marginTop: 2,
+    marginBottom: 4,
+  },
   rolesRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
     gap: 8,
+    paddingVertical: 2,
   },
   roleBadgeBtn: {
     flexDirection: "row",

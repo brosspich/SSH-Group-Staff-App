@@ -11,6 +11,7 @@ import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
 import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+import { useLanguage } from "../language";
 
 export default function AllStaffMonthlyScreen() {
   const [currentYear] = useState(() => {
@@ -60,10 +61,11 @@ export default function AllStaffMonthlyScreen() {
 
   const { isMobile } = useResponsive();
   const periodLabel = `${MONTH_NAMES[viewMonth]} ${viewYear}`;
+  const { t } = useLanguage();
 
   return (
     <>
-      <AppbarBack Title="All Staff Monthly Report" />
+      <AppbarBack Title={t("report.allStaffMonthlyReport")} />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}

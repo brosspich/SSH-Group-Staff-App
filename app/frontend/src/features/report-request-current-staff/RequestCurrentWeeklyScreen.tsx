@@ -11,6 +11,7 @@ import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
 import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+import { useLanguage } from "../language";
 
 export default function RequestCurrentWeeklyScreen() {
   const [weekOffset, setWeekOffset] = useState(0);
@@ -40,10 +41,11 @@ export default function RequestCurrentWeeklyScreen() {
   } = useAttendanceRequestReportData("current", "Weekly", start);
 
   const { isMobile } = useResponsive();
+  const { t } = useLanguage();
 
   return (
     <>
-      <AppbarBack Title="Current Staff Request Weekly Report" />
+      <AppbarBack Title={t("report.currentStaffWeeklyRequestReport")} />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}

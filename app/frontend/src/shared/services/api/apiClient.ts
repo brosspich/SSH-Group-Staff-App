@@ -66,22 +66,32 @@ function resolveCandidateBaseUrls(): string[] {
   const autoHostUrl = dynamicHost ? `http://${dynamicHost}:4000` : undefined;
   const envUrl = process.env.EXPO_PUBLIC_API_URL;
 
-  if (Platform.OS !== "web") {
+  if (Platform.OS === "android") {
     return [
       envUrl,
+      "http://192.168.1.111:4000",
       autoHostUrl,
-      "http://172.20.240.1:4000",
-      "http://10.0.2.2:4000",
-      "http://127.0.0.1:4000",
       "http://localhost:4000",
+      "http://127.0.0.1:4000",
+      "http://10.0.2.2:4000",
+    ].filter(Boolean) as string[];
+  }
+
+  if (Platform.OS === "ios") {
+    return [
+      envUrl,
+      "http://192.168.1.111:4000",
+      autoHostUrl,
+      "http://localhost:4000",
+      "http://127.0.0.1:4000",
     ].filter(Boolean) as string[];
   }
 
   return [
     envUrl,
+    "http://192.168.1.111:4000",
     "http://127.0.0.1:4000",
     "http://localhost:4000",
-    "http://172.20.240.1:4000",
   ].filter(Boolean) as string[];
 }
 
@@ -191,7 +201,7 @@ export class ApiClient {
 
     for (const base of targets) {
       const url = this.buildUrlWithBase(base, path, params);
-      const timeoutMs = options.timeout ?? 30000;
+      const timeoutMs = options.timeout ?? (targets.length > 1 ? 3500 : 30000);
       const controller = new AbortController();
       const timeoutId = setTimeout(() => {
         controller.abort();
@@ -206,6 +216,9 @@ export class ApiClient {
       }
 
       try {
+        if (__DEV__) {
+          console.log(`[ApiClient] 📡 Trying: ${url}`);
+        }
         const response = await fetch(url, {
           headers: finalHeaders,
           signal: controller.signal,
@@ -222,16 +235,15 @@ export class ApiClient {
             data?.message ||
             (typeof data?.error === "string" ? data.error : null) ||
             `Request failed with status ${response.status}`;
-          throw new ApiError(
-            errorMessage,
-            response.status,
-            data,
-          );
+          throw new ApiError(errorMessage, response.status, data);
         }
 
         // Successfully reached server! Pin this working base URL
         if (!isAbsolute && this.baseUrl !== base) {
           this.baseUrl = base;
+        }
+        if (__DEV__) {
+          console.log(`[ApiClient] ✅ Connected successfully to: ${base}`);
         }
 
         // Automatically unwrap { success: true, data: T } responses from API

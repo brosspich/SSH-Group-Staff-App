@@ -7,6 +7,7 @@ import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
 import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+import { useLanguage } from "../language";
 
 export default function CurrentStaffAnnualScreen() {
   const [currentYear] = useState(() => {
@@ -30,10 +31,11 @@ export default function CurrentStaffAnnualScreen() {
 
   const { isMobile } = useResponsive();
   const periodLabel = `${year}`;
+  const { t } = useLanguage();
 
   return (
     <>
-      <AppbarBack Title="Current Staff Annual Report" />
+      <AppbarBack Title={t("report.currentStaffAnnualReport")} />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}

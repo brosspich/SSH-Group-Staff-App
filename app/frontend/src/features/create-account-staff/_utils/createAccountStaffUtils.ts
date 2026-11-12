@@ -16,7 +16,7 @@ export const COMMON_POSITIONS = [
   "Security",
 ];
 
-export const AVAILABLE_ROLES = ["staff", "admin"] as const;
+export const AVAILABLE_ROLES = ["staff", "admin", "user", "member"] as const;
 
 export function getTodayFormattedDate(): string {
   const today = new Date();

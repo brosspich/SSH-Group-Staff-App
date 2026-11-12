@@ -155,6 +155,41 @@ export const en = {
     weekly: "Weekly Report",
     monthly: "Monthly Report",
     annual: "Annual Report",
+
+    currentStaffDailyReport: "Current Staff Daily Report",
+    currentStaffWeeklyReport: "Current Staff Weekly Report",
+    currentStaffMonthlyReport: "Current Staff Monthly Report",
+    currentStaffAnnualReport: "Current Staff Annual Report",
+
+    individualStaffDailyReport: "Individual Staff Daily Report",
+    individualStaffWeeklyReport: "Individual Staff Weekly Report",
+    individualStaffMonthlyReport: "Individual Staff Monthly Report",
+    individualStaffAnnualReport: "Individual Staff Annual Report",
+
+    currentStaffDailyRequestReport: "Current Staff Daily Request Report",
+    currentStaffWeeklyRequestReport: "Current Staff Weekly Request Report",
+    currentStaffMonthlyRequestReport: "Current Staff Monthly Request Report",
+    currentStaffAnnualRequestReport: "Current Staff Annual Request Report",
+
+    individualStaffDailyRequestReport: "Individual Staff Daily Request Report",
+    individualStaffWeeklyRequestReport:
+      "Individual Staff Weekly Request Report",
+    individualStaffMonthlyRequestReport:
+      "Individual Staff Monthly Request Report",
+    individualStaffAnnualRequestReport:
+      "Individual Staff Annual Request Report",
+
+    allStaffDailyReport: "All Staff Daily Report",
+    allStaffWeeklyReport: "All Staff Weekly Report",
+    allStaffMonthlyReport: "All Staff Monthly Report",
+    allStaffAnnualReport: "All Staff Annual Report",
+
+    allStaffDailyRequestReport: "All Staff Daily Request Report",
+    allStaffWeeklyRequestReport: "All Staff Weekly Request Report",
+    allStaffMonthlyRequestReport: "All Staff Monthly Request Report",
+    allStaffAnnualRequestReport: "All Staff Annual Request Report",
+
+    attendanceLogs: "Attendance Logs",
     selectStaff: "Select Staff Member",
     currentStaff: "Current Staff Member",
     changeStaff: "Change Staff",
@@ -432,8 +467,7 @@ export const en = {
     viewStaffList: "View Staff List",
     errNameRequired: "Full Name is required.",
     errUsernameRequired: "Username is required.",
-    errUsernameTaken:
-      "This username is already taken. Please choose another.",
+    errUsernameTaken: "This username is already taken. Please choose another.",
     errUsernameFormat:
       "Username must be 3-20 alphanumeric characters (letters, numbers, _, -).",
     errPasswordLength: "Password must be at least 6 characters.",

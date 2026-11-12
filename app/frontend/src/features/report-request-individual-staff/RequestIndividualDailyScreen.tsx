@@ -11,6 +11,7 @@ import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
+import { useLanguage } from "../language";
 
 export default function RequestIndividualDailyScreen() {
   const [selectedDate, setSelectedDate] = useState<Date>(getTodayPP());
@@ -28,10 +29,11 @@ export default function RequestIndividualDailyScreen() {
 
   const { isMobile } = useResponsive();
   const periodLabel = formatDateLabel(selectedDate, "Daily");
+  const { t } = useLanguage();
 
   return (
     <>
-      <AppbarBack Title="Individual Staff Request Daily Report" />
+      <AppbarBack Title={t("report.individualStaffDailyRequestReport")} />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}

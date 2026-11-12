@@ -3,6 +3,7 @@ import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
+  ScrollView,
   StyleSheet,
   Switch,
   Text,
@@ -43,7 +44,12 @@ export const CreateAccountStaffRoleStatus: React.FC<
       <Text style={styles.label}>
         {t("createAccountStaff.assignedRoles", "Assigned Roles")}
       </Text>
-      <View style={styles.rolesRow}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.rolesRow}
+        style={styles.rolesScrollView}
+      >
         {AVAILABLE_ROLES.map((role) => {
           const isSelected = selectedRoles.includes(role);
           return (
@@ -74,7 +80,7 @@ export const CreateAccountStaffRoleStatus: React.FC<
             </TouchableOpacity>
           );
         })}
-      </View>
+      </ScrollView>
 
       {/* Active Switch */}
       <View style={styles.switchRow}>
@@ -153,10 +159,13 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.semibold,
     includeFontPadding: false,
   },
+  rolesScrollView: {
+    marginBottom: 16,
+  },
   rolesRow: {
     flexDirection: "row",
     gap: 10,
-    marginBottom: 16,
+    paddingVertical: 2,
   },
   roleBadgeBtn: {
     flexDirection: "row",

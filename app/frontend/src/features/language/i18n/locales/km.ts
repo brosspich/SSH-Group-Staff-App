@@ -155,6 +155,48 @@ export const km = {
     weekly: "របាយការណ៍ប្រចាំសប្តាហ៍",
     monthly: "របាយការណ៍ប្រចាំខែ",
     annual: "របាយការណ៍ប្រចាំឆ្នាំ",
+    currentStaffDailyReport: "របាយការណ៍ប្រចាំថ្ងៃបុគ្គលិកបច្ចុប្បន្ន",
+    currentStaffWeeklyReport: "របាយការណ៍ប្រចាំសប្តាហ៍បុគ្គលិកបច្ចុប្បន្ន",
+    currentStaffMonthlyReport: "របាយការណ៍ប្រចាំខែបុគ្គលិកបច្ចុប្បន្ន",
+    currentStaffAnnualReport: "របាយការណ៍ប្រចាំឆ្នាំបុគ្គលិកបច្ចុប្បន្ន",
+
+    individualStaffDailyReport: "របាយការណ៍ប្រចាំថ្ងៃវត្តមានបុគ្គលិកម្នាក់",
+    individualStaffWeeklyReport: "របាយការណ៍ប្រចាំសប្តាហ៍វត្តមានបុគ្គលិកម្នាក់",
+    individualStaffMonthlyReport: "របាយការណ៍ប្រចាំខែវត្តមានបុគ្គលិកម្នាក់",
+    individualStaffAnnualReport: "របាយការណ៍ប្រចាំឆ្នាំវត្តមានបុគ្គលិកម្នាក់",
+
+    currentStaffDailyRequestReport:
+      "របាយការណ៍ប្រចាំថ្ងៃស្នើសុំវត្តមានបុគ្គលិកបច្ចុប្បន្ន",
+    currentStaffWeeklyRequestReport:
+      "របាយការណ៍ប្រចាំសប្តាហ៍ស្នើសុំវត្តមានបុគ្គលិកបច្ចុប្បន្ន",
+    currentStaffMonthlyRequestReport:
+      "របាយការណ៍ប្រចាំខែស្នើសុំវត្តមានបុគ្គលិកបច្ចុប្បន្ន",
+    currentStaffAnnualRequestReport:
+      "របាយការណ៍ប្រចាំឆ្នាំស្នើសុំវត្តមានបុគ្គលិកបច្ចុប្បន្ន",
+
+    individualStaffDailyRequestReport:
+      "របាយការណ៍ប្រចាំថ្ងៃស្នើសុំវត្តមានបុគ្គលិកម្នាក់",
+    individualStaffWeeklyRequestReport:
+      "របាយការណ៍ប្រចាំសប្តាហ៍ស្នើសុំវត្តមានបុគ្គលិកម្នាក់",
+    individualStaffMonthlyRequestReport:
+      "របាយការណ៍ប្រចាំខែស្នើសុំវត្តមានបុគ្គលិកម្នាក់",
+    individualStaffAnnualRequestReport:
+      "របាយការណ៍ប្រចាំឆ្នាំស្នើសុំវត្តមានបុគ្គលិកម្នាក់",
+
+    allStaffDailyReport: "របាយការណ៍ប្រចាំថ្ងៃបុគ្គលិកទាំងអស់",
+    allStaffWeeklyReport: "របាយការណ៍ប្រចាំសប្តាហ៍បុគ្គលិកទាំងអស់",
+    allStaffMonthlyReport: "របាយការណ៍ប្រចាំខែបុគ្គលិកទាំងអស់",
+    allStaffAnnualReport: "របាយការណ៍ប្រចាំឆ្នាំបុគ្គលិកទាំងអស់",
+
+    allStaffDailyRequestReport:
+      "របាយការណ៍ប្រចាំថ្ងៃស្នើសុំវត្តមានបុគ្គលិកទាំងអស់",
+    allStaffWeeklyRequestReport:
+      "របាយការណ៍ប្រចាំសប្តាហ៍ស្នើសុំវត្តមានបុគ្គលិកទាំងអស់",
+    allStaffMonthlyRequestReport:
+      "របាយការណ៍ប្រចាំខែស្នើសុំវត្តមានបុគ្គលិកទាំងអស់",
+    allStaffAnnualRequestReport:
+      "របាយការណ៍ប្រចាំឆ្នាំស្នើសុំវត្តមានបុគ្គលិកទាំងអស់",
+
     selectStaff: "ជ្រើសរើសបុគ្គលិក",
     currentStaff: "បុគ្គលិកបច្ចុប្បន្ន",
     changeStaff: "ផ្លាស់ប្តូរបុគ្គលិក",
