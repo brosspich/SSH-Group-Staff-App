@@ -9,10 +9,14 @@ export function useLanguage() {
   const setLanguage = useLanguageStore((s) => s.setLanguage);
 
   // Normalize current active language directly from i18n instance (authoritative source of truth for translations)
-  const rawLang = (i18n.resolvedLanguage || i18n.language || storeLang || "km")
+  const rawLang = (i18n.resolvedLanguage || i18n.language || storeLang || "en")
     .toString()
     .toLowerCase();
-  const currentLang: SupportedLanguage = rawLang.startsWith("en") ? "en" : "km";
+  const currentLang: SupportedLanguage = rawLang.startsWith("zh")
+    ? "zh"
+    : rawLang.startsWith("km")
+      ? "km"
+      : "en";
 
   const changeLanguage = useCallback(
     async (lang: SupportedLanguage) => {
@@ -28,5 +32,6 @@ export function useLanguage() {
     changeLanguage,
     isKhmer: currentLang === "km",
     isEnglish: currentLang === "en",
+    isChinese: currentLang === "zh",
   };
 }

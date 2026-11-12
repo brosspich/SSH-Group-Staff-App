@@ -3,21 +3,23 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import { en } from "./locales/en";
 import { km } from "./locales/km";
+import { zh } from "./locales/zh";
 
 export const LANGUAGE_STORAGE_KEY = "app_user_language";
 
-export type SupportedLanguage = "en" | "km";
+export type SupportedLanguage = "en" | "km" | "zh";
 
 export const resources = {
   en: { translation: en },
   km: { translation: km },
+  zh: { translation: zh },
 } as const;
 
 // Default initialization
 i18n.use(initReactI18next).init({
   compatibilityJSON: "v4" as any,
   resources,
-  lng: "km", // Default to Khmer
+  lng: "en", // Default to English
   fallbackLng: "en",
   interpolation: {
     escapeValue: false,
@@ -34,16 +36,19 @@ export async function initLanguageFromStorage(): Promise<SupportedLanguage> {
   try {
     const saved = await AsyncStorage.getItem(LANGUAGE_STORAGE_KEY);
     if (saved) {
-      const normalized: SupportedLanguage = saved.toLowerCase().startsWith("en")
-        ? "en"
-        : "km";
+      const lower = saved.toLowerCase();
+      const normalized: SupportedLanguage = lower.startsWith("zh")
+        ? "zh"
+        : lower.startsWith("km")
+          ? "km"
+          : "en";
       await i18n.changeLanguage(normalized);
       return normalized;
     }
   } catch (err) {
     console.warn("[i18n] Failed to load saved language:", err);
   }
-  return "km";
+  return "en";
 }
 
 /**
@@ -51,9 +56,12 @@ export async function initLanguageFromStorage(): Promise<SupportedLanguage> {
  */
 export async function setAppLanguage(lang: SupportedLanguage): Promise<void> {
   try {
-    const normalized: SupportedLanguage = lang.toLowerCase().startsWith("en")
-      ? "en"
-      : "km";
+    const lower = lang.toLowerCase();
+    const normalized: SupportedLanguage = lower.startsWith("zh")
+      ? "zh"
+      : lower.startsWith("km")
+        ? "km"
+        : "en";
     await i18n.changeLanguage(normalized);
     await AsyncStorage.setItem(LANGUAGE_STORAGE_KEY, normalized);
   } catch (err) {
@@ -62,11 +70,13 @@ export async function setAppLanguage(lang: SupportedLanguage): Promise<void> {
 }
 
 /**
- * Returns currently active language code ("en" | "km")
+ * Returns currently active language code ("en" | "km" | "zh")
  */
 export function getAppLanguage(): SupportedLanguage {
-  const raw = (i18n.resolvedLanguage || i18n.language || "km").toLowerCase();
-  return raw.startsWith("en") ? "en" : "km";
+  const raw = (i18n.resolvedLanguage || i18n.language || "en").toLowerCase();
+  if (raw.startsWith("zh")) return "zh";
+  if (raw.startsWith("km")) return "km";
+  return "en";
 }
 
 // Auto hydrate on module load

@@ -35,6 +35,12 @@ const LANGUAGES: LanguageOption[] = [
     nativeName: "English",
     flag: "🇬🇧",
   },
+  {
+    code: "zh",
+    name: "Chinese",
+    nativeName: "中文 (简体)",
+    flag: "🇨🇳",
+  },
 ];
 
 export default function LanguageScreen() {
@@ -143,7 +149,11 @@ export default function LanguageScreen() {
             <View style={styles.previewRow}>
               <Text style={styles.previewKey}>{t("home.welcomeBack")}</Text>
               <Text style={styles.previewTag}>
-                {isKhmer ? "ភាសាខ្មែរ" : "English"}
+                {currentLang === "km"
+                  ? "ភាសាខ្មែរ"
+                  : currentLang === "zh"
+                    ? "中文"
+                    : "English"}
               </Text>
             </View>
 

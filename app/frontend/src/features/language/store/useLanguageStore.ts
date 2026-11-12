@@ -3,9 +3,11 @@ import { create } from "zustand";
 import i18n, { LANGUAGE_STORAGE_KEY, SupportedLanguage } from "../i18n/i18n";
 
 function normalizeLang(lang?: string | null): SupportedLanguage {
-  if (!lang) return "km";
+  if (!lang) return "en";
   const clean = String(lang).trim().toLowerCase();
-  return clean.startsWith("en") ? "en" : "km";
+  if (clean.startsWith("zh")) return "zh";
+  if (clean.startsWith("km")) return "km";
+  return "en";
 }
 
 interface LanguageState {

@@ -119,7 +119,11 @@ export const SettingAccountSection: React.FC<SettingAccountSectionProps> = ({
                   fontFamily: theme.fonts.medium,
                 }}
               >
-                {currentLang === "en" ? "English 🇬🇧" : "ភាសាខ្មែរ 🇰🇭"}
+                {currentLang === "en"
+                  ? "English 🇬🇧"
+                  : currentLang === "zh"
+                    ? "中文 🇨🇳"
+                    : "ភាសាខ្មែរ 🇰🇭"}
               </Text>
               <Ionicons
                 name="chevron-forward-outline"
