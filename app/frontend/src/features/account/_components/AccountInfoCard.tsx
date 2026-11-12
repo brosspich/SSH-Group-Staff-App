@@ -53,6 +53,12 @@ export const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ user }) => {
           label={t("account.joined", "Joined")}
           value={joinedDate}
         />
+        <InfoRow
+          icon={MaterialIcons}
+          iconName="event"
+          label={t("account.dob", "Date of Birth")}
+          value={user?.dob ? formatJoinedDisplay(user.dob) : noneText}
+        />
       </View>
     </View>
   );

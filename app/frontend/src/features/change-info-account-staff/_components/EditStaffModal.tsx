@@ -94,6 +94,7 @@ export default function EditStaffModal({
   const [editEmail, setEditEmail] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editJoined, setEditJoined] = useState("");
+  const [editDob, setEditDob] = useState("");
   const [editRoles, setEditRoles] = useState<string[]>(["staff"]);
   const [editIsActive, setEditIsActive] = useState(true);
 
@@ -116,6 +117,7 @@ export default function EditStaffModal({
       setEditEmail(staff.email || "");
       setEditPhone(staff.phone || "");
       setEditJoined(staff.joined || "");
+      setEditDob(staff.dob || "");
       const initialRoles = formatRolesList(staff.role);
       setEditRoles(initialRoles);
       setEditIsActive(staff.is_active !== false);
@@ -284,6 +286,7 @@ export default function EditStaffModal({
         phone: cleanPhone || null,
         email: cleanEmail || null,
         joined: editJoined.trim() || null,
+        dob: editDob.trim() || null,
       };
 
       // 3. Hash password if requested
@@ -627,6 +630,20 @@ export default function EditStaffModal({
                 style={styles.input}
                 value={editJoined}
                 onChangeText={setEditJoined}
+                placeholder="YYYY/MM/DD"
+                placeholderTextColor={theme.colors.grey}
+              />
+            </View>
+
+            {/* Date of Birth */}
+            <View style={styles.fieldGroup}>
+              <Text style={styles.fieldLabel}>
+                {t("changeInfoStaff.dob", "Date of Birth (YYYY/MM/DD)")}
+              </Text>
+              <TextInput
+                style={styles.input}
+                value={editDob}
+                onChangeText={setEditDob}
                 placeholder="YYYY/MM/DD"
                 placeholderTextColor={theme.colors.grey}
               />

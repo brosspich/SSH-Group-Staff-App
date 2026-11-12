@@ -8,7 +8,8 @@ export type FieldKey =
   | "email"
   | "phone"
   | "position"
-  | "joined";
+  | "joined"
+  | "dob";
 
 export interface FieldConfigItem {
   title: string;

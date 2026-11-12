@@ -12,8 +12,11 @@ export function getInitialFieldValue(
 ): string {
   if (!user || !fieldKey) return "";
   if (fieldKey === "password") return "";
-  if (fieldKey === "joined") {
-    const raw = user.joined || user.created_at || "";
+  if (fieldKey === "joined" || fieldKey === "dob") {
+    const raw =
+      fieldKey === "dob"
+        ? user.dob || ""
+        : user.joined || user.created_at || "";
     const parsed = parseDateString(raw);
     if (parsed) {
       const year = parsed.getFullYear();
@@ -116,6 +119,18 @@ export const FIELD_CONFIG: Record<FieldKey, FieldConfigItem> = {
     formatInput: (v, prev) => formatJoinedDateInput(v, prev),
     validate: (v) => {
       if (!v.trim()) return "Joined date is required";
+      const parsed = parseDateString(v);
+      if (!parsed) return "Enter a valid date (e.g. yyyy/mm/dd or yyyy-mm-dd)";
+      return null;
+    },
+  },
+  dob: {
+    title: "Edit Date of Birth",
+    placeholder: "yyyy/mm/dd",
+    keyboardType: "number-pad",
+    formatInput: (v, prev) => formatJoinedDateInput(v, prev),
+    validate: (v) => {
+      if (!v.trim()) return null;
       const parsed = parseDateString(v);
       if (!parsed) return "Enter a valid date (e.g. yyyy/mm/dd or yyyy-mm-dd)";
       return null;

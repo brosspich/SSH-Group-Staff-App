@@ -20,7 +20,9 @@ export const InformationCard: React.FC<InformationCardProps> = ({
   const { t } = useLanguage();
   const rawJoinedDate = user?.joined || user?.created_at;
   const joinedDate = formatJoinedDisplay(rawJoinedDate);
+  const rawDob = user?.dob;
   const noneText = t("common.none", "None");
+  const dobDate = rawDob ? formatJoinedDisplay(rawDob) : noneText;
 
   return (
     <View style={styles.section}>
@@ -85,6 +87,13 @@ export const InformationCard: React.FC<InformationCardProps> = ({
           label={t("account.joined", "Joined")}
           value={joinedDate}
           edit={() => onEditField("joined")}
+        />
+        <InfoRow
+          icon={MaterialIcons}
+          iconName="event"
+          label={t("account.dob", "Date of Birth")}
+          value={dobDate}
+          edit={() => onEditField("dob")}
         />
       </View>
     </View>

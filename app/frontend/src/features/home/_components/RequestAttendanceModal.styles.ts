@@ -85,7 +85,7 @@ export const styles = StyleSheet.create({
   staffMetaRow: {
     // flexDirection: "row",
     // alignItems: "center",
-    gap: 6,
+    // gap: 6,
     marginTop: 2,
     justifyContent: "flex-start",
   },

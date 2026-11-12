@@ -39,6 +39,7 @@ export function useCreateAccountStaff() {
   const [selectedRoles, setSelectedRoles] = useState<string[]>(["staff"]);
   const [isActive, setIsActive] = useState(true);
   const [joinedDate, setJoinedDate] = useState(getTodayFormattedDate);
+  const [dob, setDob] = useState("");
 
   // UI State
   const [saving, setSaving] = useState(false);
@@ -133,6 +134,7 @@ export function useCreateAccountStaff() {
     setPhone("");
     setSelectedRoles(["staff"]);
     setIsActive(true);
+    setDob("");
     setErrorMessage(null);
     if (systemKey) {
       generateNextSystemId(systemKey);
@@ -155,6 +157,7 @@ export function useCreateAccountStaff() {
       selectedRoles,
       isActive,
       joinedDate,
+      dob,
     };
 
     const validationError = validateCreateStaffInput(formData, t);
@@ -197,6 +200,7 @@ export function useCreateAccountStaff() {
         phone: phone.trim() || null,
         is_active: isActive,
         joined: joinedDate.trim(),
+        dob: dob.trim() || null,
         devices: [],
         attendance: [],
         request_attendance_rules: [],
@@ -270,6 +274,8 @@ export function useCreateAccountStaff() {
     setIsActive,
     joinedDate,
     setJoinedDate,
+    dob,
+    setDob,
     saving,
     errorMessage,
     successModalVisible,

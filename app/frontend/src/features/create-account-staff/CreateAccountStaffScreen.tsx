@@ -59,6 +59,8 @@ export default function CreateAccountStaffScreen() {
     setIsActive,
     joinedDate,
     setJoinedDate,
+    dob,
+    setDob,
     saving,
     errorMessage,
     successModalVisible,
@@ -154,6 +156,8 @@ export default function CreateAccountStaffScreen() {
             setIsActive={setIsActive}
             joinedDate={joinedDate}
             setJoinedDate={setJoinedDate}
+            dob={dob}
+            setDob={setDob}
           />
 
           {/* Contact Section */}

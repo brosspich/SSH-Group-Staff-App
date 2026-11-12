@@ -13,6 +13,7 @@ export interface CreateStaffFormData {
   selectedRoles: string[];
   isActive: boolean;
   joinedDate: string;
+  dob?: string;
 }
 
 export interface CreateStaffPayload {
@@ -28,6 +29,7 @@ export interface CreateStaffPayload {
   phone: string | null;
   is_active: boolean;
   joined: string;
+  dob?: string | null;
   devices: any[];
   attendance: any[];
   request_attendance_rules: any[];

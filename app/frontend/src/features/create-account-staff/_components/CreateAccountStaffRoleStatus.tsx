@@ -20,6 +20,8 @@ interface CreateAccountStaffRoleStatusProps {
   setIsActive: (v: boolean) => void;
   joinedDate: string;
   setJoinedDate: (v: string) => void;
+  dob?: string;
+  setDob?: (v: string) => void;
 }
 
 export const CreateAccountStaffRoleStatus: React.FC<
@@ -31,6 +33,8 @@ export const CreateAccountStaffRoleStatus: React.FC<
   setIsActive,
   joinedDate,
   setJoinedDate,
+  dob = "",
+  setDob,
 }) => {
   const { t } = useLanguage();
 
@@ -127,6 +131,30 @@ export const CreateAccountStaffRoleStatus: React.FC<
           />
         </View>
       </View>
+
+      {/* Date of Birth */}
+      {setDob && (
+        <View style={[styles.fieldGroup, { marginTop: 14 }]}>
+          <Text style={styles.label}>
+            {t("createAccountStaff.dob", "Date of Birth (YYYY/MM/DD)")}
+          </Text>
+          <View style={styles.inputContainer}>
+            <Ionicons
+              name="calendar-outline"
+              size={20}
+              color={theme.colors.grey}
+              style={styles.fieldIcon}
+            />
+            <TextInput
+              style={styles.textInput}
+              value={dob}
+              onChangeText={setDob}
+              placeholder="YYYY/MM/DD"
+              placeholderTextColor={theme.colors.grey}
+            />
+          </View>
+        </View>
+      )}
     </View>
   );
 };
