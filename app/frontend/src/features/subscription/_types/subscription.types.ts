@@ -8,6 +8,7 @@ export interface SubscriptionInfo {
   status: "Active" | "Inactive" | "Expired";
   daysRemaining: number;
   isExpired: boolean;
+  hasSubscription?: boolean;
 }
 
 export interface SubscriptionApiResponse {

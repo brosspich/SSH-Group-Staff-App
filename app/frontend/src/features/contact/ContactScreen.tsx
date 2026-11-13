@@ -1,14 +1,25 @@
 import { useLanguage } from "@/features/language";
+import { useSystemConfigQuery } from "@/features/system-config";
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
+import { useMemo } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ContactItemButton } from "./_components/ContactItemButton";
-import { openSocialLink, SOCIAL_PLATFORMS } from "./_utils/contactConstants";
+import {
+  openSocialLink,
+  resolveSocialPlatforms,
+} from "./_utils/contactConstants";
 
 export default function ContactScreen() {
   const { t } = useLanguage();
   const { isMobile } = useResponsive();
+  const { socialPlatforms } = useSystemConfigQuery();
+
+  const platforms = useMemo(
+    () => resolveSocialPlatforms(socialPlatforms),
+    [socialPlatforms],
+  );
 
   return (
     <View style={styles.container}>
@@ -18,7 +29,7 @@ export default function ContactScreen() {
           Welcome to the official platform of SSH GROUP:
         </Text>
         <View style={[styles.conBody, !isMobile && styles.conBodyGrid]}>
-          {SOCIAL_PLATFORMS.map((platform) => (
+          {platforms.map((platform) => (
             <ContactItemButton
               key={platform.id}
               platform={platform}

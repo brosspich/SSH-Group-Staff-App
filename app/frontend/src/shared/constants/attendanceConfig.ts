@@ -57,8 +57,9 @@ export interface OfficialAttendanceConfig {
 export function extractSystemKey(systemId?: string): string {
   if (!systemId || typeof systemId !== "string") return "";
   const trimmed = systemId.trim().toLowerCase();
-  const match = trimmed.match(/^(system-\d+)/i);
-  if (match) return match[1];
+  if (trimmed.startsWith("bpak")) return "system-0002";
+  const match = trimmed.match(/^(system-\d+(?:\.\d+)?)/i);
+  if (match) return match[1].toLowerCase();
   return trimmed;
 }
 

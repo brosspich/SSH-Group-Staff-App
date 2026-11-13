@@ -29,8 +29,12 @@ async function run() {
       `);
       await d1Client.execute(`DROP TABLE User;`);
       await d1Client.execute(`ALTER TABLE User_new RENAME TO User;`);
-      await d1Client.execute(`CREATE INDEX IF NOT EXISTS idx_user_id ON User (id);`);
-      await d1Client.execute(`CREATE INDEX IF NOT EXISTS idx_user_username ON User (username);`);
+      await d1Client.execute(
+        `CREATE INDEX IF NOT EXISTS idx_user_id ON User (id);`,
+      );
+      await d1Client.execute(
+        `CREATE INDEX IF NOT EXISTS idx_user_username ON User (username);`,
+      );
       console.log("✅ Cloudflare D1 Migration 14 applied successfully.");
     } catch (migErr) {
       console.log("ℹ️ Migration 14 note:", migErr.message);
@@ -40,7 +44,9 @@ async function run() {
     const users = await prisma.user.findMany({
       include: { details: true },
     });
-    console.log(`Step 2: Found ${users.length} users in local DB to sync to Cloudflare D1...`);
+    console.log(
+      `Step 2: Found ${users.length} users in local DB to sync to Cloudflare D1...`,
+    );
 
     let userSynced = 0;
     let detailsSynced = 0;
@@ -56,8 +62,12 @@ async function run() {
           u.passwordHash,
           u.role,
           u.isActive ? 1 : 0,
-          u.createdAt ? new Date(u.createdAt).toISOString() : new Date().toISOString(),
-          u.updatedAt ? new Date(u.updatedAt).toISOString() : new Date().toISOString(),
+          u.createdAt
+            ? new Date(u.createdAt).toISOString()
+            : new Date().toISOString(),
+          u.updatedAt
+            ? new Date(u.updatedAt).toISOString()
+            : new Date().toISOString(),
         ],
       );
       userSynced++;
@@ -75,19 +85,29 @@ async function run() {
             u.details.position,
             u.details.dob,
             u.details.joined,
-            u.details.createdAt ? new Date(u.details.createdAt).toISOString() : new Date().toISOString(),
-            u.details.updatedAt ? new Date(u.details.updatedAt).toISOString() : new Date().toISOString(),
+            u.details.createdAt
+              ? new Date(u.details.createdAt).toISOString()
+              : new Date().toISOString(),
+            u.details.updatedAt
+              ? new Date(u.details.updatedAt).toISOString()
+              : new Date().toISOString(),
           ],
         );
         detailsSynced++;
       }
     }
 
-    console.log(`✅ Synced ${userSynced} Users and ${detailsSynced} UserDetails to Cloudflare D1!`);
+    console.log(
+      `✅ Synced ${userSynced} Users and ${detailsSynced} UserDetails to Cloudflare D1!`,
+    );
 
     // 3. Query Cloudflare D1 to confirm
-    const d1Users = await d1Client.query("SELECT system_id, id, username, role, isActive FROM User;");
-    console.log(`\n🎉 Verification: Cloudflare D1 now has ${d1Users.length} Users:`);
+    const d1Users = await d1Client.query(
+      "SELECT system_id, id, username, role, isActive FROM User;",
+    );
+    console.log(
+      `\n🎉 Verification: Cloudflare D1 now has ${d1Users.length} Users:`,
+    );
     console.table(d1Users);
 
     process.exit(0);

@@ -9,7 +9,13 @@
     "backend": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "sync:sub": "node scripts/sync_subscription_to_d1.js",
+    "sync:sub:pull": "node scripts/sync_d1_subscription_to_local.js",
+    "sync:user": "node scripts/sync_user_to_d1.js",
+    "sync:user:pull": "node scripts/sync_user_to_local.js",
+    "sync:company": "node scripts/sync_company_to_d1.js",
+    "sync:company:pull": "node scripts/sync_company_to_local.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1163.0",

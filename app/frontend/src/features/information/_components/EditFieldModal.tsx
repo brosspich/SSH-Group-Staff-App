@@ -1,6 +1,6 @@
 import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
-import { StaffUser, userService } from "@/shared/services/userService";
+import { StaffUser } from "@/shared/services/userService";
 import { theme } from "@/shared/styles/theme";
 import { hashPassword } from "@/utils/passwordUtils";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -14,10 +14,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import {
-  checkUsernameConflictApi,
-  updateUserFieldApi,
-} from "../_api/informationApi";
+import { checkUsernameConflictApi } from "../_api/informationApi";
+import { useUpdateInformationMutation } from "../_hooks/useUpdateInformationMutation";
 import type { FieldKey } from "../_types/information.types";
 import { FIELD_CONFIG, getInitialFieldValue } from "../_utils/informationUtils";
 
@@ -54,6 +52,8 @@ export const EditFieldModal: React.FC<EditFieldModalProps> = ({
     }
   }, [visible, fieldKey, user]);
 
+  const updateMutation = useUpdateInformationMutation();
+
   const handleSave = async () => {
     if (!user || !fieldKey || !config) return;
 
@@ -82,9 +82,12 @@ export const EditFieldModal: React.FC<EditFieldModalProps> = ({
       const valueToSave =
         fieldKey === "password" ? hashPassword(trimmed) : trimmed;
 
-      const updated = await updateUserFieldApi(user.id, fieldKey, valueToSave);
+      const updated = await updateMutation.mutateAsync({
+        userId: user.id,
+        fieldKey,
+        value: valueToSave,
+      });
 
-      await userService.save(updated);
       onSaved(updated);
       onClose();
     } catch (err: any) {

@@ -18,7 +18,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
 
   return (
     <View style={styles.card}>
-      {/* ── Status Badge ── */}
+      {/* ── Status Badge & System Branch ── */}
       <View style={styles.badgeRow}>
         <View
           style={[
@@ -43,6 +43,12 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
               : t("subscription.inactive", "Inactive")}
           </Text>
         </View>
+
+        {subscription.systemId ? (
+          <View style={styles.systemTag}>
+            <Text style={styles.systemTagText}>{subscription.systemId}</Text>
+          </View>
+        ) : null}
       </View>
 
       {/* ── Plan Title ── */}
@@ -104,6 +110,21 @@ const styles = StyleSheet.create({
   badgeRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+  },
+  systemTag: {
+    backgroundColor: `${theme.colors.grey}15`,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: `${theme.colors.grey}25`,
+  },
+  systemTagText: {
+    fontSize: 12,
+    color: theme.colors.textSecondary,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
   },
   badgePill: {
     flexDirection: "row",

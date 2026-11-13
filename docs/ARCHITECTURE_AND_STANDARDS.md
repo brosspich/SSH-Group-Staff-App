@@ -4,26 +4,62 @@ This document establishes the architectural standards, clean code principles, fo
 
 ---
 
-## 1. Clean Code Principles (SOLID & DRY)
+## 1. The 4 Core Architectural Pillars
 
-### Single Responsibility Principle (SRP)
+```mermaid
+flowchart TD
+    subgraph CorePillars["The 4 Core Architectural Pillars"]
+        P1["1. TanStack Query<br/>(Server State & Invalidation)"]
+        P2["2. Zustand Caching<br/>(Client State & Zero Latency)"]
+        P3["3. Clean Code & Architecture<br/>(SOLID, DRY, Feature-Based, Custom Alert)"]
+        P4["4. Frontend 30% / Backend 70%<br/>(Heavy Compute on Server, Presentation on Client)"]
+    end
 
-- Each component, hook, and service is responsible for exactly one capability.
-- Form inputs, pickers, and submission states are isolated in custom hooks (e.g. [useRequestAttendanceForm.ts](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/features/home/_hooks/useRequestAttendanceForm.ts)), leaving presentation components (e.g. [RequestAttendanceModal.tsx](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/features/home/_components/RequestAttendanceModal.tsx)) focused purely on JSX layout.
+    Backend["Cloudflare D1 + SQLite Backend (70%)"] -->|REST APIs & Real-time Sync| TanStack["TanStack Query (useQuery / useMutation)"]
+    TanStack -->|Sync Cache| Zustand["Zustand Client Store"]
+    Zustand -->|Instant Zero-Latency Render| MobileUI["Mobile Frontend Screens (30%)"]
+```
 
-### Don't Repeat Yourself (DRY)
+### Pillar 1: TanStack Query (Server State Management)
 
-Duplicate UI layouts and handlers across modals have been extracted into shared, reusable components:
+- **Central Query Keys Factory**: All query keys must be generated via [queryKeys.ts](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/shared/services/api/queryKeys.ts) (`queryKeys.subscription.check()`, `queryKeys.staff.all`, `queryKeys.home.all`, `queryKeys.systemConfig.all`). Never use loose string keys.
+- **Cache Invalidation on Mutation**: When any mutating operation succeeds (creating a staff, terminating a session, saving profile info), the mutation hook must trigger `queryClient.invalidateQueries(...)` to guarantee real-time data consistency across all screens without full page reloads.
+- **Rogue `useEffect` Elimination**: Never execute `apiClient.get` inside a component's `useEffect`. All server reads must be encapsulated in TanStack Query hooks (`useQuery`).
 
-1. [ModalFooterButtons.tsx](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/features/home/_components/ModalFooterButtons.tsx): Pinned footer layout matching both `RequestAttendanceModal` and `EditAttendanceModal` (Cancel with `flex: 1` on left, Submit with `flex: 1.5` on right).
-2. [ProofImageUpload.tsx](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/features/home/_components/ProofImageUpload.tsx): Unified upload box with dashed border, image preview, "Change Photo", and "Remove Photo" actions.
-3. [RequestConfirmModal.tsx](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/features/home/_components/RequestConfirmModal.tsx): Standardized verification dialog before dispatching requests.
+### Pillar 2: Zustand Caching (Client-Side State & Zero Latency)
+
+- Every domain feature maintains a dedicated Zustand store (`useSubscriptionStore`, `useHomeStore`, `useDevicesStore`, `useStaffDirectoryStore`, `useInformationStore`, `useCompanyInfoStore`, `useSystemConfigStore`).
+- **Instant UI Render**: Screens read from the Zustand cache immediately upon mounting, rendering cached content with zero loading spinners, while TanStack Query validates freshness in the background (stale-while-revalidate).
+- **Offline Continuity**: When network connectivity drops, the client continues operating seamlessly using state persisted in Zustand and `AsyncStorage`.
+
+### Pillar 3: Clean Code & Feature-Based Folder Structure (SOLID & DRY)
+
+- **Standardized Feature Anatomy**:
+  ```
+  features/<feature-name>/
+  ├── _api/          # Axios / apiClient HTTP service calls
+  ├── _components/   # Presentation UI components (SRP)
+  ├── _hooks/        # Custom hooks & TanStack Query wrappers
+  ├── _store/        # Zustand client state store
+  ├── _types/        # TypeScript DTOs & Interfaces
+  ├── _utils/        # Pure helper functions
+  └── index.ts       # Barrel re-export for the public feature API
+  ```
+- **Alert Standardization**:
+  > [!IMPORTANT]
+  > **React Native's native `Alert.alert` is strictly prohibited.**
+  > All user dialogs, errors, confirmations, and warnings must use the shared [alert.tsx](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/shared/components/alert/alert.tsx) (`AlertModal` / `renderAlertModal`) or `logoutModal`.
+
+### Pillar 4: Frontend 30% and Backend 70%
+
+- **Backend (70%)**: All heavy business logic, calculations, date filtering, geofencing validations, aggregations, remote links/configurations, and external notifications (Telegram, Cloudflare R2) occur on the server.
+- **Frontend (30%)**: The mobile client remains a lightweight presentation layer responsible for camera feeds, haptics, rendering charts/cards, and user input capture.
 
 ---
 
-## 2. Feature-Based Architecture
+## 2. Feature-Based Directory Structure
 
-The codebase follows domain-driven, feature-based modular packaging:
+The project strictly follows a domain-driven, feature-based modular packaging structure across both backend and frontend:
 
 ```
 app/
@@ -40,7 +76,10 @@ app/
 │           ├── server-groups/  # Server cluster & member management
 │           ├── keys/           # Server SSH/Access keys management
 │           ├── users/          # Staff CRUD, systemId auto-generation
-│           └── audit-logs/     # Audit repository & querying
+│           ├── audit-logs/     # Audit repository & querying
+│           ├── subscription/   # Branch validity, plan evaluation, D1 realtime sync
+│           ├── system-config/  # Remote dynamic configuration & support channels
+│           └── company/        # Branch profiles & multi-system query
 └── frontend/
     └── src/
         ├── shared/             # Shared constants, styles, services, widgets
@@ -51,6 +90,8 @@ app/
             ├── report-current-staff/    # Current staff daily/weekly/monthly/annual
             ├── report-individual-staff/ # Staff selector + report preview
             ├── report-all-staff/        # Company-wide reports
+            ├── report-request-current-staff/    # Leave requests for current staff
+            ├── report-request-individual-staff/ # Leave requests for individual staff
             ├── devices/        # Device session manager
             ├── setting/        # Profile, settings
             ├── login/          # Auth login form & mutations
@@ -58,88 +99,109 @@ app/
             ├── create-account-staff/    # Admin staff creation with Auto System ID
             ├── change-info-account-staff/ # Admin staff info editor & role switcher
             ├── server-groups/  # Server cluster management UI
-            └── keys/           # Access key upload & list UI
+            ├── keys/           # Access key upload & list UI
+            ├── subscription/   # Branch service package info & validity display
+            ├── non-subscription/ # Expired subscription guard screen & support contact
+            ├── system-config/  # Dynamic links & remote config integration
+            ├── info-company/   # Company settings & GPS geofence configuration
+            ├── information/    # Personal profile & credentials editing
+            ├── account/        # Account profile overview & logout
+            ├── contact/        # Official platforms & dynamic social links
+            ├── privacy-policy/ # Multilingual privacy policy viewer
+            └── about/          # Application information & build metadata
 ```
-
-Each feature folder is self-contained with:
-
-- `_components/`: Components scoped specifically to that feature.
-- `_hooks/`: Custom state and mutation hooks.
-- `_utils/`: Pure helper functions.
-- `_types/`: TypeScript definitions.
 
 ---
 
-## 3. The 70% Backend / 30% Frontend Rule
+## 3. Subscription & Branch Guard System
 
-To guarantee high mobile performance, minimal battery consumption, and rock-solid consistency across iOS and Android:
+```mermaid
+sequenceDiagram
+    autonumber
+    actor App as Mobile App
+    participant Backend as Backend Controller
+    participant SQLite as Local SQLite (dev.db)
+    participant D1 as Cloudflare D1
 
-- **Backend (70%)**: All business calculations, date filtering, geofencing validations, aggregations, database persistence, and external notifications (Telegram, Cloudflare R2) occur on the server.
-- **Frontend (30%)**: The mobile client remains a responsive presentation layer responsible for camera feeds, haptics, rendering charts/cards, and user input capture.
+    App->>Backend: GET /api/v1/subscription/check/:systemId
+    Backend->>Backend: Resolves companyId from User / UserDetails
+    Backend->>SQLite: Query Subscription by system_id
+    alt Record found & Active
+        SQLite-->>Backend: Return active record
+    else Record Missing OR Expired OR force=true
+        Backend->>D1: Query Cloudflare D1 Subscription
+        D1-->>Backend: Return fresh cloud record
+        Backend-->>SQLite: Background Sync (Upsert to dev.db)
+    end
+    Backend->>Backend: Calculate daysRemaining, isExpired, status
+    Backend-->>App: { status: "Active", daysRemaining: 353, isExpired: false }
+    alt isExpired == true OR hasSubscription == false
+        App->>App: Redirect to NonSubscriptionScreen (Blocked)
+    else isExpired == false
+        App->>App: Navigate to (tabs) Home Screen
+    end
+```
+
+- **Blocking Route**: If a branch subscription is expired or missing, the app redirects the user to the `NonSubscriptionScreen`, locking tabs access.
+- **Self-Healing Realtime Sync**: If local SQLite shows an expired subscription, or if the user clicks "Check Again" (`force=true`), the backend queries Cloudflare D1. If D1 has an active renewal, it returns the active subscription immediately and updates local SQLite in the background.
 
 ---
 
-## 4. Local Development & Troubleshooting Guide
+## 4. Remote System Configuration & Dynamic Links
 
-### Issue: "Cannot connect to server. Please check your network or server status."
+To adhere strictly to the 70% Backend rule, all support channels, phone numbers, email addresses, and social platform URLs are managed from the backend via the `system-config` feature:
+
+- **Backend Endpoints**:
+  - `GET /api/v1/system-config`: Fetches complete dynamic configurations.
+  - `PUT /api/v1/system-config`: Allows Admin/Owner to update links remotely.
+- **No Client Recompilation**: If the company updates its Telegram support channel or Facebook URL, the admin updates it in the backend database. All mobile clients reflect the update in real time without needing an App Store or Play Store update.
+- **Frontend Hook**: `useSystemConfigQuery()` from `@/features/system-config` provides `{ supportLinks, socialPlatforms, appMeta }`.
+
+---
+
+## 5. Local Development & Troubleshooting Guide
+
+### Issue 1: ADB Ghost Emulator / Port 5554 Connection Refused (10061)
 
 ```
-WARN  Exception while fetching attendance config from Backend API: [ApiError: Cannot connect to server. Please check your network or server status.]
+Error: could not connect to TCP port 5554: cannot connect to 127.0.0.1:5554: No connection could be made because the target machine actively refused it. (10061)
+Error: .../adb -s emulator-5554 emu avd name exited with non-zero code: 1
 ```
 
-#### Causes & Fixes:
+#### Cause:
+An emulator crashed or closed abruptly, leaving a stale/ghost `emulator-5554` registration in the ADB server daemon.
 
-1. **Backend Server is Stopped**:
-   Open a terminal and run the backend dev server:
+#### Fix:
+Restart the ADB server to clear all ghost devices:
+```powershell
+$adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
+& $adb kill-server
+& $adb start-server
+& $adb devices
+```
+Now run your Expo build cleanly:
+```powershell
+cd app/frontend
+npx expo run:android -d
+```
 
+---
+
+### Issue 2: Backend Connection Refused / IP Address Mismatch
+
+```
+WARN Exception while fetching attendance config from Backend API: [ApiError: Cannot connect to server...]
+```
+
+#### Fix:
+1. Ensure the backend server is running:
    ```powershell
-   cd d:\Code\SSH-Group-Staff-App\app\backend
+   cd app/backend
    npm run dev
    ```
-
-   Ensure it logs:
-
+2. Verify computer IPv4 address with `ipconfig` and update `EXPO_PUBLIC_API_URL` in [app/frontend/.env.local](file:///d:/Code/SSH-Group-Staff-App/app/frontend/.env.local).
+3. Restart Expo bundler with cache cleared:
+   ```powershell
+   cd app/frontend
+   npx expo start -c
    ```
-   🚀 SSH Group Backend API server is running on http://0.0.0.0:4000 in [development] mode.
-   ```
-
-2. **Machine IP Address Mismatch**:
-   When switching Wi-Fi networks, your computer's local IP address changes.
-   - Run `ipconfig` in PowerShell.
-   - Find your **IPv4 Address** (e.g. `172.20.240.1`).
-   - Check [app/frontend/.env.local](file:///d:/Code/SSH-Group-Staff-App/app/frontend/.env.local):
-     ```ini
-     EXPO_PUBLIC_API_URL=http://172.20.240.1:4000
-     ```
-   - Restart Expo bundler:
-     ```powershell
-     cd app/frontend
-     npm run start -- -c
-     ```
-
----
-
-## 5. Internationalization & Multi-Language (i18n)
-
-The mobile application features a comprehensive bilingual localization architecture supporting **Khmer (`km`)** and **English (`en`)**:
-
-- **Custom Hook**: `useLanguage()` from [app/frontend/src/features/language/hooks/useLanguage.ts](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/features/language/hooks/useLanguage.ts) provides `{ language, t, setLanguage }`.
-- **Translations Dictionary**:
-  - [km.ts](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/features/language/i18n/locales/km.ts): Complete Khmer translation with native typography (`KohSantepheap`, `KantumruyPro`, `Hanuman`).
-  - [en.ts](file:///d:/Code/SSH-Group-Staff-App/app/frontend/src/features/language/i18n/locales/en.ts): English translation dictionary.
-- **Persistence**: User language preference is automatically saved to device storage via `@app_language` key in `AsyncStorage`.
-- **Usage Rule**: Hardcoded text in user-facing components must be replaced with `t("section.key")` to ensure full localization across screens and modals.
-
----
-
-## 6. System ID & Username Scoping Conventions
-
-1. **System ID Format**:
-   - Every staff member is uniquely identified by `system_id`:
-     `{companyId}-{staffId}` (e.g., `system-0001-0022`, `system-0002-0001`).
-   - The admin UI auto-generates this format dynamically based on the current branch and entered staff ID.
-
-2. **Per-System Username Uniqueness**:
-   - Usernames are unique **per system/branch**, not globally.
-   - For example, `system-0001` can have username `manager`, and `system-0002` can also have username `manager`.
-   - The backend checks `prisma.user.findFirst({ where: { username, details: { companyId } } })` before creating or updating any user.

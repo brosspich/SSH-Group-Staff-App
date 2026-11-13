@@ -239,6 +239,35 @@ ssh-storage/
         └── avatar_{timestamp}.jpg
 ```
 
+### `Subscription` (Branch Service Validity)
+
+Manages system access subscription per company branch (`systemId`):
+
+```prisma
+model Subscription {
+  id        String   @id // e.g. "SUB-0001", "SUB-0002"
+  systemId  String   @map("system_id") // Matches Company.id e.g. "system-0001"
+  plan      String   // e.g. "1 Year", "6 Months"
+  startDate String   @map("start_date") // YYYY-MM-DD
+  endDate   String   @map("end_date") // YYYY-MM-DD
+  createdAt DateTime @default(now())
+
+  @@index([systemId])
+}
+```
+
+### `SystemConfig` (Dynamic Remote Configuration)
+
+Stores dynamic settings, support links, and social platforms:
+
+```sql
+CREATE TABLE IF NOT EXISTS SystemConfig (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
 ---
 
 ## 4. Live Data Routing & Dual-Database Sync
@@ -257,3 +286,28 @@ The application operates an active-active sync model between **Cloudflare D1**, 
 1. **Primary Cloud Write**: User, Attendance, and Request actions write directly to **Cloudflare D1** via [d1Client.ts](file:///d:/Code/SSH-Group-Staff-App/app/backend/src/infrastructure/database/d1Client.ts).
 2. **Object Upload**: Base64/binary photos are uploaded to **Cloudflare R2** via [r2.service.ts](file:///d:/Code/SSH-Group-Staff-App/app/backend/src/infrastructure/storage/r2.service.ts) and the generated public URL is attached to the record.
 3. **Local Cache / Fallback**: The backend simultaneously syncs records into local SQLite (`dev.db`) via Prisma Client. If network or remote latency occurs, local data provides immediate continuity.
+
+---
+
+## 5. Bi-Directional Synchronization Scripts
+
+The backend provides CLI scripts to synchronize records between local SQLite (`dev.db`) and Cloudflare D1 in either direction:
+
+```mermaid
+flowchart LR
+    LocalDB[("Local SQLite\n(dev.db)")] <-->|sync:user / sync:user:pull| D1Users[("Cloudflare D1\n(User / UserDetails)")]
+    LocalDB <-->|sync:company / sync:company:pull| D1Company[("Cloudflare D1\n(Company)")]
+    LocalDB <-->|sync:sub / sync:sub:pull| D1Sub[("Cloudflare D1\n(Subscription)")]
+```
+
+### Available Synchronization Commands:
+
+| Command | Direction | Tables Synchronized | Script File |
+| :--- | :--- | :--- | :--- |
+| `npm run sync:sub` | Local -> D1 | `Subscription` | [sync_subscription_to_d1.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_subscription_to_d1.js) |
+| `npm run sync:sub:pull` | D1 -> Local | `Subscription` | [sync_d1_subscription_to_local.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_d1_subscription_to_local.js) |
+| `npm run sync:user` | Local -> D1 | `User`, `UserDetails` | [sync_user_to_d1.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_user_to_d1.js) |
+| `npm run sync:user:pull` | D1 -> Local | `User`, `UserDetails` | [sync_user_to_local.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_user_to_local.js) |
+| `npm run sync:company` | Local -> D1 | `Company` | [sync_company_to_d1.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_company_to_d1.js) |
+| `npm run sync:company:pull` | D1 -> Local | `Company` | [sync_company_to_local.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_company_to_local.js) |
+

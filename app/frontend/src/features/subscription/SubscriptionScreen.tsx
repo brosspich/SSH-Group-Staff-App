@@ -3,6 +3,8 @@ import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
+import { router } from "expo-router";
+import { useEffect } from "react";
 import {
   RefreshControl,
   ScrollView,
@@ -37,6 +39,18 @@ export default function SubscriptionScreen() {
     refreshing,
     onRefresh,
   } = useSubscription();
+
+  useEffect(() => {
+    if (
+      !loading &&
+      !refreshing &&
+      (!subscription ||
+        subscription.isExpired ||
+        subscription.hasSubscription === false)
+    ) {
+      router.replace("/subscription/non-subscription" as any);
+    }
+  }, [loading, refreshing, subscription]);
 
   return (
     <View style={styles.safe}>
@@ -106,13 +120,13 @@ export default function SubscriptionScreen() {
           <View style={styles.loadingWrap}>
             <Loading />
           </View>
-        ) : subscription ? (
+        ) : subscription &&
+          !subscription.isExpired &&
+          subscription.hasSubscription !== false ? (
           <SubscriptionCard subscription={subscription} />
         ) : (
-          <View style={styles.emptyWrap}>
-            <Text style={styles.emptyText}>
-              {t("subscription.notFound", "No active subscription found.")}
-            </Text>
+          <View style={styles.loadingWrap}>
+            <Loading />
           </View>
         )}
       </ScrollView>

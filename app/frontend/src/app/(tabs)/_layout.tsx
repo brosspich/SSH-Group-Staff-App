@@ -2,6 +2,7 @@ import { useLanguage } from "@/features/language";
 import { fetchSubscriptionBySystemId } from "@/features/subscription/_api/subscriptionApi";
 import Appbar from "@/shared/components/appbar/appbar";
 import Loading from "@/shared/components/loading/loading";
+import { extractSystemKey } from "@/shared/constants/attendanceConfig";
 import { useUser } from "@/shared/contexts/UserContext";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -275,12 +276,23 @@ export default function TabLayout() {
 
   useEffect(() => {
     if (user) {
-      const sysId = user.system_id || (user as any).systemId || user.companyId;
-      fetchSubscriptionBySystemId(sysId).then((sub) => {
-        if (sub && sub.isExpired) {
+      const companyId =
+        user.companyId ||
+        (user as any)?.company_id ||
+        user.details?.companyId ||
+        extractSystemKey(
+          user.system_id || (user as any)?.systemId || user.id,
+        ) ||
+        "system-0001";
+      fetchSubscriptionBySystemId(companyId, true)
+        .then((sub) => {
+          if (!sub || sub.isExpired || sub.hasSubscription === false) {
+            router.replace("/subscription/non-subscription" as any);
+          }
+        })
+        .catch(() => {
           router.replace("/subscription/non-subscription" as any);
-        }
-      });
+        });
     }
   }, [user]);
 

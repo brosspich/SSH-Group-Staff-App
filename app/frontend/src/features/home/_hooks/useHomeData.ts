@@ -1,34 +1,19 @@
 import {
   calculateAttendanceType,
-  fetchOfficialAttendanceConfig,
   getTimeWindowDisplay,
 } from "@/shared/constants/attendanceConfig";
-import { apiClient } from "@/shared/services/api";
-import { StaffUser, userService } from "@/shared/services/userService";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useUser } from "@/shared/contexts/UserContext";
+import { useCallback, useEffect, useState } from "react";
+import { useHomeStore } from "../_store/useHomeStore";
 import { AttendanceRecord, AttendanceType } from "../_types/home.types";
 import { formatDateYMD } from "../_utils/homeUtils";
+import { useHomeQuery } from "./useHomeQuery";
 
 export function useHomeData() {
-  const [user, setUser] = useState<StaffUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { user: contextUser } = useUser();
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
-  const [attendanceList, setAttendanceList] = useState<AttendanceRecord[]>([]);
-  const [officialQrList, setOfficialQrList] = useState<string[]>([]);
-  const [companyName, setCompanyName] = useState<string>("SSH Group");
-  const [timeInConfig, setTimeInConfig] = useState<string>("08:00:00");
-  const [timeOutConfig, setTimeOutConfig] = useState<string>("17:00:00");
-  const isMountedRef = useRef(true);
 
-  useEffect(() => {
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  // Clock interval (updates every 1s)
+  // 1. Clock timer
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -36,81 +21,29 @@ export function useHomeData() {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch official QR and time windows
-  const loadOfficialConfig = useCallback(async (sysId?: string) => {
-    try {
-      const config = await fetchOfficialAttendanceConfig(false, sysId);
-      if (!isMountedRef.current) return;
-      setOfficialQrList(config.qrCodes);
-      setCompanyName(config.companyName);
-      if (config.timeIn) setTimeInConfig(config.timeIn);
-      if (config.timeOut) setTimeOutConfig(config.timeOut);
-    } catch (e) {
-      console.warn("Failed to load official attendance config:", e);
-    }
-  }, []);
+  // 2. TanStack Query + Zustand Cache
+  const targetId = contextUser?.id;
+  const { data: queryData, isLoading, isRefetching, refetch } = useHomeQuery(targetId);
 
-  // Fetch user profile and attendance logs
-  const fetchUserData = useCallback(async () => {
-    try {
-      const u = await userService.get();
-      if (!isMountedRef.current) return;
-      if (u?.id) {
-        setUser(u);
+  // Store data (Zustand Cache)
+  const cachedUser = useHomeStore((state) => state.user);
+  const cachedAttendanceList = useHomeStore((state) => state.attendanceList);
+  const cachedOfficialQrList = useHomeStore((state) => state.officialQrList);
+  const cachedCompanyName = useHomeStore((state) => state.companyName);
+  const cachedTimeInConfig = useHomeStore((state) => state.timeInConfig);
+  const cachedTimeOutConfig = useHomeStore((state) => state.timeOutConfig);
+  const setAttendanceList = useHomeStore((state) => state.setAttendanceList);
 
-        // Fetch fresh user row from backend API
-        const dbUser = await apiClient
-          .get<StaffUser>(`/users-query/${u.id}`)
-          .catch(() => null);
+  const user = queryData?.user || cachedUser || contextUser;
+  const attendanceList = queryData?.attendanceList || cachedAttendanceList;
+  const officialQrList = queryData?.officialQrList || cachedOfficialQrList;
+  const companyName = queryData?.companyName || cachedCompanyName;
+  const timeInConfig = queryData?.timeInConfig || cachedTimeInConfig;
+  const timeOutConfig = queryData?.timeOutConfig || cachedTimeOutConfig;
 
-        if (!isMountedRef.current) return;
-        const activeUser = dbUser || u;
-        setUser(activeUser);
-        await userService.save(activeUser);
-
-        // Parse attendance records
-        let list: AttendanceRecord[] = [];
-        if (Array.isArray(activeUser.attendance)) {
-          list = activeUser.attendance;
-        } else if (typeof activeUser.attendance === "string") {
-          try {
-            list = JSON.parse(activeUser.attendance);
-          } catch {}
-        }
-
-        // Sort newest first
-        list.sort((a, b) => {
-          const tA = new Date(
-            a.timestamp || a.createdAt || a.date || 0,
-          ).getTime();
-          const tB = new Date(
-            b.timestamp || b.createdAt || b.date || 0,
-          ).getTime();
-          return tB - tA;
-        });
-
-        if (!isMountedRef.current) return;
-        setAttendanceList(list);
-
-        // Load config for user's system
-        await loadOfficialConfig(activeUser.system_id);
-      }
-    } finally {
-      if (isMountedRef.current) {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    }
-  }, [loadOfficialConfig]);
-
-  useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchUserData();
-  }, [fetchUserData]);
+  const onRefresh = useCallback(async () => {
+    await refetch();
+  }, [refetch]);
 
   // Dynamic time windows
   const timeInWindow = getTimeWindowDisplay(timeInConfig, "08:00:00");
@@ -146,9 +79,9 @@ export function useHomeData() {
 
   return {
     user,
-    setUser,
-    loading,
-    refreshing,
+    setUser: () => {},
+    loading: isLoading && !user,
+    refreshing: isRefetching,
     currentTime,
     attendanceList,
     setAttendanceList,
@@ -161,6 +94,6 @@ export function useHomeData() {
     todayTimeOut,
     todayOtherCount,
     onRefresh,
-    fetchUserData,
+    fetchUserData: refetch,
   };
 }

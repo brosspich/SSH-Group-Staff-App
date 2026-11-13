@@ -59,6 +59,12 @@ SSH-Group-Staff-App/
 │   │   ├── prisma/
 │   │   │   ├── schema.prisma           # Prisma SQLite Database Schema (Models, Relations)
 │   │   │   └── migrations/             # Local database migration history
+│   │   ├── scripts/
+│   │   │   ├── sync_user_to_d1.js      # Bi-directional sync: Local User -> Cloudflare D1
+│   │   │   ├── sync_user_to_local.js   # Bi-directional sync: Cloudflare D1 User -> Local
+│   │   │   ├── sync_company_to_d1.js   # Bi-directional sync: Local Company -> Cloudflare D1
+│   │   │   ├── sync_company_to_local.js# Bi-directional sync: Cloudflare D1 Company -> Local
+│   │   │   └── sync_subscription_to_d1.js # Sync Subscription -> Cloudflare D1
 │   │   ├── src/
 │   │   │   ├── core/                   # Shared errors, middleware, constants, and utilities
 │   │   │   ├── features/
@@ -67,11 +73,14 @@ SSH-Group-Staff-App/
 │   │   │   │   ├── audit-logs/         # Security & domain event logger with Telegram alerts
 │   │   │   │   ├── auth/               # Multi-role authentication & JWT token generation
 │   │   │   │   ├── company/            # Branch profiles, geofence coords, work hours & bot tokens
+│   │   │   │   ├── d1/                 # Cloudflare D1 query relay & proxy routes
 │   │   │   │   ├── devices/            # Hardware binding, session termination & anti-sharing
 │   │   │   │   ├── keys/               # Server SSH/Access keys management
 │   │   │   │   ├── reports/            # Daily, Weekly, Monthly & Annual attendance aggregations
 │   │   │   │   ├── server-groups/      # Server clusters, members & permissions
-│   │   │   │   └── users/              # Staff directory, role-based access & system ID generation
+│   │   │   │   ├── subscription/       # Branch validity, plan evaluation & D1 realtime sync
+│   │   │   │   ├── system-config/      # Remote dynamic configuration & support channels
+│   │   │   │   └── users/              # Staff CRUD, systemId auto-generation
 │   │   │   ├── infrastructure/
 │   │   │   │   ├── database/
 │   │   │   │   │   ├── d1Client.ts     # Cloudflare D1 REST client (query, execute, batch)
@@ -91,16 +100,33 @@ SSH-Group-Staff-App/
 │       │   │   ├── login/              # Staff authentication screens
 │       │   │   └── _layout.tsx         # Root layout with QueryClientProvider & UserProvider
 │       │   ├── features/
+│       │   │   ├── about/              # Application info & build metadata
+│       │   │   ├── account/            # Account profile overview & logout
 │       │   │   ├── attendance/         # Attendance history list, filter chips, summary cards
+│       │   │   ├── audit-logs/         # Audit logs viewer & action filtering
 │       │   │   ├── auth/               # Auth state, login mutations, session persistence
-│       │   │   ├── change-info-.../    # Admin staff management & profile editing modal
-│       │   │   ├── create-account-.../ # Admin create staff screen with Auto System ID
+│       │   │   ├── change-info-account-staff/ # Admin staff info editor & role switcher
+│       │   │   ├── contact/            # Official platforms & dynamic social links
+│       │   │   ├── create-account-staff/ # Admin staff creation with Auto System ID
+│       │   │   ├── devices/            # Device session manager & remote termination
 │       │   │   ├── home/               # 0ms QR scanner, optimistic modals, live clock
+│       │   │   ├── info-company/       # Company settings & GPS geofence configuration
+│       │   │   ├── information/        # Personal profile & credentials editing modal
 │       │   │   ├── keys/               # Access key upload & list UI
 │       │   │   ├── language/           # i18n store, useLanguage hook, Khmer & English locales
-│       │   │   ├── report-.../         # Daily, Weekly, Monthly & Annual report screens
+│       │   │   ├── login/              # Staff authentication screens & Privacy Policy modal
+│       │   │   ├── non-subscription/   # Expired subscription guard screen & support contact
+│       │   │   ├── privacy-policy/     # Multilingual privacy policy viewer
+│       │   │   ├── report/             # Reports hub & filter navigation
+│       │   │   ├── report-all-staff/   # Company-wide reports
+│       │   │   ├── report-current-staff/ # Current staff daily/weekly/monthly/annual
+│       │   │   ├── report-individual-staff/ # Staff selector + report preview
+│       │   │   ├── report-request-current-staff/ # Current staff leave/missing scan requests
+│       │   │   ├── report-request-individual-staff/ # Individual staff leave requests
 │       │   │   ├── server-groups/      # Server cluster management UI
-│       │   │   └── setting/            # Account details, branch information, logout
+│       │   │   ├── setting/            # Account details, branch information, logout
+│       │   │   ├── subscription/       # Branch service package info & validity display
+│       │   │   └── system-config/      # Remote dynamic configuration & support channels
 │       │   └── shared/
 │       │       ├── components/         # AppbarBack, Modals, Loading, Report paper templates
 │       │       ├── constants/          # Attendance config, system key helpers
@@ -168,6 +194,37 @@ ssh-storage/
 - **Zustand**: Fast client-side persistent storage using AsyncStorage with re-entrancy and race condition guards.
 
 ### 6. Bilingual Localization (Khmer & English)
+
+Complete localization across all screens, modals, pickers, and alerts using the `useLanguage()` hook with persistent device storage.
+
+### 7. Branch Subscription & Non-Subscription Guard
+
+- **Pre-computed Validity**: Backend evaluates subscription expiry (`daysRemaining`, `isExpired`, `status`) and automatically maps branch Company IDs to subscriptions.
+- **Self-Healing Realtime Sync**: If local SQLite shows an expired subscription, the backend automatically checks Cloudflare D1 for real-time renewals and updates local SQLite in the background.
+- **Blocking Guard Route**: Expired branches are routed to the `NonSubscriptionScreen`, keeping sensitive features secure.
+
+### 8. Dynamic Remote Configuration (Backend 70% Link Management)
+
+- Support channels (Telegram support, fallback, phone, email) and social media links are managed dynamically from the backend via `/api/v1/system-config`.
+- **Zero Client Rebuilds**: Updating support contacts or social media links in the backend takes effect on all staff devices instantly without recompiling the mobile app.
+
+### 9. Bi-Directional Database Synchronization
+
+CLI tools to synchronize data between local SQLite (`dev.db`) and Cloudflare D1:
+
+```bash
+# Subscription Sync
+npm --prefix app/backend run sync:sub        # Local -> D1
+npm --prefix app/backend run sync:sub:pull   # D1 -> Local
+
+# Users & UserDetails Sync
+npm --prefix app/backend run sync:user       # Local -> D1
+npm --prefix app/backend run sync:user:pull  # D1 -> Local
+
+# Company Sync
+npm --prefix app/backend run sync:company    # Local -> D1
+npm --prefix app/backend run sync:company:pull # D1 -> Local
+```
 
 - **Comprehensive i18n Architecture**: Native support for Khmer (`km`) and English (`en`) powered by `useLanguage` hook.
 - **Khmer Typography Support**: Integrated premium Khmer fonts (`KohSantepheap`, `KantumruyPro`, `Hanuman`) for clear, polished typography.

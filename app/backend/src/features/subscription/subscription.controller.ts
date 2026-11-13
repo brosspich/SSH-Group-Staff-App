@@ -19,6 +19,7 @@ export function calculateSubscriptionDetails(row: any) {
       status: "Inactive",
       daysRemaining: 0,
       isExpired: true,
+      hasSubscription: false,
     };
   }
 
@@ -85,45 +86,82 @@ export function calculateSubscriptionDetails(row: any) {
     status: isExpired ? "Inactive" : "Active",
     daysRemaining: Math.max(0, daysRemaining),
     isExpired,
+    hasSubscription: true,
   };
 }
 
 export class SubscriptionController {
   /**
    * GET /api/v1/subscription/check/:systemId
-   * Checks subscription status for a specific system branch (e.g. "system-0001")
+   * Checks subscription status matching companyId to Subscription table's system_id
    */
   async checkSubscription(req: Request, res: Response): Promise<void> {
     try {
-      const rawParam = req.params.systemId ?? req.query.system_id ?? "";
+      const rawParam =
+        req.params.systemId ??
+        req.query.system_id ??
+        req.query.company_id ??
+        req.query.companyId ??
+        "";
       const rawId = Array.isArray(rawParam)
         ? String(rawParam[0] || "")
         : String(rawParam || "");
-      const match = rawId
-        .trim()
-        .toLowerCase()
-        .match(/^(system-[\w.]+)/i);
-      const systemId = match
-        ? match[1].toLowerCase()
-        : rawId.trim().toLowerCase();
+      const cleanRaw = rawId.trim();
 
-      if (!systemId) {
+      if (!cleanRaw) {
         res.status(400).json({
           success: false,
-          message: "systemId is required",
+          message: "systemId or companyId is required",
         });
         return;
       }
 
-      // Check cache first
-      const cached = subscriptionCache.get(systemId);
-      if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-        res.status(200).json({
-          success: true,
-          data: cached.data,
-          cached: true,
+      // ── Step A: Resolve companyId from input ──
+      // 1. Direct regex extract e.g. "system-0002" from "system-0002-0001" or "system-0002"
+      let companyId = cleanRaw.toLowerCase();
+      const compMatch = cleanRaw.match(/^(system-\d+(?:\.\d+)?)/i);
+      if (compMatch) {
+        companyId = compMatch[1].toLowerCase();
+      } else if (cleanRaw.toLowerCase().startsWith("bpak")) {
+        companyId = "system-0002";
+      }
+
+      // 2. Query UserDetails to find companyId if rawId matches a user's systemId, staff id, or username
+      try {
+        const userDetail = await prisma.userDetails.findFirst({
+          where: {
+            OR: [
+              { systemId: cleanRaw },
+              { user: { id: cleanRaw } },
+              { user: { username: cleanRaw } },
+            ],
+          },
+          select: { companyId: true },
         });
-        return;
+        if (userDetail?.companyId && userDetail.companyId.trim()) {
+          companyId = userDetail.companyId.trim().toLowerCase();
+        }
+      } catch (e: any) {
+        // Fallback to extracted companyId
+      }
+
+      const systemId = companyId;
+
+      // Fast cache (30s) unless force=true is requested for live real-time updates
+      const forceRefresh =
+        req.query.force === "true" ||
+        req.headers["cache-control"] === "no-cache";
+
+      if (!forceRefresh) {
+        const cached = subscriptionCache.get(systemId);
+        if (cached && Date.now() - cached.timestamp < 30 * 1000) {
+          res.status(200).json({
+            success: true,
+            data: cached.data,
+            cached: true,
+          });
+          return;
+        }
       }
 
       // 1. Query local SQLite
@@ -142,15 +180,37 @@ export class SubscriptionController {
         );
       }
 
-      // 2. Fallback to Cloudflare D1 if not found in local DB
-      if (!row) {
+      // 2. Check Cloudflare D1 if:
+      //   - row not found in local DB, OR
+      //   - local row is expired, OR
+      //   - forceRefresh is requested (real-time check)
+      const localDetails = row ? calculateSubscriptionDetails(row) : null;
+      if (!row || localDetails?.isExpired || forceRefresh) {
         try {
           const d1Rows = await d1Client.query(
             `SELECT * FROM Subscription WHERE LOWER(system_id) = ? LIMIT 1`,
             [systemId],
           );
           if (d1Rows && d1Rows.length > 0) {
-            row = d1Rows[0];
+            const d1Row = d1Rows[0];
+            const d1Details = calculateSubscriptionDetails(d1Row);
+            // If local had no record, or D1 has an active subscription, or D1 has newer dates:
+            if (!row || !d1Details.isExpired || localDetails?.isExpired) {
+              row = d1Row;
+              // Self-healing: persist D1's record into local SQLite dev.db in background
+              prisma
+                .$queryRawUnsafe(
+                  `INSERT OR REPLACE INTO Subscription (id, system_id, plan, start_date, end_date, createdAt)
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                  d1Row.id,
+                  d1Row.system_id || systemId,
+                  d1Row.plan || "1 Year",
+                  d1Row.start_date || d1Row.startDate || "",
+                  d1Row.end_date || d1Row.endDate || "",
+                  d1Row.createdAt || new Date().toISOString(),
+                )
+                .catch(() => {});
+            }
           }
         } catch (d1Err: any) {
           Logger.warn(

@@ -1,3 +1,5 @@
+import { fetchSubscriptionBySystemId } from "@/features/subscription/_api/subscriptionApi";
+import { extractSystemKey } from "@/shared/constants/attendanceConfig";
 import { useUser } from "@/shared/contexts/UserContext";
 import { secureStorage } from "@/shared/services/storage/secureStore.service";
 import { userService } from "@/shared/services/userService";
@@ -40,8 +42,26 @@ export function useLoginMutation() {
       await userService.save(data.user);
       setUser(data.user);
 
-      // 2. Fast navigation: Instantly enter the app without blocking on background network calls!
-      router.replace("/(tabs)/" as any);
+      // 2. Check subscription status matching companyId to Subscription table system_id:
+      // => subscription => tabs
+      // => non subscription / not have data in table => non subscription screen
+      const companyId =
+        data.user.companyId ||
+        (data.user as any)?.company_id ||
+        data.user.details?.companyId ||
+        extractSystemKey(data.user.system_id || data.user.id) ||
+        "system-0001";
+
+      try {
+        const sub = await fetchSubscriptionBySystemId(companyId, true);
+        if (!sub || sub.isExpired || sub.hasSubscription === false) {
+          router.replace("/subscription/non-subscription" as any);
+        } else {
+          router.replace("/(tabs)/" as any);
+        }
+      } catch {
+        router.replace("/subscription/non-subscription" as any);
+      }
 
       // 3. Background Sync: sync device session & hydrate fresh config asynchronously
       syncDeviceSession(data.user.system_id || data.user.id, true, true)

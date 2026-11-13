@@ -1,40 +1,27 @@
-import { logger } from "@/shared/services/logger";
-import { useCallback, useEffect, useState } from "react";
+import { queryKeys } from "@/shared/services/api/queryKeys";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { auditApi } from "../api/auditApi";
 import { AuditFilterParams, AuditLog } from "../types/audit.types";
 
 export function useAuditLogs(initialParams?: AuditFilterParams) {
-  const [logs, setLogs] = useState<AuditLog[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [filterParams, setFilterParams] = useState<
     AuditFilterParams | undefined
   >(initialParams);
 
-  const fetchLogs = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await auditApi.getAuditLogs(filterParams);
-      setLogs(data);
-    } catch (err: any) {
-      setError(err?.message || "Failed to fetch audit logs");
-      logger.error("Failed to load audit logs", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filterParams]);
-
-  useEffect(() => {
-    fetchLogs();
-  }, [fetchLogs]);
+  const query = useQuery<AuditLog[]>({
+    queryKey: queryKeys.auditLogs.list(filterParams as Record<string, unknown>),
+    queryFn: () => auditApi.getAuditLogs(filterParams),
+    staleTime: 1000 * 60 * 3, // 3 minutes fresh cache
+    gcTime: 1000 * 60 * 20, // 20 minutes garbage collection
+  });
 
   return {
-    logs,
-    isLoading,
-    error,
+    logs: query.data || [],
+    isLoading: query.isLoading,
+    error: query.error instanceof Error ? query.error.message : null,
     filterParams,
     setFilterParams,
-    refresh: fetchLogs,
+    refresh: query.refetch,
   };
 }

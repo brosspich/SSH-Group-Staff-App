@@ -2,12 +2,10 @@ import { useLanguage } from "@/features/language";
 import { StaffUser, userService } from "@/shared/services/userService";
 import { isOwnerRole } from "@/utils/roleUtils";
 import { useCallback, useEffect, useState } from "react";
-import { Alert } from "react-native";
-import {
-  fetchAllCompaniesApi,
-  fetchCompanyByIdApi,
-  updateCompanyApi,
-} from "../_api/infoCompanyApi";
+import { fetchAllCompaniesApi } from "../_api/infoCompanyApi";
+import { useCompanyInfoQuery } from "./useCompanyInfoQuery";
+import { useCompanyInfoStore } from "../_store/useCompanyInfoStore";
+import { useUpdateCompanyMutation } from "./useUpdateCompanyMutation";
 import type { CompanyInfo } from "../_types/infoCompany.types";
 
 export function useInfoCompany() {
@@ -22,8 +20,12 @@ export function useInfoCompany() {
   const [availableCompanies, setAvailableCompanies] = useState<CompanyInfo[]>(
     [],
   );
-  const [selectedCompanyId, setSelectedCompanyId] =
-    useState<string>("system-0001");
+  const selectedCompanyId = useCompanyInfoStore(
+    (state) => state.selectedCompanyId,
+  );
+  const setSelectedCompanyId = useCompanyInfoStore(
+    (state) => state.setSelectedSystemId,
+  );
 
   // Form states
   const [name, setName] = useState("");
@@ -39,10 +41,17 @@ export function useInfoCompany() {
   const [timeOut, setTimeOut] = useState("17:00:00");
 
   // Status states
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // TanStack Query & Mutation
+  const {
+    data: queryCompany,
+    isLoading: loadingQuery,
+    refetch: refetchCompany,
+  } = useCompanyInfoQuery(selectedCompanyId);
+
+  const updateMutation = useUpdateCompanyMutation();
 
   // 1. Check user authentication and permissions
   useEffect(() => {
@@ -76,126 +85,70 @@ export function useInfoCompany() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [setSelectedCompanyId]);
 
-  // 2. Fetch company data when selectedCompanyId changes
-  const loadCompany = useCallback(async (targetId: string) => {
-    if (!targetId) return;
-    setLoading(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
-
-    try {
-      const data = await fetchCompanyByIdApi(targetId);
-      if (data) {
-        setName(data.name || data.companyName || "");
-
-        // QR codes
-        const qrs = Array.isArray(data.qrCodes)
-          ? data.qrCodes
-          : Array.isArray(data.qrCode)
-            ? data.qrCode
-            : [];
-        setQrCodes(qrs.map((q) => String(q).trim()).filter(Boolean));
-
-        // Location
-        let parsedLocs: string[] = [];
-        if (Array.isArray(data.location)) {
-          parsedLocs = data.location;
-        } else if (Array.isArray(data.locationLinks)) {
-          parsedLocs = data.locationLinks;
-        } else if (typeof data.location === "string") {
-          try {
-            const parsed = JSON.parse(data.location);
-            parsedLocs = Array.isArray(parsed) ? parsed : [data.location];
-          } catch {
-            parsedLocs = [data.location];
-          }
-        }
-        const cleanedLocs = parsedLocs
-          .map((loc) => String(loc).trim())
-          .filter(Boolean);
-        setLocations(cleanedLocs);
-        setLocationText(cleanedLocs.length > 0 ? cleanedLocs[0] : "");
-
-        // Telegram
-        const tokens = Array.isArray(data.telegramBotToken)
-          ? data.telegramBotToken
-          : [data.telegramBotToken];
-        setTelegramBotToken(tokens.filter(Boolean)[0] ? String(tokens[0]) : "");
-
-        const chats = Array.isArray(data.telegramChatId)
-          ? data.telegramChatId
-          : [data.telegramChatId];
-        setTelegramChatId(chats.filter(Boolean)[0] ? String(chats[0]) : "");
-
-        // Work hours
-        setTimeIn(data.timeIn || "08:00:00");
-        setTimeOut(data.timeOut || "17:00:00");
-      }
-    } catch (err: any) {
-      setErrorMessage(err?.message || "Failed to load company details");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
+  // 2. Fetch list of all companies if owner
   useEffect(() => {
-    if (isAuthorized && selectedCompanyId) {
-      loadCompany(selectedCompanyId);
-    }
-  }, [isAuthorized, selectedCompanyId, loadCompany]);
-
-  // Load available companies list if owner
-  useEffect(() => {
+    let isMounted = true;
     if (isOwner) {
       fetchAllCompaniesApi().then((list) => {
-        if (Array.isArray(list) && list.length > 0) {
+        if (isMounted && list.length > 0) {
           setAvailableCompanies(list);
         }
       });
     }
+    return () => {
+      isMounted = false;
+    };
   }, [isOwner]);
 
-  // QR Code operations
-  const handleAddQrCode = () => {
-    const clean = newQrInput.trim();
-    if (!clean) return;
-    if (qrCodes.includes(clean)) {
-      setNewQrInput("");
-      return;
+  // 3. Populate form when query data arrives
+  useEffect(() => {
+    if (queryCompany) {
+      setName(queryCompany.name || "");
+      setQrCodes(queryCompany.qrCodes || []);
+      setLocations(queryCompany.location || []);
+      setTelegramBotToken(queryCompany.telegramBotToken?.[0] || "");
+      setTelegramChatId(queryCompany.telegramChatId?.[0] || "");
+      setTimeIn(queryCompany.timeIn || "08:00:00");
+      setTimeOut(queryCompany.timeOut || "17:00:00");
     }
-    setQrCodes((prev) => [...prev, clean]);
+  }, [queryCompany]);
+
+  // QR Code management
+  const handleAddQrCode = () => {
+    const trimmed = newQrInput.trim();
+    if (!trimmed) return;
+    if (!qrCodes.includes(trimmed)) {
+      setQrCodes([...qrCodes, trimmed]);
+    }
     setNewQrInput("");
   };
 
-  const handleRemoveQrCode = (qrToRemove: string) => {
-    setQrCodes((prev) => prev.filter((q) => q !== qrToRemove));
+  const handleRemoveQrCode = (codeToRemove: string) => {
+    setQrCodes(qrCodes.filter((c) => c !== codeToRemove));
   };
 
-  // Location operations
+  // Location GPS management
   const handleAddLocation = () => {
-    const clean = newLocationInput.trim();
-    if (!clean) return;
-    if (locations.includes(clean)) {
-      setNewLocationInput("");
-      return;
+    const trimmed = newLocationInput.trim();
+    if (!trimmed) return;
+    if (!locations.includes(trimmed)) {
+      setLocations([...locations, trimmed]);
     }
-    setLocations((prev) => [...prev, clean]);
     setNewLocationInput("");
   };
 
-  const handleRemoveLocation = (indexOrLoc: number | string) => {
-    if (typeof indexOrLoc === "number") {
-      setLocations((prev) => prev.filter((_, idx) => idx !== indexOrLoc));
+  const handleRemoveLocation = (target: number | string) => {
+    if (typeof target === "number") {
+      setLocations(locations.filter((_, idx) => idx !== target));
     } else {
-      setLocations((prev) => prev.filter((loc) => loc !== indexOrLoc));
+      setLocations(locations.filter((l) => l !== target));
     }
   };
 
-  // Submit changes
+  // 4. Save updates via TanStack Query useMutation
   const handleSave = async () => {
-    if (!selectedCompanyId) return;
     if (!name.trim()) {
       setErrorMessage(
         t("infoCompany.errNameRequired", "Company name is required"),
@@ -203,7 +156,6 @@ export function useInfoCompany() {
       return;
     }
 
-    setSaving(true);
     setErrorMessage(null);
     setSuccessMessage(null);
 
@@ -213,14 +165,17 @@ export function useInfoCompany() {
         : [];
       const payloadChats = telegramChatId.trim() ? [telegramChatId.trim()] : [];
 
-      await updateCompanyApi(selectedCompanyId, {
-        name: name.trim(),
-        qrCodes: qrCodes,
-        location: locations,
-        telegramBotToken: payloadTokens,
-        telegramChatId: payloadChats,
-        timeIn: timeIn.trim() || "08:00:00",
-        timeOut: timeOut.trim() || "17:00:00",
+      await updateMutation.mutateAsync({
+        companyId: selectedCompanyId,
+        payload: {
+          name: name.trim(),
+          qrCodes: qrCodes,
+          location: locations,
+          telegramBotToken: payloadTokens,
+          telegramChatId: payloadChats,
+          timeIn: timeIn.trim() || "08:00:00",
+          timeOut: timeOut.trim() || "17:00:00",
+        },
       });
 
       const successTxt = t(
@@ -228,15 +183,12 @@ export function useInfoCompany() {
         "Company information updated successfully",
       );
       setSuccessMessage(successTxt);
-      Alert.alert(t("common.success", "Success"), successTxt);
+      await refetchCompany();
     } catch (err: any) {
       const msg =
         err?.message ||
         t("common.somethingWentWrong", "Failed to update company information");
       setErrorMessage(msg);
-      Alert.alert(t("common.error", "Error"), msg);
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -273,11 +225,16 @@ export function useInfoCompany() {
     setTimeIn,
     timeOut,
     setTimeOut,
-    loading,
-    saving,
+    loading: loadingQuery && !queryCompany,
+    saving: updateMutation.isPending,
     errorMessage,
     successMessage,
-    loadCompany,
+    loadCompany: (companyId?: string) => {
+      if (companyId) {
+        setSelectedCompanyId(companyId);
+      }
+      return refetchCompany();
+    },
     handleSave,
   };
 }

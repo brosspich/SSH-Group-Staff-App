@@ -1,4 +1,5 @@
 export * from "./_hooks/useCreateAccountStaff";
+export * from "./_hooks/useCreateStaffMutation";
 export * from "./_types/createAccountStaff.types";
 export {
   default as CreateAccountStaffScreen,

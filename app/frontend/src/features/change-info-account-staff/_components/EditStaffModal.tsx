@@ -7,6 +7,7 @@ import { hashPassword } from "@/utils/passwordUtils";
 import { formatRolesList, isOwnerRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
+import { useUpdateStaffMutation } from "../_hooks/useUpdateStaffMutation";
 import {
   ActivityIndicator,
   Keyboard,
@@ -63,6 +64,7 @@ export default function EditStaffModal({
   const isOwner = isOwnerRole(currentUser?.role);
   const { height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const updateStaffMutation = useUpdateStaffMutation();
 
   // Keyboard height state for adaptive resizing
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -294,17 +296,11 @@ export default function EditStaffModal({
         updatePayload.password = hashPassword(newPassword.trim());
       }
 
-      // 4. Update in Backend API
-      const updatedData = await apiClient.put<any>(
-        `/users-query/${staff.id}`,
-        updatePayload,
-      );
-
-      // 5. If updating currently logged in user, refresh local user storage
-      if (currentUser?.id === staff.id && updatedData) {
-        const { password: _p, ...safeUser } = updatedData;
-        await userService.save(safeUser as StaffUser);
-      }
+      // 4. Update in Backend API using TanStack Query useMutation
+      const updatedData = await updateStaffMutation.mutateAsync({
+        id: staff.id,
+        payload: updatePayload,
+      });
 
       const finalUpdatedUser: StaffUser = {
         ...staff,

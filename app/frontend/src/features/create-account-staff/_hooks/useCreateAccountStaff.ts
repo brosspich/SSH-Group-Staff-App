@@ -9,7 +9,6 @@ import { hasAdminOrOwnerRole, isOwnerRole } from "@/utils/roleUtils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   checkUsernameAvailability,
-  createStaffAccountApi,
   fetchNextSystemIdApi,
 } from "../_api/createAccountStaffApi";
 import type { CreateStaffFormData } from "../_types/createAccountStaff.types";
@@ -17,9 +16,11 @@ import {
   getTodayFormattedDate,
   validateCreateStaffInput,
 } from "../_utils/createAccountStaffUtils";
+import { useCreateStaffMutation } from "./useCreateStaffMutation";
 
 export function useCreateAccountStaff() {
   const { t } = useLanguage();
+  const createStaffMutation = useCreateStaffMutation();
   // Authentication & Access Check
   const [currentUser, setCurrentUser] = useState<StaffUser | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -186,8 +187,8 @@ export function useCreateAccountStaff() {
         return;
       }
 
-      // 2. Submit account creation payload to backend
-      await createStaffAccountApi({
+      // 2. Submit account creation payload to backend via TanStack Query useMutation
+      await createStaffMutation.mutateAsync({
         id: staffId.trim(),
         system_id: systemId.trim(),
         company_id: systemKey.trim().toLowerCase(),

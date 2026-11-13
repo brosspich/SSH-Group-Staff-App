@@ -23,10 +23,10 @@ async function main() {
 
   fs.writeFileSync(
     "./app/backend/prisma/d1_devicesession_seed.sql",
-    sqlLines.join("\n")
+    sqlLines.join("\n"),
   );
   console.log(
-    `Wrote ${sqlLines.length} SQL inserts to ./app/backend/prisma/d1_devicesession_seed.sql`
+    `Wrote ${sqlLines.length} SQL inserts to ./app/backend/prisma/d1_devicesession_seed.sql`,
   );
 }
 

@@ -3,7 +3,7 @@ import { ModalFooterButtons } from "@/shared/components/button/ModalFooterButton
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export interface AlertModalProps {
   alertModalVisible: boolean;
@@ -15,6 +15,7 @@ export interface AlertModalProps {
   cancelText?: string;
   okText?: string;
   iconName?: keyof typeof Ionicons.glyphMap | null;
+  hideCancel?: boolean;
 }
 
 export const AlertModal: React.FC<AlertModalProps> = ({
@@ -27,6 +28,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   cancelText,
   okText,
   iconName = "checkmark-circle-outline",
+  hideCancel = false,
 }) => {
   const { t } = useLanguage();
   const resolvedCancelText = cancelText ?? t("common.cancel");
@@ -57,17 +59,38 @@ export const AlertModal: React.FC<AlertModalProps> = ({
           </Text>
           <Text style={styles.txt}>{bodyTxt}</Text>
 
-          <ModalFooterButtons
-            onClose={() => setAlertModalVisible(false)}
-            onSubmit={() => {
-              setAlertModalVisible(false);
-              if (onPress) onPress();
-            }}
-            closeText={resolvedCancelText}
-            submitText={resolvedOkText}
-            iconName={iconName}
-            noBorderTop
-          />
+          {hideCancel ? (
+            <TouchableOpacity
+              style={styles.singleOkBtn}
+              onPress={() => {
+                setAlertModalVisible(false);
+                if (onPress) onPress();
+              }}
+              activeOpacity={0.85}
+            >
+              {iconName && (
+                <Ionicons
+                  name={iconName}
+                  size={18}
+                  color={theme.colors.background2}
+                  style={{ marginRight: 6 }}
+                />
+              )}
+              <Text style={styles.singleOkBtnText}>{resolvedOkText}</Text>
+            </TouchableOpacity>
+          ) : (
+            <ModalFooterButtons
+              onClose={() => setAlertModalVisible(false)}
+              onSubmit={() => {
+                setAlertModalVisible(false);
+                if (onPress) onPress();
+              }}
+              closeText={resolvedCancelText}
+              submitText={resolvedOkText}
+              iconName={iconName}
+              noBorderTop
+            />
+          )}
         </View>
       </View>
     </Modal>
@@ -98,6 +121,22 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     fontSize: theme.fontSizes.md,
     textAlign: "center",
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
+  },
+  singleOkBtn: {
+    width: "100%",
+    height: 44,
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.borderRadius.md,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+  },
+  singleOkBtnText: {
+    color: theme.colors.background2,
+    fontSize: theme.fontSizes.md,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

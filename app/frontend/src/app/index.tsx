@@ -1,5 +1,6 @@
 import { fetchSubscriptionBySystemId } from "@/features/subscription/_api/subscriptionApi";
 import Loading from "@/shared/components/loading/loading";
+import { extractSystemKey } from "@/shared/constants/attendanceConfig";
 import { useUser } from "@/shared/contexts/UserContext";
 import { theme } from "@/shared/styles/theme";
 import { Redirect } from "expo-router";
@@ -14,16 +15,28 @@ export default function Index() {
   useEffect(() => {
     let isMounted = true;
     if (!loading && user) {
-      const sysId = user.system_id || (user as any).systemId || user.companyId;
-      fetchSubscriptionBySystemId(sysId)
+      const companyId =
+        user.companyId ||
+        (user as any)?.company_id ||
+        user.details?.companyId ||
+        extractSystemKey(
+          user.system_id || (user as any)?.systemId || user.id,
+        ) ||
+        "system-0001";
+      fetchSubscriptionBySystemId(companyId, true)
         .then((sub) => {
           if (isMounted) {
-            setIsExpired(!!sub?.isExpired);
+            const hasNoValidSub =
+              !sub || sub.isExpired || sub.hasSubscription === false;
+            setIsExpired(hasNoValidSub);
             setCheckingSub(false);
           }
         })
         .catch(() => {
-          if (isMounted) setCheckingSub(false);
+          if (isMounted) {
+            setIsExpired(true);
+            setCheckingSub(false);
+          }
         });
     } else if (!loading && !user) {
       setCheckingSub(false);

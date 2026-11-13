@@ -1,50 +1,26 @@
+import { useInformationQuery } from "@/features/information/_hooks/useInformationQuery";
 import { useUser } from "@/shared/contexts/UserContext";
-import { StaffUser, userService } from "@/shared/services/userService";
-import { useCallback, useEffect, useState } from "react";
-import { fetchAccountProfileApi } from "../_api/accountApi";
+import { useCallback, useState } from "react";
 
 export function useAccount() {
   const { user: contextUser, setUser: setContextUser } = useUser();
-  const [user, setUser] = useState<StaffUser | null>(contextUser);
-  const [loading, setLoading] = useState(!contextUser);
-  const [refreshing, setRefreshing] = useState(false);
+  const {
+    user: queryUser,
+    isLoading: loadingQuery,
+    isRefetching: refreshing,
+    refetch,
+  } = useInformationQuery(contextUser?.id);
+
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
-  // Sync state whenever active context user changes (e.g. account switch)
-  useEffect(() => {
-    if (contextUser) {
-      setUser(contextUser);
-      setLoading(false);
-    } else {
-      userService.get().then((u) => {
-        if (u) {
-          setUser(u);
-          setLoading(false);
-        }
-      });
-    }
-  }, [contextUser]);
+  const user = queryUser || contextUser;
 
-  // Pull-to-refresh: fetch latest profile from backend API
   const onRefresh = useCallback(async () => {
-    const current = await userService.get();
-    if (!current?.id) {
-      setRefreshing(false);
-      return;
+    const res = await refetch();
+    if (res.data) {
+      setContextUser(res.data);
     }
-
-    setRefreshing(true);
-    try {
-      const data = await fetchAccountProfileApi(current.id);
-      if (data) {
-        await userService.save(data);
-        setUser(data);
-        setContextUser(data);
-      }
-    } finally {
-      setRefreshing(false);
-    }
-  }, [setContextUser]);
+  }, [refetch, setContextUser]);
 
   const handleLogout = () => {
     setLogoutModalVisible(true);
@@ -52,8 +28,8 @@ export function useAccount() {
 
   return {
     user,
-    setUser,
-    loading,
+    setUser: setContextUser,
+    loading: loadingQuery && !user,
     refreshing,
     onRefresh,
     logoutModalVisible,

@@ -7,9 +7,10 @@ import {
 import { StaffUser, userService } from "@/shared/services/userService";
 import { hasAdminOrOwnerRole, isOwnerRole } from "@/utils/roleUtils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { fetchStaffDirectoryApi } from "../_api/changeInfoStaffApi";
 import type { StaffStatusFilter } from "../_types/changeInfoStaff.types";
 import { filterStaffDirectory } from "../_utils/changeInfoStaffUtils";
+import { useStaffDirectoryStore } from "../_store/useStaffDirectoryStore";
+import { useStaffDirectoryQuery } from "./useStaffDirectoryQuery";
 
 export function useChangeInfoStaff() {
   const { t } = useLanguage();
@@ -17,19 +18,31 @@ export function useChangeInfoStaff() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
 
-  // Staff Data
-  const [staffList, setStaffList] = useState<StaffUser[]>([]);
-  const [loadingStaff, setLoadingStaff] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  // TanStack Query & Zustand Store
+  const {
+    data: queryStaff,
+    isLoading: loadingStaffQuery,
+    isRefetching: refreshingStaff,
+    refetch,
+  } = useStaffDirectoryQuery();
 
-  // Filter & Search states
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSystemFilter, setSelectedSystemFilter] =
-    useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<StaffStatusFilter>("all");
+  const cachedStaffList = useStaffDirectoryStore((state) => state.staffList);
+  const searchQuery = useStaffDirectoryStore((state) => state.searchQuery);
+  const setSearchQuery = useStaffDirectoryStore((state) => state.setSearchQuery);
+  const selectedSystemFilter = useStaffDirectoryStore(
+    (state) => state.selectedSystemFilter,
+  );
+  const setSelectedSystemFilter = useStaffDirectoryStore(
+    (state) => state.setSelectedSystemFilter,
+  );
+  const statusFilter = useStaffDirectoryStore((state) => state.statusFilter);
+  const setStatusFilter = useStaffDirectoryStore((state) => state.setStatusFilter);
+  const editingStaff = useStaffDirectoryStore((state) => state.editingStaff);
+  const setEditingStaff = useStaffDirectoryStore((state) => state.setEditingStaff);
+
+  const staffList = queryStaff || cachedStaffList;
 
   // Edit Modal State
-  const [editingStaff, setEditingStaff] = useState<StaffUser | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -38,27 +51,15 @@ export function useChangeInfoStaff() {
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     };
   }, []);
-  const [availableSystems, setAvailableSystems] = useState<DynamicSystemItem[]>(
-    [{ id: "system-0001" }, { id: "system-0002" }],
-  );
 
-  const fetchStaff = useCallback(async () => {
-    setLoadingStaff(true);
-    try {
-      const data = await fetchStaffDirectoryApi();
-      setStaffList(data);
-    } catch (e) {
-      console.warn("Error fetching staff list:", e);
-    } finally {
-      setLoadingStaff(false);
-      setRefreshing(false);
-    }
-  }, []);
+  const [availableSystems, setAvailableSystems] = useState<DynamicSystemItem[]>([
+    { id: "system-0001" },
+    { id: "system-0002" },
+  ]);
 
   const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchStaff();
-  }, [fetchStaff]);
+    refetch();
+  }, [refetch]);
 
   // Auth check & initial load
   useEffect(() => {
@@ -75,8 +76,9 @@ export function useChangeInfoStaff() {
         if (authorized && u) {
           const sys = extractSystemKey(u.system_id);
           const owner = isOwnerRole(u.role);
-          setSelectedSystemFilter(owner ? "all" : sys);
-          await fetchStaff();
+          if (selectedSystemFilter === "all" && !owner) {
+            setSelectedSystemFilter(sys);
+          }
 
           if (owner) {
             const systems = await fetchAvailableCompanySystems();
@@ -95,7 +97,7 @@ export function useChangeInfoStaff() {
     return () => {
       mounted = false;
     };
-  }, [fetchStaff]);
+  }, [selectedSystemFilter, setSelectedSystemFilter]);
 
   const filteredStaff = useMemo(() => {
     return filterStaffDirectory(
@@ -119,18 +121,7 @@ export function useChangeInfoStaff() {
     if (currentUser?.id === updatedStaff.id) {
       setCurrentUser(updatedStaff);
     }
-    setStaffList((prev) =>
-      prev.map((s) =>
-        s.id === updatedStaff.id ? { ...s, ...updatedStaff } : s,
-      ),
-    );
-    setEditingStaff(null);
-    showToast(
-      t("changeInfoStaff.updatedAccountToast", {
-        name: updatedStaff.name,
-        defaultValue: `Updated account for ${updatedStaff.name}`,
-      }),
-    );
+    showToast(t("changeInfoStaff.saveSuccess", "Staff updated successfully!"));
   };
 
   const isOwner = isOwnerRole(currentUser?.role);
@@ -142,19 +133,19 @@ export function useChangeInfoStaff() {
     isOwner,
     staffList,
     filteredStaff,
-    loadingStaff,
-    refreshing,
-    onRefresh,
+    loadingStaff: loadingStaffQuery && staffList.length === 0,
+    refreshing: refreshingStaff,
     searchQuery,
     setSearchQuery,
     selectedSystemFilter,
     setSelectedSystemFilter,
     statusFilter,
     setStatusFilter,
+    availableSystems,
     editingStaff,
     setEditingStaff,
     toastMessage,
-    availableSystems,
+    onRefresh,
     handleStaffSaved,
   };
 }

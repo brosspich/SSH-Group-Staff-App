@@ -1,8 +1,10 @@
 import { apiClient } from "@/shared/services/api";
+import { queryKeys } from "@/shared/services/api/queryKeys";
 import { AttendanceRequestRuleItem } from "@/shared/services/attendanceRequestService";
 import { StaffUser, userService } from "@/shared/services/userService";
 import { formatDateYMD } from "@/shared/utils/formatters";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 
 export type ReportType = "Daily" | "Weekly" | "Monthly" | "Annual";
 export type ReportMode = "individual" | "all" | "current";
@@ -89,7 +91,7 @@ export function formatDateLabel(date: Date, reportType: ReportType): string {
 }
 
 /**
- * Attendance Request Report Data Hook (Thin Client 30% UI -> Backend 70% Conditions & Calculations)
+ * Attendance Request Report Data Hook (TanStack Query Server Caching + Backend 70% Aggregations)
  */
 export function useAttendanceRequestReportData(
   reportMode: ReportMode,
@@ -97,13 +99,10 @@ export function useAttendanceRequestReportData(
   selectedDate: Date,
   selectedStaffId?: string | null,
 ) {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [staffList, setStaffList] = useState<StaffUser[]>([]);
+  const [currentUser, setCurrentUser] = useState<StaffUser | null>(null);
   const [activeStaffId, setActiveStaffId] = useState<string | null>(
     selectedStaffId || null,
   );
-
-  const [currentUser, setCurrentUser] = useState<StaffUser | null>(null);
 
   useEffect(() => {
     userService.get().then((u) => {
@@ -115,96 +114,82 @@ export function useAttendanceRequestReportData(
       }
     });
   }, [selectedStaffId]);
-  const [records, setRecords] = useState<AttendanceRequestRuleItem[]>([]);
-  const [summary, setSummary] = useState<RequestSummary>({
-    totalRequests: 0,
-    pendingCount: 0,
-    approvedCount: 0,
-    rejectedCount: 0,
-  });
 
-  const selectedDateMs = selectedDate ? selectedDate.getTime() : 0;
+  const dateParam = useMemo(() => formatDateYMD(selectedDate), [selectedDate]);
+  const targetId = activeStaffId || selectedStaffId || currentUser?.id || "";
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    const curDate = new Date(selectedDateMs);
-    try {
-      const currentUser = await userService.get();
+  const query = useQuery({
+    queryKey: queryKeys.reports.list({
+      kind: "requests",
+      mode: reportMode,
+      type: reportType,
+      date: dateParam,
+      staffId: targetId,
+    }),
+    queryFn: async () => {
+      const u = await userService.get();
       const userSys =
-        currentUser?.details?.company_id ||
-        currentUser?.details?.companyId ||
-        currentUser?.company_id ||
-        currentUser?.companyId ||
-        currentUser?.system_id ||
-        currentUser?.systemId ||
+        u?.details?.company_id ||
+        u?.details?.companyId ||
+        u?.company_id ||
+        u?.companyId ||
+        u?.system_id ||
+        u?.systemId ||
         "";
       const matchComp = userSys.match(/^(system-\d+)/i);
       const companyParam = matchComp ? matchComp[1].toLowerCase() : "";
 
-      const targetId =
-        activeStaffId || selectedStaffId || currentUser?.id || "";
-      const dateParam = formatDateYMD(curDate);
-
-      // Backend 70%: Performs all date filtering, request status aggregations, and summaries on the server!
       const res = await apiClient.get<{
         records: AttendanceRequestRuleItem[];
         summary: RequestSummary;
         staffList: StaffUser[];
         targetStaffId: string | null;
       }>(
-        `/reports/requests?mode=${reportMode}&type=${reportType}&date=${dateParam}&staffId=${targetId || ""}&currentUserId=${currentUser?.system_id || currentUser?.id || ""}&companyId=${companyParam}`,
+        `/reports/requests?mode=${reportMode}&type=${reportType}&date=${dateParam}&staffId=${targetId}&currentUserId=${u?.system_id || u?.id || ""}&companyId=${companyParam}`,
       );
 
-      if (res) {
-        setRecords(res.records || []);
-        setSummary(
-          res.summary || {
-            totalRequests: 0,
-            pendingCount: 0,
-            approvedCount: 0,
-            rejectedCount: 0,
-          },
-        );
-        setStaffList(res.staffList || []);
-        if (res.targetStaffId && res.targetStaffId !== activeStaffId) {
-          setActiveStaffId(res.targetStaffId);
-        }
-      }
-    } catch (err) {
-      console.error("Error fetching request report from backend:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [reportMode, reportType, selectedDateMs, activeStaffId, selectedStaffId]);
+      return res || null;
+    },
+    staleTime: 1000 * 60 * 3, // 3 minutes fresh cache
+    gcTime: 1000 * 60 * 30, // 30 minutes in memory
+  });
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  const records = query.data?.records || [];
+  const summary = query.data?.summary || {
+    totalRequests: 0,
+    pendingCount: 0,
+    approvedCount: 0,
+    rejectedCount: 0,
+  };
+  const staffList = query.data?.staffList || [];
 
-  const selectedStaff =
-    staffList.find(
-      (s) =>
-        s.id === activeStaffId ||
-        (s as any).system_id === activeStaffId ||
-        (s as any).systemId === activeStaffId,
-    ) ||
-    staffList.find(
-      (s) =>
-        s.id === currentUser?.id ||
-        (s as any).system_id === currentUser?.system_id,
-    ) ||
-    (reportMode === "current" ? currentUser : null) ||
-    staffList[0] ||
-    null;
+  const selectedStaff = useMemo(() => {
+    return (
+      staffList.find(
+        (s) =>
+          s.id === activeStaffId ||
+          (s as any).system_id === activeStaffId ||
+          (s as any).systemId === activeStaffId,
+      ) ||
+      staffList.find(
+        (s) =>
+          s.id === currentUser?.id ||
+          (s as any).system_id === currentUser?.system_id,
+      ) ||
+      (reportMode === "current" ? currentUser : null) ||
+      staffList[0] ||
+      null
+    );
+  }, [staffList, activeStaffId, currentUser, reportMode]);
 
   return {
-    loading,
+    loading: query.isLoading && !query.data,
     records,
     summary,
     staffList,
     selectedStaff,
     activeStaffId,
     setActiveStaffId,
-    refetch: fetchData,
+    refetch: query.refetch,
   };
 }

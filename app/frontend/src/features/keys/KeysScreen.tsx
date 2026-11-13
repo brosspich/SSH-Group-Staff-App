@@ -1,4 +1,5 @@
 import { useLanguage } from "@/features/language";
+import { renderAlertModal } from "@/shared/components/alert/alert";
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
 import { useResponsive } from "@/shared/hooks/useResponsive";
@@ -7,7 +8,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import {
-  Alert,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -36,6 +36,20 @@ export default function KeysScreen() {
   const uploadMutation = useUploadKeyMutation();
   const revokeMutation = useRevokeKeyMutation();
 
+  const [alertConfig, setAlertConfig] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    iconName?: keyof typeof Ionicons.glyphMap;
+    hideCancel?: boolean;
+    onPress?: () => void;
+  }>({
+    visible: false,
+    title: "",
+    message: "",
+    hideCancel: true,
+  });
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await refetch();
@@ -46,31 +60,47 @@ export default function KeysScreen() {
     try {
       await uploadMutation.mutateAsync(dto);
       setModalVisible(false);
-      Alert.alert("Success", "SSH public key registered successfully");
+      setAlertConfig({
+        visible: true,
+        title: "ជោគជ័យ",
+        message: "បានចុះឈ្មោះ SSH Key ដោយជោគជ័យ",
+        iconName: "checkmark-circle-outline",
+        hideCancel: true,
+      });
     } catch (err: any) {
-      Alert.alert("Error", err?.message || "Failed to upload key");
+      setAlertConfig({
+        visible: true,
+        title: "បរាជ័យ",
+        message: err?.message || "មិនអាចបញ្ចូល SSH Key បានទេ",
+        iconName: "close-circle-outline",
+        hideCancel: true,
+      });
     }
   };
 
   const handleRevokeKey = (id: string) => {
-    Alert.alert(
-      "Revoke SSH Key",
-      "Are you sure you want to revoke this key? This cannot be undone.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Revoke",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await revokeMutation.mutateAsync(id);
-            } catch (err: any) {
-              Alert.alert("Error", err?.message || "Failed to revoke key");
-            }
-          },
-        },
-      ],
-    );
+    setAlertConfig({
+      visible: true,
+      title: "លុបចោល SSH Key",
+      message:
+        "តើអ្នកប្រាកដជាចង់ដកហូត SSH Key នេះមែនទេ? សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។",
+      iconName: "alert-circle-outline",
+      hideCancel: false,
+      onPress: async () => {
+        try {
+          await revokeMutation.mutateAsync(id);
+          setAlertConfig((prev) => ({ ...prev, visible: false }));
+        } catch (err: any) {
+          setAlertConfig({
+            visible: true,
+            title: "បរាជ័យ",
+            message: err?.message || "មិនអាចដកហូត SSH Key បានទេ",
+            iconName: "close-circle-outline",
+            hideCancel: true,
+          });
+        }
+      },
+    });
   };
 
   return (
@@ -159,6 +189,17 @@ export default function KeysScreen() {
         onClose={() => setModalVisible(false)}
         onUpload={handleUploadKey}
       />
+
+      {renderAlertModal({
+        alertModalVisible: alertConfig.visible,
+        setAlertModalVisible: (v) =>
+          setAlertConfig((prev) => ({ ...prev, visible: v })),
+        title: alertConfig.title,
+        bodyTxt: alertConfig.message,
+        onPress: alertConfig.onPress,
+        iconName: alertConfig.iconName,
+        hideCancel: alertConfig.hideCancel,
+      })}
     </View>
   );
 }

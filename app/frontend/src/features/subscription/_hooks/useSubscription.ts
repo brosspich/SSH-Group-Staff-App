@@ -1,76 +1,49 @@
+import { extractSystemKey } from "@/shared/constants/attendanceConfig";
 import { useUser } from "@/shared/contexts/UserContext";
 import { isOwnerRole } from "@/utils/roleUtils";
-import { useCallback, useEffect, useState } from "react";
-import { fetchSubscriptionBySystemId } from "../_api/subscriptionApi";
-import type { SubscriptionInfo } from "../_types/subscription.types";
+import { useEffect } from "react";
+import { useSubscriptionStore } from "../_store/useSubscriptionStore";
+import { useSubscriptionQuery } from "./useSubscriptionQuery";
 
 export function useSubscription() {
   const { user } = useUser();
-  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(
-    null,
-  );
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   const role = (user?.role || "").toLowerCase().trim();
   const isOwner = role === "owner" || isOwnerRole(role);
 
-  // Determine current system_id
-  const userSystemId =
-    user?.system_id ||
-    (user as any)?.systemId ||
+  // Determine current companyId to match system_id in Subscription table
+  const rawSys =
     user?.companyId ||
+    (user as any)?.company_id ||
     user?.details?.companyId ||
+    extractSystemKey(user?.system_id || (user as any)?.systemId || user?.id) ||
     "system-0001";
+  const userSystemId = (
+    extractSystemKey(rawSys) || "system-0001"
+  ).toLowerCase();
 
-  const [selectedSystemId, setSelectedSystemId] = useState<string>(
-    userSystemId.toLowerCase(),
+  const selectedSystemId = useSubscriptionStore(
+    (state) => state.selectedSystemId || userSystemId,
   );
-
-  const loadSubscription = useCallback(async (targetSysId: string) => {
-    if (!targetSysId) return;
-    setError(null);
-
-    try {
-      const data = await fetchSubscriptionBySystemId(targetSysId);
-      if (data) {
-        setSubscription(data);
-      } else {
-        // Fallback default info if network issue or record missing
-        setSubscription({
-          id: `SUB-${targetSysId.replace("system-", "")}`,
-          systemId: targetSysId,
-          plan: "1 Year",
-          startDate: "2026-07-01",
-          endDate: "2027-07-01",
-          status: "Active",
-          daysRemaining: 230,
-          isExpired: false,
-        });
-      }
-    } catch (err: any) {
-      setError(err?.message || "Failed to load subscription");
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
+  const setSelectedSystemId = useSubscriptionStore(
+    (state) => state.setSelectedSystemId,
+  );
+  const cachedSub = useSubscriptionStore((state) => state.subscription);
 
   useEffect(() => {
-    if (selectedSystemId) {
-      loadSubscription(selectedSystemId);
+    if (userSystemId && userSystemId !== selectedSystemId) {
+      setSelectedSystemId(userSystemId);
     }
-  }, [selectedSystemId, loadSubscription]);
+  }, [userSystemId, selectedSystemId, setSelectedSystemId]);
 
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    if (selectedSystemId) {
-      loadSubscription(selectedSystemId);
-    } else {
-      setRefreshing(false);
-    }
-  }, [selectedSystemId, loadSubscription]);
+  const {
+    data: querySub,
+    isLoading,
+    isRefetching,
+    error: queryError,
+    refetch,
+  } = useSubscriptionQuery(selectedSystemId, true);
+
+  const subscription = querySub ?? cachedSub;
 
   return {
     user,
@@ -78,10 +51,10 @@ export function useSubscription() {
     selectedSystemId,
     setSelectedSystemId,
     subscription,
-    loading,
-    refreshing,
-    error,
-    onRefresh,
-    reload: () => loadSubscription(selectedSystemId),
+    loading: isLoading && !subscription,
+    refreshing: isRefetching,
+    error: queryError instanceof Error ? queryError.message : null,
+    onRefresh: refetch,
+    reload: refetch,
   };
 }
