@@ -118,15 +118,17 @@ export const ChangeInfoFilterBar: React.FC<ChangeInfoFilterBarProps> = ({
 const styles = StyleSheet.create({
   container: {
     paddingBottom: 8,
+    borderBottomWidth: 0.5,
+    borderColor: theme.colors.grey + 70,
   },
   filterChipScroll: {
     flexDirection: "row",
     paddingVertical: 2,
   },
   filterChip: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: theme.borderRadius.sm,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.md,
+    borderRadius: theme.borderRadius.xs,
     backgroundColor: theme.colors.background2,
     marginRight: 8,
     borderWidth: 1,
@@ -150,9 +152,9 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   statusChip: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: theme.borderRadius.xl,
+    paddingVertical: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.base,
+    borderRadius: theme.borderRadius.sm,
     backgroundColor: theme.colors.background2,
     marginRight: 6,
     borderWidth: 1,

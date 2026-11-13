@@ -1,3 +1,4 @@
+import { useDebounce } from "@/shared/hooks/useDebounce";
 import { userService } from "@/shared/services/userService";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AttendanceFilterType } from "../_types/attendance.types";
@@ -62,16 +63,19 @@ export function useAttendanceLogs() {
     [activeRecords, todayStr],
   );
 
-  // 3. Memoized Filtered List
+  // 3. Debounced Search (timing controlled centrally in useDebounce)
+  const debouncedSearch = useDebounce(searchQuery);
+
+  // 4. Memoized Filtered List
   const filteredList = useMemo(
     () =>
       filterAttendanceRecords(
         activeRecords,
         historyFilter,
-        searchQuery,
+        debouncedSearch,
         todayStr,
       ),
-    [activeRecords, historyFilter, searchQuery, todayStr],
+    [activeRecords, historyFilter, debouncedSearch, todayStr],
   );
 
   // 4. Paginated Items for Display
@@ -120,6 +124,9 @@ export function useAttendanceLogs() {
     hasMore,
     historyFilter,
     searchQuery,
+    debouncedSearch,
+    isSearching:
+      searchQuery.trim().length > 0 && searchQuery !== debouncedSearch,
     pageSize: ATTENDANCE_PAGE_SIZE,
     onRefresh,
     handleLoadMore,

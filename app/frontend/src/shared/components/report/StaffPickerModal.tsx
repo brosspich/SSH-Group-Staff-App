@@ -1,6 +1,7 @@
 import { useLanguage } from "@/features/language";
 import { extractSystemKey } from "@/shared/constants/attendanceConfig";
 import { useUser } from "@/shared/contexts/UserContext";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { StaffUser } from "@/shared/services/userService";
 import { theme } from "@/shared/styles/theme";
@@ -8,6 +9,7 @@ import { isLeaveRole } from "@/utils/roleUtils";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   Modal,
   Platform,
   Pressable,
@@ -110,6 +112,7 @@ export function StaffPickerModal({
 }: StaffPickerModalProps) {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery);
   const insets = useSafeAreaInsets();
   const { isMobile } = useResponsive();
   const { user: loggedInUser } = useUser();
@@ -145,8 +148,8 @@ export function StaffPickerModal({
   );
 
   const filteredStaff = sortedStaff.filter((st) => {
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.trim().toLowerCase();
+    if (!debouncedSearch.trim()) return true;
+    const q = debouncedSearch.trim().toLowerCase();
     return (
       (st.name && st.name.toLowerCase().includes(q)) ||
       (st.id && st.id.toLowerCase().includes(q)) ||
@@ -201,7 +204,16 @@ export function StaffPickerModal({
 
           {/* Search Box */}
           <View style={s.searchBox}>
-            <Ionicons name="search" size={18} color={theme.colors.grey} />
+            {searchQuery.trim().length > 0 &&
+            searchQuery !== debouncedSearch ? (
+              <ActivityIndicator
+                size="small"
+                color={theme.colors.primary}
+                style={{ marginRight: 6 }}
+              />
+            ) : (
+              <Ionicons name="search" size={18} color={theme.colors.grey} />
+            )}
             <TextInput
               style={s.searchInput}
               placeholder={t("report.searchStaffPlaceholder")}

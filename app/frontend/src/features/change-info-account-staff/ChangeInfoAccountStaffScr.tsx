@@ -35,6 +35,7 @@ export default function ChangeInfoAccountStaffScr() {
     refreshing,
     onRefresh,
     searchQuery,
+    isSearching,
     setSearchQuery,
     selectedSystemFilter,
     setSelectedSystemFilter,
@@ -65,7 +66,11 @@ export default function ChangeInfoAccountStaffScr() {
       {/* Toast Notification */}
       {toastMessage && (
         <View style={styles.toastBox}>
-          <Ionicons name="checkmark-circle" size={20} color="#fff" />
+          <Ionicons
+            name="checkmark-circle"
+            size={20}
+            color={theme.colors.background2}
+          />
           <Text style={styles.toastText}>{toastMessage}</Text>
         </View>
       )}
@@ -75,6 +80,7 @@ export default function ChangeInfoAccountStaffScr() {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         staffCount={filteredStaff.length}
+        isSearching={isSearching}
       />
 
       <ChangeInfoFilterBar

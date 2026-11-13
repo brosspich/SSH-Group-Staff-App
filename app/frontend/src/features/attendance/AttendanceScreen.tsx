@@ -1,6 +1,6 @@
-import { theme } from "@/shared/styles/theme";
 import AppBarGlass from "@/shared/components/appbar/AppBarGlass";
 import Loading from "@/shared/components/loading/loading";
+import { theme } from "@/shared/styles/theme";
 import {
   FlatList,
   RefreshControl,
@@ -33,6 +33,8 @@ export default function AttendanceScreen() {
     hasMore,
     historyFilter,
     searchQuery,
+    debouncedSearch,
+    isSearching,
     pageSize,
     onRefresh,
     handleLoadMore,
@@ -92,10 +94,13 @@ export default function AttendanceScreen() {
               onFilterChange={handleFilterChange}
               todayCount={counts.todayCount}
               allCount={counts.allCount}
+              isSearching={isSearching}
             />
           </View>
         }
-        ListEmptyComponent={<AttendanceEmptyState searchQuery={searchQuery} />}
+        ListEmptyComponent={
+          <AttendanceEmptyState searchQuery={debouncedSearch} />
+        }
         ListFooterComponent={
           <AttendanceListFooter
             loadingMore={loadingMore}

@@ -7,12 +7,14 @@ import {
   ReportMode,
   RequestSummary,
 } from "@/shared/hooks/useAttendanceRequestReportData";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 import { AttendanceRequestRuleItem } from "@/shared/services/attendanceRequestService";
 import { StaffUser } from "@/shared/services/userService";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   TextInput,
@@ -44,6 +46,7 @@ export function RequestReportBody({
   const { t } = useLanguage();
   const { user: loggedInUser } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery);
   const [showStaffModal, setShowStaffModal] = useState(false);
 
   if (loading) {
@@ -54,11 +57,11 @@ export function RequestReportBody({
     );
   }
 
-  // Filter records by search query
+  // Filter records by debounced search query (waits 2s after typing)
   const filteredRecords = records.filter((r) => {
     if (!r) return false;
-    if (!searchQuery.trim()) return true;
-    const q = searchQuery.trim().toLowerCase();
+    if (!debouncedSearch.trim()) return true;
+    const q = debouncedSearch.trim().toLowerCase();
     const rId = r.id != null ? String(r.id).toLowerCase() : "";
     const rName = r.name != null ? String(r.name).toLowerCase() : "";
     const rStaffId = r.staff_id != null ? String(r.staff_id).toLowerCase() : "";
@@ -200,7 +203,15 @@ export function RequestReportBody({
 
       {/* Search Input */}
       <View style={s.searchBox}>
-        <Ionicons name="search-outline" size={18} color={theme.colors.grey} />
+        {searchQuery.trim().length > 0 && searchQuery !== debouncedSearch ? (
+          <ActivityIndicator
+            size="small"
+            color={theme.colors.primary}
+            style={{ marginRight: 6 }}
+          />
+        ) : (
+          <Ionicons name="search-outline" size={18} color={theme.colors.grey} />
+        )}
         <TextInput
           style={s.searchInput}
           placeholder={t("report.searchReportPlaceholder")}

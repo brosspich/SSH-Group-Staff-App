@@ -85,13 +85,14 @@ const styles = StyleSheet.create({
   appBar: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-end",
     alignContent: "center",
     paddingHorizontal: 16,
     position: "absolute",
     left: 0,
     right: 0,
     zIndex: 10,
+    paddingBottom: 5,
   },
   appBarTitle: {
     fontSize: theme.fontSizes.xl,
@@ -133,5 +134,6 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.md,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     overflow: "hidden",
+    // marginBottom: 5,
   },
 });

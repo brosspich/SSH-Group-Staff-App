@@ -3,6 +3,7 @@ import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import {
+  ActivityIndicator,
   Platform,
   StyleSheet,
   Text,
@@ -19,6 +20,7 @@ interface AttendanceFilterSearchProps {
   onFilterChange: (filter: AttendanceFilterType) => void;
   todayCount: number;
   allCount: number;
+  isSearching?: boolean;
 }
 
 export const AttendanceFilterSearch: React.FC<AttendanceFilterSearchProps> = ({
@@ -28,6 +30,7 @@ export const AttendanceFilterSearch: React.FC<AttendanceFilterSearchProps> = ({
   onFilterChange,
   todayCount,
   allCount,
+  isSearching = false,
 }) => {
   const { t } = useLanguage();
 
@@ -35,7 +38,15 @@ export const AttendanceFilterSearch: React.FC<AttendanceFilterSearchProps> = ({
     <>
       {/* ── Search Bar ── */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={18} color={theme.colors.grey} />
+        {isSearching ? (
+          <ActivityIndicator
+            size="small"
+            color={theme.colors.primary}
+            style={{ marginRight: 6 }}
+          />
+        ) : (
+          <Ionicons name="search" size={18} color={theme.colors.grey} />
+        )}
         <TextInput
           style={styles.searchInput}
           placeholder={t("attendance.searchPlaceholder")}

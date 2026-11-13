@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import {
+  ActivityIndicator,
   StyleSheet,
   Text,
   TextInput,
@@ -15,24 +16,34 @@ interface ChangeInfoSearchBarProps {
   searchQuery: string;
   setSearchQuery: (v: string) => void;
   staffCount: number;
+  isSearching?: boolean;
 }
 
 export const ChangeInfoSearchBar: React.FC<ChangeInfoSearchBarProps> = ({
   searchQuery,
   setSearchQuery,
   staffCount,
+  isSearching = false,
 }) => {
   const { t } = useLanguage();
 
   return (
     <View style={styles.container}>
       <View style={styles.searchBar}>
-        <Ionicons
-          name="search"
-          size={20}
-          color={theme.colors.grey}
-          style={{ marginRight: 8 }}
-        />
+        {isSearching ? (
+          <ActivityIndicator
+            size="small"
+            color={theme.colors.primary}
+            style={{ marginRight: 8 }}
+          />
+        ) : (
+          <Ionicons
+            name="search"
+            size={20}
+            color={theme.colors.grey}
+            style={{ marginRight: 8 }}
+          />
+        )}
         <TextInput
           style={styles.searchInput}
           placeholder={t(
@@ -78,7 +89,7 @@ export const ChangeInfoSearchBar: React.FC<ChangeInfoSearchBarProps> = ({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    paddingTop: 12,
+    // paddingTop: 12,
   },
   searchBar: {
     flexDirection: "row",
@@ -109,11 +120,13 @@ const styles = StyleSheet.create({
   createShortcutBtn: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 4,
-    paddingHorizontal: 10,
+    paddingVertical: theme.spacing.xs2,
+    paddingHorizontal: theme.spacing.base,
     borderRadius: theme.borderRadius.sm,
     backgroundColor: `${theme.colors.primary}18`,
     gap: 4,
+    borderColor: theme.colors.primary + 50,
+    borderWidth: 0.5,
   },
   createShortcutText: {
     fontSize: theme.fontSizes.xs,

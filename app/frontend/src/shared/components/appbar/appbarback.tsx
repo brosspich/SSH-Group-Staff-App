@@ -24,7 +24,7 @@ export default function AppbarBack({
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.appBar, { height: 70 + insets.top }]}>
+    <View style={[styles.appBar, { height: 75 + insets.top }]}>
       {/* <View style={styles.side}>
         <Pressable
           onPress={handleBack}

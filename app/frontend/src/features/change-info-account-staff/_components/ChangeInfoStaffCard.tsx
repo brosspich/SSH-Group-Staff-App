@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   },
   rolesContainer: {
     flexDirection: "row",
-    gap: 6,
+    gap: theme.spacing.xs2,
     flexWrap: "wrap",
     flex: 1,
   },
@@ -318,10 +318,12 @@ const styles = StyleSheet.create({
   editBtn: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingVertical: theme.spacing.xs2,
+    paddingHorizontal: theme.spacing.md,
     borderRadius: theme.borderRadius.sm,
     backgroundColor: `${theme.colors.primary}15`,
+    borderColor: theme.colors.primary + 50,
+    borderWidth: 0.5,
   },
   editBtnText: {
     fontSize: theme.fontSizes.xs,

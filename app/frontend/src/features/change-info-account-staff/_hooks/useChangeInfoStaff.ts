@@ -4,12 +4,12 @@ import {
   extractSystemKey,
   fetchAvailableCompanySystems,
 } from "@/shared/constants/attendanceConfig";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 import { StaffUser, userService } from "@/shared/services/userService";
 import { hasAdminOrOwnerRole, isOwnerRole } from "@/utils/roleUtils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { StaffStatusFilter } from "../_types/changeInfoStaff.types";
-import { filterStaffDirectory } from "../_utils/changeInfoStaffUtils";
 import { useStaffDirectoryStore } from "../_store/useStaffDirectoryStore";
+import { filterStaffDirectory } from "../_utils/changeInfoStaffUtils";
 import { useStaffDirectoryQuery } from "./useStaffDirectoryQuery";
 
 export function useChangeInfoStaff() {
@@ -28,7 +28,9 @@ export function useChangeInfoStaff() {
 
   const cachedStaffList = useStaffDirectoryStore((state) => state.staffList);
   const searchQuery = useStaffDirectoryStore((state) => state.searchQuery);
-  const setSearchQuery = useStaffDirectoryStore((state) => state.setSearchQuery);
+  const setSearchQuery = useStaffDirectoryStore(
+    (state) => state.setSearchQuery,
+  );
   const selectedSystemFilter = useStaffDirectoryStore(
     (state) => state.selectedSystemFilter,
   );
@@ -36,9 +38,13 @@ export function useChangeInfoStaff() {
     (state) => state.setSelectedSystemFilter,
   );
   const statusFilter = useStaffDirectoryStore((state) => state.statusFilter);
-  const setStatusFilter = useStaffDirectoryStore((state) => state.setStatusFilter);
+  const setStatusFilter = useStaffDirectoryStore(
+    (state) => state.setStatusFilter,
+  );
   const editingStaff = useStaffDirectoryStore((state) => state.editingStaff);
-  const setEditingStaff = useStaffDirectoryStore((state) => state.setEditingStaff);
+  const setEditingStaff = useStaffDirectoryStore(
+    (state) => state.setEditingStaff,
+  );
 
   const staffList = queryStaff || cachedStaffList;
 
@@ -52,10 +58,9 @@ export function useChangeInfoStaff() {
     };
   }, []);
 
-  const [availableSystems, setAvailableSystems] = useState<DynamicSystemItem[]>([
-    { id: "system-0001" },
-    { id: "system-0002" },
-  ]);
+  const [availableSystems, setAvailableSystems] = useState<DynamicSystemItem[]>(
+    [{ id: "system-0001" }, { id: "system-0002" }],
+  );
 
   const onRefresh = useCallback(() => {
     refetch();
@@ -99,15 +104,24 @@ export function useChangeInfoStaff() {
     };
   }, [selectedSystemFilter, setSelectedSystemFilter]);
 
+  // Debounced search query (timing controlled centrally in useDebounce)
+  const debouncedSearch = useDebounce(searchQuery);
+
   const filteredStaff = useMemo(() => {
     return filterStaffDirectory(
       staffList,
       currentUser,
-      searchQuery,
+      debouncedSearch,
       selectedSystemFilter,
       statusFilter,
     );
-  }, [staffList, currentUser, searchQuery, selectedSystemFilter, statusFilter]);
+  }, [
+    staffList,
+    currentUser,
+    debouncedSearch,
+    selectedSystemFilter,
+    statusFilter,
+  ]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -136,6 +150,9 @@ export function useChangeInfoStaff() {
     loadingStaff: loadingStaffQuery && staffList.length === 0,
     refreshing: refreshingStaff,
     searchQuery,
+    debouncedSearch,
+    isSearching:
+      searchQuery.trim().length > 0 && searchQuery !== debouncedSearch,
     setSearchQuery,
     selectedSystemFilter,
     setSelectedSystemFilter,

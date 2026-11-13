@@ -29,7 +29,7 @@ export default function Appbar() {
         barStyle="dark-content"
       /> */}
       {/* <SafeAreaView> */}
-      <View style={[styles.appBar, { height: 70 + insets.top }]}>
+      <View style={[styles.appBar, { height: 75 + insets.top }]}>
         {/* <View style={styles.appBarLogo}>
           <Image
             source={AppImages.logoSSH}
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-end",
     alignContent: "center",
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
     backgroundColor: theme.colors.secondary,
     // borderBottomWidth: 1,
     // borderBottomColor: `${theme.colors.grey}33`,
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   txtName: {
-    fontSize: theme.fontSizes.sm,
+    fontSize: theme.fontSizes.lg,
     // fontWeight: "bold",
     color: theme.colors.background2,
     fontFamily: theme.fonts.bold,
