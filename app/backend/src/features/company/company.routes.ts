@@ -5,5 +5,6 @@ const router = Router();
 
 router.get("/", companyController.getCompanies);
 router.get("/:id", companyController.getCompanyById);
+router.put("/:id", companyController.updateCompany);
 
 export const companyRoutes = router;

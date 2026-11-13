@@ -256,6 +256,48 @@ export const en = {
     adminStaff: "Account Staff",
     createStaff: "Create Account Staff",
     editStaff: "Change Info Account Staff",
+    companyInfo: "Company Information",
+  },
+  infoCompany: {
+    title: "Company Information",
+    subtitle: "Manage company profile, QR codes, location, and Telegram alerts",
+    companyProfile: "Company Profile",
+    managingCompany: "Managing Company:",
+    companyName: "Company Name",
+    companyNamePlaceholder: "Enter company name",
+    errNameRequired: "Company name is required.",
+    qrCodes: "Attendance QR Codes",
+    qrCodesDesc: "Official QR codes staff can scan for attendance",
+    addQrCode: "Add",
+    qrPlaceholder: "Enter QR code string (e.g. COMPANY_QR_2026)",
+    location: "Location & GPS Geofence",
+    locationDesc:
+      "Coordinates (e.g. 11.502767, 104.851539) or Google Maps link",
+    addLocation: "Add",
+    noLocations: "No location coordinates configured yet",
+    locationPlaceholder:
+      "e.g. 11.502767, 104.851539 or https://maps.app.goo.gl/...",
+    locationHint:
+      "Staff GPS is verified against any of these registered locations during attendance check-in.",
+    telegramNotifications: "Telegram Alert Notifications",
+    telegramDesc:
+      "Receive instant attendance and request alerts directly in your Telegram group",
+    telegramBotToken: "Telegram Bot Token",
+    telegramBotTokenPlaceholder: "e.g. 123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ",
+    telegramChatId: "Telegram Chat ID",
+    telegramChatIdPlaceholder: "e.g. -1001234567890 or @channel",
+    telegramHint:
+      "Ensure your Telegram Bot is added as Administrator to the target group or channel.",
+    workHours: "Working Hours (Time-In & Time-Out)",
+    workHoursDesc: "Standard daily time boundaries for staff attendance",
+    timeIn: "Time In",
+    timeOut: "Time Out",
+    saveChanges: "Save Company Info",
+    saving: "Saving...",
+    updateSuccess: "Company information updated successfully.",
+    accessRestricted: "Access Restricted",
+    accessRestrictedDesc:
+      "Only administrator accounts have permission to edit company information.",
   },
   devices: {
     title: "Devices",

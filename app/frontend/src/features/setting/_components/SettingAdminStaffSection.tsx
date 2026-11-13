@@ -74,6 +74,12 @@ export const SettingAdminStaffSection: React.FC<
           title={t("setting.editStaff")}
           iconName="create-outline"
         />
+        <Border />
+        <BtnItem
+          onPress={() => router.push("/info-company/info-company" as any)}
+          title={t("setting.companyInfo", "Company Information")}
+          iconName="business-outline"
+        />
       </View>
     </View>
   );

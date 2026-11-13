@@ -69,7 +69,7 @@ function resolveCandidateBaseUrls(): string[] {
   if (Platform.OS === "android") {
     return [
       envUrl,
-      "http://192.168.1.111:4000",
+      "http://192.168.1.135:4000",
       autoHostUrl,
       "http://localhost:4000",
       "http://127.0.0.1:4000",
@@ -80,7 +80,7 @@ function resolveCandidateBaseUrls(): string[] {
   if (Platform.OS === "ios") {
     return [
       envUrl,
-      "http://192.168.1.111:4000",
+      "http://192.168.1.135:4000",
       autoHostUrl,
       "http://localhost:4000",
       "http://127.0.0.1:4000",
@@ -89,7 +89,7 @@ function resolveCandidateBaseUrls(): string[] {
 
   return [
     envUrl,
-    "http://192.168.1.111:4000",
+    "http://192.168.1.135:4000",
     "http://127.0.0.1:4000",
     "http://localhost:4000",
   ].filter(Boolean) as string[];

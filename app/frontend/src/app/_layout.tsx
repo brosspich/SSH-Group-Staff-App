@@ -178,6 +178,8 @@ export default function RootLayout() {
               <Stack.Screen name="keys/index" />
 
               <Stack.Screen name="language/index" />
+
+              <Stack.Screen name="info-company/info-company" />
             </Stack>
           </UserProvider>
         </QueryClientProvider>
