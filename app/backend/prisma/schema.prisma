@@ -182,3 +182,14 @@ model AttendanceQr {
 
   @@map("ssh-group-staff-attendance-qr")
 }
+
+model Subscription {
+  id        String   @id
+  systemId  String   @map("system_id")
+  plan      String
+  startDate String   @map("start_date")
+  endDate   String   @map("end_date")
+  createdAt DateTime @default(now())
+
+  @@index([systemId])
+}

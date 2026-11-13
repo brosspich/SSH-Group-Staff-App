@@ -80,6 +80,12 @@ export const SettingAdminStaffSection: React.FC<
           title={t("setting.companyInfo", "Company Information")}
           iconName="business-outline"
         />
+        <Border />
+        <BtnItem
+          onPress={() => router.push("/subscription/subscription" as any)}
+          title={t("setting.subscription", "Subscription Plan")}
+          iconName="card-outline"
+        />
       </View>
     </View>
   );

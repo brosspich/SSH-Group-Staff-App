@@ -264,6 +264,7 @@ export const km = {
     createStaff: "បង្កើតគណនីបុគ្គលិក",
     editStaff: "កែប្រែព័ត៌មានបុគ្គលិក",
     companyInfo: "ព័ត៌មានក្រុមហ៊ុន",
+    subscription: "កញ្ចប់សេវាកម្ម (Subscription)",
   },
   infoCompany: {
     title: "ព័ត៌មានក្រុមហ៊ុន",
@@ -303,6 +304,31 @@ export const km = {
     accessRestricted: "ការចូលប្រើប្រាស់ត្រូវបានកម្រិត",
     accessRestrictedDesc:
       "មានតែគណនី Administrator ប៉ុណ្ណោះដែលអាចកែប្រែព័ត៌មានក្រុមហ៊ុនបាន។",
+  },
+  subscription: {
+    title: "ព័ត៌មានកញ្ចប់សេវា",
+    active: "Active",
+    inactive: "Inactive",
+    expired: "Expired",
+    plan: "កញ្ចប់សេវា",
+    startDate: "Start Date",
+    endDate: "End Date",
+    daysRemaining: "Days Remaining",
+    days: "ថ្ងៃ",
+    details: "ព័ត៌មានកញ្ចប់សេវា",
+    systemId: "លេខសម្គាល់សាខា (System ID)",
+    staffName: "ឈ្មោះបុគ្គលិក",
+    notFound: "មិនមានទិន្នន័យកញ្ចប់សេវាសម្រាប់សាខានេះទេ។",
+    expiredTitle: "គណនីបានផុតកំណត់សុពលភាព",
+    expiredDesc:
+      "កញ្ចប់សេវាកម្មប្រព័ន្ធសម្រាប់សាខារបស់អ្នកបានផុតកំណត់ហើយ។ សូមទាក់ទងរដ្ឋបាលដើម្បីបន្តសុពលភាពក្នុងការប្រើប្រាស់។",
+    checkAgain: "ពិនិត្យឡើងវិញ",
+    contactSupport: "ទាក់ទងផ្នែកជំនួយ / Telegram",
+    stillExpiredTitle: "នៅតែផុតកំណត់",
+    stillExpiredDesc:
+      "កញ្ចប់សេវាកម្មរបស់អ្នកមិនទាន់ត្រូវបានបន្តសុពលភាពនៅឡើយទេ។ សូមទាក់ទងរដ្ឋបាលរបស់អ្នក។",
+    renewedSuccess:
+      "កញ្ចប់សេវាកម្មដំណើរការឡើងវិញហើយ! លោកអ្នកអាចប្រើប្រាស់កម្មវិធីបាន។",
   },
   devices: {
     title: "ឧបករណ៍",

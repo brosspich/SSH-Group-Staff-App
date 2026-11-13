@@ -1,4 +1,5 @@
 import { useLanguage } from "@/features/language";
+import { fetchSubscriptionBySystemId } from "@/features/subscription/_api/subscriptionApi";
 import Appbar from "@/shared/components/appbar/appbar";
 import Loading from "@/shared/components/loading/loading";
 import { useUser } from "@/shared/contexts/UserContext";
@@ -271,6 +272,17 @@ export default function TabLayout() {
   const isTablet = width >= 768;
 
   const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    if (user) {
+      const sysId = user.system_id || (user as any).systemId || user.companyId;
+      fetchSubscriptionBySystemId(sysId).then((sub) => {
+        if (sub && sub.isExpired) {
+          router.replace("/subscription/non-subscription" as any);
+        }
+      });
+    }
+  }, [user]);
 
   if (loading) {
     return (

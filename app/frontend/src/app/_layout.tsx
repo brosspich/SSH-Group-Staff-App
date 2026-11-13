@@ -180,6 +180,9 @@ export default function RootLayout() {
               <Stack.Screen name="language/index" />
 
               <Stack.Screen name="info-company/info-company" />
+
+              <Stack.Screen name="subscription/subscription" />
+              <Stack.Screen name="subscription/non-subscription" />
             </Stack>
           </UserProvider>
         </QueryClientProvider>

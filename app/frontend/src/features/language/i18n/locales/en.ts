@@ -257,6 +257,7 @@ export const en = {
     createStaff: "Create Account Staff",
     editStaff: "Change Info Account Staff",
     companyInfo: "Company Information",
+    subscription: "Subscription Plan",
   },
   infoCompany: {
     title: "Company Information",
@@ -298,6 +299,30 @@ export const en = {
     accessRestricted: "Access Restricted",
     accessRestrictedDesc:
       "Only administrator accounts have permission to edit company information.",
+  },
+  subscription: {
+    title: "Subscription",
+    active: "Active",
+    inactive: "Inactive",
+    expired: "Expired",
+    plan: "Plan",
+    startDate: "Start Date",
+    endDate: "End Date",
+    daysRemaining: "Days Remaining",
+    days: "days",
+    details: "Subscription Details",
+    systemId: "Branch System ID",
+    staffName: "Staff Member",
+    notFound: "No active subscription found.",
+    expiredTitle: "Subscription Expired",
+    expiredDesc:
+      "The subscription service for your company branch has expired. Please renew your plan to continue using the system.",
+    checkAgain: "Check Again",
+    contactSupport: "Contact Support / Telegram",
+    stillExpiredTitle: "Still Expired",
+    stillExpiredDesc:
+      "Your subscription has not been renewed yet. Please contact your administrator.",
+    renewedSuccess: "Subscription is active! You can now use the application.",
   },
   devices: {
     title: "Devices",

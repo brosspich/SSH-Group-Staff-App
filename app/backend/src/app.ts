@@ -17,6 +17,7 @@ import { devicesRoutes } from "./features/devices/index.js";
 import { keyRoutes } from "./features/keys/index.js";
 import { reportsRoutes } from "./features/reports/index.js";
 import { serverGroupRoutes } from "./features/server-groups/index.js";
+import { subscriptionRoutes } from "./features/subscription/index.js";
 import { usersRoutes } from "./features/users/index.js";
 
 export const createApp = (): Application => {
@@ -69,6 +70,7 @@ export const createApp = (): Application => {
   app.use("/api/v1/keys", keyRoutes);
   app.use("/api/v1/audit-logs", auditRoutes);
   app.use("/api/v1/reports", reportsRoutes);
+  app.use("/api/v1/subscription", subscriptionRoutes);
 
   // Direct route aliases for compatibility
   app.use("/auth", authRoutes);
@@ -83,6 +85,7 @@ export const createApp = (): Application => {
   app.use("/keys", keyRoutes);
   app.use("/audit-logs", auditRoutes);
   app.use("/reports", reportsRoutes);
+  app.use("/subscription", subscriptionRoutes);
 
   // Fallthrough 404 handler
   app.use((_req: Request, _res: Response, next) => {
