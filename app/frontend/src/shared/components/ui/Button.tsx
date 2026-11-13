@@ -104,7 +104,7 @@ export const Button: React.FC<ButtonProps> = ({
           color={
             variant === "outline" || variant === "ghost"
               ? theme.colors.primary
-              : "#FFFFFF"
+              : theme.colors.background2
           }
         />
       ) : (

@@ -1,3 +1,4 @@
+import { theme } from "@/shared/styles/theme";
 import React from "react";
 import {
   StatusBar,
@@ -26,7 +27,7 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
   isLoading = false,
   error = null,
   statusBarStyle = "dark-content",
-  statusBarColor = "#FFFFFF",
+  statusBarColor = theme.colors.background2,
   containerStyle,
   style,
   children,
@@ -58,7 +59,7 @@ export const ScreenWrapper: React.FC<ScreenWrapperProps> = ({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.background2,
   },
   container: {
     flex: 1,

@@ -177,7 +177,10 @@ export default function CreateAccountStaffScreen() {
           >
             {saving ? (
               <View style={styles.btnLoadingRow}>
-                <ActivityIndicator size="small" color="#fff" />
+                <ActivityIndicator
+                  size="small"
+                  color={theme.colors.background2}
+                />
                 <Text style={styles.createBtnText}>
                   {t("createAccountStaff.creatingStaff", "Creating Staff...")}
                 </Text>
@@ -187,7 +190,7 @@ export default function CreateAccountStaffScreen() {
                 <Ionicons
                   name="person-add-outline"
                   size={20}
-                  color="#fff"
+                  color={theme.colors.background2}
                   style={{ marginRight: 8 }}
                 />
                 <Text style={styles.createBtnText}>
@@ -246,11 +249,12 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   createBtn: {
-    backgroundColor: theme.colors.primary,
     borderRadius: theme.borderRadius.md,
-    height: 50,
-    justifyContent: "center",
+    paddingVertical: theme.spacing.md,
+    backgroundColor: theme.colors.primary,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     marginTop: 8,
     marginBottom: 24,
   },
@@ -263,9 +267,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   createBtnText: {
-    fontSize: theme.fontSizes.md,
-    // fontWeight: "700",
     color: theme.colors.background2,
+    fontSize: theme.fontSizes.sm,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },

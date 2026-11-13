@@ -244,7 +244,7 @@ export default function CustomRequestPaper({
 
 const styles = StyleSheet.create({
   paperContainer: {
-    backgroundColor: "#ffffff",
+    backgroundColor: theme.colors.background2,
     borderRadius: theme.borderRadius.sm,
     padding: 16,
     borderWidth: 1,

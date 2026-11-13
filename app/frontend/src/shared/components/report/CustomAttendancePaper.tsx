@@ -579,7 +579,7 @@ export default function CustomAttendancePaper({
 
 const styles = StyleSheet.create({
   paperContainer: {
-    backgroundColor: "#ffffff",
+    backgroundColor: theme.colors.background2,
     borderRadius: theme.borderRadius.sm,
     padding: 16,
     borderWidth: 1,

@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   content: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.colors.background2,
     borderRadius: theme.borderRadius.lg,
     padding: 20,
     width: "100%",

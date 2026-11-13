@@ -8,6 +8,28 @@ import { useCompanyInfoStore } from "../_store/useCompanyInfoStore";
 import { useUpdateCompanyMutation } from "./useUpdateCompanyMutation";
 import type { CompanyInfo } from "../_types/infoCompany.types";
 
+function extractFirstString(val: any): string {
+  if (!val) return "";
+  if (Array.isArray(val)) {
+    const first = val[0];
+    if (typeof first === "string") return first.trim();
+    return String(first ?? "").trim();
+  }
+  if (typeof val === "string") {
+    const trimmed = val.trim();
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          return String(parsed[0] ?? "").trim();
+        }
+      } catch {}
+    }
+    return trimmed;
+  }
+  return String(val).trim();
+}
+
 export function useInfoCompany() {
   const { t } = useLanguage();
 
@@ -108,8 +130,8 @@ export function useInfoCompany() {
       setName(queryCompany.name || "");
       setQrCodes(queryCompany.qrCodes || []);
       setLocations(queryCompany.location || []);
-      setTelegramBotToken(queryCompany.telegramBotToken?.[0] || "");
-      setTelegramChatId(queryCompany.telegramChatId?.[0] || "");
+      setTelegramBotToken(extractFirstString(queryCompany.telegramBotToken));
+      setTelegramChatId(extractFirstString(queryCompany.telegramChatId));
       setTimeIn(queryCompany.timeIn || "08:00:00");
       setTimeOut(queryCompany.timeOut || "17:00:00");
     }

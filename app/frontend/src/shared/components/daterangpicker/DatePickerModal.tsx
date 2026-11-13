@@ -317,7 +317,7 @@ const s = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: theme.borderRadius.md,
-    backgroundColor: "#ffffff",
+    backgroundColor: theme.colors.background2,
     borderWidth: 1,
     borderColor: "#e5e7eb",
     alignItems: "center",

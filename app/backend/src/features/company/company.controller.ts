@@ -158,6 +158,8 @@ async function normalizeCompanyAsync(c: any) {
   const loc = parseJsonField(c.location);
   const name = c.name || "";
   const coords = await resolveCoordinatesFromLocationArray(loc);
+  const botTokens = parseJsonField(c.telegramBotToken);
+  const chatIds = parseJsonField(c.telegramChatId);
 
   return {
     id: c.id,
@@ -174,10 +176,10 @@ async function normalizeCompanyAsync(c: any) {
     longitude: coords.longitude,
     radiusMeters: coords.radiusMeters,
     radius_meters: coords.radiusMeters,
-    telegramBotToken: c.telegramBotToken || "",
-    telegram_bot_token: c.telegramBotToken || "",
-    telegramChatId: c.telegramChatId || "",
-    telegram_chat_id: c.telegramChatId || "",
+    telegramBotToken: botTokens,
+    telegram_bot_token: botTokens,
+    telegramChatId: chatIds,
+    telegram_chat_id: chatIds,
     timeIn: c.timeIn || "08:00:00",
     "time-in": c.timeIn || "08:00:00",
     timeOut: c.timeOut || "17:00:00",

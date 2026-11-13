@@ -196,7 +196,7 @@ function MiniCalendar({
 
           if (isStart || isEnd || isSelected) {
             bg = theme.colors.secondary;
-            textColor = "#ffffff";
+            textColor = theme.colors.background2;
             radius = 99;
           } else if (inRange) {
             bg = `${theme.colors.secondary}22`;
@@ -626,7 +626,9 @@ const s = StyleSheet.create({
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
   },
-  presetTextActive: { color: "#fff" },
+  presetTextActive: {
+    color: theme.colors.background2,
+  },
   rangeDisplay: {
     flexDirection: "row",
     alignItems: "center",
