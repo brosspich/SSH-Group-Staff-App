@@ -20,7 +20,7 @@ const app = createApp();
 
 const server = app.listen(env.PORT, "0.0.0.0", async () => {
   Logger.info(
-    `🚀 SSH Group Backend API server is running on http://0.0.0.0:${env.PORT} in [${env.NODE_ENV}] mode.`,
+    `🚀 SSH Group Staff Backend API server is running on http://0.0.0.0:${env.PORT} in [${env.NODE_ENV}] mode.`,
   );
   try {
     await prisma.$connect();

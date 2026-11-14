@@ -11,7 +11,7 @@
     "ios": {
       "buildNumber": "10311",
       "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
-      "bundleIdentifier": "com.sshgroups.staff",
+      "bundleIdentifier": "com.sshgroups.staffapp",
       "infoPlist": {
         "CFBundleDisplayName": "SSH Group Staff",
         "NSCameraUsageDescription": "Allow SSH Group Staff App to access your camera to scan attendance QR codes and capture proof photos.",
@@ -45,7 +45,7 @@
     "android": {
       "versionCode": 10311,
       "predictiveBackGestureEnabled": false,
-      "package": "com.sshgroups.staff",
+      "package": "com.sshgroups.staffapp",
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/imgs/staff_logo_new_01_FG.png",
         "backgroundColor": "#F3F4F6"

@@ -1,4 +1,4 @@
-package com.sshgroups.staff
+package com.sshgroups.staffapp
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
