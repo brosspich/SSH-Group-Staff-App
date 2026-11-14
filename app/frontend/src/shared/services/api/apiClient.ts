@@ -103,7 +103,7 @@ export class ApiClient {
     this.baseUrl = (
       baseUrl ||
       initialCandidates[0] ||
-      "http://172.20.240.1:4000"
+      "https://ssh-group-staff-app-ktfrm.ondigitalocean.app"
     ).replace(/\/+$/, "");
   }
 
