@@ -137,9 +137,26 @@ export default function RootLayout() {
                 animationDuration: 300,
               }}
             >
-              <Stack.Screen name="index" />
-              <Stack.Screen name="login/login" />
-              <Stack.Screen name="(tabs)" />
+              <Stack.Screen
+                name="index"
+                options={{
+                  animation: "none",
+                }}
+              />
+              <Stack.Screen
+                name="login/login"
+                options={{
+                  animation: "fade",
+                  animationDuration: 200,
+                }}
+              />
+              <Stack.Screen
+                name="(tabs)"
+                options={{
+                  animation: "fade",
+                  animationDuration: 200,
+                }}
+              />
 
               <Stack.Screen name="about/about" />
               <Stack.Screen name="about/contact" />

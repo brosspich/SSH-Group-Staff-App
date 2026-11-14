@@ -9,7 +9,7 @@ import { Ionicons } from "@expo/vector-icons";
 import BlurView from "@nguyenduy1412/react-native-blur";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { Redirect, router, Tabs, usePathname } from "expo-router";
+import { router, Tabs, usePathname } from "expo-router";
 import { useEffect, useRef } from "react";
 import {
   Animated,
@@ -296,15 +296,19 @@ export default function TabLayout() {
     }
   }, [user]);
 
-  if (loading) {
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace("/login/login");
+    }
+  }, [loading, user]);
+
+  if (loading || !user) {
     return (
       <View style={styles.center}>
         <Loading />
       </View>
     );
   }
-
-  if (!user) return <Redirect href="/login/login" />;
 
   // ── Shared Tabs component ──
   const tabScreens = (

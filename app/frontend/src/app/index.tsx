@@ -3,14 +3,15 @@ import Loading from "@/shared/components/loading/loading";
 import { extractSystemKey } from "@/shared/constants/attendanceConfig";
 import { useUser } from "@/shared/contexts/UserContext";
 import { theme } from "@/shared/styles/theme";
-import { Redirect } from "expo-router";
-import { useEffect, useState } from "react";
+import { router } from "expo-router";
+import { useEffect, useRef, useState } from "react";
 import { StatusBar, View } from "react-native";
 
 export default function Index() {
   const { user, loading } = useUser();
   const [checkingSub, setCheckingSub] = useState(true);
   const [isExpired, setIsExpired] = useState(false);
+  const navigatedRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -46,34 +47,38 @@ export default function Index() {
     };
   }, [loading, user]);
 
-  if (loading || (user && checkingSub)) {
-    return (
-      <>
-        <StatusBar
-          backgroundColor={theme.colors.secondary}
-          barStyle="light-content"
-        />
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: theme.colors.background,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Loading />
-        </View>
-      </>
-    );
-  }
+  // Navigate imperatively without unmounting to null or flashing blank screen
+  useEffect(() => {
+    if (!loading && !checkingSub && !navigatedRef.current) {
+      navigatedRef.current = true;
+      if (!user) {
+        router.replace("/login/login");
+      } else if (isExpired) {
+        router.replace("/subscription/non-subscription" as any);
+      } else {
+        router.replace("/(tabs)");
+      }
+    }
+  }, [loading, checkingSub, user, isExpired]);
 
-  if (!user) {
-    return <Redirect href={"/login/login" as any} />;
-  }
-
-  if (isExpired) {
-    return <Redirect href={"/subscription/non-subscription" as any} />;
-  }
-
-  return <Redirect href={"/(tabs)" as any} />;
+  // Always keep Loading component visible until the target screen has mounted!
+  // Avoids returning null or Redirect component which caused the white blank screen flash.
+  return (
+    <>
+      <StatusBar
+        backgroundColor={theme.colors.secondary}
+        barStyle="light-content"
+      />
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: theme.colors.background,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Loading />
+      </View>
+    </>
+  );
 }
