@@ -25,6 +25,9 @@ import { usersRoutes } from "./features/users/index.js";
 export const createApp = (): Application => {
   const app = express();
 
+  // Trust proxy for reverse proxy platforms (DigitalOcean App Platform, Cloudflare)
+  app.set("trust proxy", 1);
+
   // Security & utility middlewares
   app.use(helmet());
   app.use(

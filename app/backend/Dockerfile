@@ -39,6 +39,9 @@ RUN npx prisma generate
 
 COPY --from=builder /app/dist ./dist
 
+# Give node user full ownership of /app (including /app/prisma/dev.db) for SQLite read/write operations
+RUN chown -R node:node /app
+
 # Non-root user for security
 USER node
 
