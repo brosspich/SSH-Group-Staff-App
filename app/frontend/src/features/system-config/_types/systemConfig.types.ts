@@ -47,8 +47,8 @@ export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   support: {
     telegramUrl: "https://t.me/sshgroup168",
     telegramFallbackUrl: "https://telegram.org",
-    phone: "089945320",
-    email: "it.langpich@gmail.com",
+    phone: "092696698",
+    email: "support@sshgroups.com",
   },
   social: {
     facebook: "https://www.facebook.com/SSHGROUP168",

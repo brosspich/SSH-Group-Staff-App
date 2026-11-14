@@ -1,7 +1,10 @@
-import { theme } from "@/shared/styles/theme";
 import { PrivacyPolicyModal } from "@/features/login/_components/PrivacyPolicyModal";
+import type { PolicyLang } from "@/features/privacy-policy/_utils/privacyPolicyData";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { apiClient } from "@/shared/services/api";
+import { theme } from "@/shared/styles/theme";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useState } from "react";
 import { StatusBar, StyleSheet, View } from "react-native";
@@ -43,12 +46,24 @@ export default function LoginScreen() {
     });
   }, [resetForm, setShowPrivacy]);
 
-  const handlePrivacyAccept = useCallback(async () => {
-    try {
-      await AsyncStorage.setItem(PRIVACY_ACCEPTED_KEY, "true");
-    } catch {}
-    setShowPrivacy(false);
-  }, [setShowPrivacy]);
+  const handlePrivacyAccept = useCallback(
+    async (acceptedLang?: PolicyLang) => {
+      try {
+        await AsyncStorage.setItem(PRIVACY_ACCEPTED_KEY, "true");
+        // Record consent to backend (SQLite + Cloudflare D1 AuditLog)
+        apiClient
+          .post("/api/v1/privacy-policy/consent", {
+            lang: acceptedLang || "km",
+            version: Constants.expoConfig?.version || "1.0.1",
+            userId: "pre-login",
+            userName: "App User",
+          })
+          .catch(() => null);
+      } catch {}
+      setShowPrivacy(false);
+    },
+    [setShowPrivacy],
+  );
 
   const handleLogin = useCallback(() => {
     const validationError = validateLoginInput(username, password);

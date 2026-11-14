@@ -1,8 +1,10 @@
 // components/privacypolicy/PrivacyPolicyModal.tsx
+import { useLanguage } from "@/features/language";
 import {
   PRIVACY_POLICY_DATA,
   PolicyLang,
 } from "@/features/privacy-policy/_utils/privacyPolicyData";
+import { useSystemConfigQuery } from "@/features/system-config";
 import { theme } from "@/shared/styles/theme";
 
 import { useResponsive } from "@/shared/hooks/useResponsive";
@@ -10,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import {
+  Linking,
   Modal,
   ScrollView,
   StyleSheet,
@@ -39,12 +42,23 @@ export const usePrivacyModal = () => {
 
 interface Props {
   visible: boolean;
-  onAccept: () => void;
+  onAccept: (lang?: PolicyLang) => void;
 }
 
 export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
-  const [lang, setLang] = useState<PolicyLang>("en");
+  const { currentLang } = useLanguage();
+  const [lang, setLang] = useState<PolicyLang>(
+    currentLang === "km" ? "km" : currentLang === "zh" ? "zh" : "en",
+  );
   const { isMobile } = useResponsive();
+  const { config } = useSystemConfigQuery();
+  const { support, social } = config;
+
+  useEffect(() => {
+    if (visible) {
+      setLang(currentLang === "km" ? "km" : currentLang === "zh" ? "zh" : "en");
+    }
+  }, [visible, currentLang]);
 
   const titleMap = {
     en: "Privacy Policy",
@@ -140,13 +154,79 @@ export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
                   <Text style={styles.sectionTitle}>{section.title}</Text>
                 </View>
                 <Text style={styles.sectionBody}>{section.body}</Text>
+
+                {/* Dynamic Support Links for Contact Section (Backend 70%) */}
+                {idx === PRIVACY_POLICY_DATA[lang].length - 1 && (
+                  <View style={styles.contactButtonsRow}>
+                    {support?.telegramUrl ? (
+                      <TouchableOpacity
+                        style={[
+                          styles.contactPill,
+                          { backgroundColor: "#229ED9" },
+                        ]}
+                        onPress={() => Linking.openURL(support.telegramUrl)}
+                        activeOpacity={0.8}
+                      >
+                        <Ionicons
+                          name="paper-plane"
+                          size={13}
+                          color="#FFFFFF"
+                        />
+                        <Text style={styles.contactPillText}>Telegram</Text>
+                      </TouchableOpacity>
+                    ) : null}
+
+                    {support?.email ? (
+                      <TouchableOpacity
+                        style={[
+                          styles.contactPill,
+                          { backgroundColor: theme.colors.primary },
+                        ]}
+                        onPress={() =>
+                          Linking.openURL(`mailto:${support.email}`)
+                        }
+                        activeOpacity={0.8}
+                      >
+                        <Ionicons name="mail" size={13} color="#FFFFFF" />
+                        <Text style={styles.contactPillText}>
+                          {support.email}
+                        </Text>
+                      </TouchableOpacity>
+                    ) : null}
+
+                    {social?.website ? (
+                      <TouchableOpacity
+                        style={[
+                          styles.contactPill,
+                          styles.contactPillSecondary,
+                        ]}
+                        onPress={() => Linking.openURL(social.website)}
+                        activeOpacity={0.8}
+                      >
+                        <Ionicons
+                          name="globe-outline"
+                          size={13}
+                          color={theme.colors.textPrimary}
+                        />
+                        <Text
+                          style={[
+                            styles.contactPillText,
+                            { color: theme.colors.textPrimary },
+                          ]}
+                        >
+                          Website
+                        </Text>
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+                )}
               </View>
             ))}
           </ScrollView>
 
           <TouchableOpacity
             style={styles.acceptBtn}
-            onPress={onAccept}
+            onPress={() => onAccept(lang)}
             activeOpacity={0.9}
           >
             <Text style={styles.acceptText}>
@@ -282,5 +362,32 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
     fontSize: theme.fontSizes.md,
     // fontWeight: "bold",
+  },
+  contactButtonsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 10,
+    paddingLeft: 10,
+  },
+  contactPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: theme.borderRadius.md,
+    ...theme.shadows.sm,
+  },
+  contactPillSecondary: {
+    backgroundColor: theme.colors.background,
+    borderWidth: 1,
+    borderColor: `${theme.colors.textPrimary}1A`,
+  },
+  contactPillText: {
+    fontSize: theme.fontSizes.xs,
+    fontFamily: theme.fonts.bold,
+    includeFontPadding: false,
+    color: "#FFFFFF",
   },
 });

@@ -46,7 +46,7 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow SSH Group Staff App to access your camera to scan attendance QR codes.</string>
+	<string>Allow SSH Group Staff App to access your camera to scan attendance QR codes and capture proof photos.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>This app needs access to your files for saving and sharing documents.</string>
 	<key>NSDownloadsFolderUsageDescription</key>
@@ -54,13 +54,13 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to access your location</string>
+	<string>Allow SSH Group Staff App to access your location to verify attendance within company workplace geofences during check-in.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to access your location</string>
+	<string>Allow SSH Group Staff App to access your location to verify attendance within company workplace geofences during check-in.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to access your location</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app uses the microphone for audio input.</string>
+	<string>Allow SSH Group Staff App to access your location to verify attendance within company workplace geofences during check-in.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow SSH Group Staff App to access your photos to attach proof photos for attendance requests and update profile avatars.</string>
 	<key>NSMotionUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to detect your current motion activity</string>
 	<key>NSUserActivityTypes</key>

@@ -16,7 +16,8 @@ export default function PrivacyPolicyScreen({
 }: PrivacyPolicyProps) {
   const { currentLang } = useLanguage();
   const [lang, setLang] = useState<PolicyLang>(
-    initialLang ?? (currentLang === "km" ? "km" : "en"),
+    initialLang ??
+      (currentLang === "km" ? "km" : currentLang === "zh" ? "zh" : "en"),
   );
 
   return (

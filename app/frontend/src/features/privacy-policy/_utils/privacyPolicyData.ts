@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 
-const baseVersion = Constants.expoConfig?.version || "1.0.0";
+const baseVersion = Constants.expoConfig?.version || "1.0.1";
 const appVersionCode =
   Platform.OS === "ios"
     ? Constants.expoConfig?.ios?.buildNumber
@@ -9,6 +9,7 @@ const appVersionCode =
 const appVersion = appVersionCode
   ? `${baseVersion}.${appVersionCode}`
   : baseVersion;
+
 export interface PolicySection {
   title: string;
   body: string;
@@ -17,136 +18,136 @@ export interface PolicySection {
 export type PolicyLang = "en" | "zh" | "km";
 
 export const PRIVACY_POLICY_LAST_UPDATED: Record<PolicyLang, string> = {
-  en: `Last Updated App Version : ${appVersion}`,
-  zh: `最后更新应用版本 ：${appVersion}`,
-  km: `ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ កំណែកម្មវិធី ៖ ${appVersion}`,
+  en: `Last Updated App Version: ${appVersion}`,
+  zh: `最后更新应用版本：${appVersion}`,
+  km: `ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ កំណែកម្មវិធី៖ ${appVersion}`,
 };
 
 export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
   en: [
     {
       title: "1. Developer & Introduction",
-      body: "The SSH Group Staff App (package: com.sshgroups.staff) is developed and operated by SSH Group Co., Ltd. (Phnom Penh, Cambodia). This enterprise application is designed to facilitate employee management, QR code attendance tracking, shift logs, leave/attendance requests, and internal workforce reporting. This Privacy Policy details our commitment to protecting staff privacy, explaining how personal and operational data is collected, processed, stored, and safeguarded.",
+      body: "The SSH Group Staff App (package: com.sshgroups.staff) is developed and operated by SSH Group Co., Ltd. (Phnom Penh, Cambodia). This enterprise application is engineered specifically for internal workforce management, 0ms ultra-fast QR attendance check-in/check-out, Haversine GPS geofence verification, shift logs, leave/missing scan requests, hardware device session binding, and attendance reporting. This Privacy Policy outlines our transparent commitment to safeguarding staff data, detailing how operational information is collected, processed, synchronized, and protected.",
     },
     {
       title: "2. Information We Collect",
-      body: "To deliver reliable workforce management services, the application collects and processes the following information:\n\n• Account & Profile Information: Staff ID, System ID (company branch code, e.g. system-0001, system-0002), employee full name, username, encrypted password credentials, position, assigned role, email address, phone number, joined date, and profile photo.\n• Camera Access & QR Scanning: Device camera permissions are requested solely for optical scanning of dynamic QR codes during attendance check-in / check-out. No video feeds or photographs are recorded, broadcast, or stored without direct user interaction.\n• Location Data & Geofence Verification: Precise and coarse location access (GPS/network) is accessed solely at the exact instant an employee clocks in or out to verify physical presence within authorized company workplace geofence radius. The application does not monitor, track, or record background location when the app is not actively performing an attendance action.\n• Attendance & Request Records: Timestamps of check-in and check-out logs, total daily work durations, attendance adjustment requests, overtime, and leave applications (including date spans, reason subjects, remarks, and approval statuses).\n• Device Information & Active Sessions: Device model, hardware manufacturer, operating system version, and unique device session identifiers obtained via Expo Device to manage authorized devices, enforce single-device active session policies, and detect unauthorized account access.\n• Local Storage & Cryptographic Cache: Access to hardware-backed secure storage via Expo SecureStore and AsyncStorage to securely cache authentication tokens, user preferences, and offline report data.",
+      body: "To deliver reliable workforce management and attendance integrity, the application collects and processes the following information:\n\n• Account & Profile Information: Staff ID, System ID (branch-scoped identifier e.g. system-0001, system-0002), employee full name, per-branch username, encrypted password credentials, assigned organizational role (Owner, Admin, Staff, Leave), position, date of birth (DOB), email, phone number, and profile avatar.\n• Camera & Optical QR Scanning: Camera access is requested solely for instant optical QR code scanning during attendance check-in/check-out and for capturing optional proof photos during attendance requests. The camera is never accessed in the background or without explicit user action.\n• Location & Geofence Verification: Precise GPS coordinates are accessed exclusively at the exact moment a staff member performs a check-in or check-out. Device coordinates are validated using the Haversine formula against registered branch workplace geofences (latitude, longitude, and radius meters). The system inspects for mock location providers (isMocked) and virtual private network (VPN) interfaces to prevent attendance spoofing. Background location is NEVER tracked or recorded.\n• Attendance Logs & Sequential Requests: Timestamps of check-in and check-out logs, total daily work hours, attendance status, and sequential request records formatted per staff user (e.g. {system_id}-ATT-0000-0001 and {system_id}-REQ-0000-0001), including leave reasons, remarks, and approval decisions.\n• Hardware Binding & Device Sessions: Device manufacturer, hardware model, operating system, IP address, and unique session UUIDs (DeviceSession) to prevent credential sharing and enforce single-device active session security.\n• Secure On-Device Storage: Sandboxed on-device database cache and secure persistent storage (AsyncStorage, Expo SecureStore) for offline readiness and instant UI rendering.",
     },
     {
       title: "3. How We Use Your Information",
-      body: "We process collected staff information strictly for legitimate organizational and business purposes:\n\n• User Authentication & Access Control: Validating credentials, enforcing password policies, managing multi-branch access rights, and verifying active account status.\n• Attendance Management: Accurately calculating work hours, tracking daily check-ins/check-outs, and compiling employee attendance statistics.\n• Request & Leave Processing: Managing, reviewing, and approving staff leave requests, shift modifications, and attendance corrections.\n• Security & Device Management: Enforcing active device limits, displaying authorized device lists, and allowing employees to remotely revoke inactive sessions.\n• Reporting & Document Export: Generating official Daily, Weekly, Monthly, and Annual PDF reports for internal workforce accounting and printing.\n• Administrative Operational Alerts: Sending automated operational notifications to authorized management Telegram channels via secure Telegram Bot API.\n\nWe strictly do not sell, rent, monetize, or disclose your personal or employment information to commercial third parties or external marketing networks.",
+      body: "We process employee data strictly for legitimate operational and enterprise workforce management purposes:\n\n• Authentication & Branch Isolation: Authenticating credentials, issuing secure JWT tokens, enforcing branch-scoped system IDs, and preventing unauthorized cross-company access.\n• 0ms Fast Attendance Verification: Validating QR codes in 0ms locally, confirming physical workplace geofence radius, and verifying device authenticity.\n• Request Lifecycle Management: Receiving, reviewing, and approving staff leave, overtime, and missing scan requests with photo attachments.\n• Hardware Device Binding: Enforcing single-device active sessions, displaying active hardware devices, and allowing staff or admins to terminate unauthorized remote sessions.\n• Administrative Telegram Alerts: Dispatching real-time notifications with staff IDs, attendance timestamps, and proof photos to authorized company Telegram channels via Telegram Bot API.\n• Enterprise Reports & Printing: Compiling Daily, Weekly, Monthly, and Annual attendance summaries with full search, filtering, and PDF generation.\n• Dynamic System Configuration: Providing up-to-date support links and official communication channels without requiring mobile app rebuilds.\n\nWe strictly do not sell, rent, monetize, or transfer your personal data to commercial third parties, ad networks, or data brokers.",
     },
     {
-      title: "4. Data Storage, Security & Cloud Backend",
-      body: "• Cloud Infrastructure: All backend services and operational databases are hosted on Backend API (PostgreSQL enterprise cloud database).\n• Row-Level Security (RLS): Database tables are protected by granular Row-Level Security policies ensuring only authenticated staff and administrators with proper authorization can read or write relevant records.\n• Cryptographic Password Protection: Passwords are salted and securely hashed using bcrypt prior to database insertion; raw passwords are never stored or transmitted in plain text.\n• Encryption in Transit: All client-to-server communications are conducted over modern, TLS/HTTPS 1.3 encrypted network connections.\n• Secure On-Device Storage: Authentication session tokens and security credentials are stored in hardware-backed secure storage using Expo SecureStore.",
+      title: "4. Data Storage, Security & Cloud Architecture",
+      body: "• Distributed Cloud Database Infrastructure: High-availability distributed cloud SQL database for real-time staff records, attendance logs, requests, and branch configurations.\n• Encrypted Cloud Object Storage: High-throughput secure cloud object storage for attendance proof photos and avatars.\n• Sandboxed Local Storage & Offline Continuity: Sandboxed on-device storage providing zero-latency operation and full offline continuity with automated cloud synchronization.\n• Strong Password Hashing: All user passwords are salted and hashed using industry-standard bcrypt before database storage; raw passwords are never saved in plain text.\n• Transport Layer Security (TLS 1.3): All network communications between the mobile app and backend APIs are encrypted using modern HTTPS / TLS 1.3.\n• Hardware Device Session Security: Device sessions are tied to unique hardware signatures and can be remotely revoked at any time.",
     },
     {
-      title: "5. Multi-Branch & Multi-System Isolation",
-      body: "The application supports multi-system workforce segregation (such as system-0001, system-0002, and future company branches). Staff profiles, attendance records, and request queues are partitioned by company system to ensure data isolation between different operational branches.",
+      title: "5. Multi-Branch & System ID Isolation",
+      body: "The application architecture enforces strict branch segregation (e.g. system-0001, system-0002). Staff profiles, attendance calendars, request approvals, and hardware sessions are compartmentalized by company System ID to guarantee complete privacy and zero data overlap between independent organizational units.",
     },
     {
-      title: "6. Third-Party Integrations & Services",
-      body: "The application relies on a minimal set of trusted enterprise services:\n\n• Backend API Inc.: Database hosting, user authentication, and real-time database update subscriptions.\n• Telegram API: Used strictly for outbound internal administrative notification dispatching regarding attendance events and requests.\n• Expo Framework: Native device integration libraries for camera, location, storage, and document sharing.\n\nNo advertising SDKs, tracking pixels, behavioral analytical trackers, or third-party marketing tools are present in this application.",
+      title: "6. Branch Subscription & Non-Subscription Guard",
+      body: "To protect organization data, the backend enforces automated branch subscription validity checking. In the event that a branch subscription expires, staff accounts under that branch are safely transitioned to the Non-Subscription screen with official support channels, preventing unauthorized access until renewed.",
     },
     {
-      title: "7. User Rights & Account Deletion",
-      body: "Employees retain clear rights regarding their personal data:\n\n• Data Review & Correction: Staff can review their account profile and update permitted contact information or passwords directly in the application.\n• Account Deletion: Upon termination or conclusion of employment, employees or organization administrators may request account deletion and removal of associated personal device sessions. To request account deletion, please contact your company system administrator or send an email to support@sshgroups.com.",
+      title: "7. Third-Party Enterprise Integrations",
+      body: "The application integrates only essential, enterprise-grade cloud services:\n\n• Enterprise Cloud Infrastructure: Secure cloud database hosting, high-availability edge networking, and encrypted media storage.\n• Telegram Bot API: Secure internal transmission of real-time attendance alerts to management channels.\n• Expo Framework: Native device integration libraries for optical camera scanning, GPS location, and secure hardware storage.\n\nThere are NO third-party advertising SDKs, tracking pixels, or behavioral analytics libraries integrated into this application.",
     },
     {
-      title: "8. Data Retention",
-      body: "Attendance logs, request histories, and time tracking records are retained in compliance with SSH Group employment policies, audit standards, and applicable labor regulations. When an account is decommissioned, personal credentials and active sessions are promptly deleted or anonymized.",
+      title: "8. User Rights & Account Management",
+      body: "Employees and administrators maintain full oversight over their operational data:\n\n• Profile Review & Updates: Staff can view their personal information, update contact details, and change credentials directly in the app.\n• Session Management: Staff can view all active login devices and terminate unfamiliar sessions remotely.\n• Account Decommissioning: Upon conclusion of employment, organization administrators may deactivate accounts, revoke active sessions, and remove device bindings. For inquiries, contact your system administrator or support@sshgroups.com.",
     },
     {
-      title: "9. Policy Updates",
-      body: "We may update this Privacy Policy periodically to reflect new features, infrastructure improvements, or legal compliance updates. Changes take effect immediately upon updating the policy in the application.",
+      title: "9. Data Retention & Audit Standards",
+      body: "Attendance logs, request records, and hardware audit logs are retained in accordance with company governance, labor regulations, and audit requirements. Decommissioned account credentials and active sessions are promptly deleted or anonymized.",
     },
     {
-      title: "10. Contact Us",
-      body: "SSH Group Co., Ltd.\nAddress: Phnom Penh, Cambodia\nEmail: support@sshgroups.com\nWebsite: www.sshgroups.com\n\nIf you have any questions, inquiries, or concerns regarding this Privacy Policy or your data, please contact our support team directly.",
+      title: "10. Contact Us & Support",
+      body: "SSH Group Co., Ltd.\nLocation: Phnom Penh, Cambodia\nEmail: support@sshgroups.com\nTelegram Support: Dynamic support channel configured via System Config\nWebsite: www.sshgroups.com\n\nFor questions, technical support, or privacy inquiries, please reach out to our team directly through the official support channels.",
     },
   ],
   zh: [
     {
       title: "1. 开发者与引言",
-      body: "SSH Group Staff 移动应用程序（包名：com.sshgroups.staff）由位于柬埔寨金边的 SSH Group Co., Ltd. 开发并运营。本企业级应用程序旨在为员工提供考勤管理、动态二维码打卡、工时记录、考勤与请假审批申请以及内部员工报表管理服务。本隐私政策详细说明我们如何收集、使用、存储和保护您的个人及工作信息。",
+      body: "SSH Group Staff 移动应用程序（包名：com.sshgroups.staff）由位于柬埔寨金边的 SSH Group Co., Ltd. 开发并运营。本企业级应用专为内部员工考勤管理、0毫秒极速动态二维码打卡、Haversine 地理围栏定位验证、考勤补签与请假审批、硬件设备会话绑定及多维度考勤报表设计。本隐私政策详细阐明我们如何收集、处理、同步、存储和保护您的工作及个人信息。",
     },
     {
       title: "2. 我们收集的信息",
-      body: "为了提供稳定高效的企业考勤管理服务，本应用收集并处理以下信息：\n\n• 账户与个人信息：员工编号（Staff ID）、系统分支编号（System ID，如 system-0001、system-0002）、全名、用户名、加密密码凭证、职务、分配角色、电子邮件地址、联系电话、入职日期及个人头像照片。\n• 摄像头与扫码功能：本应用请求摄像头权限仅用于在员工签到/签退时扫描动态考勤二维码。应用绝不会在未经用户直接操作的情况下录制、上传或存储任何相片或视频。\n• 位置信息与电子围栏验证：仅在员工执行签到或签退操作的瞬间请求粗略与精确定位权限（GPS），用于验证员工是否处于公司授权的考勤区域内。本应用不会在后台持续监控、记录或上传您的实时地理位置。\n• 考勤打卡与审批记录：签到与签退时间戳、每日工作时长、考勤补签申请、加班申请、请假申请（包括日期范围、申请事由、备注说明及审批状态）。\n• 设备与活动会话数据：设备型号、操作系统版本、制造商信息及通过 Expo Device 生成的设备会话标识符，用于授权设备管理、单设备登录策略控制及防止账户未经授权冒用。\n• 本地存储与加密缓存：通过 Expo SecureStore 及 AsyncStorage 访问设备存储，用于安全缓存身份令牌、用户偏好设置及离线报表数据。",
+      body: "为提供稳定高效的企业考勤管理服务并保障考勤数据真实性，本应用收集并处理以下数据：\n\n• 账户与个人信息：员工工号（Staff ID）、系统分支编号（System ID，如 system-0001、system-0002）、全名、分部专属用户名、加盐哈希加密密码、角色权限（Owner、Admin、Staff、Leave）、职位、出生日期（DOB）、电子邮件、联系电话及个人头像。\n• 摄像头与二维码扫描：应用请求摄像头权限仅用于员工上下班考勤时的 0ms 动态二维码扫描以及提交申请时的证明照片拍摄。摄像头绝不会在后台静默启动或在未经用户操作的情况下拍摄。\n• 地理位置与地理围栏验证：仅在员工点击签到或签退的瞬间获取精确 GPS 坐标。系统使用 Haversine 球面距离公式实时计算员工与分部设定地理坐标（经纬度及允许半径）的距离，并检测模拟位置（isMocked）及 VPN 网络虚拟网卡，以防止考勤作弊。应用绝不会在后台持续追踪或记录您的日常行踪。\n• 考勤日志与序列化申请记录：签到与签退时间戳、每日工作时长、按员工编号严格序列化的记录编号（例如 {system_id}-ATT-0000-0001 与 {system_id}-REQ-0000-0001）、请假事由、备注说明及审批状态。\n• 硬件绑定与设备会话（DeviceSession）：设备型号、硬件制造商、操作系统版本、IP 地址及唯一会话 UUID，用于防止账号多人共享并执行单设备在线安全策略。\n• 设备本地安全存储：本地沙盒安全存储组件（AsyncStorage、Expo SecureStore）及离线缓存，用于实现离线应急使用及零延迟界面渲染。",
     },
     {
       title: "3. 我们如何使用您的信息",
-      body: "我们处理所收集的员工信息仅用于正当的企业管理目的：\n\n• 员工身份验证与权限控制：验证登录凭证、执行密码安全策略、确认账户激活状态及管理各分支权限。\n• 考勤与工时管理：精准计算员工出勤率、统计每日上下班记录并生成工时报表。\n• 申请与审批流程处理：供管理人员审核及批复员工考勤补录、加班和请假申请。\n• 账号安全与设备管理：限制多设备同时在线，提供已授权设备列表，并允许员工远程注销闲置或异常设备。\n• 报表生成与文档导出：生成用于内部核算与打印的日报、周报、月报和年报 PDF 报表。\n• 内部实时通知调度：通过安全的 Telegram Bot API 向公司管理频道发送内部考勤通知。\n\n我们郑重承诺，绝不向任何第三方广告商或营销机构出售、出租、出售或披露您的个人数据。",
+      body: "我们处理收集的员工数据严格用于正当的企业管理目的：\n\n• 身份认证与分部数据隔离：验证登录凭据、签发安全 JWT 令牌、执行分部独立 System ID 隔离，杜绝跨公司越权访问。\n• 0毫秒考勤打卡校验：本地毫秒级校验二维码真实性、核验办公区域地理围栏并验证设备合规性。\n• 审批流程管理：接收、审核并批复员工的请假、补签及加班申请（含佐证照片）。\n• 硬件设备会话管理：限制单账号单设备登录，展示当前在线设备列表，允许员工或管理员远程注销异常设备。\n• 管理端 Telegram 实时通知：通过安全的 Telegram Bot API 向管理频道实时推送考勤打卡详情、照片凭证及申请通知。\n• 考勤报表生成与打印：汇总生成日报、周报、月报及年报，支持即时搜索、筛选及 PDF 导出打印。\n• 动态系统配置：从云端动态获取最新客服支持渠道及社交链接，无需频繁更新应用版本。\n\n我们郑重承诺，绝不向任何第三方广告商、营销机构或数据经纪人出售、出租或披露员工数据。",
     },
     {
       title: "4. 数据存储、安全与云端架构",
-      body: "• 云端数据库托管：应用程序使用 Backend API（PostgreSQL 企业级云数据库平台）存储所有业务数据与考勤日志。\n• 行级安全策略（RLS）：数据库表受到严格的行级安全控制，确保只有获得合法授权的员工和管理员才能读取或修改所属数据。\n• 密码加盐哈希加密：用户密码在存入数据库前均使用行业标准 bcrypt 进行加盐哈希加密处理，服务器端绝不保存或显示明文密码。\n• 传输过程加密：应用与服务器之间的所有数据传输均采用现代 TLS/HTTPS 1.3 加密协议。\n• 本地硬件密钥保护：访问令牌及敏感凭证使用硬件级加密的 Expo SecureStore 安全保存在您的移动设备本地。",
+      body: "• 分布式企业级云数据库：高可用分布式云端数据库，用于安全存储全球实时的员工数据、考勤日志及审批记录。\n• 加密云端对象存储：高标准端到端加密云端存储，安全保存考勤打卡照片与员工头像。\n• 本地沙盒安全存储与离线容灾：基于受保护的沙盒本地存储，提供零延迟离线运行能力与自动双向加密云端同步。\n• 强密码加盐哈希保护：所有用户密码在入库前均经过行业标准 bcrypt 加盐哈希加密，服务器端绝不保存或明文传输密码。\n• 传输安全（TLS 1.3）：移动端与后端接口之间的所有网络通信均通过 HTTPS / TLS 1.3 现代加密协议传输。\n• 设备会话硬件密钥控制：设备会话与硬件特征绑定，支持随时远程吊销。",
     },
     {
-      title: "5. 多分部与多系统数据隔离",
-      body: "本应用支持多分公司与多分部架构（例如 system-0001、system-0002 等）。员工资料、考勤日志及申请队列均按照所属系统严格隔离，确保不同分部之间的数据独立与保密。",
+      title: "5. 多分部与 System ID 数据隔离",
+      body: "应用程序架构支持严格的分公司与多分部物理隔离（如 system-0001、system-0002 等）。员工档案、考勤日历、审批队列及设备会话均基于公司 System ID 独立划分，确保不同分部之间的数据绝对保密与独立运行。",
     },
     {
-      title: "6. 第三方服务集成",
-      body: "本应用仅集成必要的企业级基础设施服务：\n\n• Backend API Inc.：提供数据库存储、身份认证及实时变更流服务。\n• Telegram API：用于向内部管理频道发送有关打卡和申请的行政通知。\n• Expo 框架：提供摄像头、位置、硬件存储及文档分享等原生设备能力。\n\n应用内不包含任何第三方广告 SDK、用户行为分析追踪器或数据经纪人插件。",
+      title: "6. 分部订阅与停机保护机制",
+      body: "为保护企业资产，后端自动计算分部订阅服务有效期限。若分部服务到期，系统将自动平滑拦截该分部员工进入 Non-Subscription 界面，提示官方客服续订支持，避免未经授权的业务操作。",
     },
     {
-      title: "7. 用户权利与账户注销",
-      body: "员工对自身数据拥有明确的权利：\n\n• 查阅与修改：您可在应用内直接查看个人资料，并修改授权的联系方式或密码。\n• 账户删除申请：在离职或劳动关系解除后，员工或系统管理员有权申请注销账户并清除已关联的设备会话。申请注销请联系所属系统管理员或发送邮件至 support@sshgroups.com。",
+      title: "7. 第三方企业级服务集成",
+      body: "本应用仅集成必要的企业级基础设施服务：\n\n• 企业级云端基础设施：边缘网络加速、高可用数据库服务与媒体文件加密存储。\n• Telegram Bot API：安全发送考勤与申请内部行政提醒。\n• Expo 框架：提供摄像头扫码、GPS 定位及硬件本地安全存储等底层能力。\n\n应用内不含任何广告 SDK、用户画像追踪代码或商业化追踪器。",
     },
     {
-      title: "8. 数据保留政策",
-      body: "考勤记录、工时统计及审批历史将根据 SSH Group 企业管理规定、审计标准及适用劳动法规保留。当账户正式注销时，其个人凭据与活动会话将被永久删除或匿名化处理。",
+      title: "8. 用户权利与账户管理",
+      body: "员工及管理员对其工作数据拥有充分的管理权：\n\n• 查阅与修改：可在应用内查阅个人档案，修改允许的联络方式及密码。\n• 设备管理：可随时查看当前在线的设备列表，并远程终止非本人或废弃的登录会话。\n• 账户停用：离职或劳动关系终止时，管理员可注销账户、吊销所有登录会话并解绑设备。如有疑问可联系系统管理员或发送邮件至 support@sshgroups.com。",
     },
     {
-      title: "9. 隐私政策的更新",
-      body: "我们可能会适时更新本隐私政策，以适应应用功能调整、技术改进或监管法规的变化。更新后的政策一经在应用内发布即刻生效。",
+      title: "9. 数据保留与审计标准",
+      body: "考勤日志、申请记录与设备审计日志将依据公司人事管理制度及相关劳动法律法规安全归档保留。注销后的账户凭证将及时清理或脱敏匿名化处理。",
     },
     {
-      title: "10. 联系方式",
-      body: "SSH Group Co., Ltd.\n地址：柬埔寨金边\n电子邮箱：support@sshgroups.com\n官方网站：www.sshgroups.com\n\n如对本隐私政策或个人数据处理有任何疑问或建议，请随时与我们联系。",
+      title: "10. 联系方式与技术支持",
+      body: "SSH Group Co., Ltd.\n地址：柬埔寨金边\n电子邮箱：support@sshgroups.com\nTelegram 支持：通过系统配置动态获取官方频道\n官方网站：www.sshgroups.com\n\n如对本隐私政策或考勤数据处理有任何疑问，请随时通过官方技术支持渠道与我们联系。",
     },
   ],
   km: [
     {
       title: "1. អ្នកអភិវឌ្ឍន៍ និងការណែនាំ",
-      body: "កម្មវិធីទូរស័ព្ទ SSH Group Staff App (កញ្ចប់កម្មវិធី៖ com.sshgroups.staff) ត្រូវបានអភិវឌ្ឍ និងដំណើរការដោយក្រុមហ៊ុន SSH Group Co., Ltd. (រាជធានីភ្នំពេញ ប្រទេសកម្ពុជា)។ កម្មវិធីកម្រិតសហគ្រាសនេះ ត្រូវបានរចនាឡើងដើម្បីគ្រប់គ្រងបុគ្គលិក កត់ត្រាវត្តមានតាមរយៈការស្កែន QR Code ការពិនិត្យម៉ោងបំពេញការងារ ការស្នើសុំការអនុញ្ញាតច្បាប់ និងការទាញយករបាយការណ៍វត្តមាន។ គោលការណ៍ឯកជនភាពនេះ ពន្យល់យ៉ាងច្បាស់អំពីការប្តេជ្ញាចិត្តរបស់យើងក្នុងការការពារព័ត៌មានផ្ទាល់ខ្លួន និងរបៀបដែលទិន្នន័យត្រូវបានប្រមូល ប្រើប្រាស់ រក្សាទុក និងការពារ។",
+      body: "កម្មវិធីទូរស័ព្ទ SSH Group Staff App (កញ្ចប់កម្មវិធី៖ com.sshgroups.staff) ត្រូវបានអភិវឌ្ឍ និងគ្រប់គ្រងដោយក្រុមហ៊ុន SSH Group Co., Ltd. (រាជធានីភ្នំពេញ ព្រះរាជាណាចក្រកម្ពុជា)។ កម្មវិធីកម្រិតសហគ្រាសនេះ ត្រូវបានរចនាឡើងយ៉ាងពិសេសសម្រាប់ការគ្រប់គ្រងបុគ្គលិកផ្ទៃក្នុង ការកត់ត្រាវត្តមានល្បឿនលឿន 0ms តាមរយៈការស្កែន QR Code ការផ្ទៀងផ្ទាត់ទីតាំងភូមិសាស្ត្រ Haversine GPS Geofence ការពិនិត្យម៉ោងបំពេញការងារ ការស្នើសុំច្បាប់ ឬបំពេញម៉ោងស្កែនដែលខកខាន ការចងភ្ជាប់សម័យប្រជុំឧបករណ៍ទូរស័ព្ទ (Device Session Binding) និងការទាញយករបាយការណ៍វត្តមាន។ គោលការណ៍ឯកជនភាពនេះ បញ្ជាក់យ៉ាងច្បាស់អំពីការប្តេជ្ញាចិត្តប្រកបដោយតម្លាភាពក្នុងការការពារទិន្នន័យបុគ្គលិក និងរបៀបដែលព័ត៌មានត្រូវបានប្រមូល ដំណើរការ ធ្វើសមកាលកម្ម រក្សាទុក និងការពារ។",
     },
     {
       title: "2. ព័ត៌មានដែលយើងប្រមូល",
-      body: "ដើម្បីធានាដំណើរការការងារគ្រប់គ្រងបុគ្គលិកប្រកបដោយប្រសិទ្ធភាព កម្មវិធីប្រមូល និងដំណើរការព័ត៌មានដូចខាងក្រោម៖\n\n• ព័ត៌មានគណនី និងប្រវត្តិរូប៖ អត្តលេខបុគ្គលិក (Staff ID), លេខសម្គាល់ប្រព័ន្ធសាខា (System ID ដូចជា system-0001, system-0002), ឈ្មោះពេញ, ឈ្មោះគណនី (Username), ពាក្យសម្ងាត់ដែលបានបំប្លែងកូដសុវត្ថិភាព, តួនាទី, មុខតំណែង, អាសយដ្ឋានអ៊ីមែល, លេខទូរស័ព្ទ, ថ្ងៃចូលបម្រើការងារ និងរូបថតប្រវត្តិរូប។\n• ការប្រើប្រាស់កាមេរ៉ា និងការស្កែន QR Code៖ ការអនុញ្ញាតកាមេរ៉ា ត្រូវបានប្រើប្រាស់សម្រាប់តែការស្កែន QR Code ពេលបុគ្គលិក Check-in ឬ Check-out ប៉ុណ្ណោះ។ កម្មវិធីមិនថត ឬរក្សាទុកវីដេអូ ឬរូបថតដោយគ្មានការបញ្ជាផ្ទាល់ពីអ្នកប្រើប្រាស់នោះឡើយ។\n• ព័ត៌មានទីតាំង (Geofence Verification)៖ កម្មវិធីស្នើសុំការអនុញ្ញាតទីតាំង (GPS) តែនៅពេលបុគ្គលិកចុចកត់ត្រាវត្តមានប៉ុណ្ណោះ ដើម្បីផ្ទៀងផ្ទាត់វត្តមានពិតប្រាកដនៅក្នុងបរិវេណក្រុមហ៊ុនដែលបានកំណត់។ កម្មវិធីមិនតាមដានទីតាំងរបស់អ្នកនៅផ្ទៃខាងក្រោយ (Background) ឡើយ។\n• កំណត់ត្រាវត្តមាន និងសំណើសុំច្បាប់៖ ពេលវេលាចុះវត្តមានចូល/ចេញ, ម៉ោងការងារសរុប, សំណើសុំកែប្រែវត្តមាន, សំណើសុំថែមម៉ោង, និងសំណើសុំច្បាប់សម្រាក (រួមទាំងកាលបរិច្ឆេទ មូលហេតុ និងស្ថានភាពអនុម័ត)។\n• ទិន្នន័យឧបករណ៍ និងសម័យប្រជុំ (Session)៖ ម៉ូឌែលទូរស័ព្ទ, កំណែប្រព័ន្ធប្រតិបត្តិការ និងលេខសម្គាល់ឧបករណ៍តាមរយៈ Expo Device ដើម្បីគ្រប់គ្រងការអនុញ្ញាតឧបករណ៍ ធានាសុវត្ថិភាពគណនី និងការពារការលួចប្រើប្រាស់។\n• ការរក្សាទុកក្នុងឧបករណ៍ និងសតិបណ្ដោះអាសន្ន៖ ការរក្សាទុកទិន្នន័យក្នុងឧបករណ៍ដោយប្រើ Expo SecureStore និង AsyncStorage ដើម្បីរក្សាថូខិនចូលប្រើប្រាស់ និងទិន្នន័យរបាយការណ៍ក្រៅបណ្តាញ (Offline Cache)។",
+      body: "ដើម្បីធានាដំណើរការការងារគ្រប់គ្រងវត្តមានប្រកបដោយប្រសិទ្ធភាព និងភាពត្រឹមត្រូវ កម្មវិធីប្រមូល និងដំណើរការព័ត៌មានដូចខាងក្រោម៖\n\n• ព័ត៌មានគណនី និងប្រវត្តិរូប៖ អត្តលេខបុគ្គលិក (Staff ID), លេខសម្គាល់ប្រព័ន្ធសាខា (System ID ដូចជា system-0001, system-0002), ឈ្មោះពេញ, ឈ្មោះគណនីតាមសាខា (Username), ពាក្យសម្ងាត់ដែលបានបំប្លែងកូដសុវត្ថិភាព (bcrypt hash), តួនាទីការងារ (Owner, Admin, Staff, Leave), មុខតំណែង, ថ្ងៃខែឆ្នាំកំណើត (DOB), អាសយដ្ឋានអ៊ីមែល, លេខទូរស័ព្ទ និងរូបថតប្រវត្តិរូប។\n• ការប្រើប្រាស់កាមេរ៉ា និងការស្កែន QR Code៖ ការអនុញ្ញាតកាមេរ៉ាត្រូវបានប្រើប្រាស់សម្រាប់តែការស្កែន QR Code ភ្លាមៗ (0ms) ពេលចុះវត្តមានចូល/ចេញ និងសម្រាប់ថតរូបភាពភស្តុតាងនៅពេលបុគ្គលិកធ្វើសំណើសុំច្បាប់ប៉ុណ្ណោះ។ កម្មវិធីមិនដែលដំណើរការកាមេរ៉ានៅផ្ទៃខាងក្រោយ ឬថតរូបដោយគ្មានការបញ្ជាផ្ទាល់ឡើយ។\n• ព័ត៌មានទីតាំង និងការផ្ទៀងផ្ទាត់បរិវេណក្រុមហ៊ុន (Geofence)៖ កម្មវិធីស្នើសុំកូអរដោនេ GPS ជាក់លាក់តែនៅពេលបុគ្គលិកចុចកត់ត្រាវត្តមានប៉ុណ្ណោះ។ កូអរដោនេត្រូវបានផ្ទៀងផ្ទាត់ដោយប្រើរូបមន្ត Haversine ធៀបនឹងទីតាំងសាខាក្រុមហ៊ុនដែលបានកំណត់ (រយៈទទឹង រយៈបណ្តោយ និងកាំចម្ងាយម៉ែត្រ)។ ប្រព័ន្ធក៏ធ្វើការត្រួតពិនិត្យកម្មវិធីក្លែងបន្លំទីតាំង (isMocked) និងប្រព័ន្ធបណ្តាញនិម្មិត (VPN) ដើម្បីការពារការបន្លំវត្តមាន។ កម្មវិធីមិនតាមដានទីតាំងរបស់អ្នកនៅផ្ទៃខាងក្រោយជាដាច់ខាត។\n• កំណត់ត្រាវត្តមាន និងសំណើតាមលំដាប់លំដោយ (Sequential Requests)៖ ពេលវេលាចុះវត្តមានចូល/ចេញ, ម៉ោងការងារសរុប, ស្ថានភាពវត្តមាន, និងលេខកូដសំណើតាមលំដាប់បុគ្គលិកនីមួយៗ (ឧ. {system_id}-ATT-0000-0001 និង {system_id}-REQ-0000-0001) រួមទាំងមូលហេតុសុំច្បាប់ កំណត់សម្គាល់ និងលទ្ធផលអនុម័ត។\n• ការចងភ្ជាប់ឧបករណ៍ និងសម័យប្រជុំ (DeviceSession)៖ ម៉ាកទូរស័ព្ទ, ម៉ូឌែល, កំណែប្រព័ន្ធប្រតិបត្តិការ, អាសយដ្ឋាន IP, និងលេខសម្គាល់សម័យប្រជុំ (UUID) ដើម្បីការពារការចែករំលែកគណនីគ្នា និងអនុវត្តគោលការណ៍ឧបករណ៍តែមួយសម្រាប់គណនីនីមួយៗ។\n• ការរក្សាទុកក្នុងឧបករណ៍ប្រកបដោយសុវត្ថិភាព៖ អង្គផ្ទុកទិន្នន័យសុវត្ថិភាពក្នុងទូរស័ព្ទ (Sandboxed Local Storage) និងសតិបណ្ដោះអាសន្នសុវត្ថិភាព (AsyncStorage, Expo SecureStore) សម្រាប់ដំណើរការក្រៅបណ្តាញ (Offline) និងការបង្ហាញទិន្នន័យភ្លាមៗ។",
     },
     {
       title: "3. របៀបដែលយើងប្រើប្រាស់ព័ត៌មានរបស់អ្នក",
-      body: "យើងដំណើរការព័ត៌មានបុគ្គលិកសម្រាប់តែគោលបំណងអាជីវកម្ម និងការគ្រប់គ្រងស្របច្បាប់ប៉ុណ្ណោះ៖\n\n• ការផ្ទៀងផ្ទាត់អត្តសញ្ញាណ៖ ផ្ទៀងផ្ទាត់ការចូលប្រើប្រាស់ ពិនិត្យស្ថានភាពគណនី និងកំណត់សិទ្ធិប្រើប្រាស់តាមសាខាការងារនីមួយៗ។\n• ការគ្រប់គ្រងវត្តមាន៖ គណនាម៉ោងការងារយ៉ាងត្រឹមត្រូវ តាមដានវត្តមានប្រចាំថ្ងៃ និងបង្កើតស្ថិតិការងារបុគ្គលិក។\n• ដំណើរការសំណើច្បាប់៖ ផ្តល់ជូនថ្នាក់គ្រប់គ្រងនូវព័ត៌មានដើម្បីពិនិត្យ និងអនុម័តសំណើសុំច្បាប់ ឬការកែសម្រួលវត្តមាន។\n• សុវត្ថិភាពឧបករណ៍៖ កំណត់ចំនួនឧបករណ៍ដែលអាចចូលប្រើប្រាស់ និងអនុញ្ញាតឱ្យបុគ្គលិកអាចចាកចេញពីឧបករណ៍ដែលមិនស្គាល់ពីចម្ងាយ។\n• ការទាញយករបាយការណ៍៖ បង្កើតរបាយការណ៍ជាទម្រង់ PDF ប្រចាំថ្ងៃ ប្រចាំសប្តាហ៍ ប្រចាំខែ និងប្រចាំឆ្នាំ សម្រាប់ការបោះពុម្ព និងការងាររដ្ឋបាល។\n• ការជូនដំណឹងប្រតិបត្តិការ៖ បញ្ជូនសារជូនដំណឹងរហ័សអំពីវត្តមានបុគ្គលិកទៅកាន់ Telegram Channel របស់ថ្នាក់គ្រប់គ្រងតាមរយៈ Telegram Bot API។\n\nយើងសូមធានាយ៉ាងដាច់ខាតថាមិនលក់ ជួល ឬចែករំលែកទិន្នន័យបុគ្គលិកទៅកាន់ភាគីទីបីសម្រាប់គោលបំណងពាណិជ្ជកម្មឡើយ។",
+      body: "យើងដំណើរការព័ត៌មានបុគ្គលិកសម្រាប់តែគោលបំណងអាជីវកម្ម និងការគ្រប់គ្រងធនធានមនុស្សស្របច្បាប់ប៉ុណ្ណោះ៖\n\n• ការផ្ទៀងផ្ទាត់អត្តសញ្ញាណ និងការបែងចែកសាខា៖ ផ្ទៀងផ្ទាត់ការចូលប្រើប្រាស់ ចេញថូខិន JWT កំណត់សិទ្ធិប្រើប្រាស់តាម System ID និងទប់ស្កាត់ការជ្រៀតចូលឆ្លងក្រុមហ៊ុន។\n• ការផ្ទៀងផ្ទាត់វត្តមានល្បឿនលឿន 0ms៖ ផ្ទៀងផ្ទាត់ QR Code ក្នុងល្បឿន 0ms ពិនិត្យទីតាំងភូមិសាស្ត្របរិវេណក្រុមហ៊ុន និងផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវនៃទូរស័ព្ទ។\n• ការគ្រប់គ្រងសំណើច្បាប់៖ ទទួល ពិនិត្យ និងអនុម័តសំណើសុំច្បាប់ឈប់សម្រាក ថែមម៉ោង ឬការស្នើសុំបំពេញម៉ោងស្កែនដែលខកខាន ព្រមទាំងរូបភាពភស្តុតាងភ្ជាប់មកជាមួយ។\n• ការគ្រប់គ្រងសុវត្ថិភាពឧបករណ៍៖ កំណត់ការចូលប្រើប្រាស់ត្រឹមទូរស័ព្ទតែមួយ បង្ហាញបញ្ជីឧបករណ៍ដែលកំពុងដំណើរការ និងអនុញ្ញាតឱ្យបុគ្គលិក ឬរដ្ឋបាលអាចផ្ដាច់សម័យប្រជុំដែលមិនស្គាល់ពីចម្ងាយ។\n• ការជូនដំណឹងរហ័សតាម Telegram៖ បញ្ជូនសារជូនដំណឹងភ្លាមៗជាមួយអត្តលេខបុគ្គលិក ម៉ោងវត្តមាន និងរូបភាពភស្តុតាងទៅកាន់ Telegram Channel របស់ថ្នាក់ដឹកនាំតាមរយៈ Telegram Bot API។\n• ការទាញយក និងបោះពុម្ពរបាយការណ៍៖ បង្កើតរបាយការណ៍វត្តមានប្រចាំថ្ងៃ ប្រចាំសប្តាហ៍ ប្រចាំខែ និងប្រចាំឆ្នាំ ជាទម្រង់ PDF សម្រាប់ការបោះពុម្ព និងការងាររដ្ឋបាល។\n• ការកំណត់ប្រព័ន្ធតាមរយៈពពក៖ ទទួលបានតំណភ្ជាប់ជំនួយផ្លូវការ និងបណ្តាញទំនាក់ទំនងទាន់សម័យពី Backend ដោយពុំចាំបាច់ដំឡើងកំណែកម្មវិធីថ្មីឡើងវិញឡើយ។\n\nយើងសូមធានាយ៉ាងដាច់ខាតថាមិនលក់ ជួល ឬចែករំលែកទិន្នន័យផ្ទាល់ខ្លួនទៅកាន់ភាគីទីបី ក្រុមហ៊ុនពាណិជ្ជកម្ម ឬបណ្តាញផ្សាយពាណិជ្ជកម្មឡើយ។",
     },
     {
-      title: "4. ការរក្សាទុក សុវត្ថិភាពទិន្នន័យ និងប្រព័ន្ធពពក",
-      body: "• ប្រព័ន្ធមូលដ្ឋានទិន្នន័យពពក៖ ទិន្នន័យទាំងអស់ត្រូវបានរក្សាទុកនៅលើ Backend API (PostgreSQL Cloud Database ប្រកបដោយសុវត្ថិភាពខ្ពស់)។\n• សុវត្ថិភាពកម្រិតជួរទិន្នន័យ (RLS)៖ តារាងទិន្នន័យត្រូវបានការពារដោយគោលការណ៍ Row-Level Security យ៉ាងតឹងរ៉ឹង ដែលធានាថាមានតែបុគ្គលិក និងអ្នកគ្រប់គ្រងដែលមានសិទ្ធិប៉ុណ្ណោះដែលអាចអាន ឬកែប្រែទិន្នន័យបាន។\n• ការការពារពាក្យសម្ងាត់៖ ពាក្យសម្ងាត់ទាំងអស់ត្រូវបានបំប្លែងកូដសម្ងាត់យ៉ាងរឹងមាំដោយប្រើប្រាស់ក្បួន bcrypt មុនពេលរក្សាទុកក្នុងមូលដ្ឋានទិន្នន័យ។\n• ការបំប្លែងកូដពេលបញ្ជូន៖ រាល់ការបញ្ជូនទិន្នន័យរវាងទូរស័ព្ទ និងម៉ាស៊ីនបម្រើ ត្រូវបានការពារដោយពិធីសារសុវត្ថិភាពទំនើប TLS/HTTPS 1.3។\n• សុវត្ថិភាពក្នុងឧបករណ៍៖ ថូខិនផ្ទៀងផ្ទាត់ត្រូវបានរក្សាទុកយ៉ាងមានសុវត្ថិភាពក្នុង hardware-backed keychain នៃទូរស័ព្ទតាមរយៈ Expo SecureStore។",
+      title: "4. ការរក្សាទុក សុវត្ថិភាពទិន្នន័យ និងប្រព័ន្ធ Cloud",
+      body: "• ហេដ្ឋារចនាសម្ព័ន្ធទិន្នន័យពពក (Distributed Cloud Database)៖ ប្រព័ន្ធទិន្នន័យ Cloud SQL កម្រិតខ្ពស់សម្រាប់រក្សាទុកព័ត៌មានបុគ្គលិក កំណត់ត្រាវត្តមាន សំណើច្បាប់ និងការកំណត់សាខា។\n• ប្រព័ន្ធផ្ទុកឯកសារពពកដែលបានបំប្លែងកូដ (Encrypted Cloud Object Storage)៖ កន្លែងផ្ទុកឯកសារប្រកបដោយសុវត្ថិភាពខ្ពស់ សម្រាប់រក្សាទុករូបថតវត្តមាន និងរូបតំណាងបុគ្គលិក។\n• ប្រព័ន្ធទិន្នន័យសុវត្ថិភាពក្នុងឧបករណ៍ (Sandboxed Local Storage & Offline Continuity)៖ អង្គចងចាំសុវត្ថិភាពក្នុងទូរស័ព្ទ ផ្តល់នូវល្បឿនលឿនគ្មានទាក់ ដំណើរការបានពេលគ្មានអ៊ីនធឺណិត និងធ្វើសមកាលកម្មទិន្នន័យទៅវិញទៅមកជាមួយប្រព័ន្ធ Cloud។\n• ការការពារពាក្យសម្ងាត់៖ ពាក្យសម្ងាត់ទាំងអស់ត្រូវបានការពារដោយក្បួនបំប្លែងកូដសម្ងាត់ស្ដង់ដារ bcrypt ដោយគ្មានការរក្សាទុកពាក្យសម្ងាត់សុទ្ធនៅក្នុង Database ឡើយ។\n• សុវត្ថិភាពពេលបញ្ជូន (TLS 1.3)៖ រាល់ការបញ្ជូនទិន្នន័យរវាងកម្មវិធីទូរស័ព្ទ និងម៉ាស៊ីនបម្រើ Backend ត្រូវបានការពារដោយពិធីសារសុវត្ថិភាព HTTPS / TLS 1.3 ទំនើប។\n• សុវត្ថិភាពសម័យប្រជុំឧបករណ៍៖ សម័យប្រជុំត្រូវបានចងភ្ជាប់នឹងលេខសម្គាល់សម្ភារៈទូរស័ព្ទ (Hardware Signature) និងអាចលុបចោលពីចម្ងាយបានគ្រប់ពេល។",
     },
     {
-      title: "5. ការបែងចែកទិន្នន័យតាមសាខា (Multi-System)",
-      body: "កម្មវិធីគាំទ្រការគ្រប់គ្រងពហុប្រព័ន្ធ (ដូចជា system-0001, system-0002 និងសាខាក្រុមហ៊ុនផ្សេងៗទៀត)។ ព័ត៌មានបុគ្គលិក កំណត់ត្រាវត្តមាន និងសំណើច្បាប់ ត្រូវបានបែងចែកដាច់ដោយឡែកពីគ្នាទៅតាមសាខានីមួយៗ។",
+      title: "5. ការបែងចែកទិន្នន័យតាមសាខា និង System ID",
+      body: "ស្ថាបត្យកម្មកម្មវិធីគាំទ្រការបែងចែកសាខាការងារយ៉ាងដាច់ដោយឡែក (ដូចជា system-0001, system-0002)។ ព័ត៌មានបុគ្គលិក កាលវិភាគវត្តមាន សំណើច្បាប់ និងសម័យប្រជុំឧបករណ៍ ត្រូវបានការពារយ៉ាងតឹងរ៉ឹងទៅតាម System ID របស់ក្រុមហ៊ុននីមួយៗ ដោយធានាមិនឱ្យមានការបែកធ្លាយទិន្នន័យឆ្លងកាត់គ្នានោះឡើយ។",
     },
     {
-      title: "6. សេវាកម្មតតិយភាគី",
-      body: "កម្មវិធីនេះប្រើប្រាស់តែសេវាកម្មសហគ្រាសសំខាន់ៗដែលគួរឱ្យទុកចិត្តប៉ុណ្ណោះ៖\n\n• Backend API Inc.៖ សម្រាប់ការរក្សាទុកទិន្នន័យពពក ការផ្ទៀងផ្ទាត់គណនី និងការធ្វើសមកាលកម្មទិន្នន័យភ្លាមៗ។\n• Telegram API៖ សម្រាប់ផ្ញើសារជូនដំណឹងផ្ទៃក្នុងអំពីវត្តមាន និងសំណើច្បាប់ទៅកាន់ថ្នាក់ដឹកនាំក្រុមហ៊ុន។\n• ក្របខណ្ឌ Expo៖ សម្រាប់ការភ្ជាប់មុខងារប្រព័ន្ធទូរស័ព្ទ (កាមេរ៉ា, ទីតាំង, ការចែករំលែកឯកសារ)។\n\nកម្មវិធីនេះគ្មានការបង្កប់ផ្ទាំងពាណិជ្ជកម្ម (Ads) ឬឧបករណ៍តាមដានទិន្នន័យសម្រាប់ភាគីទីបីឡើយ។",
+      title: "6. ការគ្រប់គ្រងកញ្ចប់សេវាសាខា (Subscription Guard)",
+      body: "ដើម្បីធានាសុវត្ថិភាពទិន្នន័យសាជីវកម្ម ប្រព័ន្ធ Backend ត្រួតពិនិត្យសុពលភាពកញ្ចប់សេវាកម្មសាខាដោយស្វ័យប្រវត្ត។ ប្រសិនបើសាខាណាមួយផុតកំណត់សេវា ប្រព័ន្ធនឹងបញ្ជូនបុគ្គលិកសាខានោះទៅកាន់ផ្ទាំង Non-Subscription ដោយសុវត្ថិភាព ដើម្បីទំនាក់ទំនងបន្តសុពលភាពជាមួយផ្នែកជំនួយផ្លូវការ។",
     },
     {
-      title: "7. សិទ្ធិរបស់អ្នកប្រើប្រាស់ និងការលុបគណនី",
-      body: "បុគ្គលិកមានសិទ្ធិពេញលេញលើទិន្នន័យផ្ទាល់ខ្លួនរបស់ពួកគេ៖\n\n• ការពិនិត្យ និងកែប្រែ៖ អ្នកអាចពិនិត្យ និងកែសម្រួលព័ត៌មានទំនាក់ទំនង ឬពាក្យសម្ងាត់នៅក្នុងកម្មវិធីបានគ្រប់ពេល។\n• ការស្នើសុំលុបគណនី៖ នៅពេលបញ្ចប់កិច្ចសន្យាការងារ បុគ្គលិកមានសិទ្ធិស្នើសុំលុបគណនី និងទិន្នន័យសម័យប្រជុំឧបករណ៍។ សូមទាក់ទងមកកាន់រដ្ឋបាលក្រុមហ៊ុន ឬផ្ញើអ៊ីមែលមកកាន់ support@sshgroups.com ដើម្បីស្នើសុំ។",
+      title: "7. សេវាកម្មសហគ្រាសតតិយភាគី",
+      body: "កម្មវិធីនេះភ្ជាប់ទំនាក់ទំនងតែជាមួយសេវាកម្មពពកសហគ្រាសសំខាន់ៗដែលគួរឱ្យទុកចិត្តប៉ុណ្ណោះ៖\n\n• ហេដ្ឋារចនាសម្ព័ន្ធ Cloud ស្តង់ដារសុវត្ថិភាពអន្តរជាតិ៖ ផ្តល់នូវការរក្សាទុកទិន្នន័យប្រកបដោយសុវត្ថិភាពខ្ពស់ និងការផ្ទុកឯកសារមេឌៀដែលបានបំប្លែងកូដ។\n• Telegram Bot API៖ សម្រាប់បញ្ជូនសារដំណឹងវត្តមាន និងសំណើច្បាប់ទៅកាន់ Telegram Channel របស់រដ្ឋបាលក្រុមហ៊ុន។\n• ក្របខណ្ឌ Expo Framework៖ សម្រាប់ការគ្រប់គ្រងកាមេរ៉ាស្កែន កូអរដោនេ GPS និងសតិបម្រុងសុវត្ថិភាពក្នុងទូរស័ព្ទ។\n\nកម្មវិធីនេះគ្មានការបង្កប់កូដពាណិជ្ជកម្ម (Ads), Tracking Pixels ឬឧបករណ៍វិភាគទិន្នន័យពាណិជ្ជកម្មណាមួយឡើយ។",
     },
     {
-      title: "8. រយៈពេលនៃការរក្សាទុកទិន្នន័យ",
-      body: "កំណត់ត្រាវត្តមាន និងសំណើផ្សេងៗត្រូវបានរក្សាទុកស្របតាមគោលការណ៍រដ្ឋបាលក្រុមហ៊ុន និងច្បាប់ការងារជាធរមាន។ នៅពេលគណនីត្រូវបានលុបជាផ្លូវការ ទិន្នន័យផ្ទាល់ខ្លួននឹងត្រូវលុប ឬបំប្លែងទៅជាអនាមិក។",
+      title: "8. សិទ្ធិរបស់អ្នកប្រើប្រាស់ និងការគ្រប់គ្រងគណនី",
+      body: "បុគ្គលិក និងរដ្ឋបាលមានសិទ្ធិពេញលេញលើទិន្នន័យការងាររបស់ខ្លួន៖\n\n• ការពិនិត្យ និងកែប្រែ៖ អាចចូលពិនិត្យប្រវត្តិរូប កែប្រែព័ត៌មានទំនាក់ទំនង និងផ្លាស់ប្តូរពាក្យសម្ងាត់នៅក្នុងកម្មវិធីបានគ្រប់ពេល។\n• ការគ្រប់គ្រងឧបករណ៍៖ អាចមើលបញ្ជីឧបករណ៍ដែលកំពុងចូលប្រើប្រាស់ និងចុចផ្ដាច់ឧបករណ៍ដែលមិនស្គាល់ពីចម្ងាយ។\n• ការលុបគណនី៖ នៅពេលបញ្ចប់ការងារ រដ្ឋបាលក្រុមហ៊ុនអាចផ្អាកគណនី លុបសម័យប្រជុំ និងដោះការចងភ្ជាប់ឧបករណ៍។ សម្រាប់សំណួរ សូមទាក់ទងរដ្ឋបាលប្រព័ន្ធ ឬអ៊ីមែល support@sshgroups.com។",
     },
     {
-      title: "9. បច្ចុប្បន្នភាពគោលការណ៍ឯកជនភាព",
-      body: "យើងអាចធ្វើបច្ចុប្បន្នភាពគោលការណ៍ឯកជនភាពនេះជាប្រចាំ ដើម្បីឆ្លើយតបទៅនឹងមុខងារថ្មីៗ ឬការផ្លាស់ប្តូរបទប្បញ្ញត្តិច្បាប់។ ការកែប្រែនឹងមានសុពលភាពភ្លាមៗនៅពេលត្រូវបានផ្សព្វផ្សាយនៅក្នុងកម្មវិធី។",
+      title: "9. រយៈពេលនៃការរក្សាទុកទិន្នន័យ",
+      body: "កំណត់ត្រាវត្តមាន ប្រវត្តិសំណើ និងកំណត់ត្រាសុវត្ថិភាពឧបករណ៍ ត្រូវបានរក្សាទុកស្របតាមគោលការណ៍រដ្ឋបាលក្រុមហ៊ុន សវនកម្ម និងច្បាប់ការងារជាធរមាន។ នៅពេលគណនីត្រូវបានលុបជាផ្លូវការ ទិន្នន័យផ្ទាល់ខ្លួននឹងត្រូវលុប ឬបំប្លែងទៅជាអនាមិកភ្លាមៗ។",
     },
     {
-      title: "10. ព័ត៌មានទំនាក់ទំនង",
-      body: "ក្រុមហ៊ុន SSH Group Co., Ltd.\nអាសយដ្ឋាន៖ រាជធានីភ្នំពេញ, ព្រះរាជាណាចក្រកម្ពុជា\nអ៊ីមែល៖ support@sshgroups.com\nគេហទំព័រ៖ www.sshgroups.com\n\nប្រសិនបើលោកអ្នកមានសំណួរ ឬចម្ងល់ទាក់ទងនឹងគោលការណ៍ឯកជនភាពនេះ សូមទាក់ទងមកកាន់យើងខ្ញុំដោយផ្ទាល់។",
+      title: "10. ព័ត៌មានទំនាក់ទំនង និងជំនួយបច្ចេកទេស",
+      body: "ក្រុមហ៊ុន SSH Group Co., Ltd.\nទីតាំង៖ រាជធានីភ្នំពេញ, ព្រះរាជាណាចក្រកម្ពុជា\nអ៊ីមែល៖ support@sshgroups.com\nជំនួយតាម Telegram៖ ឆានែលផ្លូវការដែលកំណត់តាមរយៈ System Config\nគេហទំព័រ៖ www.sshgroups.com\n\nប្រសិនបើលោកអ្នកមានសំណួរ បញ្ហាបច្ចេកទេស ឬចម្ងល់ទាក់ទងនឹងគោលការណ៍ឯកជនភាពនេះ សូមទាក់ទងមកកាន់ក្រុមការងាររបស់យើងខ្ញុំដោយផ្ទាល់តាមរយៈបណ្តាញជំនួយផ្លូវការ។",
     },
   ],
 };

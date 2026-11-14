@@ -15,6 +15,7 @@ import { companyRoutes } from "./features/company/index.js";
 import { d1Routes } from "./features/d1/index.js";
 import { devicesRoutes } from "./features/devices/index.js";
 import { keyRoutes } from "./features/keys/index.js";
+import { privacyPolicyRoutes } from "./features/privacy-policy/index.js";
 import { reportsRoutes } from "./features/reports/index.js";
 import { serverGroupRoutes } from "./features/server-groups/index.js";
 import { subscriptionRoutes } from "./features/subscription/index.js";
@@ -73,8 +74,10 @@ export const createApp = (): Application => {
   app.use("/api/v1/reports", reportsRoutes);
   app.use("/api/v1/subscription", subscriptionRoutes);
   app.use("/api/v1/system-config", systemConfigRoutes);
+  app.use("/api/v1/privacy-policy", privacyPolicyRoutes);
 
   // Direct route aliases for compatibility
+  app.use("/privacy-policy", privacyPolicyRoutes);
   app.use("/auth", authRoutes);
   app.use("/attendance-security", attendanceSecurityRoutes);
   app.use("/attendance-requests", attendanceRequestsRoutes);
