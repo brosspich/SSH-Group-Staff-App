@@ -1,13 +1,12 @@
 import { useLanguage } from "@/features/language";
 import { useResponsive } from "@/shared/hooks/useResponsive";
 import { apiClient } from "@/shared/services/api";
-import { StaffUser, userService } from "@/shared/services/userService";
+import { StaffUser } from "@/shared/services/userService";
 import { theme } from "@/shared/styles/theme";
 import { hashPassword } from "@/utils/passwordUtils";
 import { formatRolesList, isOwnerRole } from "@/utils/roleUtils";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { useUpdateStaffMutation } from "../_hooks/useUpdateStaffMutation";
 import {
   ActivityIndicator,
   Keyboard,
@@ -25,6 +24,7 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useUpdateStaffMutation } from "../_hooks/useUpdateStaffMutation";
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_.-]{3,20}$/;
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -221,21 +221,12 @@ export default function EditStaffModal({
 
     setSavingEdit(true);
     try {
-      // 1. Uniqueness check for username within the same system/company
+      // 1. Uniqueness check for username globally across all systems/companies
       if (cleanUsername !== (staff.username || "").toLowerCase().trim()) {
-        const staffSystem =
-          (staff.system_id || staff.systemId || "")
-            .match(/^(system-\d+)/i)?.[1]
-            ?.toLowerCase() ||
-          staff.companyId ||
-          staff.company_id ||
-          "";
-
         const matches = await apiClient
           .get<any[]>("/users-query", {
             params: {
               username: cleanUsername,
-              ...(staffSystem ? { systemId: staffSystem } : {}),
             },
           })
           .catch(() => []);
@@ -247,26 +238,14 @@ export default function EditStaffModal({
           ) {
             return false;
           }
-          if (staffSystem) {
-            const uSys = (
-              u.systemId ||
-              u.system_id ||
-              u.companyId ||
-              u.company_id ||
-              ""
-            )
-              .match(/^(system-\d+)/i)?.[1]
-              ?.toLowerCase();
-            return uSys === staffSystem;
-          }
-          return true;
+          return (u.username || "").toLowerCase().trim() === cleanUsername;
         });
 
         if (existingUser) {
           setEditError(
             t(
               "changeInfoStaff.errUsernameTaken",
-              "This username is already taken by another account in this system.",
+              "This username is already taken. Please choose another.",
             ),
           );
           setSavingEdit(false);

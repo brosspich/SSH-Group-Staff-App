@@ -26,7 +26,7 @@ model Company {
 model User {
   systemId            String              @id @map("system_id")
   id                  String              // Staff ID e.g. "0001", "0022"
-  username            String
+  username            String              @unique
   passwordHash        String
   role                String              @default("staff")
   isActive            Boolean             @default(true)

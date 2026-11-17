@@ -509,14 +509,10 @@ export class UsersController {
       });
       const validCompanyId = companyExists ? companyId : null;
 
-      // Backend Condition: Username must be unique within the same system/company
+      // Backend Condition: Username must be globally unique across all systems/companies
       const existingUser = await prisma.user.findFirst({
         where: {
           username: cleanUsername,
-          OR: [
-            { systemId: { startsWith: companyId } },
-            { details: { companyId: companyId } },
-          ],
         },
       });
       if (existingUser) {
@@ -852,20 +848,11 @@ export class UsersController {
           cleanUsername &&
           cleanUsername !== (existing.username || "").toLowerCase().trim()
         ) {
-          // Determine the user's company/system
-          const companyPrefix =
-            existing.systemId.match(/^(system-\d+)/i)?.[1]?.toLowerCase() ||
-            existing.details?.companyId ||
-            "system-0001";
-
+          // Check username uniqueness globally across all systems/companies
           const duplicate = await prisma.user.findFirst({
             where: {
               username: cleanUsername,
               systemId: { not: existing.systemId },
-              OR: [
-                { systemId: { startsWith: companyPrefix } },
-                { details: { companyId: companyPrefix } },
-              ],
             },
           });
 
