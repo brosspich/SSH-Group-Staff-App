@@ -399,8 +399,15 @@ export class AttendanceRequestsService {
 
     const message = lines.join("\n");
 
-    for (const chatId of rawChats) {
-      if (!chatId) continue;
+    const normalizeChat = (id: string | number): string => {
+      const s = String(id).trim();
+      if (s === "-5567020132") return "-1004319410551";
+      return s;
+    };
+
+    for (const rawChat of rawChats) {
+      if (!rawChat) continue;
+      let chatId = normalizeChat(rawChat);
       try {
         let sentPhoto = false;
         let directBuffer = imageBuffer;
@@ -503,7 +510,7 @@ export class AttendanceRequestsService {
         // If photo was successfully sent with caption, skip duplicate text message
         if (sentPhoto) continue;
 
-        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        const sendRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -512,6 +519,22 @@ export class AttendanceRequestsService {
             parse_mode: "HTML",
           }),
         });
+
+        if (!sendRes.ok) {
+          const resJson: any = await sendRes.json().catch(() => null);
+          if (resJson?.parameters?.migrate_to_chat_id) {
+            const newChatId = String(resJson.parameters.migrate_to_chat_id);
+            await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                chat_id: newChatId,
+                text: message,
+                parse_mode: "HTML",
+              }),
+            });
+          }
+        }
       } catch (err: any) {
         console.warn(
           `[Telegram Alert] Failed to send message to ${chatId}:`,

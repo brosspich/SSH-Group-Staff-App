@@ -745,8 +745,15 @@ export class AttendanceSecurityService {
 
     const message = lines.join("\n");
 
-    for (const chatId of rawChats) {
-      if (!chatId) continue;
+    const normalizeChat = (id: string | number): string => {
+      const s = String(id).trim();
+      if (s === "-5567020132") return "-1004319410551";
+      return s;
+    };
+
+    for (const rawChat of rawChats) {
+      if (!rawChat) continue;
+      let chatId = normalizeChat(rawChat);
       try {
         let sentPhoto = false;
 
@@ -802,11 +809,29 @@ export class AttendanceSecurityService {
                 `[Telegram] ✅ Photo alert successfully delivered to chatId ${chatId}`,
               );
             } else {
-              const errBody = await photoRes.text();
-              console.warn(
-                `[Telegram sendPhoto failed] Status ${photoRes.status}:`,
-                errBody,
-              );
+              const resJson: any = await photoRes.json().catch(() => null);
+              if (resJson?.parameters?.migrate_to_chat_id) {
+                const newChatId = String(resJson.parameters.migrate_to_chat_id);
+                console.log(`[Telegram] Migrating photo to supergroup ${newChatId}...`);
+                const retryForm = new FormData();
+                retryForm.append("chat_id", newChatId);
+                retryForm.append("caption", message);
+                retryForm.append("parse_mode", "HTML");
+                retryForm.append("photo", blob, "proof.jpg");
+                const retryRes = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+                  method: "POST",
+                  body: retryForm,
+                });
+                if (retryRes.ok) {
+                  sentPhoto = true;
+                  console.log(`[Telegram] ✅ Photo alert delivered to migrated supergroup ${newChatId}`);
+                }
+              } else {
+                console.warn(
+                  `[Telegram sendPhoto failed] Status ${photoRes.status}:`,
+                  resJson,
+                );
+              }
             }
           } catch (photoErr) {
             console.warn("[Telegram] Error sending photo multipart:", photoErr);
@@ -846,7 +871,7 @@ export class AttendanceSecurityService {
         // If photo was dispatched successfully with caption, skip duplicate text
         if (sentPhoto) continue;
 
-        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        const sendRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -855,6 +880,30 @@ export class AttendanceSecurityService {
             parse_mode: "HTML",
           }),
         });
+
+        if (sendRes.ok) {
+          console.log(`[Telegram] ✅ Message successfully sent to chatId ${chatId}`);
+        } else {
+          const resJson: any = await sendRes.json().catch(() => null);
+          if (resJson?.parameters?.migrate_to_chat_id) {
+            const newChatId = String(resJson.parameters.migrate_to_chat_id);
+            console.log(`[Telegram] Migrating message to supergroup ${newChatId}...`);
+            const retryRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                chat_id: newChatId,
+                text: message,
+                parse_mode: "HTML",
+              }),
+            });
+            if (retryRes.ok) {
+              console.log(`[Telegram] ✅ Message delivered to migrated supergroup ${newChatId}`);
+            }
+          } else {
+            console.warn(`[Telegram sendMessage failed] Status ${sendRes.status}:`, resJson);
+          }
+        }
       } catch (sendErr) {
         console.warn(
           `[Telegram] Failed dispatching to chatId ${chatId}:`,
