@@ -32,13 +32,13 @@ flowchart LR
 Separates authentication credentials from mutable staff personal information.
 
 > [!NOTE]
-> **Per-System Username Uniqueness**: Usernames are scoped per branch/system (`companyId`). Multiple systems can have the same username (e.g., `test` in `system-0001` and `test` in `system-0002`), but within the same system, usernames must be unique. The global `@unique` constraint was removed in Migration 14 for both Cloudflare D1 and local SQLite.
+> **Global Username Uniqueness**: Usernames are strictly unique across the entire database and all branches/systems (`companyId`). No duplicate usernames are permitted across systems (e.g., if `test` exists in `system-0001`, it cannot be used in `system-0002`). This is enforced via `@unique` in Prisma schema, D1 database constraints, and API validation.
 
 ```prisma
 model User {
   systemId            String              @id @map("system_id") // e.g. "system-0001-0022", "system-0002-0001"
   id                  String              // Staff ID e.g. "0022", "bpak-0001"
-  username            String              // Scoped unique per system
+  username            String              @unique // Globally unique across all systems
   passwordHash        String
   role                String              @default("member")
   isActive            Boolean             @default(true) // Stored as INTEGER (1 or 0) in Cloudflare D1
@@ -281,7 +281,7 @@ The application operates an active-active sync model between **Cloudflare D1**, 
 | **Scan Attendance**    | `AttendanceLog`          | Proof photo (`staff-attendance/`)         | `AttendanceLog`       | Telegram Alert |
 | **Request Attendance** | `AttendanceRequest`      | Proof photo (`staff-attendance-request/`) | `AttendanceRequest`   | Telegram Alert |
 
-### Synchronization Flow:
+### Synchronization Flow
 
 1. **Primary Cloud Write**: User, Attendance, and Request actions write directly to **Cloudflare D1** via [d1Client.ts](file:///d:/Code/SSH-Group-Staff-App/app/backend/src/infrastructure/database/d1Client.ts).
 2. **Object Upload**: Base64/binary photos are uploaded to **Cloudflare R2** via [r2.service.ts](file:///d:/Code/SSH-Group-Staff-App/app/backend/src/infrastructure/storage/r2.service.ts) and the generated public URL is attached to the record.
@@ -300,14 +300,13 @@ flowchart LR
     LocalDB <-->|sync:sub / sync:sub:pull| D1Sub[("Cloudflare D1\n(Subscription)")]
 ```
 
-### Available Synchronization Commands:
+### Available Synchronization Commands
 
-| Command | Direction | Tables Synchronized | Script File |
-| :--- | :--- | :--- | :--- |
-| `npm run sync:sub` | Local -> D1 | `Subscription` | [sync_subscription_to_d1.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_subscription_to_d1.js) |
-| `npm run sync:sub:pull` | D1 -> Local | `Subscription` | [sync_d1_subscription_to_local.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_d1_subscription_to_local.js) |
-| `npm run sync:user` | Local -> D1 | `User`, `UserDetails` | [sync_user_to_d1.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_user_to_d1.js) |
-| `npm run sync:user:pull` | D1 -> Local | `User`, `UserDetails` | [sync_user_to_local.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_user_to_local.js) |
-| `npm run sync:company` | Local -> D1 | `Company` | [sync_company_to_d1.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_company_to_d1.js) |
-| `npm run sync:company:pull` | D1 -> Local | `Company` | [sync_company_to_local.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_company_to_local.js) |
-
+| Command                     | Direction   | Tables Synchronized   | Script File                                                                                                                  |
+| :-------------------------- | :---------- | :-------------------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| `npm run sync:sub`          | Local -> D1 | `Subscription`        | [sync_subscription_to_d1.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_subscription_to_d1.js)             |
+| `npm run sync:sub:pull`     | D1 -> Local | `Subscription`        | [sync_d1_subscription_to_local.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_d1_subscription_to_local.js) |
+| `npm run sync:user`         | Local -> D1 | `User`, `UserDetails` | [sync_user_to_d1.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_user_to_d1.js)                             |
+| `npm run sync:user:pull`    | D1 -> Local | `User`, `UserDetails` | [sync_user_to_local.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_user_to_local.js)                       |
+| `npm run sync:company`      | Local -> D1 | `Company`             | [sync_company_to_d1.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_company_to_d1.js)                       |
+| `npm run sync:company:pull` | D1 -> Local | `Company`             | [sync_company_to_local.js](file:///d:/Code/SSH-Group-Staff-App/app/backend/scripts/sync_company_to_local.js)                 |

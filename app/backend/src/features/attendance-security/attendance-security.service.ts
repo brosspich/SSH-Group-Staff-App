@@ -812,19 +812,26 @@ export class AttendanceSecurityService {
               const resJson: any = await photoRes.json().catch(() => null);
               if (resJson?.parameters?.migrate_to_chat_id) {
                 const newChatId = String(resJson.parameters.migrate_to_chat_id);
-                console.log(`[Telegram] Migrating photo to supergroup ${newChatId}...`);
+                console.log(
+                  `[Telegram] Migrating photo to supergroup ${newChatId}...`,
+                );
                 const retryForm = new FormData();
                 retryForm.append("chat_id", newChatId);
                 retryForm.append("caption", message);
                 retryForm.append("parse_mode", "HTML");
                 retryForm.append("photo", blob, "proof.jpg");
-                const retryRes = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-                  method: "POST",
-                  body: retryForm,
-                });
+                const retryRes = await fetch(
+                  `https://api.telegram.org/bot${botToken}/sendPhoto`,
+                  {
+                    method: "POST",
+                    body: retryForm,
+                  },
+                );
                 if (retryRes.ok) {
                   sentPhoto = true;
-                  console.log(`[Telegram] ✅ Photo alert delivered to migrated supergroup ${newChatId}`);
+                  console.log(
+                    `[Telegram] ✅ Photo alert delivered to migrated supergroup ${newChatId}`,
+                  );
                 }
               } else {
                 console.warn(
@@ -871,37 +878,52 @@ export class AttendanceSecurityService {
         // If photo was dispatched successfully with caption, skip duplicate text
         if (sentPhoto) continue;
 
-        const sendRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id: chatId,
-            text: message,
-            parse_mode: "HTML",
-          }),
-        });
+        const sendRes = await fetch(
+          `https://api.telegram.org/bot${botToken}/sendMessage`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: message,
+              parse_mode: "HTML",
+            }),
+          },
+        );
 
         if (sendRes.ok) {
-          console.log(`[Telegram] ✅ Message successfully sent to chatId ${chatId}`);
+          console.log(
+            `[Telegram] ✅ Message successfully sent to chatId ${chatId}`,
+          );
         } else {
           const resJson: any = await sendRes.json().catch(() => null);
           if (resJson?.parameters?.migrate_to_chat_id) {
             const newChatId = String(resJson.parameters.migrate_to_chat_id);
-            console.log(`[Telegram] Migrating message to supergroup ${newChatId}...`);
-            const retryRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                chat_id: newChatId,
-                text: message,
-                parse_mode: "HTML",
-              }),
-            });
+            console.log(
+              `[Telegram] Migrating message to supergroup ${newChatId}...`,
+            );
+            const retryRes = await fetch(
+              `https://api.telegram.org/bot${botToken}/sendMessage`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  chat_id: newChatId,
+                  text: message,
+                  parse_mode: "HTML",
+                }),
+              },
+            );
             if (retryRes.ok) {
-              console.log(`[Telegram] ✅ Message delivered to migrated supergroup ${newChatId}`);
+              console.log(
+                `[Telegram] ✅ Message delivered to migrated supergroup ${newChatId}`,
+              );
             }
           } else {
-            console.warn(`[Telegram sendMessage failed] Status ${sendRes.status}:`, resJson);
+            console.warn(
+              `[Telegram sendMessage failed] Status ${sendRes.status}:`,
+              resJson,
+            );
           }
         }
       } catch (sendErr) {

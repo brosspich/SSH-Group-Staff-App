@@ -3,7 +3,8 @@ import { useLanguage } from "@/features/language";
 import {
   PRIVACY_POLICY_DATA,
   PolicyLang,
-} from "@/features/privacy-policy/_utils/privacyPolicyData";
+  usePrivacyPolicyQuery,
+} from "@/features/privacy-policy";
 import { useSystemConfigQuery } from "@/features/system-config";
 import { theme } from "@/shared/styles/theme";
 
@@ -12,6 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Linking,
   Modal,
   ScrollView,
@@ -53,6 +55,10 @@ export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
   const { isMobile } = useResponsive();
   const { config } = useSystemConfigQuery();
   const { support, social } = config;
+
+  // Dynamic backend fetch (Backend 70% architecture)
+  const { data: policyData, isLoading } = usePrivacyPolicyQuery(lang);
+  const sections = policyData?.sections || PRIVACY_POLICY_DATA[lang] || [];
 
   useEffect(() => {
     if (visible) {
@@ -147,7 +153,14 @@ export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
           >
-            {PRIVACY_POLICY_DATA[lang].map((section, idx) => (
+            {isLoading && !policyData ? (
+              <ActivityIndicator
+                size="small"
+                color={theme.colors.primary}
+                style={{ marginVertical: 20 }}
+              />
+            ) : null}
+            {sections.map((section, idx) => (
               <View key={idx} style={styles.section}>
                 <View style={styles.sectionHeaderRow}>
                   <View style={styles.accentBar} />
@@ -156,7 +169,7 @@ export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
                 <Text style={styles.sectionBody}>{section.body}</Text>
 
                 {/* Dynamic Support Links for Contact Section (Backend 70%) */}
-                {idx === PRIVACY_POLICY_DATA[lang].length - 1 && (
+                {idx === sections.length - 1 && (
                   <View style={styles.contactButtonsRow}>
                     {support?.telegramUrl ? (
                       <TouchableOpacity

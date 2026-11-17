@@ -73,4 +73,8 @@ export const queryKeys = {
     list: (params?: Record<string, unknown>) =>
       [...queryKeys.reports.all, "list", params] as const,
   },
+  privacyPolicy: {
+    all: ["privacy-policy"] as const,
+    byLang: (lang: string) => [...queryKeys.privacyPolicy.all, lang] as const,
+  },
 } as const;

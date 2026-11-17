@@ -230,10 +230,10 @@ npm --prefix app/backend run sync:company:pull # D1 -> Local
 - **Khmer Typography Support**: Integrated premium Khmer fonts (`KohSantepheap`, `KantumruyPro`, `Hanuman`) for clear, polished typography.
 - **Persistent Locale**: Remembers user choice across app restarts via device storage.
 
-### 7. Branch-Scoped System ID & Per-Branch Username Uniqueness
+### 7. Branch-Scoped System ID & Global Username Uniqueness
 
 - **Structured System ID**: Formatted as `{companyId}-{staffId}` (e.g., `system-0001-0022`, `system-0002-0001`) with automatic preview in admin forms.
-- **Per-Branch Username Scoping**: Allows different branches/systems to utilize common usernames (e.g., `cashier`, `staff`) without collisions across branches.
+- **Global Username Uniqueness**: Usernames are strictly unique across the entire platform and all systems (`system-0001`, `system-0002`, etc.) with `@unique` database constraints and instant validation in staff creation and edit workflows.
 
 ### 8. Edge Data Routing & Dual-Database Persistence
 

@@ -34,6 +34,8 @@ export class PrivacyPolicyController {
         language: lang,
         lastUpdated: PRIVACY_POLICY_LAST_UPDATED[lang],
         sections: PRIVACY_POLICY_DATA[lang],
+        allData: PRIVACY_POLICY_DATA,
+        allLastUpdated: PRIVACY_POLICY_LAST_UPDATED,
       });
     }
 

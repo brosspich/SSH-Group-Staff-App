@@ -3,6 +3,7 @@ import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import {
+  ActivityIndicator,
   Linking,
   ScrollView,
   StyleSheet,
@@ -11,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { usePrivacyPolicyQuery } from "../_hooks/usePrivacyPolicyQuery";
 import type { PolicyLang } from "../_types/privacyPolicy.types";
 import {
   PRIVACY_POLICY_DATA,
@@ -27,8 +29,12 @@ export default function PolicySectionList({ lang }: PolicySectionListProps) {
   const { config } = useSystemConfigQuery();
   const { support, social } = config;
 
-  const sections = PRIVACY_POLICY_DATA[lang] || [];
-  const lastUpdated = PRIVACY_POLICY_LAST_UPDATED[lang];
+  // Dynamic backend fetch (Backend 70% architecture)
+  const { data: policyData, isLoading } = usePrivacyPolicyQuery(lang);
+
+  const sections = policyData?.sections || PRIVACY_POLICY_DATA[lang] || [];
+  const lastUpdated =
+    policyData?.lastUpdated || PRIVACY_POLICY_LAST_UPDATED[lang];
 
   return (
     <ScrollView
@@ -52,6 +58,13 @@ export default function PolicySectionList({ lang }: PolicySectionListProps) {
         ) : null}
 
         <View style={styles.card}>
+          {isLoading && !policyData ? (
+            <ActivityIndicator
+              size="small"
+              color={theme.colors.primary}
+              style={{ marginVertical: 24 }}
+            />
+          ) : null}
           {sections.map((section, idx) => (
             <View key={idx} style={styles.section}>
               <View style={styles.sectionHeaderRow}>
