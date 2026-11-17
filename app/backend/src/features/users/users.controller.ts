@@ -420,6 +420,28 @@ export class UsersController {
         });
       }
 
+      // 3. Fetch live AttendanceLogs from Cloudflare D1 to guarantee 100% sync
+      try {
+        const d1Logs = await d1Client.query(
+          "SELECT id, userId, companyId, scanDate, scanTime, type, qrData, image, remark, createdAt FROM AttendanceLog WHERE userId = ? OR userId = ? ORDER BY createdAt DESC LIMIT 500;",
+          [user.systemId, user.id],
+        );
+        if (d1Logs && d1Logs.length > 0) {
+          const logMap = new Map<string, any>();
+          for (const log of d1Logs) {
+            logMap.set(log.id, log);
+          }
+          for (const pLog of user.attendanceLogs || []) {
+            if (!logMap.has(pLog.id)) {
+              logMap.set(pLog.id, pLog);
+            }
+          }
+          user.attendanceLogs = Array.from(logMap.values());
+        }
+      } catch (d1Err) {
+        console.warn("[getUserById] D1 AttendanceLog fetch warning:", d1Err);
+      }
+
       return res.status(200).json({
         success: true,
         data: formatUserForResponse(user),

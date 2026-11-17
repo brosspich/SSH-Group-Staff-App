@@ -1,3 +1,4 @@
+import { useAttendanceStore } from "@/features/attendance/store/useAttendanceStore";
 import {
   prewarmDeviceGps,
   scanAttendanceWithSecurity,
@@ -239,6 +240,11 @@ export function useHomeScanner({
       setUser(updatedUser);
       userService.save(updatedUser).catch(() => {});
     }
+
+    // Instantly sync to Attendance History store
+    try {
+      useAttendanceStore.getState().addRecord(savedRec);
+    } catch {}
 
     if (Platform.OS !== "web") {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

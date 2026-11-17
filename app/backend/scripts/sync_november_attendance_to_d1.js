@@ -8,14 +8,8 @@ const prisma = new PrismaClient();
 const d1 = new CloudflareD1Client();
 
 async function syncToD1() {
-  console.log(
-    "🔄 Fetching system-0001 November AttendanceLogs from local dev.db...",
-  );
+  console.log("🔄 Fetching all AttendanceLogs from local dev.db...");
   const logs = await prisma.attendanceLog.findMany({
-    where: {
-      userId: { startsWith: "system-0001" },
-      scanDate: { startsWith: "2026-11" },
-    },
     orderBy: { id: "asc" },
   });
 
@@ -36,11 +30,16 @@ async function syncToD1() {
   for (let i = 0; i < logs.length; i += CONCURRENCY) {
     const chunk = logs.slice(i, i + CONCURRENCY);
     await Promise.all(
-      chunk.map((log) =>
-        d1.execute(sql, [
+      chunk.map((log) => {
+        const companyId =
+          log.companyId ||
+          (log.userId.startsWith("system-0002")
+            ? "system-0002"
+            : "system-0001");
+        return d1.execute(sql, [
           log.id,
           log.userId,
-          log.companyId || "system-0001",
+          companyId,
           log.scanDate,
           log.scanTime,
           log.type,
@@ -50,8 +49,8 @@ async function syncToD1() {
             : new Date().toISOString(),
           log.image || null,
           log.remark || null,
-        ]),
-      ),
+        ]);
+      }),
     );
     synced += chunk.length;
     process.stdout.write(
@@ -62,10 +61,10 @@ async function syncToD1() {
   console.log("\n");
   // Verify on D1
   const verify = await d1.query(
-    "SELECT COUNT(*) as count FROM AttendanceLog WHERE userId LIKE 'system-0001%' AND scanDate LIKE '2026-11%';",
+    "SELECT COUNT(*) as count FROM AttendanceLog;",
   );
   console.log(
-    `🎉 Verification on Cloudflare D1: ${verify[0]?.count} records confirmed!`,
+    `🎉 Verification on Cloudflare D1: ${verify[0]?.count} total AttendanceLog records confirmed!`,
   );
 }
 

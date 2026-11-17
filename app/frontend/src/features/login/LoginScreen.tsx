@@ -9,6 +9,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useEffect, useState } from "react";
 import { StatusBar, StyleSheet, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import ChangeLanguageModal from "./_components/ChangeLanguageModal";
 import LoginActionButtons from "./_components/LoginActionButtons";
 import LoginFooterCopy from "./_components/LoginFooterCopy";
 import LoginFormInputs from "./_components/LoginFormInputs";
@@ -84,6 +85,7 @@ export default function LoginScreen() {
         visible={showPrivacy}
         onAccept={handlePrivacyAccept}
       />
+      <ChangeLanguageModal />
 
       <View style={styles.container}>
         <LinearGradient
