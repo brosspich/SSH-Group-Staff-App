@@ -5,7 +5,7 @@ export interface PolicySection {
 
 export type PolicyLang = "en" | "zh" | "km" | "fr";
 
-export const BACKEND_APP_VERSION = "1.0.1.10311";
+export const BACKEND_APP_VERSION = "1.0.1.20311";
 
 export const PRIVACY_POLICY_LAST_UPDATED: Record<PolicyLang, string> = {
   en: `Last Updated App Version: ${BACKEND_APP_VERSION}`,

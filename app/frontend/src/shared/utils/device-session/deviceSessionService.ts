@@ -34,7 +34,7 @@ export function parseDevices(raw: unknown): DeviceSession[] {
     browser_version: d.browser_version || d.browserVersion,
     os: d.os || "Unknown OS",
     os_version: d.os_version || d.osVersion || "1.0",
-    app_version: d.app_version || d.appVersion || "1.0.1.10311",
+    app_version: d.app_version || d.appVersion || "1.0.1.20311",
     location:
       typeof d.location === "object"
         ? JSON.stringify(d.location)
