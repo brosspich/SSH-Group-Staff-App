@@ -193,7 +193,13 @@ function ScannerModal({
             <Ionicons name="close" size={24} color={theme.colors.background2} />
           </TouchableOpacity>
 
-          <Text style={styles.modalHeaderTitle}>{t("home.scannerTitle")}</Text>
+          <Text
+            style={styles.modalHeaderTitle}
+            // numberOfLines={1}
+            // ellipsizeMode="tail"
+          >
+            {t("home.scannerTitle")}
+          </Text>
 
           <TouchableOpacity
             style={styles.torchBtn}
@@ -231,12 +237,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
     paddingBottom: theme.spacing.sm,
     overflow: "hidden",
+    gap: theme.spacing.sm,
   },
   modalHeaderTitle: {
     color: theme.colors.background2,
     fontSize: theme.fontSizes.lg,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
+    flexShrink: 1,
+    textAlign: "center",
   },
   modalCloseBtn: {
     width: 42,
