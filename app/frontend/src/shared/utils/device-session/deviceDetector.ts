@@ -129,7 +129,7 @@ export async function resolveDeviceMetadata(): Promise<DeviceMetadata> {
   const appVersionCode =
     (Platform.OS === "ios"
       ? expoConfig?.ios?.buildNumber
-      : expoConfig?.android?.versionCode) || "20311";
+      : expoConfig?.android?.versionCode) || "10311";
   const appVersion = `${baseAppVersion}.${appVersionCode}`;
 
   if (Platform.OS === "web") {

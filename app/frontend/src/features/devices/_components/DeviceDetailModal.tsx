@@ -114,7 +114,7 @@ export default function DeviceDetailModal({
                     {selectedSession.browser_name
                       ? `${selectedSession.browser_name} ${selectedSession.browser_version || ""}`
                       : selectedSession.model_name ||
-                        `SSH Group POS ${selectedSession.os} ${selectedSession.app_version || (selectedSession as any).appVersion || "1.0.1.20311"}`}
+                        `SSH Group POS ${selectedSession.os} ${selectedSession.app_version || (selectedSession as any).appVersion || "1.0.1.10311"}`}
                   </Text>
                   <Text style={styles.modalRowSub}>
                     {selectedSession.browser_name
