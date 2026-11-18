@@ -16,7 +16,9 @@ export function useLanguage() {
     ? "zh"
     : rawLang.startsWith("km")
       ? "km"
-      : "en";
+      : rawLang.startsWith("fr")
+        ? "fr"
+        : "en";
 
   const changeLanguage = useCallback(
     async (lang: SupportedLanguage) => {
@@ -33,5 +35,6 @@ export function useLanguage() {
     isKhmer: currentLang === "km",
     isEnglish: currentLang === "en",
     isChinese: currentLang === "zh",
+    isFrench: currentLang === "fr",
   };
 }

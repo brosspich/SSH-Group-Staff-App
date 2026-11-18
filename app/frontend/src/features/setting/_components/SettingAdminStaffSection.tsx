@@ -61,7 +61,9 @@ export const SettingAdminStaffSection: React.FC<
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{t("setting.adminStaff")}</Text>
+      <Text style={styles.sectionTitle} numberOfLines={1} ellipsizeMode="tail">
+        {t("setting.adminStaff")}
+      </Text>
       <View style={styles.card}>
         <BtnItem
           onPress={() => router.push("/account-staff/CreateAccountStaff")}
@@ -103,6 +105,7 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.sm,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
+    flexShrink: 1,
   },
   card: {
     backgroundColor: theme.colors.background2,

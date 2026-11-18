@@ -29,12 +29,16 @@ export default function PolicySectionList({ lang }: PolicySectionListProps) {
   const { config } = useSystemConfigQuery();
   const { support, social } = config;
 
-  // Dynamic backend fetch (Backend 70% architecture)
+  // Dynamic backend fetch (Backend 70% architecture) with strict language match
   const { data: policyData, isLoading } = usePrivacyPolicyQuery(lang);
 
-  const sections = policyData?.sections || PRIVACY_POLICY_DATA[lang] || [];
+  const sections =
+    (policyData?.language === lang ? policyData?.sections : null) ||
+    PRIVACY_POLICY_DATA[lang] ||
+    [];
   const lastUpdated =
-    policyData?.lastUpdated || PRIVACY_POLICY_LAST_UPDATED[lang];
+    (policyData?.language === lang ? policyData?.lastUpdated : null) ||
+    PRIVACY_POLICY_LAST_UPDATED[lang];
 
   return (
     <ScrollView

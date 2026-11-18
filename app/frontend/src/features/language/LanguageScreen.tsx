@@ -41,6 +41,12 @@ const LANGUAGES: LanguageOption[] = [
     nativeName: "中文 (简体)",
     flag: "🇨🇳",
   },
+  {
+    code: "fr",
+    name: "French",
+    nativeName: "Français",
+    flag: "🇫🇷",
+  },
 ];
 
 export default function LanguageScreen() {

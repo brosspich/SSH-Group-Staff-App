@@ -29,7 +29,7 @@ export const AttendanceHeaderBanner: React.FC<AttendanceHeaderBannerProps> = ({
       style={styles.headerCard}
     >
       <View style={[styles.headerTop, { paddingTop: 70 + topInset }]}>
-        <View>
+        <View style={{ flex: 1, flexShrink: 1 }}>
           <Text style={styles.headerSubTitle}>
             {t("attendance.historySubtitle")}
           </Text>
@@ -73,12 +73,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: theme.spacing.lg,
+    // flex: 1,
+    gap: theme.spacing.md,
   },
   headerSubTitle: {
     fontSize: theme.fontSizes.xs,
     color: "rgba(255,255,255,0.8)",
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
+    flexShrink: 1,
   },
   headerTitle: {
     fontSize: theme.fontSizes.xxl,
@@ -86,12 +89,14 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     marginTop: 2,
+    flexShrink: 1,
   },
   headerCountBadge: {
     backgroundColor: "rgba(255, 255, 255, 0.1)",
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs,
     borderRadius: theme.borderRadius.md,
+    flex: 1,
   },
   headerCountText: {
     fontSize: theme.fontSizes.xs,

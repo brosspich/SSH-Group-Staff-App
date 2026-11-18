@@ -41,6 +41,12 @@ const LANGUAGES: LanguageItem[] = [
     nativeName: "中文 (简体)",
     flag: "🇨🇳",
   },
+  {
+    code: "fr",
+    name: "French",
+    nativeName: "Français",
+    flag: "🇫🇷",
+  },
 ];
 
 export default function ChangeLanguageModal() {
@@ -63,7 +69,9 @@ export default function ChangeLanguageModal() {
   return (
     <>
       {/* Top right language button */}
-      <View style={[styles.contanai, { top: 15 + insets.top }]}>
+      <View
+        style={[styles.pillContainer, { top: theme.spacing.base + insets.top }]}
+      >
         <TouchableHighlight
           onPress={() => setModalVisible(true)}
           underlayColor="rgba(255, 255, 255, 0.35)"
@@ -197,7 +205,7 @@ export default function ChangeLanguageModal() {
 }
 
 const styles = StyleSheet.create({
-  contanai: {
+  pillContainer: {
     position: "absolute",
     right: theme.spacing.base,
     zIndex: 1000,

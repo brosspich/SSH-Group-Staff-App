@@ -7,6 +7,7 @@ function normalizeLang(lang?: string | null): SupportedLanguage {
   const clean = String(lang).trim().toLowerCase();
   if (clean.startsWith("zh")) return "zh";
   if (clean.startsWith("km")) return "km";
+  if (clean.startsWith("fr")) return "fr";
   return "en";
 }
 

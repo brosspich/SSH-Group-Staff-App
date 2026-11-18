@@ -88,7 +88,7 @@ export const CreateAccountStaffRoleStatus: React.FC<
 
       {/* Active Switch */}
       <View style={styles.switchRow}>
-        <View>
+        <View style={{ flexShrink: 1 }}>
           <Text style={styles.switchLabel}>
             {t("createAccountStaff.activeAccount", "Active Account")}
           </Text>
@@ -239,6 +239,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.xs,
     color: theme.colors.textSecondary,
     marginTop: 2,
+    flexShrink: 1,
   },
   inputContainer: {
     flexDirection: "row",

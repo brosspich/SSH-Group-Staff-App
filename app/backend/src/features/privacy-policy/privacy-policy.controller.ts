@@ -24,7 +24,8 @@ export class PrivacyPolicyController {
       const lang: PolicyLang =
         requestedLang === "en" ||
         requestedLang === "zh" ||
-        requestedLang === "km"
+        requestedLang === "km" ||
+        requestedLang === "fr"
           ? requestedLang
           : "km";
 
@@ -45,7 +46,10 @@ export class PrivacyPolicyController {
 
     const defaultLang = ((req.query.lang as string) || "km").toLowerCase();
     const activeLang: PolicyLang =
-      defaultLang === "en" || defaultLang === "zh" || defaultLang === "km"
+      defaultLang === "en" ||
+      defaultLang === "zh" ||
+      defaultLang === "km" ||
+      defaultLang === "fr"
         ? (defaultLang as PolicyLang)
         : "km";
 
@@ -275,6 +279,7 @@ export class PrivacyPolicyController {
       <button class="lang-btn ${activeLang === "km" ? "active" : ""}" onclick="switchLang('km')">ភាសាខ្មែរ</button>
       <button class="lang-btn ${activeLang === "en" ? "active" : ""}" onclick="switchLang('en')">English</button>
       <button class="lang-btn ${activeLang === "zh" ? "active" : ""}" onclick="switchLang('zh')">中文</button>
+      <button class="lang-btn ${activeLang === "fr" ? "active" : ""}" onclick="switchLang('fr')">Français</button>
     </nav>
 
     <div class="version-wrapper">
@@ -320,7 +325,8 @@ export class PrivacyPolicyController {
     const titleMap = {
       km: "គោលការណ៍ឯកជនភាព",
       en: "Privacy Policy",
-      zh: "隐私政策"
+      zh: "隐私政策",
+      fr: "Politique de confidentialité"
     };
 
     function switchLang(lang) {
@@ -331,7 +337,8 @@ export class PrivacyPolicyController {
       const activeBtn = Array.from(document.querySelectorAll('.lang-btn')).find(b => 
         (lang === 'km' && b.innerText.includes('ខ្មែរ')) ||
         (lang === 'en' && b.innerText.includes('English')) ||
-        (lang === 'zh' && b.innerText.includes('中文'))
+        (lang === 'zh' && b.innerText.includes('中文')) ||
+        (lang === 'fr' && b.innerText.includes('Français'))
       );
       if (activeBtn) activeBtn.classList.add('active');
 

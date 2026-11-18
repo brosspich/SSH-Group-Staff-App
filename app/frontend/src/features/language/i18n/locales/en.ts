@@ -227,6 +227,8 @@ export const en = {
     englishSubtitle: "English",
     chinese: "中文 (Chinese)",
     chineseSubtitle: "Chinese",
+    french: "Français",
+    frenchSubtitle: "French",
     currentLanguage: "Current Language",
     switchedSuccess: "Language changed successfully",
     previewTitle: "Real-time Preview",
@@ -235,6 +237,7 @@ export const en = {
   },
   setting: {
     title: "Settings",
+    account: "Account",
     accountInfo: "Account Info",
     information: "Information",
     logout: "Logout",
@@ -245,7 +248,7 @@ export const en = {
     devices: "Devices",
     preferences: "Preferences",
     language: "Language",
-    languageDesc: "ភាសាខ្មែរ / English / 中文",
+    languageDesc: "ភាសាខ្មែរ / English / 中文 / Français",
     aboutUs: "About Us",
     about: "About",
     contact: "Contact",
@@ -363,6 +366,7 @@ export const en = {
   },
   account: {
     title: "Personal Information",
+    account: "Account",
     accountInfo: "Account Info",
     name: "Full Name",
     username: "Username",

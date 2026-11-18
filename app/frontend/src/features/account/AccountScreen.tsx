@@ -1,15 +1,17 @@
 import AppbarBack from "@/shared/components/appbar/appbarback";
 import Loading from "@/shared/components/loading/loading";
 import { renderLogoutModal } from "@/shared/components/logout/logoutModal";
-import { theme } from "@/shared/styles/theme";
 import { useResponsive } from "@/shared/hooks/useResponsive";
+import { theme } from "@/shared/styles/theme";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import { useLanguage } from "../language";
 import { AccountInfoCard } from "./_components/AccountInfoCard";
 import { AccountProfileHeader } from "./_components/AccountProfileHeader";
 import { useAccount } from "./_hooks/useAccount";
 
 export default function AccountScreen() {
   const { isMobile } = useResponsive();
+  const { t } = useLanguage();
 
   const {
     user,
@@ -32,7 +34,7 @@ export default function AccountScreen() {
 
   return (
     <View style={styles.safe}>
-      <AppbarBack Title="Account" />
+      <AppbarBack Title={t("setting.account")} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         refreshControl={

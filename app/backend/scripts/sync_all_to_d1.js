@@ -1,120 +1,260 @@
-require("dotenv").config({ path: "./.env" });
-const { PrismaClient } = require("@prisma/client");
-const { d1Client } = require("../dist/infrastructure/database/d1Client.js");
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+const {
+  CloudflareD1Client,
+} = require("../dist/infrastructure/database/d1Client.js");
+const { rawSql } = require("./raw_users_input.js");
 
-const prisma = new PrismaClient();
+const d1 = new CloudflareD1Client();
 
-async function run() {
-  console.log("🚀 Starting Cloudflare D1 Sync...");
+// 1. November 18 records from user's latest upload
+const todayRecords = [
+  {
+    id: "system-0001-0007-ATT-0000-0021",
+    userId: "system-0001-0007",
+    companyId: "system-0001",
+    scanDate: "2026-11-18",
+    scanTime: "8:09:43 AM",
+    type: "TIME_IN",
+    qrData: "ssh-group-attendance-01",
+    createdAt: "2026-11-18T01:09:43.756Z",
+  },
+  {
+    id: "system-0001-0015-ATT-0000-0016",
+    userId: "system-0001-0015",
+    companyId: "system-0001",
+    scanDate: "2026-11-18",
+    scanTime: "8:13:14 AM",
+    type: "TIME_IN",
+    qrData: "ssh-group-attendance-01",
+    createdAt: "2026-11-18T01:13:14.595Z",
+  },
+  {
+    id: "system-0001-0016-ATT-0000-0037",
+    userId: "system-0001-0016",
+    companyId: "system-0001",
+    scanDate: "2026-11-18",
+    scanTime: "8:09:29 AM",
+    type: "TIME_IN",
+    qrData: "ssh-group-attendance-01",
+    createdAt: "2026-11-18T01:09:29.334Z",
+  },
+  {
+    id: "system-0001-0017-ATT-0000-0028",
+    userId: "system-0001-0017",
+    companyId: "system-0001",
+    scanDate: "2026-11-18",
+    scanTime: "8:07:33 AM",
+    type: "TIME_IN",
+    qrData: "ssh-group-attendance-01",
+    createdAt: "2026-11-18T01:07:33.379Z",
+  },
+  {
+    id: "system-0001-0019-ATT-0000-0012",
+    userId: "system-0001-0019",
+    companyId: "system-0001",
+    scanDate: "2026-11-18",
+    scanTime: "8:12:53 AM",
+    type: "TIME_IN",
+    qrData: "ssh-group-attendance-01",
+    createdAt: "2026-11-18T01:12:53.362Z",
+  },
+  {
+    id: "system-0001-0020-ATT-0000-0021",
+    userId: "system-0001-0020",
+    companyId: "system-0001",
+    scanDate: "2026-11-18",
+    scanTime: "8:12:53 AM",
+    type: "TIME_IN",
+    qrData: "ssh-group-attendance-01",
+    createdAt: "2026-11-18T01:12:53.845Z",
+  },
+  {
+    id: "system-0001-0021-ATT-0000-0016",
+    userId: "system-0001-0021",
+    companyId: "system-0001",
+    scanDate: "2026-11-18",
+    scanTime: "8:08:47 AM",
+    type: "TIME_IN",
+    qrData: "ssh-group-attendance-01",
+    createdAt: "2026-11-18T01:08:47.999Z",
+  },
+  {
+    id: "system-0001-0026-ATT-0000-0024",
+    userId: "system-0001-0026",
+    companyId: "system-0001",
+    scanDate: "2026-11-18",
+    scanTime: "8:06:38 AM",
+    type: "TIME_IN",
+    qrData: "ssh-group-attendance-01",
+    createdAt: "2026-11-18T01:06:38.547Z",
+  },
+];
 
-  try {
-    // 1. Run Migration 14 on Cloudflare D1 to ensure User table does not have global unique constraint on username
-    console.log("Step 1: Applying migration 14 on Cloudflare D1...");
-    try {
-      await d1Client.execute(`
-        CREATE TABLE IF NOT EXISTS User_new (
-          system_id TEXT PRIMARY KEY NOT NULL,
-          id TEXT NOT NULL,
-          username TEXT NOT NULL,
-          passwordHash TEXT NOT NULL,
-          role TEXT NOT NULL DEFAULT 'member',
-          isActive INTEGER NOT NULL DEFAULT 1,
-          createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-          updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-      `);
-      await d1Client.execute(`
-        INSERT OR REPLACE INTO User_new (system_id, id, username, passwordHash, role, isActive, createdAt, updatedAt)
-        SELECT system_id, id, username, passwordHash, role, isActive, createdAt, updatedAt FROM User;
-      `);
-      await d1Client.execute(`DROP TABLE User;`);
-      await d1Client.execute(`ALTER TABLE User_new RENAME TO User;`);
-      await d1Client.execute(
-        `CREATE INDEX IF NOT EXISTS idx_user_id ON User (id);`,
-      );
-      await d1Client.execute(
-        `CREATE INDEX IF NOT EXISTS idx_user_username ON User (username);`,
-      );
-      console.log("✅ Cloudflare D1 Migration 14 applied successfully.");
-    } catch (migErr) {
-      console.log("ℹ️ Migration 14 note:", migErr.message);
-    }
-
-    // 2. Fetch all Users and UserDetails from local database
-    const users = await prisma.user.findMany({
-      include: { details: true },
-    });
-    console.log(
-      `Step 2: Found ${users.length} users in local DB to sync to Cloudflare D1...`,
-    );
-
-    let userSynced = 0;
-    let detailsSynced = 0;
-
-    for (const u of users) {
-      await d1Client.execute(
-        `INSERT OR REPLACE INTO User (system_id, id, username, passwordHash, role, isActive, createdAt, updatedAt)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          u.systemId,
-          u.id,
-          u.username,
-          u.passwordHash,
-          u.role,
-          u.isActive ? 1 : 0,
-          u.createdAt
-            ? new Date(u.createdAt).toISOString()
-            : new Date().toISOString(),
-          u.updatedAt
-            ? new Date(u.updatedAt).toISOString()
-            : new Date().toISOString(),
-        ],
-      );
-      userSynced++;
-
-      if (u.details) {
-        await d1Client.execute(
-          `INSERT OR REPLACE INTO UserDetails (system_id, company_id, name, email, phone, position, dob, joined, createdAt, updatedAt)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            u.details.systemId,
-            u.details.companyId,
-            u.details.name,
-            u.details.email,
-            u.details.phone,
-            u.details.position,
-            u.details.dob,
-            u.details.joined,
-            u.details.createdAt
-              ? new Date(u.details.createdAt).toISOString()
-              : new Date().toISOString(),
-            u.details.updatedAt
-              ? new Date(u.details.updatedAt).toISOString()
-              : new Date().toISOString(),
-          ],
-        );
-        detailsSynced++;
-      }
-    }
-
-    console.log(
-      `✅ Synced ${userSynced} Users and ${detailsSynced} UserDetails to Cloudflare D1!`,
-    );
-
-    // 3. Query Cloudflare D1 to confirm
-    const d1Users = await d1Client.query(
-      "SELECT system_id, id, username, role, isActive FROM User;",
-    );
-    console.log(
-      `\n🎉 Verification: Cloudflare D1 now has ${d1Users.length} Users:`,
-    );
-    console.table(d1Users);
-
-    process.exit(0);
-  } catch (err) {
-    console.error("❌ D1 Sync error:", err);
-    process.exit(1);
-  }
+function cleanTime(t) {
+  return (t || "")
+    .replace(/[\u202F\u00A0]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
-run();
+function parseTuples(sql) {
+  const insertIdx = sql.indexOf("VALUES");
+  const valuesPart = sql.slice(insertIdx + 6).trim();
+  const results = [];
+  let i = 0;
+  while (i < valuesPart.length) {
+    while (i < valuesPart.length && valuesPart[i] !== "(") i++;
+    if (i >= valuesPart.length) break;
+    i++;
+    const row = [];
+    let cur = "";
+    let inString = false;
+    while (i < valuesPart.length) {
+      const c = valuesPart[i];
+      if (inString) {
+        if (c === "'") {
+          if (valuesPart[i + 1] === "'") {
+            cur += "'";
+            i += 2;
+            continue;
+          } else {
+            inString = false;
+            i++;
+            continue;
+          }
+        } else {
+          cur += c;
+          i++;
+        }
+      } else {
+        if (c === "'") {
+          inString = true;
+          i++;
+        } else if (c === ",") {
+          row.push(cur.trim() === "null" ? null : cur.trim());
+          cur = "";
+          i++;
+        } else if (c === ")") {
+          row.push(cur.trim() === "null" ? null : cur.trim());
+          results.push(row);
+          i++;
+          break;
+        } else {
+          cur += c;
+          i++;
+        }
+      }
+    }
+  }
+  return results;
+}
+
+async function syncAllToD1() {
+  console.log("Fetching existing AttendanceLogs from Cloudflare D1...");
+  const existing = await d1.query(
+    "SELECT id, userId, scanDate, scanTime FROM AttendanceLog WHERE userId LIKE 'system-0001%';",
+  );
+  const existingKeys = new Set();
+  for (const e of existing) {
+    existingKeys.add(`${e.userId}_${e.scanDate}_${cleanTime(e.scanTime)}`);
+    existingKeys.add(e.id);
+  }
+  console.log(`Found ${existing.length} existing records in D1.`);
+
+  const insertSql = `INSERT OR REPLACE INTO AttendanceLog (id, userId, companyId, scanDate, scanTime, type, qrData, createdAt, remark, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+
+  let insertedCount = 0;
+
+  // 1. Insert today's 2026-11-18 records if missing
+  for (const r of todayRecords) {
+    const key = `${r.userId}_${r.scanDate}_${cleanTime(r.scanTime)}`;
+    if (!existingKeys.has(key) && !existingKeys.has(r.id)) {
+      await d1.execute(insertSql, [
+        r.id,
+        r.userId,
+        r.companyId,
+        r.scanDate,
+        r.scanTime,
+        r.type,
+        r.qrData,
+        r.createdAt,
+        null,
+        null,
+      ]);
+      existingKeys.add(key);
+      existingKeys.add(r.id);
+      insertedCount++;
+      console.log(
+        `[D1 Inserted 2026-11-18] ${r.userId} (${r.scanDate} ${r.scanTime}) -> ${r.id}`,
+      );
+    }
+  }
+
+  // 2. Insert missing November records from rawSql
+  const rows = parseTuples(rawSql);
+  for (const r of rows) {
+    const staffId = r[0];
+    const sysId = r[12];
+    if (!sysId || !sysId.startsWith("system-0001")) continue;
+
+    let attList = [];
+    try {
+      if (r[10]) attList = JSON.parse(r[10]);
+    } catch {}
+
+    const novRecords = attList.filter(
+      (a) => a.date && a.date.startsWith("2026-11"),
+    );
+    // Sort chronological
+    novRecords.sort(
+      (a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0),
+    );
+
+    for (const a of novRecords) {
+      const cTime = cleanTime(a.time);
+      const key = `${sysId}_${a.date}_${cTime}`;
+      if (!existingKeys.has(key) && !existingKeys.has(a.id)) {
+        // Standardize ID format: system-0001-{staffId}-ATT-0000-{seq}
+        let finalId = a.id;
+        if (!finalId.startsWith(sysId)) {
+          // Extract trailing digits
+          const numMatch = (finalId || "").match(/(\d+)$/);
+          const seq = numMatch ? numMatch[1].padStart(4, "0") : "0001";
+          finalId = `${sysId}-ATT-0000-${seq}`;
+        }
+        const normType = (a.type || "time-in").toUpperCase().replace(/-/g, "_");
+        await d1.execute(insertSql, [
+          finalId,
+          sysId,
+          "system-0001",
+          a.date,
+          cTime,
+          normType,
+          a.qr_data || "ssh-group-attendance-01",
+          a.timestamp || new Date().toISOString(),
+          null,
+          null,
+        ]);
+        existingKeys.add(key);
+        existingKeys.add(finalId);
+        insertedCount++;
+        console.log(
+          `[D1 Inserted Nov] ${sysId} (${a.date} ${cTime}) -> ${finalId}`,
+        );
+      }
+    }
+  }
+
+  console.log(
+    `\n🎉 Total newly inserted records into Cloudflare D1: ${insertedCount}`,
+  );
+  const finalLogs = await d1.query(
+    "SELECT COUNT(*) as total FROM AttendanceLog WHERE userId LIKE 'system-0001%';",
+  );
+  console.log(
+    `Total AttendanceLogs in Cloudflare D1 for system-0001: ${finalLogs[0]?.total}`,
+  );
+}
+
+syncAllToD1().catch(console.error);

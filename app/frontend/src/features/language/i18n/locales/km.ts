@@ -234,6 +234,8 @@ export const km = {
     englishSubtitle: "អង់គ្លេស",
     chinese: "中文",
     chineseSubtitle: "ចិន",
+    french: "បារាំង (Français)",
+    frenchSubtitle: "French",
     currentLanguage: "ភាសាបច្ចុប្បន្ន",
     switchedSuccess: "បានផ្លាស់ប្តូរភាសាដោយជោគជ័យ",
     previewTitle: "ការបង្ហាញផ្ទាល់",
@@ -242,6 +244,7 @@ export const km = {
   },
   setting: {
     title: "ការកំណត់",
+    account: "គណនី",
     accountInfo: "ព័ត៌មានគណនី",
     information: "ព័ត៌មានផ្ទាល់ខ្លួន",
     logout: "ចាកចេញ",
@@ -252,7 +255,7 @@ export const km = {
     devices: "ឧបករណ៍",
     preferences: "ចំណូលចិត្ត",
     language: "ភាសា",
-    languageDesc: "ភាសាខ្មែរ / English / 中文",
+    languageDesc: "ភាសាខ្មែរ / English / 中文 / Français",
     aboutUs: "អំពីយើងខ្ញុំ",
     about: "អំពីកម្មវិធី",
     contact: "ទំនាក់ទំនង",
@@ -367,6 +370,7 @@ export const km = {
   },
   account: {
     title: "ព័ត៌មានផ្ទាល់ខ្លួន",
+    account: "គណនី",
     accountInfo: "ព័ត៌មានគណនី",
     name: "ឈ្មោះពេញ",
     username: "ឈ្មោះអ្នកប្រើប្រាស់",

@@ -15,12 +15,13 @@ export interface PolicySection {
   body: string;
 }
 
-export type PolicyLang = "en" | "zh" | "km";
+export type PolicyLang = "en" | "zh" | "km" | "fr";
 
 export const PRIVACY_POLICY_LAST_UPDATED: Record<PolicyLang, string> = {
   en: `Last Updated App Version: ${appVersion}`,
   zh: `最后更新应用版本：${appVersion}`,
   km: `ធ្វើបច្ចុប្បន្នភាពចុងក្រោយ កំណែកម្មវិធី៖ ${appVersion}`,
+  fr: `Dernière mise à jour Version de l'application : ${appVersion}`,
 };
 
 export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
@@ -148,6 +149,48 @@ export const PRIVACY_POLICY_DATA: Record<PolicyLang, PolicySection[]> = {
     {
       title: "10. ព័ត៌មានទំនាក់ទំនង និងជំនួយបច្ចេកទេស",
       body: "ក្រុមហ៊ុន SSH Group Co., Ltd.\nទីតាំង៖ រាជធានីភ្នំពេញ, ព្រះរាជាណាចក្រកម្ពុជា\nអ៊ីមែល៖ support@sshgroups.com\nជំនួយតាម Telegram៖ ឆានែលផ្លូវការដែលកំណត់តាមរយៈ System Config\nគេហទំព័រ៖ www.sshgroups.com\n\nប្រសិនបើលោកអ្នកមានសំណួរ បញ្ហាបច្ចេកទេស ឬចម្ងល់ទាក់ទងនឹងគោលការណ៍ឯកជនភាពនេះ សូមទាក់ទងមកកាន់ក្រុមការងាររបស់យើងខ្ញុំដោយផ្ទាល់តាមរយៈបណ្តាញជំនួយផ្លូវការ។",
+    },
+  ],
+  fr: [
+    {
+      title: "1. Développeur et introduction",
+      body: "L'application mobile SSH Group Staff (package : com.sshgroups.staffapp) est développée et exploitée par SSH Group Co., Ltd. (Phnom Penh, Cambodge). Cette application d'entreprise est spécialement conçue pour la gestion interne des effectifs, le pointage de présence ultra-rapide en 0 ms par code QR, la vérification de géorepérage GPS Haversine, les journaux d'horaires, les demandes de congé ou d'oubli de pointage, la liaison de session matérielle d'appareil et la génération de rapports de présence. Cette politique de confidentialité détaille notre engagement transparent à protéger les données du personnel, en précisant comment les informations opérationnelles sont collectées, traitées, synchronisées et sécurisées.",
+    },
+    {
+      title: "2. Informations que nous collectons",
+      body: "Afin d'assurer une gestion fiable des effectifs et l'intégrité des présences, l'application collecte et traite les informations suivantes :\n\n• Informations de compte et de profil : ID Employé (Staff ID), ID Système (identifiant de succursale, ex. system-0001, system-0002), nom complet de l'employé, nom d'utilisateur unique, identifiants chiffrés par mot de passe (bcrypt hash), rôle organisationnel attribué (Owner, Admin, Staff, Leave), poste, date de naissance, adresse e-mail, numéro de téléphone et photo de profil.\n• Caméra et scan optique de QR code : L'accès à la caméra est sollicité exclusivement pour le scan instantané (0 ms) de code QR lors de l'enregistrement d'arrivée ou de départ, ainsi que pour la prise de photos justificatives facultatives lors des demandes de présence. La caméra n'est jamais activée en arrière-plan ni sans action explicite de l'utilisateur.\n• Localisation et vérification du géorepérage (Geofence) : Les coordonnées GPS précises sont consultées exclusivement au moment exact où l'employé effectue un pointage d'arrivée ou de départ. Les coordonnées de l'appareil sont validées à l'aide de la formule Haversine par rapport aux périmètres enregistrés des locaux de la succursale (latitude, longitude et rayon en mètres). Le système détecte les applications de simulation de position (isMocked) et les réseaux virtuels privés (VPN) afin de prévenir toute falsification de présence. La localisation en arrière-plan n'est JAMAIS suivie ni enregistrée.\n• Journaux de présence et demandes séquentielles : Horodatages des pointages d'arrivée et de départ, total des heures de travail quotidiennes, statut de présence et identifiants séquentiels de demandes attribués à chaque employé (ex. {system_id}-ATT-0000-0001 et {system_id}-REQ-0000-0001), incluant motifs de congé, remarques et décisions d'approbation.\n• Liaison matérielle et sessions d'appareils (DeviceSession) : Fabricant de l'appareil, modèle matériel, système d'exploitation, adresse IP et UUID de session unique pour empêcher le partage d'identifiants et appliquer la politique de sécurité d'une session active par appareil unique.\n• Stockage local sécurisé : Base de données locale sécurisée en bac à sable (Sandboxed Local Storage) et stockage persistant protégé (AsyncStorage, Expo SecureStore) assurant la continuité hors ligne et le rendu instantané de l'interface.",
+    },
+    {
+      title: "3. Comment nous utilisons vos informations",
+      body: "Nous traitons les données des employés strictement pour des finalités professionnelles légitimes et de gestion des ressources humaines :\n\n• Authentification et isolation des succursales : Authentification des identifiants, émission de jetons JWT sécurisés, application de la segmentation par ID Système et prévention de tout accès non autorisé entre entreprises.\n• Vérification des présences en 0 ms : Validation locale instantanée des codes QR, confirmation du respect du rayon géographique du lieu de travail et vérification de la conformité de l'appareil.\n• Gestion du cycle des demandes : Réception, examen et approbation des demandes de congés, d'heures supplémentaires et d'oubli de pointage accompagnées de photos justificatives.\n• Liaison des appareils matériels : Application d'une session active unique par compte, affichage des appareils connectés et possibilité pour l'employé ou l'administrateur de révoquer à distance les sessions non reconnues.\n• Alertes administratives instantanées par Telegram : Envoi de notifications en temps réel avec ID Employé, horodatages de présence et photos justificatives vers les canaux Telegram autorisés de la direction via l'API Telegram Bot.\n• Rapports d'entreprise et impression : Compilation de synthèses journalières, hebdomadaires, mensuelles et annuelles avec fonctions de recherche, filtrage et génération de PDF pour impression.\n• Configuration dynamique du système : Récupération dynamique depuis le Cloud des liens d'assistance officiels et canaux de support sans nécessiter de mise à jour de l'application mobile.\n\nNous nous engageons formellement à ne jamais vendre, louer, monétiser ni céder vos données personnelles à des tiers commerciaux, courtiers en données ou réseaux publicitaires.",
+    },
+    {
+      title: "4. Stockage, sécurité et architecture Cloud",
+      body: "• Infrastructure de base de données Cloud distribuée : Base de données SQL Cloud hautement disponible pour la gestion sécurisée et en temps réel des profils, journaux de présence, demandes et configurations de succursale.\n• Stockage d'objets Cloud chiffré : Stockage Cloud sécurisé haute performance pour les photos de présence et avatars du personnel.\n• Stockage local sécurisé et continuité hors ligne : Stockage sécurisé en bac à sable sur l'appareil assurant un fonctionnement sans latence en mode hors ligne avec synchronisation automatique vers le Cloud.\n• Hachage fort des mots de passe : Tous les mots de passe sont salés et hachés avec le standard de l'industrie bcrypt avant stockage ; aucun mot de passe brut n'est conservé en clair.\n• Sécurité de la couche de transport (TLS 1.3) : Toutes les communications entre l'application mobile et les API backend sont chiffrées via HTTPS / TLS 1.3.\n• Contrôle de session matérielle : Les sessions d'appareils sont liées à des signatures matérielles uniques et peuvent être révoquées à distance à tout moment.",
+    },
+    {
+      title: "5. Isolation multi-succursales et System ID",
+      body: "L'architecture de l'application applique un cloisonnement strict entre les succursales de l'entreprise (ex. system-0001, system-0002). Les profils du personnel, les plannings de présence, les demandes d'approbation et les sessions d'appareils sont isolés par ID Système de l'entreprise, garantissant une confidentialité totale et l'absence de chevauchement de données entre entités distinctes.",
+    },
+    {
+      title: "6. Protection de l'abonnement de succursale (Subscription Guard)",
+      body: "Afin de protéger les données de l'organisation, le serveur vérifie automatiquement la validité de l'abonnement de la succursale. Si l'abonnement expire, les employés de cette succursale sont redirigés en toute sécurité vers l'écran Non-Subscription avec les canaux d'assistance officiels, évitant ainsi tout accès non autorisé jusqu'au renouvellement.",
+    },
+    {
+      title: "7. Intégrations de services d'entreprise tiers",
+      body: "L'application intègre exclusivement les services Cloud d'entreprise essentiels et sécurisés :\n\n• Infrastructure Cloud d'entreprise : Hébergement sécurisé de base de données, réseau périphérique à haute disponibilité et stockage de médias chiffré.\n• Telegram Bot API : Transmission interne sécurisée des alertes administratives de présence en temps réel.\n• Expo Framework : Bibliothèques natives pour le scan optique par caméra, la géolocalisation GPS et le stockage matériel sécurisé.\n\nL'application ne contient AUCUN SDK publicitaire, pixel de suivi ou outil d'analyse comportementale commerciale.",
+    },
+    {
+      title: "8. Droits des utilisateurs et gestion des comptes",
+      body: "Les employés et les administrateurs disposent d'un contrôle complet sur leurs données professionnelles :\n\n• Consultation et mise à jour : Possibilité de consulter son profil personnel, de mettre à jour ses coordonnées et de changer son mot de passe directement dans l'application.\n• Gestion des sessions : Consultation de tous les appareils connectés et déconnexion à distance des sessions suspectes ou inutilisées.\n• Clôture de compte : À la fin du contrat de travail, l'administrateur peut désactiver le compte, révoquer les sessions actives et dissocier les appareils. Pour toute question, contactez votre administrateur système ou écrivez à support@sshgroups.com.",
+    },
+    {
+      title: "9. Conservation des données et normes d'audit",
+      body: "Les journaux de présence, l'historique des demandes et les journaux d'audit matériel sont conservés conformément aux règles de gouvernance interne, aux exigences d'audit et aux lois du travail en vigueur. Les identifiants et sessions des comptes désactivés sont promptement supprimés ou anonymisés.",
+    },
+    {
+      title: "10. Contact et assistance technique",
+      body: "SSH Group Co., Ltd.\nAdresse : Phnom Penh, Cambodge\nE-mail : support@sshgroups.com\nAssistance Telegram : Canal officiel configuré dynamiquement via System Config\nSite Web : www.sshgroups.com\n\nPour toute question, assistance technique ou demande relative à la confidentialité, veuillez contacter notre équipe directement via nos canaux d'assistance officiels.",
     },
   ],
 };

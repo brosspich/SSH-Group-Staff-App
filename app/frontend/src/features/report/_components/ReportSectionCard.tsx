@@ -18,7 +18,9 @@ export const ReportSectionCard: React.FC<ReportSectionCardProps> = ({
 }) => {
   return (
     <View style={[styles.section, style]}>
-      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={styles.sectionTitle} numberOfLines={1} ellipsizeMode="tail">
+        {title}
+      </Text>
       <View style={styles.card}>
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
@@ -72,6 +74,7 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.sm,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
+    flexShrink: 1,
   },
   card: {
     backgroundColor: theme.colors.background2,

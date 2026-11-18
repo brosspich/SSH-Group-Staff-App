@@ -19,7 +19,11 @@ export const RecentAttendanceHistory: React.FC<
     <>
       {/* ── Recent History Section ── */}
       <View style={styles.historyHeaderRow}>
-        <Text style={styles.sectionTitle}>
+        <Text
+          style={styles.sectionTitle}
+          // numberOfLines={1}
+          // ellipsizeMode="middle"
+        >
           {t("home.recentAttendanceLogs")}
         </Text>
         <TouchableOpacity onPress={onViewAll} style={styles.viewAllBtn}>
@@ -169,6 +173,8 @@ const styles = StyleSheet.create({
     color: theme.colors.textPrimary,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
+    flex: 1,
+    flexShrink: 1,
   },
   viewAllBtn: {
     flexDirection: "row",

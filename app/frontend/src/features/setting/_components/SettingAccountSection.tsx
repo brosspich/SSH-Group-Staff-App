@@ -18,7 +18,13 @@ export const SettingAccountSection: React.FC<SettingAccountSectionProps> = ({
     <>
       {/* ── Account Info Section ── */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{t("setting.accountInfo")}</Text>
+        <Text
+          style={styles.sectionTitle}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          {t("setting.accountInfo")}
+        </Text>
         <View style={styles.card}>
           <Pressable
             onPress={() => router.push("/account/information")}
@@ -280,6 +286,7 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.sm,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
+    flexShrink: 1,
   },
   card: {
     backgroundColor: theme.colors.background2,

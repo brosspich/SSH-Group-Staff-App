@@ -22,6 +22,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const PRIVACY_ACCEPTED_KEY = "privacy_policy_accepted";
 
@@ -50,19 +51,37 @@ interface Props {
 export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
   const { currentLang } = useLanguage();
   const [lang, setLang] = useState<PolicyLang>(
-    currentLang === "km" ? "km" : currentLang === "zh" ? "zh" : "en",
+    currentLang === "km"
+      ? "km"
+      : currentLang === "zh"
+        ? "zh"
+        : currentLang === "fr"
+          ? "fr"
+          : "en",
   );
   const { isMobile } = useResponsive();
+  const insets = useSafeAreaInsets();
   const { config } = useSystemConfigQuery();
   const { support, social } = config;
 
-  // Dynamic backend fetch (Backend 70% architecture)
+  // Dynamic backend fetch (Backend 70% architecture) with strict language match
   const { data: policyData, isLoading } = usePrivacyPolicyQuery(lang);
-  const sections = policyData?.sections || PRIVACY_POLICY_DATA[lang] || [];
+  const sections =
+    (policyData?.language === lang ? policyData?.sections : null) ||
+    PRIVACY_POLICY_DATA[lang] ||
+    [];
 
   useEffect(() => {
     if (visible) {
-      setLang(currentLang === "km" ? "km" : currentLang === "zh" ? "zh" : "en");
+      setLang(
+        currentLang === "km"
+          ? "km"
+          : currentLang === "zh"
+            ? "zh"
+            : currentLang === "fr"
+              ? "fr"
+              : "en",
+      );
     }
   }, [visible, currentLang]);
 
@@ -70,23 +89,24 @@ export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
     en: "Privacy Policy",
     zh: "隐私政策",
     km: "គោលការណ៍ឯកជនភាព",
+    fr: "Politique de confidentialité",
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
         <View
           style={[
             styles.card,
             {
-              maxHeight: isMobile ? "80%" : "85%",
-              height: isMobile ? "80%" : "85%",
+              maxHeight: isMobile ? "87%" : "85%",
+              height: isMobile ? "87%" : "85%",
               maxWidth: isMobile ? "100%" : 520,
               width: isMobile ? "100%" : 520,
             },
           ]}
         >
-          {/* Header row with shield icon & language selectors */}
+          {/* Header row with shield icon & Title */}
           <View style={styles.headerRow}>
             <View
               style={[
@@ -100,53 +120,9 @@ export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
                 color={theme.colors.primary}
               />
             </View>
-            <View style={styles.langRow}>
-              <TouchableOpacity
-                onPress={() => setLang("en")}
-                style={[styles.langBtn, lang === "en" && styles.langBtnActive]}
-                activeOpacity={0.8}
-              >
-                <Text
-                  style={[
-                    styles.langText,
-                    lang === "en" && styles.langTextActive,
-                  ]}
-                >
-                  EN
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setLang("zh")}
-                style={[styles.langBtn, lang === "zh" && styles.langBtnActive]}
-                activeOpacity={0.8}
-              >
-                <Text
-                  style={[
-                    styles.langText,
-                    lang === "zh" && styles.langTextActive,
-                  ]}
-                >
-                  中文
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setLang("km")}
-                style={[styles.langBtn, lang === "km" && styles.langBtnActive]}
-                activeOpacity={0.8}
-              >
-                <Text
-                  style={[
-                    styles.langText,
-                    lang === "km" && styles.langTextActive,
-                  ]}
-                >
-                  KH
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
 
-          <Text style={styles.title}>{titleMap[lang]}</Text>
+            <Text style={styles.title}>{titleMap[lang]}</Text>
+          </View>
 
           <ScrollView
             style={styles.scroll}
@@ -183,7 +159,7 @@ export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
                         <Ionicons
                           name="paper-plane"
                           size={13}
-                          color="#FFFFFF"
+                          color={theme.colors.background2}
                         />
                         <Text style={styles.contactPillText}>Telegram</Text>
                       </TouchableOpacity>
@@ -200,7 +176,11 @@ export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
                         }
                         activeOpacity={0.8}
                       >
-                        <Ionicons name="mail" size={13} color="#FFFFFF" />
+                        <Ionicons
+                          name="mail"
+                          size={13}
+                          color={theme.colors.background2}
+                        />
                         <Text style={styles.contactPillText}>
                           {support.email}
                         </Text>
@@ -237,19 +217,28 @@ export const PrivacyPolicyModal = ({ visible, onAccept }: Props) => {
             ))}
           </ScrollView>
 
-          <TouchableOpacity
-            style={styles.acceptBtn}
-            onPress={() => onAccept(lang)}
-            activeOpacity={0.9}
+          <View
+            style={[
+              styles.conBtn,
+              { paddingBottom: theme.spacing.base + insets.bottom },
+            ]}
           >
-            <Text style={styles.acceptText}>
-              {lang === "en"
-                ? "I Agree & Continue"
-                : lang === "zh"
-                  ? "同意并继续"
-                  : "យល់ព្រម និងបន្ត"}
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.acceptBtn}
+              onPress={() => onAccept(lang)}
+              activeOpacity={0.9}
+            >
+              <Text style={styles.acceptText}>
+                {lang === "en"
+                  ? "I Agree & Continue"
+                  : lang === "zh"
+                    ? "同意并继续"
+                    : lang === "fr"
+                      ? "J'accepte et continuer"
+                      : "យល់ព្រម និងបន្ត"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -260,14 +249,13 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "center",
+    justifyContent: "flex-end",
     alignItems: "center",
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
   },
   card: {
     backgroundColor: theme.colors.background2,
     borderRadius: theme.borderRadius.xl,
-    padding: 24,
     width: "100%",
     borderWidth: 1,
     borderColor: `${theme.colors.textPrimary}0D`,
@@ -275,9 +263,13 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
+    alignContent: "center",
+    gap: theme.spacing.sm,
+    borderColor: theme.colors.grey + 70,
+    borderBottomWidth: 0.5,
+    paddingHorizontal: theme.spacing.base,
+    paddingVertical: theme.spacing.md,
   },
   iconContainer: {
     width: 40,
@@ -286,50 +278,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  langRow: {
-    flexDirection: "row",
-    backgroundColor: theme.colors.background,
-    borderRadius: theme.borderRadius.lg,
-    padding: 3,
-    gap: 2,
-  },
-  langBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: theme.borderRadius.md,
-  },
-  langBtnActive: {
-    backgroundColor: theme.colors.primary,
-    ...theme.shadows.sm,
-  },
-  langText: {
-    fontSize: theme.fontSizes.xs,
-    fontFamily: theme.fonts.regular,
-    includeFontPadding: false,
-    color: theme.colors.textSecondary,
-    // fontWeight: "600",
-  },
-  langTextActive: {
-    color: theme.colors.background2,
-    fontFamily: theme.fonts.bold,
-    includeFontPadding: false,
-    // fontWeight: "bold",
-  },
   title: {
     fontSize: theme.fontSizes.xl,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     color: theme.colors.primary,
-    marginBottom: 16,
     textAlign: "center",
-    // fontWeight: "bold",
   },
   scroll: {
     flex: 1,
-    marginVertical: 4,
+    paddingHorizontal: theme.spacing.base,
+    paddingVertical: theme.spacing.base,
   },
   scrollContent: {
-    paddingRight: 4,
+    paddingRight: theme.spacing.xs,
   },
   section: {
     marginBottom: 20,
@@ -351,7 +313,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
     color: theme.colors.textPrimary,
-    // fontWeight: "700",
   },
   sectionBody: {
     fontSize: theme.fontSizes.xs,
@@ -361,11 +322,15 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     paddingLeft: 10,
   },
+  conBtn: {
+    borderColor: theme.colors.grey + 70,
+    borderTopWidth: 0.5,
+    padding: theme.spacing.base,
+  },
   acceptBtn: {
-    marginTop: 20,
     backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.lg,
-    paddingVertical: 14,
+    borderRadius: theme.borderRadius.md,
+    paddingVertical: theme.spacing.md,
     alignItems: "center",
     ...theme.shadows.md,
   },
@@ -380,8 +345,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
-    marginTop: 10,
-    paddingLeft: 10,
+    marginVertical: theme.spacing.md,
+    paddingLeft: theme.spacing.xs,
   },
   contactPill: {
     flexDirection: "row",
@@ -401,6 +366,6 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.xs,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
-    color: "#FFFFFF",
+    color: theme.colors.background2,
   },
 });

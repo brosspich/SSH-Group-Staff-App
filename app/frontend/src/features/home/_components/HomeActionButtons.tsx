@@ -59,7 +59,11 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
                 ? t("home.verifyingSecurity")
                 : t("home.scanAttendanceQr")}
             </Text>
-            <Text style={styles.scanBtnSub}>
+            <Text
+              style={styles.scanBtnSub}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {verifyingSecurity
                 ? t("home.verifyingSecuritySub")
                 : t("home.scanSubtitle")}
@@ -96,7 +100,11 @@ export const HomeActionButtons: React.FC<HomeActionButtonsProps> = ({
             <Text style={styles.requestBtnTitle}>
               {t("home.requestAttendanceRules")}
             </Text>
-            <Text style={styles.requestBtnSub}>
+            <Text
+              style={styles.requestBtnSub}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {t("home.requestSubtitle")}
             </Text>
           </View>
@@ -147,6 +155,7 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
+    flexShrink: 1,
   },
 
   requestBtnContainer: {
@@ -183,5 +192,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.regular,
     includeFontPadding: false,
     marginTop: 2,
+    flexShrink: 1,
   },
 });

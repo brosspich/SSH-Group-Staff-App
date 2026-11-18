@@ -62,8 +62,15 @@ export const HomeWelcomeBanner: React.FC<HomeWelcomeBannerProps> = ({
                       : { backgroundColor: theme.colors.secondary },
                 ]}
               />
+              <Text
+                style={[styles.shiftBadgeText, { flexShrink: 1 }]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {`${t("home.currentStatus")}`}
+              </Text>
               <Text style={styles.shiftBadgeText}>
-                {`${t("home.currentStatus")}: ${currentType.toUpperCase()}`}
+                {`: ${currentType.toUpperCase()}`}
               </Text>
             </View>
           </View>
@@ -140,6 +147,7 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   shiftBadge: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.25)",
@@ -153,7 +161,7 @@ const styles = StyleSheet.create({
   shiftDot: {
     width: 6,
     height: 6,
-    borderRadius: theme.borderRadius.xs,
+    borderRadius: theme.borderRadius.sm,
     backgroundColor: theme.colors.success,
   },
   shiftBadgeText: {

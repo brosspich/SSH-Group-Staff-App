@@ -222,6 +222,8 @@ export const zh = {
     englishSubtitle: "英语",
     chinese: "中文 (简体)",
     chineseSubtitle: "中文",
+    french: "法语 (Français)",
+    frenchSubtitle: "法语",
     currentLanguage: "当前语言",
     switchedSuccess: "语言切换成功",
     previewTitle: "实时预览",
@@ -229,6 +231,7 @@ export const zh = {
   },
   setting: {
     title: "设置",
+    account: "账户",
     accountInfo: "账户信息",
     information: "个人资料",
     logout: "退出登录",
@@ -239,7 +242,7 @@ export const zh = {
     devices: "设备管理",
     preferences: "偏好设置",
     language: "语言",
-    languageDesc: "ភាសាខ្មែរ / English / 中文",
+    languageDesc: "ភាសាខ្មែរ / English / 中文 / Français",
     aboutUs: "关于我们",
     about: "关于",
     contact: "联系我们",
@@ -348,6 +351,7 @@ export const zh = {
   },
   account: {
     title: "个人信息",
+    account: "账户",
     accountInfo: "账户资料",
     name: "真实姓名",
     username: "用户名",

@@ -61,7 +61,9 @@ export const SettingInfrastructureSection: React.FC<
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{t("setting.infrastructure")}</Text>
+      <Text style={styles.sectionTitle} numberOfLines={1} ellipsizeMode="tail">
+        {t("setting.infrastructure")}
+      </Text>
       <View style={styles.card}>
         <BtnItem
           onPress={() => router.push("/server-groups" as any)}
@@ -97,6 +99,7 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.sm,
     fontFamily: theme.fonts.bold,
     includeFontPadding: false,
+    flexShrink: 1,
   },
   card: {
     backgroundColor: theme.colors.background2,
