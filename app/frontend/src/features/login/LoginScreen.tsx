@@ -41,11 +41,7 @@ export default function LoginScreen() {
     // When visiting or logging out to LoginScreen, username and password must always be empty
     resetForm();
     setPassword("");
-
-    AsyncStorage.getItem(PRIVACY_ACCEPTED_KEY).then((val) => {
-      if (!val) setShowPrivacy(true);
-    });
-  }, [resetForm, setShowPrivacy]);
+  }, [resetForm]);
 
   const handlePrivacyAccept = useCallback(
     async (acceptedLang?: PolicyLang) => {
