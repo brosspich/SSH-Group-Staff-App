@@ -96,7 +96,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.xs,
     borderRadius: theme.borderRadius.md,
-    flex: 1,
   },
   headerCountText: {
     fontSize: theme.fontSizes.xs,

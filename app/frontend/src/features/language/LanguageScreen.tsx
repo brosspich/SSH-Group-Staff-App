@@ -159,7 +159,9 @@ export default function LanguageScreen() {
                   ? "ភាសាខ្មែរ"
                   : currentLang === "zh"
                     ? "中文"
-                    : "English"}
+                    : currentLang === "fr"
+                      ? "Français"
+                      : "English"}
               </Text>
             </View>
 
