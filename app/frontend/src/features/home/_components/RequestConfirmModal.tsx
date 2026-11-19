@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Image,
   Modal,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -27,6 +28,7 @@ export interface RequestConfirmModalProps {
   fromTime: string;
   toTime: string;
   imageUri?: string | null;
+  useModal?: boolean;
 }
 
 /**
@@ -46,159 +48,182 @@ export const RequestConfirmModal: React.FC<RequestConfirmModalProps> = ({
   fromTime,
   toTime,
   imageUri,
+  useModal = false,
 }) => {
   const { t } = useLanguage();
 
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={() => {
-        if (!submitting) onClose();
-      }}
+  if (!visible) return null;
+
+  const content = (
+    <View
+      style={[
+        styles.confirmOverlay,
+        !useModal && StyleSheet.absoluteFill,
+        !useModal && { zIndex: 1000, elevation: 1000 },
+      ]}
     >
-      <View style={styles.confirmOverlay}>
-        <View style={styles.confirmCard}>
-          <View style={styles.confirmIconCircle}>
-            <Ionicons
-              name="alert-circle-outline"
-              size={36}
-              color={theme.colors.primary}
-            />
+      <Pressable
+        style={StyleSheet.absoluteFill}
+        onPress={() => {
+          if (!submitting) onClose();
+        }}
+      />
+      <View style={styles.confirmCard}>
+        <View style={styles.confirmIconCircle}>
+          <Ionicons
+            name="alert-circle-outline"
+            size={36}
+            color={theme.colors.primary}
+          />
+        </View>
+
+        <Text style={styles.confirmTitle}>
+          {t("home.confirmRequest", "Confirm Request")}
+        </Text>
+
+        <View style={styles.confirmDetails}>
+          <View style={styles.confirmDetailRow}>
+            <Text style={styles.confirmDetailLabel}>
+              {t("home.staff", "Staff")}:
+            </Text>
+            <Text style={styles.confirmDetailValue}>
+              {userName} ({userId})
+            </Text>
           </View>
 
-          <Text style={styles.confirmTitle}>
-            {t("home.confirmRequest", "Confirm Request")}
-          </Text>
+          <View style={styles.confirmDetailRow}>
+            <Text style={styles.confirmDetailLabel}>
+              {t("home.subject", "Subject")}:
+            </Text>
+            <Text
+              style={[
+                styles.confirmDetailValue,
+                { flex: 1, textAlign: "right" },
+              ]}
+              numberOfLines={2}
+            >
+              {subject.trim()}
+            </Text>
+          </View>
 
-          <View style={styles.confirmDetails}>
+          <View style={styles.confirmDetailRow}>
+            <Text style={styles.confirmDetailLabel}>
+              {t("home.remark", "Remark")}:
+            </Text>
+            <Text
+              style={[
+                styles.confirmDetailValue,
+                { flex: 1, textAlign: "right" },
+              ]}
+              numberOfLines={3}
+            >
+              {remark.trim()}
+            </Text>
+          </View>
+
+          <View style={styles.confirmDetailRow}>
+            <Text style={styles.confirmDetailLabel}>
+              {t("home.date", "Date")}:
+            </Text>
+            <Text style={styles.confirmDetailValue}>
+              {isSameDay(fromDate, toDate)
+                ? formatDateYMD(fromDate)
+                : `${formatDateYMD(fromDate)} to ${formatDateYMD(toDate)}`}
+            </Text>
+          </View>
+
+          <View style={styles.confirmDetailRow}>
+            <Text style={styles.confirmDetailLabel}>
+              {t("home.time", "Time")}:
+            </Text>
+            <Text style={styles.confirmDetailValue}>
+              {`${fromTime} - ${toTime}`}
+            </Text>
+          </View>
+
+          {imageUri && (
             <View style={styles.confirmDetailRow}>
               <Text style={styles.confirmDetailLabel}>
-                {t("home.staff", "Staff")}:
+                {t("home.proofPhoto", "Proof Photo")}:
               </Text>
-              <Text style={styles.confirmDetailValue}>
-                {userName} ({userId})
-              </Text>
+              <Image
+                source={{ uri: imageUri }}
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 6,
+                  backgroundColor: theme.colors.background,
+                }}
+              />
             </View>
+          )}
+        </View>
 
-            <View style={styles.confirmDetailRow}>
-              <Text style={styles.confirmDetailLabel}>
-                {t("home.subject", "Subject")}:
-              </Text>
-              <Text
-                style={[
-                  styles.confirmDetailValue,
-                  { flex: 1, textAlign: "right" },
-                ]}
-                numberOfLines={2}
-              >
-                {subject.trim()}
-              </Text>
-            </View>
-
-            <View style={styles.confirmDetailRow}>
-              <Text style={styles.confirmDetailLabel}>
-                {t("home.remark", "Remark")}:
-              </Text>
-              <Text
-                style={[
-                  styles.confirmDetailValue,
-                  { flex: 1, textAlign: "right" },
-                ]}
-                numberOfLines={3}
-              >
-                {remark.trim()}
-              </Text>
-            </View>
-
-            <View style={styles.confirmDetailRow}>
-              <Text style={styles.confirmDetailLabel}>
-                {t("home.date", "Date")}:
-              </Text>
-              <Text style={styles.confirmDetailValue}>
-                {isSameDay(fromDate, toDate)
-                  ? formatDateYMD(fromDate)
-                  : `${formatDateYMD(fromDate)} to ${formatDateYMD(toDate)}`}
-              </Text>
-            </View>
-
-            <View style={styles.confirmDetailRow}>
-              <Text style={styles.confirmDetailLabel}>
-                {t("home.time", "Time")}:
-              </Text>
-              <Text style={styles.confirmDetailValue}>
-                {`${fromTime} - ${toTime}`}
-              </Text>
-            </View>
-
-            {imageUri && (
-              <View style={styles.confirmDetailRow}>
-                <Text style={styles.confirmDetailLabel}>
-                  {t("home.proofPhoto", "Proof Photo")}:
-                </Text>
-                <Image
-                  source={{ uri: imageUri }}
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 6,
-                    backgroundColor: theme.colors.background,
-                  }}
+        <View style={{ width: "100%", gap: 10 }}>
+          <TouchableOpacity
+            style={styles.confirmSubmitBtn}
+            onPress={onConfirm}
+            disabled={submitting}
+            activeOpacity={0.85}
+          >
+            {submitting ? (
+              <ActivityIndicator
+                size="small"
+                color={theme.colors.background2}
+              />
+            ) : (
+              <>
+                <Ionicons
+                  name="send-outline"
+                  size={16}
+                  color={theme.colors.background2}
+                  style={{ marginRight: 6 }}
                 />
-              </View>
+                <Text style={styles.confirmBtnText}>
+                  {t("common.submit", "Submit")}
+                </Text>
+              </>
             )}
-          </View>
+          </TouchableOpacity>
 
-          <View style={{ width: "100%", gap: 10 }}>
+          {!submitting && (
             <TouchableOpacity
-              style={styles.confirmSubmitBtn}
-              onPress={onConfirm}
-              disabled={submitting}
+              style={styles.confirmCancelBtn}
+              onPress={onClose}
               activeOpacity={0.85}
             >
-              {submitting ? (
-                <ActivityIndicator
-                  size="small"
-                  color={theme.colors.background2}
-                />
-              ) : (
-                <>
-                  <Ionicons
-                    name="send-outline"
-                    size={16}
-                    color={theme.colors.background2}
-                    style={{ marginRight: 6 }}
-                  />
-                  <Text style={styles.confirmBtnText}>
-                    {t("common.submit", "Submit")}
-                  </Text>
-                </>
-              )}
-            </TouchableOpacity>
-
-            {!submitting && (
-              <TouchableOpacity
-                style={styles.confirmCancelBtn}
-                onPress={onClose}
-                activeOpacity={0.85}
+              <Text
+                style={[
+                  styles.confirmBtnText,
+                  { color: theme.colors.textPrimary },
+                ]}
               >
-                <Text
-                  style={[
-                    styles.confirmBtnText,
-                    { color: theme.colors.textPrimary },
-                  ]}
-                >
-                  {t("common.cancel", "Cancel")}
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
+                {t("common.cancel", "Cancel")}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
-    </Modal>
+    </View>
   );
+
+  if (useModal) {
+    return (
+      <Modal
+        visible={visible}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => {
+          if (!submitting) onClose();
+        }}
+      >
+        {content}
+      </Modal>
+    );
+  }
+
+  return content;
 };
 
 export default RequestConfirmModal;

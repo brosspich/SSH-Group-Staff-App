@@ -54,6 +54,7 @@ interface Props {
   onClose: () => void;
   onChange: (date: Date) => void;
   allowFuture?: boolean;
+  useModal?: boolean;
 }
 
 export default function DatePickerModal({
@@ -62,6 +63,7 @@ export default function DatePickerModal({
   onClose,
   onChange,
   allowFuture = false,
+  useModal = true,
 }: Props) {
   const { t, isKhmer } = useLanguage();
   const weekdays = isKhmer ? WEEKDAYS_KM : WEEKDAYS_EN;
@@ -139,6 +141,135 @@ export default function DatePickerModal({
     onChange(d);
   };
 
+  if (!visible) return null;
+
+  const content = (
+    <View
+      style={[
+        s.backdrop,
+        !useModal && StyleSheet.absoluteFill,
+        !useModal && { zIndex: 1000, elevation: 1000 },
+        {
+          justifyContent: !isMobile ? "center" : "flex-end",
+          alignItems: !isMobile ? "center" : "stretch",
+          padding: !isMobile ? 16 : 0,
+        },
+      ]}
+    >
+      <TouchableOpacity
+        style={s.backdropDismiss}
+        onPress={onClose}
+        activeOpacity={1}
+      />
+      <View
+        style={[
+          s.sheet,
+          !isMobile ? s.sheetDesktop : { paddingBottom: insets.bottom + 16 },
+        ]}
+      >
+        {/* Top Header */}
+        <View style={s.topHeader}>
+          <Text style={s.topHeaderTitle}>{t("common.selectDate")}</Text>
+          <TouchableOpacity
+            onPress={onClose}
+            style={s.closeBtn}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <MaterialIcons
+              name="close"
+              size={22}
+              color={theme.colors.textSecondary}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Month Nav */}
+        <View style={s.nav}>
+          <TouchableOpacity
+            onPress={prevMonth}
+            style={s.navBtn}
+            activeOpacity={0.7}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={20}
+              color={theme.colors.textPrimary}
+            />
+          </TouchableOpacity>
+          <Text style={s.monthLabel}>
+            {months[viewMonth]} {viewYear}
+          </Text>
+          <TouchableOpacity
+            onPress={nextMonth}
+            style={[s.navBtn, isNextDisabled && s.navBtnDisabled]}
+            disabled={isNextDisabled}
+            activeOpacity={0.7}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={isNextDisabled ? "#d1d5db" : theme.colors.textPrimary}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Weekday headers */}
+        <View style={s.weekRow}>
+          {weekdays.map((w) => (
+            <Text key={w} style={s.weekDay}>
+              {w}
+            </Text>
+          ))}
+        </View>
+
+        {/* Days grid */}
+        <View style={s.grid}>
+          {cells.map((day, i) => {
+            if (!day) return <View key={`e-${i}`} style={s.cell} />;
+            const future = isFuture(day);
+            const selected = isSelected(day);
+            const today = isToday(day);
+            return (
+              <TouchableOpacity
+                key={`d-${day}`}
+                style={[s.cell, selected && s.cellSelected]}
+                onPress={() => select(day)}
+                disabled={future}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    s.dayText,
+                    today && !selected && s.todayText,
+                    selected && s.selectedText,
+                    future && s.disabledText,
+                  ]}
+                >
+                  {day}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {/* Confirm button */}
+        <TouchableOpacity
+          style={s.confirmBtn}
+          onPress={onClose}
+          activeOpacity={0.8}
+        >
+          <Text style={s.confirmText}>{t("common.done")}</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  if (!useModal) {
+    return content;
+  }
+
   return (
     <Modal
       visible={visible}
@@ -147,124 +278,7 @@ export default function DatePickerModal({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View
-        style={[
-          s.backdrop,
-          {
-            justifyContent: !isMobile ? "center" : "flex-end",
-            alignItems: !isMobile ? "center" : "stretch",
-            padding: !isMobile ? 16 : 0,
-          },
-        ]}
-      >
-        <TouchableOpacity
-          style={s.backdropDismiss}
-          onPress={onClose}
-          activeOpacity={1}
-        />
-        <View
-          style={[
-            s.sheet,
-            !isMobile ? s.sheetDesktop : { paddingBottom: insets.bottom + 16 },
-          ]}
-        >
-          {/* Top Header */}
-          <View style={s.topHeader}>
-            <Text style={s.topHeaderTitle}>{t("common.selectDate")}</Text>
-            <TouchableOpacity
-              onPress={onClose}
-              style={s.closeBtn}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <MaterialIcons
-                name="close"
-                size={22}
-                color={theme.colors.textSecondary}
-              />
-            </TouchableOpacity>
-          </View>
-
-          {/* Month Nav */}
-          <View style={s.nav}>
-            <TouchableOpacity
-              onPress={prevMonth}
-              style={s.navBtn}
-              activeOpacity={0.7}
-              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-            >
-              <Ionicons
-                name="chevron-back"
-                size={20}
-                color={theme.colors.textPrimary}
-              />
-            </TouchableOpacity>
-            <Text style={s.monthLabel}>
-              {months[viewMonth]} {viewYear}
-            </Text>
-            <TouchableOpacity
-              onPress={nextMonth}
-              style={[s.navBtn, isNextDisabled && s.navBtnDisabled]}
-              disabled={isNextDisabled}
-              activeOpacity={0.7}
-              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-            >
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color={isNextDisabled ? "#d1d5db" : theme.colors.textPrimary}
-              />
-            </TouchableOpacity>
-          </View>
-
-          {/* Weekday headers */}
-          <View style={s.weekRow}>
-            {weekdays.map((w) => (
-              <Text key={w} style={s.weekDay}>
-                {w}
-              </Text>
-            ))}
-          </View>
-
-          {/* Days grid */}
-          <View style={s.grid}>
-            {cells.map((day, i) => {
-              if (!day) return <View key={`e-${i}`} style={s.cell} />;
-              const future = isFuture(day);
-              const selected = isSelected(day);
-              const today = isToday(day);
-              return (
-                <TouchableOpacity
-                  key={`d-${day}`}
-                  style={[s.cell, selected && s.cellSelected]}
-                  onPress={() => select(day)}
-                  disabled={future}
-                  activeOpacity={0.7}
-                >
-                  <Text
-                    style={[
-                      s.dayText,
-                      today && !selected && s.todayText,
-                      selected && s.selectedText,
-                      future && s.disabledText,
-                    ]}
-                  >
-                    {day}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-
-          {/* Confirm button */}
-          <TouchableOpacity
-            style={s.confirmBtn}
-            onPress={onClose}
-            activeOpacity={0.8}
-          >
-            <Text style={s.confirmText}>{t("common.done")}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      {content}
     </Modal>
   );
 }

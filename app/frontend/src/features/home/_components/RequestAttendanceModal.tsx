@@ -546,82 +546,87 @@ export function RequestAttendanceModal({
             </View>
           </View>
         </View>
-      </Modal>
 
-      {/* Date Picker Modal */}
-      <DatePickerModal
-        visible={datePickerTarget !== null}
-        value={datePickerTarget === "to" ? toDate : fromDate}
-        onClose={() => setDatePickerTarget(null)}
-        onChange={(d) => {
-          if (datePickerTarget === "from") {
-            setFromDate(d);
-            if (toDate.getTime() < d.getTime()) {
+        {/* Date Picker Modal (In-modal overlay) */}
+        <DatePickerModal
+          useModal={false}
+          visible={datePickerTarget !== null}
+          value={datePickerTarget === "to" ? toDate : fromDate}
+          onClose={() => setDatePickerTarget(null)}
+          onChange={(d) => {
+            if (datePickerTarget === "from") {
+              setFromDate(d);
+              if (toDate.getTime() < d.getTime()) {
+                setToDate(d);
+              }
+            } else if (datePickerTarget === "to") {
               setToDate(d);
             }
-          } else if (datePickerTarget === "to") {
-            setToDate(d);
-          }
-          setDatePickerTarget(null);
-        }}
-        allowFuture={true}
-      />
+            setDatePickerTarget(null);
+          }}
+          allowFuture={true}
+        />
 
-      {/* Time Picker Modal */}
-      <TimePickerModal
-        visible={timePickerTarget !== null}
-        value={timePickerTarget === "to" ? toTime : fromTime}
-        onClose={() => setTimePickerTarget(null)}
-        onChange={(t) => {
-          if (timePickerTarget === "from") {
-            setFromTime(t);
-          } else if (timePickerTarget === "to") {
-            setToTime(t);
-          }
-          setTimePickerTarget(null);
-        }}
-      />
+        {/* Time Picker Modal (In-modal overlay) */}
+        <TimePickerModal
+          useModal={false}
+          visible={timePickerTarget !== null}
+          value={timePickerTarget === "to" ? toTime : fromTime}
+          onClose={() => setTimePickerTarget(null)}
+          onChange={(t) => {
+            if (timePickerTarget === "from") {
+              setFromTime(t);
+            } else if (timePickerTarget === "to") {
+              setToTime(t);
+            }
+            setTimePickerTarget(null);
+          }}
+        />
 
-      {/* Image Source Selection Modal */}
-      <ImageSourceModal
-        visible={imageSourceModalVisible}
-        onClose={() => setImageSourceModalVisible(false)}
-        onSelectCamera={() => {
-          setImageSourceModalVisible(false);
-          handlePickImage(true);
-        }}
-        onSelectGallery={() => {
-          setImageSourceModalVisible(false);
-          handlePickImage(false);
-        }}
-      />
+        {/* Image Source Selection Modal (In-modal overlay) */}
+        <ImageSourceModal
+          useModal={false}
+          visible={imageSourceModalVisible}
+          onClose={() => setImageSourceModalVisible(false)}
+          onSelectCamera={() => {
+            setImageSourceModalVisible(false);
+            handlePickImage(true);
+          }}
+          onSelectGallery={() => {
+            setImageSourceModalVisible(false);
+            handlePickImage(false);
+          }}
+        />
 
-      {/* Confirmation Modal Component (SRP) */}
-      <RequestConfirmModal
-        visible={confirmModalVisible}
-        onClose={() => setConfirmModalVisible(false)}
-        onConfirm={handleConfirmSubmit}
-        submitting={submitting}
-        userName={currentUser?.name || user?.name || "Staff"}
-        userId={currentUser?.id || user?.id || "—"}
-        subject={subject}
-        remark={remark}
-        fromDate={fromDate}
-        toDate={toDate}
-        fromTime={fromTime}
-        toTime={toTime}
-        imageUri={imageUri}
-      />
+        {/* Confirmation Modal Component (In-modal overlay) */}
+        <RequestConfirmModal
+          useModal={false}
+          visible={confirmModalVisible}
+          onClose={() => setConfirmModalVisible(false)}
+          onConfirm={handleConfirmSubmit}
+          submitting={submitting}
+          userName={currentUser?.name || user?.name || "Staff"}
+          userId={currentUser?.id || user?.id || "—"}
+          subject={subject}
+          remark={remark}
+          fromDate={fromDate}
+          toDate={toDate}
+          fromTime={fromTime}
+          toTime={toTime}
+          imageUri={imageUri}
+        />
 
-      {/* Shared Alert Modal */}
-      {renderAlertModal({
-        alertModalVisible,
-        setAlertModalVisible: handleAlertDismiss,
-        title: alertTitle,
-        bodyTxt: alertBody,
-        onPress: alertOnPress,
-        isMobile,
-      })}
+        {/* Shared Alert Modal (In-modal overlay) */}
+        {renderAlertModal({
+          useModal: false,
+          alertModalVisible,
+          setAlertModalVisible: handleAlertDismiss,
+          title: alertTitle,
+          bodyTxt: alertBody,
+          onPress: alertOnPress,
+          isMobile,
+        })}
+      </Modal>
     </>
   );
 }

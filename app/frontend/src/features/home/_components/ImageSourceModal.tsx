@@ -3,7 +3,14 @@ import { useResponsive } from "@/shared/hooks/useResponsive";
 import { theme } from "@/shared/styles/theme";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export interface ImageSourceModalProps {
   visible: boolean;
@@ -12,6 +19,7 @@ export interface ImageSourceModalProps {
   onSelectGallery: () => void;
   title?: string;
   subtitle?: string;
+  useModal?: boolean;
 }
 
 export const ImageSourceModal: React.FC<ImageSourceModalProps> = ({
@@ -21,90 +29,106 @@ export const ImageSourceModal: React.FC<ImageSourceModalProps> = ({
   onSelectGallery,
   title,
   subtitle,
+  useModal = false,
 }) => {
   const { isMobile } = useResponsive();
   const { t } = useLanguage();
+
+  if (!visible) return null;
 
   const displayTitle =
     title ?? t("home.uploadProofImage", "Upload Proof Image");
   const displaySubtitle =
     subtitle ?? t("home.selectImageSource", "Select image source:");
 
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-      statusBarTranslucent
+  const content = (
+    <View
+      style={[
+        styles.overlay,
+        !useModal && StyleSheet.absoluteFill,
+        !useModal && { zIndex: 9999, elevation: 9999 },
+      ]}
     >
-      <View style={styles.overlay}>
-        <View style={[styles.card, { maxWidth: isMobile ? "100%" : 380 }]}>
-          <Text style={styles.title}>{displayTitle}</Text>
-          <Text style={styles.subtitle}>{displaySubtitle}</Text>
+      <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+      <View style={[styles.card, { maxWidth: isMobile ? "100%" : 380 }]}>
+        <Text style={styles.title}>{displayTitle}</Text>
+        <Text style={styles.subtitle}>{displaySubtitle}</Text>
 
-          <View style={styles.gridRow}>
-            {/* Gallery Option */}
-            <TouchableOpacity
-              style={styles.sourceCard}
-              onPress={onSelectGallery}
-              activeOpacity={0.8}
-            >
-              <View
-                style={[
-                  styles.iconCircle,
-                  { backgroundColor: `${theme.colors.primary}15` },
-                ]}
-              >
-                <Ionicons
-                  name="images-outline"
-                  size={30}
-                  color={theme.colors.primary}
-                />
-              </View>
-              <Text style={styles.sourceText}>
-                {t("home.gallery", "Gallery")}
-              </Text>
-            </TouchableOpacity>
-
-            {/* Take Photo Option */}
-            <TouchableOpacity
-              style={styles.sourceCard}
-              onPress={onSelectCamera}
-              activeOpacity={0.8}
-            >
-              <View
-                style={[
-                  styles.iconCircle,
-                  { backgroundColor: `${theme.colors.secondary}15` },
-                ]}
-              >
-                <Ionicons
-                  name="camera-outline"
-                  size={30}
-                  color={theme.colors.secondary}
-                />
-              </View>
-              <Text style={styles.sourceText}>
-                {t("home.takePhoto", "Take Photo")}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Cancel Button */}
+        <View style={styles.gridRow}>
+          {/* Gallery Option */}
           <TouchableOpacity
-            style={styles.cancelBtn}
-            onPress={onClose}
+            style={styles.sourceCard}
+            onPress={onSelectGallery}
             activeOpacity={0.8}
           >
-            <Text style={styles.cancelText}>
-              {t("common.cancel", "Cancel")}
+            <View
+              style={[
+                styles.iconCircle,
+                { backgroundColor: `${theme.colors.primary}15` },
+              ]}
+            >
+              <Ionicons
+                name="images-outline"
+                size={30}
+                color={theme.colors.primary}
+              />
+            </View>
+            <Text style={styles.sourceText}>
+              {t("home.gallery", "Gallery")}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Take Photo Option */}
+          <TouchableOpacity
+            style={styles.sourceCard}
+            onPress={onSelectCamera}
+            activeOpacity={0.8}
+          >
+            <View
+              style={[
+                styles.iconCircle,
+                { backgroundColor: `${theme.colors.secondary}15` },
+              ]}
+            >
+              <Ionicons
+                name="camera-outline"
+                size={30}
+                color={theme.colors.secondary}
+              />
+            </View>
+            <Text style={styles.sourceText}>
+              {t("home.takePhoto", "Take Photo")}
             </Text>
           </TouchableOpacity>
         </View>
+
+        {/* Cancel Button */}
+        <TouchableOpacity
+          style={styles.cancelBtn}
+          onPress={onClose}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.cancelText}>{t("common.cancel", "Cancel")}</Text>
+        </TouchableOpacity>
       </View>
-    </Modal>
+    </View>
   );
+
+  if (useModal) {
+    return (
+      <Modal
+        visible={visible}
+        transparent
+        animationType="fade"
+        onRequestClose={onClose}
+        statusBarTranslucent
+      >
+        {content}
+      </Modal>
+    );
+  }
+
+  return content;
 };
 
 export default ImageSourceModal;

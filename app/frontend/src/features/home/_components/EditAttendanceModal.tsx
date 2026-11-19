@@ -263,32 +263,34 @@ export default function EditAttendanceModal({
             </View>
           </KeyboardAvoidingView>
         </View>
+
+        {/* Reusable Image Source Selection Modal (In-modal overlay) */}
+        <ImageSourceModal
+          useModal={false}
+          visible={imageSourceModalVisible}
+          onClose={() => setImageSourceModalVisible(false)}
+          onSelectCamera={() => {
+            setImageSourceModalVisible(false);
+            handlePickImage(true);
+          }}
+          onSelectGallery={() => {
+            setImageSourceModalVisible(false);
+            handlePickImage(false);
+          }}
+        />
+
+        {/* Shared Alert Modal (In-modal overlay) */}
+        {renderAlertModal({
+          useModal: false,
+          alertModalVisible: genericAlert.visible,
+          setAlertModalVisible: (vis) => {
+            if (!vis) dismissAlert();
+          },
+          title: genericAlert.title,
+          bodyTxt: genericAlert.body,
+          isMobile,
+        })}
       </Modal>
-
-      {/* Reusable Image Source Selection Modal */}
-      <ImageSourceModal
-        visible={imageSourceModalVisible}
-        onClose={() => setImageSourceModalVisible(false)}
-        onSelectCamera={() => {
-          setImageSourceModalVisible(false);
-          handlePickImage(true);
-        }}
-        onSelectGallery={() => {
-          setImageSourceModalVisible(false);
-          handlePickImage(false);
-        }}
-      />
-
-      {/* Shared Alert Modal */}
-      {renderAlertModal({
-        alertModalVisible: genericAlert.visible,
-        setAlertModalVisible: (vis) => {
-          if (!vis) dismissAlert();
-        },
-        title: genericAlert.title,
-        bodyTxt: genericAlert.body,
-        isMobile,
-      })}
     </>
   );
 }

@@ -18,6 +18,7 @@ export interface TimePickerModalProps {
   value: string; // e.g. "08:00 AM" or "05:00 PM"
   onClose: () => void;
   onChange: (time: string) => void;
+  useModal?: boolean;
 }
 
 function parseTimeString(timeStr?: string) {
@@ -73,6 +74,7 @@ export default function TimePickerModal({
   value,
   onClose,
   onChange,
+  useModal = true,
 }: TimePickerModalProps) {
   const { t } = useLanguage();
   const insets = useSafeAreaInsets();
@@ -131,6 +133,299 @@ export default function TimePickerModal({
     [30, 35, 40, 45, 50, 55],
   ];
 
+  if (!visible) return null;
+
+  const content = (
+    <View
+      style={[
+        s.backdrop,
+        !useModal && StyleSheet.absoluteFill,
+        !useModal && { zIndex: 1000, elevation: 1000 },
+        {
+          justifyContent: !isMobile ? "center" : "flex-end",
+          alignItems: !isMobile ? "center" : "stretch",
+          padding: !isMobile ? 16 : 0,
+        },
+      ]}
+    >
+      <TouchableOpacity
+        style={s.backdropDismiss}
+        onPress={onClose}
+        activeOpacity={1}
+      />
+
+      <View
+        style={[
+          s.sheet,
+          !isMobile
+            ? s.sheetDesktop
+            : { paddingBottom: Math.max(insets.bottom, 16) },
+        ]}
+      >
+        {/* Header */}
+        <View style={s.header}>
+          <View style={s.headerLeft}>
+            <View style={s.iconBadge}>
+              <Ionicons
+                name="time-outline"
+                size={20}
+                color={theme.colors.primary}
+              />
+            </View>
+            <Text style={s.headerTitle}>{t("common.selectTime")}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={onClose}
+            style={s.closeBtn}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <MaterialIcons
+              name="close"
+              size={22}
+              color={theme.colors.textSecondary}
+            />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={s.scrollBody}
+        >
+          {/* Prominent Time Display & AM/PM Switcher */}
+          <View style={s.displayCard}>
+            <View style={s.timeDisplayBox}>
+              <Text style={s.timeDisplayText}>
+                {String(selectedHour).padStart(2, "0")}
+                <Text style={s.timeColon}>:</Text>
+                {String(selectedMinute).padStart(2, "0")}
+              </Text>
+            </View>
+
+            <View style={s.periodToggle}>
+              <TouchableOpacity
+                style={[
+                  s.periodBtn,
+                  selectedPeriod === "AM" && s.periodBtnActive,
+                ]}
+                onPress={() => setSelectedPeriod("AM")}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    s.periodText,
+                    selectedPeriod === "AM" && s.periodTextActive,
+                  ]}
+                >
+                  AM
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  s.periodBtn,
+                  selectedPeriod === "PM" && s.periodBtnActive,
+                ]}
+                onPress={() => setSelectedPeriod("PM")}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    s.periodText,
+                    selectedPeriod === "PM" && s.periodTextActive,
+                  ]}
+                >
+                  PM
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Quick Preset Buttons */}
+          <View style={s.presetSection}>
+            <Text style={s.sectionTitle}>{t("common.presets")}</Text>
+            <View style={s.presetRow}>
+              {PRESET_TIMES.map((preset) => {
+                const isCurrent =
+                  selectedHour === preset.h &&
+                  selectedMinute === preset.m &&
+                  selectedPeriod === preset.p;
+                const presetSubLabel =
+                  preset.sub === "Time-In"
+                    ? t("attendance.timeInShort")
+                    : preset.sub === "Noon"
+                      ? t("common.noon")
+                      : preset.sub === "Afternoon"
+                        ? t("common.afternoon")
+                        : t("attendance.timeOutShort");
+                return (
+                  <TouchableOpacity
+                    key={preset.label}
+                    style={[s.presetChip, isCurrent && s.presetChipActive]}
+                    onPress={() => {
+                      setSelectedHour(preset.h);
+                      setSelectedMinute(preset.m);
+                      setSelectedPeriod(preset.p);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      style={[
+                        s.presetChipLabel,
+                        isCurrent && s.presetChipLabelActive,
+                      ]}
+                    >
+                      {preset.label}
+                    </Text>
+                    <Text
+                      style={[
+                        s.presetChipSub,
+                        isCurrent && s.presetChipSubActive,
+                      ]}
+                    >
+                      {presetSubLabel}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+              <TouchableOpacity
+                style={s.presetChipNow}
+                onPress={handleSetCurrentTime}
+                activeOpacity={0.7}
+              >
+                <Ionicons
+                  name="refresh-outline"
+                  size={14}
+                  color={theme.colors.primary}
+                />
+                <Text style={s.presetChipNowText}>{t("common.now")}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Hours Selector */}
+          <View style={s.section}>
+            <Text style={s.sectionTitle}>{t("common.hour")}</Text>
+            <View style={s.gridContainer}>
+              {HOUR_ROWS.map((row, rowIdx) => (
+                <View key={`h-row-${rowIdx}`} style={s.gridRow}>
+                  {row.map((h) => {
+                    const active = selectedHour === h;
+                    return (
+                      <TouchableOpacity
+                        key={`h-${h}`}
+                        style={[s.gridCell, active && s.gridCellActive]}
+                        onPress={() => setSelectedHour(h)}
+                        activeOpacity={0.7}
+                      >
+                        <Text
+                          style={[
+                            s.gridCellText,
+                            active && s.gridCellTextActive,
+                          ]}
+                        >
+                          {String(h).padStart(2, "0")}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {/* Minutes Selector & Steppers */}
+          <View style={s.section}>
+            <View style={s.sectionHeaderRow}>
+              <Text style={s.sectionTitle}>{t("common.minute")}</Text>
+              <View style={s.stepperRow}>
+                <TouchableOpacity
+                  style={s.stepperBtn}
+                  onPress={() => handleAdjustMinute(-1)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name="remove"
+                    size={16}
+                    color={theme.colors.textPrimary}
+                  />
+                </TouchableOpacity>
+                <Text style={s.stepperValue}>
+                  {String(selectedMinute).padStart(2, "0")}m
+                </Text>
+                <TouchableOpacity
+                  style={s.stepperBtn}
+                  onPress={() => handleAdjustMinute(1)}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons
+                    name="add"
+                    size={16}
+                    color={theme.colors.textPrimary}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={s.gridContainer}>
+              {MINUTE_ROWS.map((row, rowIdx) => (
+                <View key={`m-row-${rowIdx}`} style={s.gridRow}>
+                  {row.map((m) => {
+                    const active = selectedMinute === m;
+                    return (
+                      <TouchableOpacity
+                        key={`m-${m}`}
+                        style={[s.gridCell, active && s.gridCellActive]}
+                        onPress={() => setSelectedMinute(m)}
+                        activeOpacity={0.7}
+                      >
+                        <Text
+                          style={[
+                            s.gridCellText,
+                            active && s.gridCellTextActive,
+                          ]}
+                        >
+                          {String(m).padStart(2, "0")}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* Footer Actions */}
+        <View style={s.footer}>
+          <TouchableOpacity
+            style={s.cancelBtn}
+            onPress={onClose}
+            activeOpacity={0.8}
+          >
+            <Text style={s.cancelBtnText}>{t("common.cancel")}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={s.confirmBtn}
+            onPress={handleConfirm}
+            activeOpacity={0.85}
+          >
+            <Ionicons
+              name="checkmark"
+              size={18}
+              color={theme.colors.background2}
+              style={{ marginRight: 6 }}
+            />
+            <Text style={s.confirmBtnText}>{t("common.setTime")}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+
+  if (!useModal) {
+    return content;
+  }
+
   return (
     <Modal
       visible={visible}
@@ -139,288 +434,7 @@ export default function TimePickerModal({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <View
-        style={[
-          s.backdrop,
-          {
-            justifyContent: !isMobile ? "center" : "flex-end",
-            alignItems: !isMobile ? "center" : "stretch",
-            padding: !isMobile ? 16 : 0,
-          },
-        ]}
-      >
-        <TouchableOpacity
-          style={s.backdropDismiss}
-          onPress={onClose}
-          activeOpacity={1}
-        />
-
-        <View
-          style={[
-            s.sheet,
-            !isMobile
-              ? s.sheetDesktop
-              : { paddingBottom: Math.max(insets.bottom, 16) },
-          ]}
-        >
-          {/* Header */}
-          <View style={s.header}>
-            <View style={s.headerLeft}>
-              <View style={s.iconBadge}>
-                <Ionicons
-                  name="time-outline"
-                  size={20}
-                  color={theme.colors.primary}
-                />
-              </View>
-              <Text style={s.headerTitle}>{t("common.selectTime")}</Text>
-            </View>
-            <TouchableOpacity
-              onPress={onClose}
-              style={s.closeBtn}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <MaterialIcons
-                name="close"
-                size={22}
-                color={theme.colors.textSecondary}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={s.scrollBody}
-          >
-            {/* Prominent Time Display & AM/PM Switcher */}
-            <View style={s.displayCard}>
-              <View style={s.timeDisplayBox}>
-                <Text style={s.timeDisplayText}>
-                  {String(selectedHour).padStart(2, "0")}
-                  <Text style={s.timeColon}>:</Text>
-                  {String(selectedMinute).padStart(2, "0")}
-                </Text>
-              </View>
-
-              <View style={s.periodToggle}>
-                <TouchableOpacity
-                  style={[
-                    s.periodBtn,
-                    selectedPeriod === "AM" && s.periodBtnActive,
-                  ]}
-                  onPress={() => setSelectedPeriod("AM")}
-                  activeOpacity={0.7}
-                >
-                  <Text
-                    style={[
-                      s.periodText,
-                      selectedPeriod === "AM" && s.periodTextActive,
-                    ]}
-                  >
-                    AM
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    s.periodBtn,
-                    selectedPeriod === "PM" && s.periodBtnActive,
-                  ]}
-                  onPress={() => setSelectedPeriod("PM")}
-                  activeOpacity={0.7}
-                >
-                  <Text
-                    style={[
-                      s.periodText,
-                      selectedPeriod === "PM" && s.periodTextActive,
-                    ]}
-                  >
-                    PM
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Quick Preset Buttons */}
-            <View style={s.presetSection}>
-              <Text style={s.sectionTitle}>{t("common.presets")}</Text>
-              <View style={s.presetRow}>
-                {PRESET_TIMES.map((preset) => {
-                  const isCurrent =
-                    selectedHour === preset.h &&
-                    selectedMinute === preset.m &&
-                    selectedPeriod === preset.p;
-                  const presetSubLabel =
-                    preset.sub === "Time-In"
-                      ? t("attendance.timeInShort")
-                      : preset.sub === "Noon"
-                        ? t("common.noon")
-                        : preset.sub === "Afternoon"
-                          ? t("common.afternoon")
-                          : t("attendance.timeOutShort");
-                  return (
-                    <TouchableOpacity
-                      key={preset.label}
-                      style={[s.presetChip, isCurrent && s.presetChipActive]}
-                      onPress={() => {
-                        setSelectedHour(preset.h);
-                        setSelectedMinute(preset.m);
-                        setSelectedPeriod(preset.p);
-                      }}
-                      activeOpacity={0.7}
-                    >
-                      <Text
-                        style={[
-                          s.presetChipLabel,
-                          isCurrent && s.presetChipLabelActive,
-                        ]}
-                      >
-                        {preset.label}
-                      </Text>
-                      <Text
-                        style={[
-                          s.presetChipSub,
-                          isCurrent && s.presetChipSubActive,
-                        ]}
-                      >
-                        {presetSubLabel}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-                <TouchableOpacity
-                  style={s.presetChipNow}
-                  onPress={handleSetCurrentTime}
-                  activeOpacity={0.7}
-                >
-                  <Ionicons
-                    name="refresh-outline"
-                    size={14}
-                    color={theme.colors.primary}
-                  />
-                  <Text style={s.presetChipNowText}>{t("common.now")}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Hours Selector */}
-            <View style={s.section}>
-              <Text style={s.sectionTitle}>{t("common.hour")}</Text>
-              <View style={s.gridContainer}>
-                {HOUR_ROWS.map((row, rowIdx) => (
-                  <View key={`h-row-${rowIdx}`} style={s.gridRow}>
-                    {row.map((h) => {
-                      const active = selectedHour === h;
-                      return (
-                        <TouchableOpacity
-                          key={`h-${h}`}
-                          style={[s.gridCell, active && s.gridCellActive]}
-                          onPress={() => setSelectedHour(h)}
-                          activeOpacity={0.7}
-                        >
-                          <Text
-                            style={[
-                              s.gridCellText,
-                              active && s.gridCellTextActive,
-                            ]}
-                          >
-                            {String(h).padStart(2, "0")}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            {/* Minutes Selector & Steppers */}
-            <View style={s.section}>
-              <View style={s.sectionHeaderRow}>
-                <Text style={s.sectionTitle}>{t("common.minute")}</Text>
-                <View style={s.stepperRow}>
-                  <TouchableOpacity
-                    style={s.stepperBtn}
-                    onPress={() => handleAdjustMinute(-1)}
-                    activeOpacity={0.7}
-                  >
-                    <Ionicons
-                      name="remove"
-                      size={16}
-                      color={theme.colors.textPrimary}
-                    />
-                  </TouchableOpacity>
-                  <Text style={s.stepperValue}>
-                    {String(selectedMinute).padStart(2, "0")}m
-                  </Text>
-                  <TouchableOpacity
-                    style={s.stepperBtn}
-                    onPress={() => handleAdjustMinute(1)}
-                    activeOpacity={0.7}
-                  >
-                    <Ionicons
-                      name="add"
-                      size={16}
-                      color={theme.colors.textPrimary}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={s.gridContainer}>
-                {MINUTE_ROWS.map((row, rowIdx) => (
-                  <View key={`m-row-${rowIdx}`} style={s.gridRow}>
-                    {row.map((m) => {
-                      const active = selectedMinute === m;
-                      return (
-                        <TouchableOpacity
-                          key={`m-${m}`}
-                          style={[s.gridCell, active && s.gridCellActive]}
-                          onPress={() => setSelectedMinute(m)}
-                          activeOpacity={0.7}
-                        >
-                          <Text
-                            style={[
-                              s.gridCellText,
-                              active && s.gridCellTextActive,
-                            ]}
-                          >
-                            {String(m).padStart(2, "0")}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                ))}
-              </View>
-            </View>
-          </ScrollView>
-
-          {/* Footer Actions */}
-          <View style={s.footer}>
-            <TouchableOpacity
-              style={s.cancelBtn}
-              onPress={onClose}
-              activeOpacity={0.8}
-            >
-              <Text style={s.cancelBtnText}>{t("common.cancel")}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={s.confirmBtn}
-              onPress={handleConfirm}
-              activeOpacity={0.85}
-            >
-              <Ionicons
-                name="checkmark"
-                size={18}
-                color={theme.colors.background2}
-                style={{ marginRight: 6 }}
-              />
-              <Text style={s.confirmBtnText}>{t("common.setTime")}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+      {content}
     </Modal>
   );
 }

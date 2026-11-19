@@ -5,6 +5,7 @@ import {
 } from "@/shared/constants/attendanceConfig";
 import { submitAttendanceRequest } from "@/shared/services/attendanceRequestService";
 import { StaffUser, userService } from "@/shared/services/userService";
+import * as Device from "expo-device";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useRef, useState } from "react";
@@ -122,6 +123,15 @@ export function useRequestAttendanceForm({
 
   const handlePickImage = async (useCamera = false) => {
     try {
+      if (useCamera && !Device.isDevice) {
+        setAlertTitle("Camera Not Available");
+        setAlertBody(
+          "Camera is not supported on the iOS Simulator because it has no physical camera hardware. Please test photo capture on a physical device, or choose 'Gallery' instead.",
+        );
+        setAlertModalVisible(true);
+        return;
+      }
+
       const permissionMethod = useCamera
         ? ImagePicker.requestCameraPermissionsAsync
         : ImagePicker.requestMediaLibraryPermissionsAsync;

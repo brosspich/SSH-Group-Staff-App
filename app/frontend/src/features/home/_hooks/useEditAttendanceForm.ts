@@ -2,6 +2,7 @@ import type {
   AttendanceRecord,
   EditAttendanceSubmitPayload,
 } from "@/features/home/_types/home.types";
+import * as Device from "expo-device";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from "react";
@@ -61,6 +62,14 @@ export function useEditAttendanceForm({
 
   const handlePickImage = async (useCamera = false) => {
     try {
+      if (useCamera && !Device.isDevice) {
+        showAlert(
+          "Camera Not Available",
+          "Camera is not supported on the iOS Simulator because it has no physical camera hardware. Please test photo capture on a physical device, or choose 'Gallery' instead.",
+        );
+        return;
+      }
+
       const permissionMethod = useCamera
         ? ImagePicker.requestCameraPermissionsAsync
         : ImagePicker.requestMediaLibraryPermissionsAsync;

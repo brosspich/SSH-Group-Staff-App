@@ -16,6 +16,7 @@ export interface AlertModalProps {
   okText?: string;
   iconName?: keyof typeof Ionicons.glyphMap | null;
   hideCancel?: boolean;
+  useModal?: boolean;
 }
 
 export const AlertModal: React.FC<AlertModalProps> = ({
@@ -29,10 +30,77 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   okText,
   iconName = "checkmark-circle-outline",
   hideCancel = false,
+  useModal = true,
 }) => {
   const { t } = useLanguage();
   const resolvedCancelText = cancelText ?? t("common.cancel");
   const resolvedOkText = okText ?? t("common.ok");
+
+  if (!alertModalVisible) return null;
+
+  const content = (
+    <View
+      style={[
+        styles.conModalLogout,
+        !useModal && StyleSheet.absoluteFill,
+        !useModal && { zIndex: 99999, elevation: 99999 },
+      ]}
+    >
+      <View
+        style={[
+          styles.conModal,
+          {
+            maxWidth: !isMobile ? 400 : "94%",
+            width: !isMobile ? 400 : "90%",
+          },
+        ]}
+      >
+        <Text
+          style={[styles.txt, { fontSize: theme.fontSizes.xl, marginTop: 0 }]}
+        >
+          {title}
+        </Text>
+        <Text style={styles.txt}>{bodyTxt}</Text>
+
+        {hideCancel ? (
+          <TouchableOpacity
+            style={styles.singleOkBtn}
+            onPress={() => {
+              setAlertModalVisible(false);
+              if (onPress) onPress();
+            }}
+            activeOpacity={0.85}
+          >
+            {iconName && (
+              <Ionicons
+                name={iconName}
+                size={18}
+                color={theme.colors.background2}
+                style={{ marginRight: 6 }}
+              />
+            )}
+            <Text style={styles.singleOkBtnText}>{resolvedOkText}</Text>
+          </TouchableOpacity>
+        ) : (
+          <ModalFooterButtons
+            onClose={() => setAlertModalVisible(false)}
+            onSubmit={() => {
+              setAlertModalVisible(false);
+              if (onPress) onPress();
+            }}
+            closeText={resolvedCancelText}
+            submitText={resolvedOkText}
+            iconName={iconName}
+            noBorderTop
+          />
+        )}
+      </View>
+    </View>
+  );
+
+  if (!useModal) {
+    return content;
+  }
 
   return (
     <Modal
@@ -42,57 +110,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
       onRequestClose={() => setAlertModalVisible(false)}
       statusBarTranslucent
     >
-      <View style={styles.conModalLogout}>
-        <View
-          style={[
-            styles.conModal,
-            {
-              maxWidth: !isMobile ? 400 : "94%",
-              width: !isMobile ? 400 : "90%",
-            },
-          ]}
-        >
-          <Text
-            style={[styles.txt, { fontSize: theme.fontSizes.xl, marginTop: 0 }]}
-          >
-            {title}
-          </Text>
-          <Text style={styles.txt}>{bodyTxt}</Text>
-
-          {hideCancel ? (
-            <TouchableOpacity
-              style={styles.singleOkBtn}
-              onPress={() => {
-                setAlertModalVisible(false);
-                if (onPress) onPress();
-              }}
-              activeOpacity={0.85}
-            >
-              {iconName && (
-                <Ionicons
-                  name={iconName}
-                  size={18}
-                  color={theme.colors.background2}
-                  style={{ marginRight: 6 }}
-                />
-              )}
-              <Text style={styles.singleOkBtnText}>{resolvedOkText}</Text>
-            </TouchableOpacity>
-          ) : (
-            <ModalFooterButtons
-              onClose={() => setAlertModalVisible(false)}
-              onSubmit={() => {
-                setAlertModalVisible(false);
-                if (onPress) onPress();
-              }}
-              closeText={resolvedCancelText}
-              submitText={resolvedOkText}
-              iconName={iconName}
-              noBorderTop
-            />
-          )}
-        </View>
-      </View>
+      {content}
     </Modal>
   );
 };
