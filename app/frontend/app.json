@@ -9,7 +9,7 @@
     "scheme": "sshgroupstaffapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "buildNumber": "10311",
+      "buildNumber": "20311",
       "icon": "./src/assets/imgs/staff_logo_new_01_FG.png",
       "bundleIdentifier": "com.sshgroups.staffapp",
       "infoPlist": {
@@ -43,7 +43,7 @@
       "supportsTablet": true
     },
     "android": {
-      "versionCode": 10311,
+      "versionCode": 20311,
       "predictiveBackGestureEnabled": false,
       "package": "com.sshgroups.staffapp",
       "adaptiveIcon": {
