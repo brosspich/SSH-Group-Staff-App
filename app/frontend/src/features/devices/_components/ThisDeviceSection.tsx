@@ -50,7 +50,7 @@ export default function ThisDeviceSection({
                   {thisDevice.device_name}
                 </Text>
                 <Text style={styles.sessionSubtext}>
-                  {`SSH Group POS ${thisDevice.device_type === "web" || thisDevice.os === "Web" ? "Web" : thisDevice.os} ${thisDevice.app_version || (thisDevice as any).appVersion || "1.0.1.10311"}`}
+                  {`SSH Group POS ${thisDevice.device_type === "web" || thisDevice.os === "Web" ? "Web" : thisDevice.os} ${thisDevice.app_version || (thisDevice as any).appVersion || "1.0.1.20311"}`}
                 </Text>
                 <Text style={styles.locationStatusText}>
                   {`${thisDevice.location} • `}

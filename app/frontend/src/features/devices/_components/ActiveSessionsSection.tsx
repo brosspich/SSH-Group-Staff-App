@@ -50,7 +50,7 @@ export default function ActiveSessionsSection({
                     {session.device_name}
                   </Text>
                   <Text style={styles.sessionSubtext}>
-                    {`SSH Group POS ${session.device_type === "web" || session.os === "Web" ? "Web" : session.os} ${session.app_version || (session as any).appVersion || "1.0.1.10311"}`}
+                    {`SSH Group POS ${session.device_type === "web" || session.os === "Web" ? "Web" : session.os} ${session.app_version || (session as any).appVersion || "1.0.1.20311"}`}
                   </Text>
                   <Text style={styles.locationStatusText}>
                     {`${session.location} • `}
