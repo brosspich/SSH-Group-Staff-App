@@ -57,6 +57,8 @@ model UserDetails {
 
   user        User      @relation(fields: [systemId], references: [systemId], onDelete: Cascade)
   company     Company?  @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
 }
 
 model AttendanceLog {
@@ -72,6 +74,11 @@ model AttendanceLog {
   createdAt  DateTime @default(now())
   user       User     @relation(fields: [userId], references: [systemId], onDelete: Cascade)
   company    Company? @relation(fields: [companyId], references: [id])
+
+  @@index([userId])
+  @@index([companyId])
+  @@index([scanDate])
+  @@index([userId, scanDate])
 }
 
 model AttendanceRequest {
@@ -86,6 +93,9 @@ model AttendanceRequest {
   toTime    String?
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [systemId], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
 }
 
 model DeviceSession {

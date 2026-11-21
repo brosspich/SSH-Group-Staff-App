@@ -151,6 +151,23 @@ export class CloudflareD1Client {
     } catch {
       // Ignore if column already exists
     }
+
+    const indexes = [
+      "CREATE INDEX IF NOT EXISTS idx_attendancelog_userId ON AttendanceLog(userId);",
+      "CREATE INDEX IF NOT EXISTS idx_attendancelog_companyId ON AttendanceLog(companyId);",
+      "CREATE INDEX IF NOT EXISTS idx_attendancelog_scanDate ON AttendanceLog(scanDate);",
+      "CREATE INDEX IF NOT EXISTS idx_attendancelog_user_date ON AttendanceLog(userId, scanDate);",
+      "CREATE INDEX IF NOT EXISTS idx_userdetails_companyId ON UserDetails(company_id);",
+      "CREATE INDEX IF NOT EXISTS idx_attendancerequest_userId ON AttendanceRequest(userId);",
+    ];
+
+    for (const sql of indexes) {
+      try {
+        await this.rawQuery(sql);
+      } catch {
+        // Ignore if index already exists
+      }
+    }
   }
 }
 
